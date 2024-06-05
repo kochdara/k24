@@ -1,0 +1,215 @@
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:k24/helpers/config.dart';
+import 'package:k24/helpers/helper.dart';
+import 'package:k24/widgets/my_cards.dart';
+
+import '../../widgets/buttons.dart';
+import '../../widgets/labels.dart';
+import 'home_provider.dart';
+
+class HomePage extends ConsumerStatefulWidget {
+  const HomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  final Buttons buttons = Buttons();
+  final Labels labels = Labels();
+  final Config config = Config();
+  final MyCards myCards = MyCards();
+  final Helper helper = const Helper();
+
+  final scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController.addListener(loadMore);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    scrollController.dispose();
+  }
+
+  void loadMore() async {
+    final limit = ref.watch(homeListsProvider.notifier).limit;
+    final current = ref.watch(homeListsProvider.notifier).current_result;
+    var fet = ref.read(fetchingProvider.notifier);
+
+    if (scrollController.position.pixels >= (scrollController.position.maxScrollExtent - 750)
+        && (current >= limit) && !fet.state) {
+      fet.state = true;
+
+      print(limit);
+      print(current);
+
+      ref.read(homeListsProvider.notifier).fetchHome();
+
+      await helper.futureAwait(() { fet.state = false; });
+    }
+  }
+
+  Future<void> _handleRefresh() async {
+    final load = ref.read(loadingProvider.notifier);
+
+    load.state = true;
+    await ref.read(homeListsProvider.notifier).refresh();
+
+    load.state = false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final mainCate = ref.watch(getMainCategoryProvider(parent: '0'));
+    final homeList = ref.watch(homeListsProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: appBar(),
+      ),
+      backgroundColor: config.backgroundColor,
+      body: RefreshIndicator(
+        onRefresh: _handleRefresh,
+        child: SingleChildScrollView(
+          controller: scrollController,
+          child: Center(
+            child: Container(
+              constraints: BoxConstraints(maxWidth: config.maxWidth),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  /// top ads ///
+                  myCards.ads(url: 'https://images.khmer24.co/banners/2022-10/ABA-1664951593.jpg', loading: mainCate.isLoading),
+
+                  /// main category ///
+                  mainCate.when(
+                    error: (e, st) => Text('Error : $e'),
+                    loading: () => myCards.shimmerCategory(),
+                    data: (data) => myCards.cardCategory(data),
+                  ),
+
+                  /// last title ///
+                  titleAds(),
+
+                  /// home list ///
+                  homeList.when(
+                    error: (e, st) => Text('Error : $e'),
+                    loading: () => myCards.shimmerHome(),
+                    data: (data) => myCards.cardHome(data, fetching: ref.watch(fetchingProvider)),
+                  ),
+
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  appBar() {
+    return Stack(
+      alignment: AlignmentDirectional.center,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(CupertinoIcons.arrowtriangle_left_square, color: Colors.white),
+            const SizedBox(width: 8),
+
+            labels.label('Khmer24', fontSize: 22, fontWeight: FontWeight.w500),
+          ],
+        ),
+
+        Positioned(
+            right: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                color: config.primaryAppColor.shade600,
+                boxShadow: [
+                  BoxShadow(
+                    color: config.primaryAppColor.shade600,
+                    spreadRadius: 8,
+                    blurRadius: 18,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: const Row(
+                children: [
+                  Icon(CupertinoIcons.qrcode, color: Colors.white),
+                  SizedBox(width: 15),
+                  Icon(Icons.search, color: Colors.white)
+                ],
+              ),
+            )
+        )
+      ],
+    );
+  }
+
+  titleAds() {
+    return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(minHeight: 55),
+      padding: const EdgeInsets.only(top: 16.0, left: 8.0, right: 8.0, bottom: 8.0),
+      child: Stack(
+        alignment: AlignmentDirectional.center,
+        children: [
+          Row(
+            children: [
+              labels.label('Latest Ads', fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold),
+            ],
+          ),
+
+          Positioned(
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                children: [
+                  buttons.buttonTap(
+                    onTap: () {ref.read(viewPage.notifier).state = ViewPage.view;},
+                    icon: CupertinoIcons.list_bullet_below_rectangle,
+                    color: ref.watch(viewPage) == ViewPage.view ? config.secondaryColor.shade700 : null,
+                    size: 23,
+                  ),
+
+                  buttons.buttonTap(
+                    onTap: () {ref.read(viewPage.notifier).state = ViewPage.list;},
+                    icon: CupertinoIcons.list_bullet,
+                    color: ref.watch(viewPage) == ViewPage.list ? config.secondaryColor.shade700 : null,
+                    size: 23,
+                  ),
+
+                  buttons.buttonTap(
+                    onTap: () {ref.read(viewPage.notifier).state = ViewPage.grid;},
+                    icon: CupertinoIcons.square_grid_2x2,
+                    color: ref.watch(viewPage) == ViewPage.grid ? config.secondaryColor.shade700 : null,
+                    size: 23,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+        ],
+      ),
+    );
+  }
+
+}
