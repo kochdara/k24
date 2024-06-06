@@ -1,8 +1,11 @@
+// ignore_for_file: unused_result
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
+import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/details/details_provider.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/buttons.dart';
@@ -238,7 +241,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                       SizedBox(height: space / 2),
 
                       watchDetails.when(
-                        error: (e, st) => notFound(id: '${dataDetails.data?.id}', message: '$e'),
+                        error: (e, st) => myCards.notFound(context, id: '${dataDetails.data?.id}', message: '$e'),
                         loading: () => shimmerDetails(),
                         data: (data) {
                           final datum = data.data;
@@ -348,7 +351,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
 
                               // relate card //
                               watchRelates.when(
-                                error: (e, st) => Text('Error : $e'),
+                                error: (e, st) => myCards.notFound(context, id: '${dataDetails.data?.id}', message: '$e'),
                                 loading: () => myCards.shimmerHome(),
                                 data: (data) => myCards.cardHome(data, fetching: ref.watch(fetchProvider), notRelates: false),
                               ),
@@ -378,9 +381,9 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
   imageList(thumbnail, listImg) {
     return InkWell(
       onTap: () {
-        // Navigator.push(context,
-        //     MaterialPageRoute(builder: (context) => PreviewImage(title: widget.title, list: listImg))
-        // );
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => PreviewImage(title: widget.title, list: listImg))
+        );
       },
       child: SizedBox(
         width: double.infinity,
@@ -836,33 +839,6 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     );
   }
 
-  notFound({String id = '', String message = ''}) {
-    final size = MediaQuery.of(context).size;
-
-    return Container(
-      height: size.height - 150,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 45),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search_off, size: 110, color: config.secondaryColor.shade300),
-          label.label('Post $id not found.', fontSize: 17, color: config.secondaryColor.shade500, fontWeight: FontWeight.w500),
-          label.label(message, fontSize: 13, color: config.secondaryColor.shade200, textAlign: TextAlign.center, maxLines: 2),
-          buttons.textButtons(
-            title: 'try again',
-            textSize: 15,
-            textWeight: FontWeight.w400,
-            bgColor: Colors.transparent,
-            borderColor: config.primaryAppColor.shade600,
-            onPressed: () { if(Navigator.canPop(context)) Navigator.pop(context); },
-          ),
-        ],
-      ),
-    );
-  }
-
   bottomNav() {
     final dataDetails = widget.data;
 
@@ -938,4 +914,141 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
   }
 }
 
+
+
+
+// ############# //
+// preview image //
+// ############# //
+class PreviewImage extends ConsumerStatefulWidget {
+  const PreviewImage({super.key, required this.title, required this.list});
+
+  final String title;
+  final List list;
+
+  @override
+  ConsumerState<PreviewImage> createState() => _PreviewImageState();
+}
+
+class _PreviewImageState extends ConsumerState<PreviewImage> {
+  final Config config = Config();
+  final Labels labels = Labels();
+  final Helper helper = const Helper();
+
+  @override
+  void initState() {
+    super.initState();
+    setupPage();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          padding: const EdgeInsets.all(14),
+          onPressed: () {
+            if(Navigator.canPop(context)) Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+        ),
+        title: labels.label(widget.title, overflow: TextOverflow.ellipsis, fontSize: 20, fontWeight: FontWeight.w500),
+        titleSpacing: 0,
+      ),
+      backgroundColor: config.backgroundColor,
+      body: body(),
+    );
+  }
+
+  setupPage() async {
+    loadProvider = StateProvider((ref) => true);
+    await helper.futureAwait(duration: 50, () { ref.read(loadProvider.notifier).state = false; });
+  }
+
+  body() {
+    final loading = ref.watch(loadProvider);
+    return SingleChildScrollView(
+      child: Center(
+        child: Container(
+          constraints: BoxConstraints(maxWidth: config.maxWidth),
+          alignment: Alignment.center,
+          child: Column(
+            children: [
+              for(var v in widget.list) ...[
+                AnimatedOpacity(
+                  curve: Curves.linear,
+                  opacity: loading ? 0.0 : 1.0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Container(
+                    alignment: Alignment.center,
+                    constraints: const BoxConstraints(minHeight: 250, minWidth: double.infinity),
+                    color: Colors.grey.shade50,
+                    child: PhotoHero(
+                      photo: '$v',
+                      onTap: () {
+
+                        Navigator.of(context).push(MaterialPageRoute<void>(
+                            builder: (context) {
+                              return Scaffold(
+                                body: Container(
+                                  alignment: Alignment.center,
+                                  color: Colors.black87,
+                                  child: PhotoHero(
+                                    photo: '$v',
+                                    onTap: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ),
+                              );
+                            }
+                        ));
+
+                      },
+                    ),
+                  )
+                ),
+
+                const SizedBox(height: 4),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PhotoHero extends StatelessWidget {
+  const PhotoHero({
+    super.key,
+    required this.photo,
+    this.onTap,
+  });
+
+  final String photo;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: SizedBox(
+        width: double.infinity,
+        child: Hero(
+          tag: photo,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              child: Image.network(
+                photo,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 

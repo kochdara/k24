@@ -1,10 +1,18 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:k24/helpers/helper.dart';
+import 'package:k24/pages/details/details_provider.dart';
+import 'package:k24/pages/listing/sub_provider.dart';
 import 'package:k24/pages/main/home_provider.dart';
+import 'package:badges/badges.dart' as badges;
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../helpers/config.dart';
+import '../../serialization/filters/radio_select/radio.dart';
 import '../../widgets/buttons.dart';
 import '../../widgets/forms.dart';
 import '../../widgets/labels.dart';
@@ -30,6 +38,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   final MyCards myCards = MyCards();
   final MyWidgets myWidgets = MyWidgets();
   final Forms forms = Forms();
+  final Helper helper = const Helper();
 
   final scrollController = ScrollController();
 
@@ -46,17 +55,31 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   }
 
   void loadMore() async {
-    //
+    final dataCate = widget.data;
+    final cate = dataCate['slug'];
+    final limit = ref.watch(subListsProvider(category: '$cate').notifier).limit;
+    final current = ref.watch(subListsProvider(category: '$cate').notifier).current_result;
+    var fet = ref.read(fetchingProvider.notifier);
+
+    if (scrollController.position.pixels >= (scrollController.position.maxScrollExtent - 750)
+        && (current >= limit) && !fet.state) {
+      fet.state = true;
+      ref.read(subListsProvider(category: '$cate').notifier).subFetch('$cate');
+      await helper.futureAwait(() { fet.state = false; });
+    }
   }
 
   Future<void> handleRefresh() async {
-    //
+    final dataCate = widget.data;
+    final cate = dataCate['slug'];
+    await ref.read(subListsProvider(category: '$cate').notifier).refresh(category: '$cate');
   }
 
   @override
   Widget build(BuildContext context) {
     final dataCate = widget.data;
     final watchCate = ref.watch(getMainCategoryProvider(parent: '${dataCate['id']}'));
+    final watchLists = ref.watch(subListsProvider(category: '${dataCate['slug']}'));
 
     return Scaffold(
       appBar: appBar(),
@@ -69,27 +92,36 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
             child: LayoutBuilder(
                 builder: (BuildContext context, BoxConstraints constraints) {
                   double width = constraints.maxWidth;
-                  Map res = config.responsiveSub(width);
+                  config.responsiveSub(width);
 
                   return Container(
                     constraints: BoxConstraints(maxWidth: config.maxWidth),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        // top ads //
+                        /// top ads ///
                         myCards.ads(url: 'https://www.khmer24.ws/www/delivery/ai.php?filename=08232023_bannercarsale_(640x290)-2.jpg%20(3)&contenttype=jpeg', loading: false),
 
-                        // title & filters //
+                        /// title & filters ///
                         titleFilter(),
 
-                        // main category //
+                        /// main category ///
                         watchCate.when(
                           error: (e, st) => Text('Error : $e'),
                           loading: () => myCards.shimmerCategory(),
-                          data: (data) => myCards.cardCategory(data),
+                          data: (data) => myCards.subCategory(data, setFilters: {}, condition: true),
                         ),
 
-                        // grid view //
+                        /// grid view ///
+                        watchLists.when(
+                          error: (e, st) => myCards.notFound(context, id: '${dataCate['id']}', message: '$e'),
+                          loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPage)),
+                          data: (data) => myCards.cardHome(
+                            data,
+                            fetching: ref.watch(fetchingProvider),
+                            viewPage: ref.watch(viewPage),
+                          ),
+                        ),
 
                       ],
                     ),
@@ -100,6 +132,25 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
         ),
       ),
     );
+  }
+
+  setupPage() {
+    newData = StateProvider((ref) => {});
+    indX = StateProvider((ref) => 0);
+  }
+
+  getLocation({ String type = '', String parent = '' }) async {
+    List? data = [];
+    try {
+      var url = 'locations?lang=${config.lang}';
+      if(type.isNotEmpty) url += '&type=$type';
+      if(parent.isNotEmpty) url += '&parent=$parent';
+      var result = await config.getUrls(subs: url, url: Urls.baseUrl);
+      if(result['status'] == 0 && result['data']!=null) data = result['data'];
+    } catch(e) {
+      data = null;
+    }
+    return data;
   }
 
   appBar() {
@@ -135,6 +186,8 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   }
 
   titleFilter() {
+    final watchFilter = ref.watch(getFiltersProvider('${widget.data['slug'] ?? ""}'));
+
     return Container(
       padding: const EdgeInsets.only(top: 14, bottom: 8, left: 8),
       decoration: const BoxDecoration(
@@ -167,20 +220,195 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
           ),
           const SizedBox(height: 6),
 
-          const SingleChildScrollView(
+          SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: Wrap(
-              spacing: 10,
-              children: [
-                //
+            child: watchFilter.when(
+              error: (e, st) => Text('error : $e'),
+              loading: () => shimmerFilter(),
+              data: (data) {
+                return Wrap(
+                  spacing: 10,
+                  children: [
 
-                SizedBox(width: 2),
-              ],
+                    for(var v in data) fieldGenerator(v),
+
+                    const SizedBox(width: 2),
+                  ],
+                );
+              },
             ),
           ),
         ],
       ),
     );
   }
+
+  shimmerFilter() {
+    List length = [0,1,2,3];
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade200,
+      highlightColor: Colors.white,
+      child: Wrap(
+        spacing: 10,
+        children: [
+          for(var v in length) buttons.textButtons(
+            title: 'Fetching $v',
+            showDropdown: true,
+            onPressed: () { },
+            textColor: Colors.black,
+          ),
+        ],
+      ),
+    );
+  }
+
+  fieldGenerator(Map<String, dynamic> field) {
+    switch(field["type"]) {
+
+      case "radio":
+        return _fieldRadio(field);
+
+      // case "select":
+      //   return _fieldSelect(field);
+      //
+      // case "min_max":
+      //   return _fieldMinMax(field);
+      //
+      // case "group_fields":
+      //   return _fieldSelect(field);
+
+      case "more":
+        return _fieldMore(field);
+
+      default:
+        return _fieldMore(field);
+    }
+  }
+
+  _fieldRadio(Map<String, dynamic> field) {
+    final fieldApp = RadioSelect.fromJson(field);
+    var options = fieldApp.options ?? [];
+    var fieldName = ValueSelect.fromJson(ref.watch(newData)[fieldApp.fieldname] ?? {});
+
+    // type group radio button //
+    if (options.length <= 3) {
+      return buttons.textButtons(
+        title: '${fieldApp.title}: ${fieldName.fieldtitle ?? ''}',
+        showDropdown: true,
+        onPressed: () async {
+          //
+        },
+        textColor: fieldName.fieldtitle != null ? config.primaryAppColor.shade600 : Colors.black,
+        child: fieldName.fieldtitle != null ? InkWell(
+          onTap: () async {
+            //
+          },
+          child: const Icon(Icons.close, size: 18),
+        ) : null,
+      );
+    }
+
+    // type list radio button //
+    return buttons.textButtons(
+      title: fieldName.fieldtitle ?? (fieldApp.title ?? 'RadioType'),
+      showDropdown: true,
+      onPressed: () async {
+        showBarModalBottomSheet(
+          context: context,
+          builder: (context) => Column(
+            children: [
+              Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    color: config.secondaryColor.shade50,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.all(14),
+                    child: labels.label('Center', color: Colors.black, fontSize: 18),
+                  ),
+
+                  Positioned(
+                    left: 0,
+                    child: IconButton(
+                      onPressed: () { },
+                      icon: Icon(Icons.arrow_back_ios, size: 22, color: config.primaryAppColor.shade600),
+                      padding: const EdgeInsets.all(18),
+                    ),
+                  ),
+
+                  Positioned(
+                    right: 0,
+                    child: IconButton(
+                      onPressed: () { },
+                      icon: labels.label('Clear', color: config.primaryAppColor.shade600, fontSize: 15),
+                      padding: const EdgeInsets.all(18),
+                    ),
+                  ),
+
+                ],
+              ),
+
+              Expanded(
+                child: ListView.builder(
+                  itemCount: 24,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text('index of : $index'),
+                      trailing: (index == 2) ? Icon(Icons.radio_button_checked_outlined, size: 20, color: config.primaryAppColor.shade600)
+                          : const Icon(Icons.radio_button_off, size: 20),
+                      shape: Border(
+                        bottom: BorderSide(color: config.secondaryColor.shade50, width: 1),
+                      ),
+                    );
+                  },
+                ),
+              )
+            ],
+          ),
+        );
+      },
+      textColor: fieldName.fieldtitle != null ? config.primaryAppColor.shade600 : Colors.black,
+      child: fieldName.fieldtitle != null ? InkWell(
+        onTap: () async {
+          //
+        },
+        child: const Icon(Icons.close, size: 18),
+      ) : null,
+    );
+  }
+
+  _fieldMore(Map field) {
+    return buttons.textButtons(
+      title: 'More',
+      prefixChild: (ref.watch(indX) > 0) ? badges.Badge(
+        position: badges.BadgePosition.topEnd(top: -8, end: -6),
+        badgeContent:  Text('${ref.watch(indX)}', style: const TextStyle(color: Colors.white, fontSize: 8)),
+        badgeAnimation: const badges.BadgeAnimation.fade(),
+        badgeStyle: badges.BadgeStyle(
+          shape: badges.BadgeShape.circle,
+          badgeColor: config.warningColor.shade400,
+          padding: const EdgeInsets.all(4),
+          elevation: 0,
+        ),
+        child: const Icon(Icons.tune, color: Colors.black87, size: 18),
+      ) : const Icon(Icons.tune, color: Colors.black87, size: 18),
+      onPressed: onClickMoreFilter,
+    );
+  }
+
+  onClickMoreFilter() async {
+    // final result = await Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => MyFilters(title: 'Filters', filters: jsonEncode(ref.watch(newData)), condition: widget.condition, slug: '${widget.data['slug']??''}' )),
+    // );
+    //
+    // if(result != null) {
+    //   ref.read(newData.notifier).state = result ?? {};
+    //
+    //   await handleRefresh();
+    // }
+  }
+
 }
 
+enum Filter { price, condition }

@@ -37,7 +37,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   void dispose() {
     super.dispose();
-    scrollController.dispose();
   }
 
   void loadMore() async {
@@ -104,8 +103,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                   /// home list ///
                   homeList.when(
                     error: (e, st) => Text('Error : $e'),
-                    loading: () => myCards.shimmerHome(),
-                    data: (data) => myCards.cardHome(data, fetching: ref.watch(fetchingProvider)),
+                    loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPage)),
+                    data: (data) => myCards.cardHome(
+                      data,
+                      fetching: ref.watch(fetchingProvider),
+                      viewPage: ref.watch(viewPage),
+                    ),
                   ),
 
                 ],

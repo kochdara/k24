@@ -7,9 +7,8 @@ part of 'radio.dart';
 // **************************************************************************
 
 RadioSelect _$RadioSelectFromJson(Map<String, dynamic> json) => RadioSelect(
-      fieldid: json['fieldid'] == null
-          ? ''
-          : const ToString().fromJson(json['fieldid']),
+      fieldid:
+          json['fieldid'] == null ? '' : ToString.tryConvert(json['fieldid']),
       fieldname: const ToString().fromJson(json['fieldname']),
       title: const ToString().fromJson(json['title']),
       type: const ToString().fromJson(json['type']),
@@ -20,7 +19,9 @@ RadioSelect _$RadioSelectFromJson(Map<String, dynamic> json) => RadioSelect(
       display_icon_type: json['display_icon_type'],
       popular: const ToBool().fromJson(json['popular']),
       options: (json['options'] as List<dynamic>?)
-          ?.map((e) => ValueSelect.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => e == null
+              ? null
+              : ValueSelect.fromJson(e as Map<String, dynamic>))
           .toList(),
       value: json['value'] == null
           ? null
@@ -45,7 +46,7 @@ Map<String, dynamic> _$RadioSelectToJson(RadioSelect instance) =>
       'display_icon_type': instance.display_icon_type,
       'popular': _$JsonConverterToJson<Object?, bool>(
           instance.popular, const ToBool().toJson),
-      'options': instance.options?.map((e) => e.toJson()).toList(),
+      'options': instance.options?.map((e) => e?.toJson()).toList(),
       'value': instance.value?.toJson(),
       'controller': instance.controller,
       'fields': instance.fields?.map((e) => e.toJson()).toList(),
@@ -58,7 +59,7 @@ Json? _$JsonConverterToJson<Json, Value>(
     value == null ? null : toJson(value);
 
 ValueSelect _$ValueSelectFromJson(Map<String, dynamic> json) => ValueSelect(
-      fieldtitle: const ToString().fromJson(json['fieldtitle']),
+      fieldtitle: ToString.tryConvert(json['fieldtitle']),
       fieldvalue: const ToString().fromJson(json['fieldvalue']),
       popular: const ToBool().fromJson(json['popular']),
       fieldid: const ToString().fromJson(json['fieldid']),

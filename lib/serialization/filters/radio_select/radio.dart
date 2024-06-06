@@ -5,6 +5,7 @@ part 'radio.g.dart';
 
 @JsonSerializable(explicitToJson: true, converters: [ToString(), ToBool()])
 class RadioSelect {
+  @JsonKey(fromJson: ToString.tryConvert)
   String? fieldid;
   String? fieldname;
   String? title;
@@ -15,7 +16,7 @@ class RadioSelect {
   bool? display_icon;
   dynamic display_icon_type;
   bool? popular;
-  List<ValueSelect>? options;
+  List<ValueSelect?>? options;
   ValueSelect? value;
   dynamic controller;
   List<RadioSelect>? fields;
@@ -44,6 +45,7 @@ class RadioSelect {
 
 @JsonSerializable(explicitToJson: true, converters: [ToString(), ToBool()])
 class ValueSelect {
+  @JsonKey(fromJson: ToString.tryConvert)
   String? fieldtitle;
   String? fieldvalue;
   bool? popular;
