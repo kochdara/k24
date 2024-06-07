@@ -1,17 +1,18 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/helper.dart';
-import 'package:k24/pages/details/details_provider.dart';
 import 'package:k24/pages/listing/sub_provider.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:k24/serialization/filters/group_fields/group_fields.dart';
+import 'package:k24/serialization/filters/provinces.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../helpers/config.dart';
+import '../../serialization/filters/min_max/min_max.dart';
 import '../../serialization/filters/radio_select/radio.dart';
 import '../../widgets/buttons.dart';
 import '../../widgets/forms.dart';
@@ -268,14 +269,14 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
       case "radio":
         return _fieldRadio(field);
 
-      // case "select":
-      //   return _fieldSelect(field);
-      //
-      // case "min_max":
-      //   return _fieldMinMax(field);
-      //
-      // case "group_fields":
-      //   return _fieldSelect(field);
+      case "select":
+        return _fieldSelect(field);
+
+      case "min_max":
+        return _fieldMinMax(field);
+
+      case "group_fields":
+        return _fieldSelect(field);
 
       case "more":
         return _fieldMore(field);
@@ -283,6 +284,36 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
       default:
         return _fieldMore(field);
     }
+  }
+
+  _fieldMinMax(Map<String, dynamic> field) {
+    final fieldApp = MinMax.fromJson(field);
+    final minField = fieldApp.min_field ?? Field_.fromJson({});
+    final maxField = fieldApp.max_field ?? Field_.fromJson({});
+
+    // set val //
+    // bool check = ref.watch(newData)[minField.fieldname]!=null && ref.watch(newData)[maxField.fieldname]!=null && ref.watch(newData)[minField.fieldname].isNotEmpty && ref.watch(newData)[maxField.fieldname].isNotEmpty;
+    // if(ref.watch(newData)[minField.fieldname] != null || ref.watch(newData)[maxField.fieldname] != null) {
+    //   field['displayTitle'] = '${fieldApp.title}: ${ref.watch(newData)[minField.fieldname]??''}${check?' - ':''}${ref.watch(newData)[maxField.fieldname]??''}';
+    // }
+
+    return buttons.textButtons(
+      title: '${field['displayTitle']??(fieldApp.title ?? 'MinMax')}',
+      showDropdown: true,
+      onPressed: () async {
+        showCupertinoModalBottomSheet(
+          context: context,
+          builder: (context) => MinMaxPageView(data: field),
+        );
+      },
+      textColor: field['displayTitle']!=null ? config.primaryAppColor.shade600 : Colors.black,
+      child: field['displayTitle']!=null ? InkWell(
+        onTap: () async {
+          //
+        },
+        child: const Icon(Icons.close, size: 18),
+      ) : null,
+    );
   }
 
   _fieldRadio(Map<String, dynamic> field) {
@@ -313,64 +344,88 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
       title: fieldName.fieldtitle ?? (fieldApp.title ?? 'RadioType'),
       showDropdown: true,
       onPressed: () async {
-        showBarModalBottomSheet(
-          context: context,
-          builder: (context) => Column(
-            children: [
-              Stack(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    color: config.secondaryColor.shade50,
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(14),
-                    child: labels.label('Center', color: Colors.black, fontSize: 18),
-                  ),
-
-                  Positioned(
-                    left: 0,
-                    child: IconButton(
-                      onPressed: () { },
-                      icon: Icon(Icons.arrow_back_ios, size: 22, color: config.primaryAppColor.shade600),
-                      padding: const EdgeInsets.all(18),
-                    ),
-                  ),
-
-                  Positioned(
-                    right: 0,
-                    child: IconButton(
-                      onPressed: () { },
-                      icon: labels.label('Clear', color: config.primaryAppColor.shade600, fontSize: 15),
-                      padding: const EdgeInsets.all(18),
-                    ),
-                  ),
-
-                ],
-              ),
-
-              Expanded(
-                child: ListView.builder(
-                  itemCount: 24,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text('index of : $index'),
-                      trailing: (index == 2) ? Icon(Icons.radio_button_checked_outlined, size: 20, color: config.primaryAppColor.shade600)
-                          : const Icon(Icons.radio_button_off, size: 20),
-                      shape: Border(
-                        bottom: BorderSide(color: config.secondaryColor.shade50, width: 1),
-                      ),
-                    );
-                  },
-                ),
-              )
-            ],
-          ),
+        showBarModalBottomSheet(context: context,
+          builder: (context) => SelectTypePageView(data: field, selected: false),
         );
       },
       textColor: fieldName.fieldtitle != null ? config.primaryAppColor.shade600 : Colors.black,
       child: fieldName.fieldtitle != null ? InkWell(
         onTap: () async {
-          //
+          ref.read(newData.notifier).update((state) {
+            final newMap = {...state};
+            newMap[fieldApp.fieldname] = null;
+            return newMap;
+          });
+        },
+        child: const Icon(Icons.close, size: 18),
+      ) : null,
+    );
+  }
+
+  _fieldSelect(Map<String, dynamic> field) {
+    final fieldS = RadioSelect.fromJson(field);
+    var fieldName = ValueSelect.fromJson(ref.watch(newData)[fieldS.fieldname] ?? {});
+
+    /// normal select not have fields ///
+    if(fieldS.type == 'group_fields' && fieldS.fields != null) {
+      var opt = fieldS.fields ?? [];
+
+      // set value to location //
+      for(var v=0; v<opt.length; v++) {
+        if(ref.watch(newData)[opt[v].fieldname] != null && ref.watch(newData)[opt[v].fieldname].isNotEmpty) {
+          field['title2'] = ref.watch(newData)[opt[v].fieldname]['en_name'];
+        }
+      }
+
+      return buttons.textButtons(
+        title: '${field['title2'] ?? (fieldS.title ?? 'SelectType')}',
+        showDropdown: true,
+        prefixIcon: Icons.location_on,
+        prefColor: field['title2'] != null ? config.primaryAppColor.shade600 : Colors.black,
+        onPressed: () async {
+          final result = await showBarModalBottomSheet(context: context,
+            builder: (context) => ProvincePageView(data: field),
+          );
+
+          /// click clear on modal ///
+          if(result.toString().contains('clear')) {
+            setState(() { field['title2'] = null; });
+            for(var k=0; k<opt.length; k++) {
+              ref.read(newData.notifier).state[opt[k].slug] = null;
+            }
+          }
+
+        },
+        textColor: field['title2'] != null ? config.primaryAppColor.shade600 : Colors.black,
+        child: field['title2'] != null ? InkWell(
+          onTap: () async {
+            setState(() { field['title2'] = null; });
+            for(var k=0; k<opt.length; k++) {
+              ref.read(newData.notifier).state[opt[k].slug] = null;
+            }
+          },
+          child: const Icon(Icons.close, size: 18),
+        ) : null,
+      );
+    }
+
+    /// normal select ///
+    return buttons.textButtons(
+      title: fieldName.fieldtitle ?? (fieldS.title ?? 'SelectType'),
+      showDropdown: true,
+      onPressed: () async {
+        showBarModalBottomSheet(context: context,
+          builder: (context) => SelectTypePageView(data: field, selected: true),
+        );
+      },
+      textColor: fieldName.fieldtitle != null ? config.primaryAppColor.shade600 : Colors.black,
+      child: fieldName.fieldtitle != null ? InkWell(
+        onTap: () async {
+          ref.read(newData.notifier).update((state) {
+            final newMap = {...state};
+            newMap[fieldS.fieldname] = null;
+            return newMap;
+          });
         },
         child: const Icon(Icons.close, size: 18),
       ) : null,
@@ -412,3 +467,274 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
 }
 
 enum Filter { price, condition }
+
+/// select type model ///
+class MinMaxPageView extends ConsumerWidget {
+  MinMaxPageView({super.key, required this.data});
+
+  final Map<String, dynamic> data;
+
+  final Labels labels = Labels();
+  final Config config = Config();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mData = MinMax.fromJson(data);
+
+    return Material(
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            /// app bar ///
+            AppBar(
+              leading: Container(),
+              title: labels.label('${mData.title}', color: Colors.black, fontSize: 18),
+              centerTitle: true,
+              backgroundColor: Colors.grey.shade200,
+            ),
+
+            /// listing ///
+
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// select type model ///
+class SelectTypePageView extends ConsumerWidget {
+  SelectTypePageView({super.key, required this.data, required this.selected});
+
+  final Map<String, dynamic> data;
+  final bool selected;
+
+  final Labels labels = Labels();
+  final Config config = Config();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final sortData = RadioSelect.fromJson(data);
+
+    return Material(
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            /// app bar ///
+            AppBar(
+              leading: IconButton(
+                padding: const EdgeInsets.all(14),
+                icon: const Icon(Icons.keyboard_arrow_down_outlined, size: 32, color: Colors.blue),
+                onPressed: () { Navigator.pop(context); },
+              ),
+              title: labels.label('${sortData.title}', color: Colors.black, fontSize: 18),
+              actions: [
+                if(ref.watch(newData)[sortData.fieldname] != null) IconButton(
+                  padding: const EdgeInsets.all(14),
+                  icon: labels.label('Clear', color: Colors.blue, fontSize: 15),
+                  onPressed: () {
+                    ref.read(newData.notifier).update((state) {
+                      final newMap = {...state};
+                      newMap[sortData.fieldname] = null;
+                      return newMap;
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+              centerTitle: true,
+              backgroundColor: Colors.grey.shade200,
+            ),
+
+            /// listing ///
+            ListView.builder(
+              itemCount: sortData.options?.length ?? 0,
+              shrinkWrap: true,
+              controller: ModalScrollController.of(context),
+              itemBuilder: (context, index) {
+                final check = ValueSelect.fromJson(ref.watch(newData)[sortData.fieldname] ?? {});
+                final options = sortData.options?[index];
+
+                return ListTile(
+                  title: labels.label('${options?.fieldtitle}', color: Colors.black, fontSize: 15, fontWeight: FontWeight.normal, overflow: TextOverflow.ellipsis),
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if(check.fieldvalue == options?.fieldvalue) ...[
+                        if(selected) Icon(Icons.check_circle, size: 20, color: config.primaryAppColor.shade600)
+                        else Icon(Icons.radio_button_checked_outlined, size: 20, color: config.primaryAppColor.shade600),
+                      ] else ...[
+                        if(!selected) const Icon(Icons.radio_button_off, size: 20)
+                      ],
+                    ],
+                  ),
+                  shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50, width: 1)),
+                  onTap: () {
+                    ref.read(newData.notifier).update((state) {
+                        final newMap = {...state};
+                        newMap[sortData.fieldname] = options?.toJson();
+                        return newMap;
+                    });
+                    Navigator.pop(context);
+                  },
+                );
+              },
+            ),
+
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// group select type model ///
+class ProvincePageView extends ConsumerWidget {
+  ProvincePageView({super.key, required this.data});
+
+  final Map<String, dynamic> data;
+
+  final Labels labels = Labels();
+  final Config config = Config();
+
+  final current = StateProvider((ref) => 0);
+  final slug = StateProvider((ref) => {});
+  final lastResult = StateProvider((ref) => {});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final groupData = GroupFields.fromJson(data);
+    final fields = groupData.fields ?? [];
+    final checkData = ref.watch(newData);
+
+    return Material(
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            /// app bar ///
+            AppBar(
+              leading: (ref.watch(current) > 0) ? IconButton(
+                padding: const EdgeInsets.all(14),
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.blue),
+                onPressed: () { ref.read(current.notifier).state--; },
+              ) : IconButton(
+                padding: const EdgeInsets.all(14),
+                icon: const Icon(Icons.keyboard_arrow_down_outlined, size: 32, color: Colors.blue),
+                onPressed: () { Navigator.pop(context); },
+              ),
+              title: labels.label(fields[ref.watch(current)].title ?? '', color: Colors.black, fontSize: 18),
+              actions: [
+                if(ref.watch(current) > 0) IconButton(
+                  padding: const EdgeInsets.all(14),
+                  icon: labels.label('Clear', color: Colors.blue, fontSize: 15),
+                  onPressed: () {
+                    Navigator.pop(context, 'clear');
+                  },
+                ),
+              ],
+              centerTitle: true,
+              backgroundColor: Colors.grey.shade200,
+            ),
+
+            // any //
+            if(ref.watch(current) > 0) ListTile(
+              title: labels.label('Any', color: Colors.blue, fontSize: 15, fontWeight: FontWeight.w500, overflow: TextOverflow.ellipsis),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50, width: 1)),
+              tileColor: Colors.white,
+              onTap: () {
+                /// submit ///
+                final last = ref.watch(lastResult);
+                if(last.isNotEmpty) {
+                  last.forEach((key, value) {
+                    ref.read(newData.notifier).update((state) {
+                      final newMap = {...state};
+                      newMap[key] = value;
+                      return newMap;
+                    });
+                  });
+                }
+                Navigator.pop(context);
+
+              },
+            ),
+
+            /// listing ///
+            for(var v=0; v<fields.length; v++)
+              Visibility(
+                visible: (ref.watch(current) == v),
+                child: Expanded(
+                  child: Builder(
+                    builder: (context) {
+                      final wSlug = ref.watch(slug);
+                      final watchGetPro = ref.watch(getLocationProvider(type: '${fields[ref.watch(current)].slug}', parent: '${wSlug[ref.watch(current)??'']}'));
+
+                      return watchGetPro.when(
+                        skipLoadingOnRefresh: false,
+                        error: (e, st) => Text('error : $e'),
+                        loading: () => const Center(child: CircularProgressIndicator()),
+                        data: (data) {
+                          return ListView.builder(
+                            itemCount: data.length,
+                            shrinkWrap: true,
+                            controller: ModalScrollController.of(context),
+                            itemBuilder: (context, index) {
+                              final proData = Province.fromJson(data[index] ?? {});
+                              final dl = checkData[proData.type] ?? {};
+
+                              return ListTile(
+                                title: labels.label('${proData.en_name}', color: Colors.black, fontSize: 15, fontWeight: FontWeight.normal, overflow: TextOverflow.ellipsis),
+                                trailing: (dl['slug'] == proData.slug) ? Icon(Icons.check_circle, size: 20, color: config.primaryAppColor.shade600)
+                                    : const Icon(Icons.arrow_forward_ios, size: 16),
+                                shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50, width: 1)),
+                                tileColor: Colors.white,
+                                onTap: () {
+                                  ref.read(lastResult.notifier).state[proData.type] = proData.toJson();
+
+                                  if(ref.watch(current) < (fields.length - 1)) {
+                                    ref.read(current.notifier).state++;
+                                    ref.read(slug.notifier).state[ref.watch(current)] = proData.slug ?? '';
+
+                                    // clear old value //
+                                    for(var k=v+1; k<fields.length; k++) {
+                                      ref.read(lastResult.notifier).state[fields[k].slug] = null;
+                                    }
+
+                                    /// else submit ///
+                                  } else {
+                                    final last = ref.watch(lastResult);
+                                    if(last.isNotEmpty) {
+                                      last.forEach((key, value) {
+                                        ref.read(newData.notifier).update((state) {
+                                          final newMap = {...state};
+                                          newMap[key] = value;
+                                          return newMap;
+                                        });
+                                      });
+                                    }
+                                    Navigator.pop(context);
+                                  }
+
+                                },
+                              );
+                            },
+                          );
+                        }
+                      );
+                    }
+                  ),
+                ),
+              ),
+
+          ],
+        ),
+      ),
+    );
+  }
+}

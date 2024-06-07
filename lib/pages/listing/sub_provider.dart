@@ -122,3 +122,18 @@ class GetFilters extends _$GetFilters {
   }
 }
 
+@Riverpod(keepAlive: true)
+class GetLocation extends _$GetLocation {
+
+  @override
+  Future<List> build({String type = '', String parent = ''}) async => fetchData(type, parent);
+
+  Future<List> fetchData(String type, String parent) async {
+    var url = 'locations?lang=${config.lang}';
+    if(type.isNotEmpty) url += '&type=$type';
+    if(parent.isNotEmpty) url += '&parent=$parent';
+    var result = await config.getUrls(subs: url, url: Urls.baseUrl);
+    final resp = ConfigState.fromJson(result);
+    return resp.data;
+  }
+}

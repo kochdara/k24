@@ -30,6 +30,9 @@ class MyApp extends StatelessWidget {
         cardTheme: const CardTheme(color: Colors.white),
         pageTransitionsTheme: const PageTransitionsTheme(builders: {TargetPlatform.android: CupertinoPageTransitionsBuilder(),})
       ),
+      scrollBehavior: ScrollConfiguration.of(context).copyWith(
+        physics: const ClampingScrollPhysics()
+      ),
       home: const HomePage(title: 'Demo App'),
     );
   }

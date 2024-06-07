@@ -32,8 +32,13 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
   final Converts converts = Converts();
   final Buttons buttons = Buttons();
   final Forms forms = Forms();
+  final Helper helper = const Helper();
 
   final ScrollController scrollController = ScrollController();
+  StateProvider<String> location = StateProvider<String>((ref) => '');
+  StateProvider<String> location2 = StateProvider<String>((ref) => '');
+  StateProvider<bool> hidden = StateProvider<bool>((ref) => true);
+
   List listImg = [];
   double space = 10;
 
@@ -58,7 +63,6 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
   }
 
   scrollListener() {
-    if(scrollController.position.pixels > ref.watch(heightImgPro) + 200) return;
     ref.read(heightScrollPro.notifier).state = scrollController.position.pixels;
   }
 
@@ -183,19 +187,17 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     final watchDetails = ref.watch(getDetailPostProvider(id: '${dataDetails.data?.id}'));
     final watchRelates = ref.watch(relateDetailPostProvider('${dataDetails.data?.id}'));
 
-    Map loc = {};
     if(dataDetails.data != null) {
       listImg = dataDetails.data?.photos ?? [];
 
       // check location //
       if (dataDetails.data?.location != null) {
-        loc['location'] = dataDetails.data?.location?.en_name ?? '';
+        helper.futureAwait(duration: 10, () {
+          ref.read(location.notifier).state = dataDetails.data?.location?.en_name ?? '';
 
-        var date = converts.stringToString(date: '${dataDetails.data?.renew_date}', format: 'dd, MMM yyyy');
-        if(date != null) loc['location'] += ' • $date';
-
-        loc['location2'] = dataDetails.data?.location?.address??'';
-        if(dataDetails.data?.location?.long_location != null) {loc['location2'] += ', ${dataDetails.data?.location?.long_location ?? ''}';}
+          var date = converts.stringToString(date: '${dataDetails.data?.renew_date}', format: 'dd, MMM yyyy');
+          if(date != null) ref.read(location.notifier).state += ' • $date';
+        });
       }
     }
 
@@ -232,7 +234,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             label.label(dataDetails.data?.title ?? '', fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black),
-                            label.label(loc['location']??'N/A', fontSize: 13, color: config.secondaryColor.shade400),
+                            label.label(ref.watch(location)??'N/A', fontSize: 13, color: config.secondaryColor.shade400),
                             label.label('\$${dataDetails.data?.price ?? '0.00'}', fontSize: 20, fontWeight: FontWeight.w500, color: Colors.red),
                           ],
                         ),
@@ -245,6 +247,18 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                         loading: () => shimmerDetails(),
                         data: (data) {
                           final datum = data.data;
+
+                          if (datum?.location != null) {
+                            helper.futureAwait(duration: 10, () {
+                              ref.read(location.notifier).state = datum?.location?.en_name ?? '';
+
+                              var date = converts.stringToString(date: '${datum?.renew_date}', format: 'dd, MMM yyyy');
+                              if(date != null) ref.read(location.notifier).state += ' • $date';
+
+                              ref.read(location2.notifier).state = datum?.location?.address??'';
+                              if(datum?.location?.long_location != null) {ref.read(location2.notifier).state += ', ${datum?.location?.long_location ?? ''}';}
+                            });
+                          }
 
                           return Column(
                             children: [
@@ -306,13 +320,13 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                                     ],
 
                                     // location //
-                                    if(loc['location2'] != null) ...[
+                                    if(ref.watch(location2).isNotEmpty) ...[
                                       Row(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Padding(padding: const EdgeInsets.only(right: 8, top: 2),child: Icon(CupertinoIcons.location_solid, size: 18, color: config.secondaryColor.shade500)),
 
-                                          Expanded(child: label.labelRich(loc['location2'] ?? '',
+                                          Expanded(child: label.labelRich(ref.watch(location2) ?? '',
                                             title2: 'Location: ',
                                             fontSize: 15,
                                           )),
@@ -446,7 +460,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     );
   }
 
-  contactCard({ bool hidden = true, String tell = '', String url = '', }) {
+  contactCard({String tell = '', String url = '', }) {
     var sub3 = tell;
     final length = sub3.length;
     if(length > 3) {
@@ -454,63 +468,58 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
       tell = tell.substring(0, length - 3).trim();
     }
 
-    return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-          reload() { setState(() {}); }
-          return Row(
-            children: [
-              // const Padding(padding: EdgeInsets.all(4),child: Icon(CupertinoIcons.location_solid, size: 18)),
-              if(url.isNotEmpty)
+    return Row(
+      children: [
+        // const Padding(padding: EdgeInsets.all(4),child: Icon(CupertinoIcons.location_solid, size: 18)),
+        if(url.isNotEmpty)
+          Container(
+            width: 16,
+            height: 16,
+            margin: const EdgeInsets.only(right: 10),
+            child: Image.network(url),
+          ),
+
+        Expanded(
+          child: InkWell(
+            onTap: () async {
+              if(!ref.watch(hidden)) {
+                final Uri smsLaunchUri = Uri(
+                  scheme: 'tel',
+                  path: '$tell$sub3',
+                );
+                await launchUrl(smsLaunchUri);
+              }
+            },
+            child: Row(
+              children: [
                 Container(
-                  width: 16,
-                  height: 16,
-                  margin: const EdgeInsets.only(right: 10),
-                  child: Image.network(url),
-                ),
-
-              Expanded(
-                child: InkWell(
-                  onTap: () async {
-                    if(!hidden) {
-                      final Uri smsLaunchUri = Uri(
-                        scheme: 'tel',
-                        path: '$tell$sub3',
-                      );
-                      await launchUrl(smsLaunchUri);
-                    }
-                  },
-                  child: Row(
-                    children: [
-                      Container(
-                        constraints: const BoxConstraints(maxWidth: 250),
-                        child: label.label(hidden ? '${tell}xxx' : '$tell$sub3',
-                          fontSize: 16,
-                          color: hidden ? Colors.black : config.primaryAppColor.shade600,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-
-                      const SizedBox(width: 4),
-
-                      if(hidden)
-                        InkWell(
-                          onTap: () { hidden = false; reload(); },
-                          child: label.label('Click to Show',
-                            fontSize: 14,
-                            color: config.primaryAppColor.shade600,
-                            fontStyle: FontStyle.italic,
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline,
-                            decorationStyle: TextDecorationStyle.dotted,
-                          ),
-                        ),
-                    ],
+                  constraints: const BoxConstraints(maxWidth: 250),
+                  child: label.label(ref.watch(hidden) ? '${tell}xxx' : '$tell$sub3',
+                    fontSize: 16,
+                    color: ref.watch(hidden) ? Colors.black : config.primaryAppColor.shade600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-              ),
-            ],
-          );
-        }
+
+                const SizedBox(width: 4),
+
+                if(ref.watch(hidden))
+                  InkWell(
+                    onTap: () { ref.read(hidden.notifier).state = false; },
+                    child: label.label('Click to Show',
+                      fontSize: 14,
+                      color: config.primaryAppColor.shade600,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline,
+                      decorationStyle: TextDecorationStyle.dotted,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -990,14 +999,15 @@ class _PreviewImageState extends ConsumerState<PreviewImage> {
                         Navigator.of(context).push(MaterialPageRoute<void>(
                             builder: (context) {
                               return Scaffold(
-                                body: Container(
-                                  alignment: Alignment.center,
-                                  color: Colors.black87,
-                                  child: PhotoHero(
-                                    photo: '$v',
-                                    onTap: () {
-                                      Navigator.of(context).pop();
-                                    },
+                                body: InkWell(
+                                  onTap: () => Navigator.of(context).pop(),
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    color: Colors.black87,
+                                    child: PhotoHero(
+                                      photo: '$v',
+                                      onTap: () => Navigator.of(context).pop(),
+                                    ),
                                   ),
                                 ),
                               );

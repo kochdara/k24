@@ -307,5 +307,169 @@ class _GetFiltersProviderElement
   @override
   String get slug => (origin as GetFiltersProvider).slug;
 }
+
+String _$getLocationHash() => r'ddefb31d3336ff4f98849a5bf894c60d41696fd2';
+
+abstract class _$GetLocation extends BuildlessAsyncNotifier<List> {
+  late final String type;
+  late final String parent;
+
+  FutureOr<List> build({
+    String type = '',
+    String parent = '',
+  });
+}
+
+/// See also [GetLocation].
+@ProviderFor(GetLocation)
+const getLocationProvider = GetLocationFamily();
+
+/// See also [GetLocation].
+class GetLocationFamily extends Family<AsyncValue<List>> {
+  /// See also [GetLocation].
+  const GetLocationFamily();
+
+  /// See also [GetLocation].
+  GetLocationProvider call({
+    String type = '',
+    String parent = '',
+  }) {
+    return GetLocationProvider(
+      type: type,
+      parent: parent,
+    );
+  }
+
+  @override
+  GetLocationProvider getProviderOverride(
+    covariant GetLocationProvider provider,
+  ) {
+    return call(
+      type: provider.type,
+      parent: provider.parent,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'getLocationProvider';
+}
+
+/// See also [GetLocation].
+class GetLocationProvider extends AsyncNotifierProviderImpl<GetLocation, List> {
+  /// See also [GetLocation].
+  GetLocationProvider({
+    String type = '',
+    String parent = '',
+  }) : this._internal(
+          () => GetLocation()
+            ..type = type
+            ..parent = parent,
+          from: getLocationProvider,
+          name: r'getLocationProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$getLocationHash,
+          dependencies: GetLocationFamily._dependencies,
+          allTransitiveDependencies:
+              GetLocationFamily._allTransitiveDependencies,
+          type: type,
+          parent: parent,
+        );
+
+  GetLocationProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.type,
+    required this.parent,
+  }) : super.internal();
+
+  final String type;
+  final String parent;
+
+  @override
+  FutureOr<List> runNotifierBuild(
+    covariant GetLocation notifier,
+  ) {
+    return notifier.build(
+      type: type,
+      parent: parent,
+    );
+  }
+
+  @override
+  Override overrideWith(GetLocation Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: GetLocationProvider._internal(
+        () => create()
+          ..type = type
+          ..parent = parent,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        type: type,
+        parent: parent,
+      ),
+    );
+  }
+
+  @override
+  AsyncNotifierProviderElement<GetLocation, List> createElement() {
+    return _GetLocationProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetLocationProvider &&
+        other.type == type &&
+        other.parent == parent;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, type.hashCode);
+    hash = _SystemHash.combine(hash, parent.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin GetLocationRef on AsyncNotifierProviderRef<List> {
+  /// The parameter `type` of this provider.
+  String get type;
+
+  /// The parameter `parent` of this provider.
+  String get parent;
+}
+
+class _GetLocationProviderElement
+    extends AsyncNotifierProviderElement<GetLocation, List>
+    with GetLocationRef {
+  _GetLocationProviderElement(super.provider);
+
+  @override
+  String get type => (origin as GetLocationProvider).type;
+  @override
+  String get parent => (origin as GetLocationProvider).parent;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
