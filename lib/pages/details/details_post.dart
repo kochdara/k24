@@ -405,9 +405,9 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if(thumbnail != '') ...[
-              Container(
+              SizedBox(
                 height: ref.watch(heightImgPro),
-                alignment: Alignment.center,
+                width: double.infinity,
                 child: Image.network(thumbnail, fit: BoxFit.cover),
               ),
             ],
@@ -417,8 +417,9 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
 
               LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
-                    var width = config.responsiveImage(constraints.maxWidth)['width'];
-                    var length = config.responsiveImage(constraints.maxWidth)['length'];
+                    final conf = config.responsiveImage(constraints.maxWidth) ?? {};
+                    var width = conf['width'];
+                    var length = conf['length'] ?? 0;
 
                     return Wrap(
                       direction: Axis.horizontal,
@@ -573,12 +574,12 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
               title: 'Save',
               onPressed: () { },
               padSize: 12,
-              textSize: 15,
+              textSize: 14,
               textWeight: FontWeight.w500,
               textColor: config.secondaryColor.shade300,
               prefixIcon: Icons.bookmark,
               prefColor: config.secondaryColor.shade300,
-              prefixSize: 22,
+              prefixSize: 20,
             ),
           ),
           const SizedBox(width: 12),
@@ -588,12 +589,12 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
               title: 'Report',
               onPressed: () { },
               padSize: 12,
-              textSize: 15,
+              textSize: 14,
               textWeight: FontWeight.w500,
               textColor: config.secondaryColor.shade300,
               prefixIcon: Icons.report,
               prefColor: config.secondaryColor.shade300,
-              prefixSize: 22,
+              prefixSize: 20,
             ),
           ),
           const SizedBox(width: 12),
@@ -603,12 +604,12 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
               title: 'Share',
               onPressed: () { },
               padSize: 12,
-              textSize: 15,
+              textSize: 14,
               textWeight: FontWeight.w500,
               textColor: config.secondaryColor.shade300,
               prefixIcon: CupertinoIcons.arrowshape_turn_up_right_fill,
               prefColor: config.secondaryColor.shade300,
-              prefixSize: 18,
+              prefixSize: 16,
             ),
           )
         ],
@@ -1004,9 +1005,17 @@ class _PreviewImageState extends ConsumerState<PreviewImage> {
                                   child: Container(
                                     alignment: Alignment.center,
                                     color: Colors.black87,
-                                    child: PhotoHero(
-                                      photo: '$v',
-                                      onTap: () => Navigator.of(context).pop(),
+                                    child: PageView(
+                                      children: [
+                                        for(var t in widget.list) Container(
+                                          alignment: Alignment.center,
+                                          color: Colors.black87,
+                                          child: PhotoHero(
+                                            photo: '$t',
+                                            onTap: () => Navigator.of(context).pop(),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),

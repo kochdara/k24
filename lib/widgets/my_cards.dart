@@ -41,7 +41,7 @@ class MyCards {
       height: height,
       decoration: BoxDecoration(
         color: config.primaryColor.shade900,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(6),
       ),
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
       child: Column(
@@ -383,16 +383,16 @@ class MyCards {
               children: [
                 // post ads //
                 if(data.isNotEmpty && notRelates) ...[
-                  if(viewPage == ViewPage.grid) postAdsCard(width),
-                  if(viewPage == ViewPage.list) postAdsCard(null, height: 160),
-                  if(viewPage == ViewPage.view) postAdsCard(null, height: 160),
+                  if(viewPage == ViewPage.grid) postAdsCard(width)
+                  else if(viewPage == ViewPage.list) postAdsCard(null, height: 200)
+                  else if(viewPage == ViewPage.view) postAdsCard(null, height: 200),
                 ],
 
                 // items //
                 for(var v in data) ...[
-                  if(viewPage == ViewPage.grid) gridCard(width, v, context: context),
-                  if(viewPage == ViewPage.list) listCard(v, context: context),
-                  if(viewPage == ViewPage.view) viewCards(v, context: context),
+                  if(viewPage == ViewPage.grid) gridCard(width, v, context: context)
+                  else if(viewPage == ViewPage.list) listCard(v, context: context)
+                  else if(viewPage == ViewPage.view) viewCards(v, context: context),
                 ],
 
                 // fetching //
@@ -402,9 +402,9 @@ class MyCards {
                     highlightColor: Colors.white,
                     child: Column(
                       children: [
-                        if(viewPage == ViewPage.grid) gridCard(width, v, context: context),
-                        if(viewPage == ViewPage.list) listCard(v, context: context),
-                        if(viewPage == ViewPage.view) viewCards(v, context: context),
+                        if(viewPage == ViewPage.grid) gridCard(width, v, context: context)
+                        else if(viewPage == ViewPage.list) listCard(v, context: context)
+                        else if(viewPage == ViewPage.view) viewCards(v, context: context),
                       ],
                     ),
                   ),
@@ -896,8 +896,9 @@ class MyCards {
 
                   if(listImg.isNotEmpty) ...[
                     LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-                      var width = config.responsiveImage(constraints.maxWidth)['width'];
-                      var length = config.responsiveImage(constraints.maxWidth)['length'];
+                      final conf = config.responsiveImage(constraints.maxWidth) ?? {};
+                      var width = conf['width'];
+                      var length = conf['length'] ?? 0;
 
                       return Wrap(
                         direction: Axis.horizontal,
@@ -947,7 +948,7 @@ class MyCards {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
-                  labels.label(data?.title??'N/A', color: config.secondaryColor.shade900, fontSize: 14, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.normal, maxLines: 2),
+                  labels.label(data?.title??'N/A', color: config.secondaryColor.shade900, fontSize: 16, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.normal, maxLines: 2),
 
                   labels.labelIcon(
                     leftIcon: Icon(Icons.access_time, size: 12, color: config.secondaryColor.shade200),

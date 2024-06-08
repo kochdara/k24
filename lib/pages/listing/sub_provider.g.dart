@@ -6,7 +6,7 @@ part of 'sub_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$subListsHash() => r'52785320329a78d49d3caefa367c7fe5feb4d674';
+String _$subListsHash() => r'64fc95e20ff8b21e586ed01dd2e36668d98f1708';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -308,7 +308,7 @@ class _GetFiltersProviderElement
   String get slug => (origin as GetFiltersProvider).slug;
 }
 
-String _$getLocationHash() => r'ddefb31d3336ff4f98849a5bf894c60d41696fd2';
+String _$getLocationHash() => r'b33793541ec2e7dc5aac093d8cec6eda6d64bc22';
 
 abstract class _$GetLocation extends BuildlessAsyncNotifier<List> {
   late final String type;

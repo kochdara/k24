@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/listing/sub_provider.dart';
@@ -476,10 +477,15 @@ class MinMaxPageView extends ConsumerWidget {
 
   final Labels labels = Labels();
   final Config config = Config();
+  final Buttons buttons = Buttons();
+  final Forms forms = Forms();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final mData = MinMax.fromJson(data);
+
+    var minField = mData.min_field ?? {};
+    var maxField = mData.max_field ?? {};
 
     return Material(
       child: SafeArea(
@@ -490,12 +496,91 @@ class MinMaxPageView extends ConsumerWidget {
             /// app bar ///
             AppBar(
               leading: Container(),
-              title: labels.label('${mData.title}', color: Colors.black, fontSize: 18),
+              title: Container(),
               centerTitle: true,
               backgroundColor: Colors.grey.shade200,
             ),
 
             /// listing ///
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: Colors.grey.shade200, width: 1)),
+                color: Colors.grey.shade100,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  labels.label('${mData.title}', color: Colors.black, fontSize: 15),
+
+                  const SizedBox(height: 8),
+
+                  LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+                      double width = constraints.maxWidth;
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: (width / 2) - 8,
+                            child: forms.labelFormFields(
+                                autofocus: true,
+                                '',
+                                // '${minField['title']??''}',
+                                // controller: field?["min_controller"],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                                  FilteringTextInputFormatter.digitsOnly
+                                ], keyboardType: TextInputType.number,
+                                onChanged: (val) {
+                                  // field?["min_controller"].text = val;
+
+                                }
+                            ),
+                          ),
+
+                          SizedBox(
+                            width: (width / 2) - 8,
+                            child: forms.labelFormFields(
+                              '',
+                              // '${maxField['title']??''}',
+                              // controller: field?["max_controller"],
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                                FilteringTextInputFormatter.digitsOnly
+                              ], keyboardType: TextInputType.number,
+                              onChanged: (val) {
+                                // field?["max_controller"].text = val;
+
+                              },
+                              onFieldSubmitted: (val) {
+                                //
+                              },
+                            ),
+                          ),
+
+                        ],
+                      );
+                    }
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: buttons.textButtons(
+                      title: 'Apply Filter',
+                      onPressed: () {},
+                      padSize: 14,
+                      textSize: 16,
+                      textWeight: FontWeight.w500,
+                      textColor: Colors.white,
+                      bgColor: config.warningColor.shade400,
+                    ),
+                  ),
+
+                ],
+              ),
+            ),
 
           ],
         ),

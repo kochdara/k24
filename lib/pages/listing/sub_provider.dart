@@ -28,7 +28,10 @@ class SubLists extends _$SubLists {
   Future<List<GridCard>> build({ String category = '' }) async => subFetch(category);
 
   Future<List<GridCard>> subFetch(String category) async {
-    if(current_result < limit) return [];
+    bool dispose = false;
+    ref.onDispose(() { dispose = true; });
+    if(current_result < limit || dispose) return [];
+
     var subs = 'feed?lang=en&offset=${current_page * limit}&fields=$fields&functions=$fun';
     subs += '&category=$category';
     final res = await config.getUrls(subs: subs, url: Urls.postUrl);

@@ -1,6 +1,4 @@
 
-
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -53,7 +51,10 @@ class RelateDetailPost extends _$RelateDetailPost {
   Future<List<GridCard>> build(String id) async => fetch(id);
 
   Future<List<GridCard>> fetch(String id) async {
-    if(current_result < limit) return [];
+    bool dispose = false;
+    ref.onDispose(() { dispose = true; });
+    if(current_result < limit || dispose) return [];
+
     final subs = 'feed/$id/relates?lang=${config.lang}&offset=${current_page * limit}&fields=$fields&functions=$fun';
     final res = await config.getUrls(subs: subs, url: Urls.postUrl);
     current_page++;

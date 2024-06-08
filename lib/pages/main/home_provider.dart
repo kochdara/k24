@@ -20,6 +20,10 @@ class GetMainCategory extends _$GetMainCategory {
   Future<List<MainCategory>> build({ String parent = '0' }) async => fetchData(parent: parent);
 
   Future<List<MainCategory>> fetchData({ String parent = '0' }) async {
+    bool dispose = false;
+    ref.onDispose(() { dispose = true; });
+    if(dispose) return [];
+
     var url = 'categories?parent=$parent&lang=${config.lang}&v=1';
     var result = await config.getUrls(subs: url, url: Urls.baseUrl);
 
@@ -56,7 +60,10 @@ class HomeLists extends _$HomeLists {
   Future<List<GridCard>> build() async => fetchHome();
 
   Future<List<GridCard>> fetchHome() async {
-    if(current_result < limit) return [];
+    bool dispose = false;
+    ref.onDispose(() { dispose = true; });
+    if(current_result < limit || dispose) return [];
+
     final subs = 'feed?lang=en&offset=${current_page * limit}&fields=$fields&functions=$fun';
     final res = await config.getUrls(subs: subs, url: Urls.postUrl);
     current_page++;
