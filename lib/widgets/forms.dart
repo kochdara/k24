@@ -22,6 +22,7 @@ class Forms {
     bool autofocus = false,
     String? hintText,
     Color? borderColor,
+    TextInputAction? textInputAction,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -62,6 +63,7 @@ class Forms {
         onTap: onTap,
         inputFormatters: inputFormatters,
         onChanged: onChanged,
+        textInputAction: textInputAction,
       ),
     );
   }

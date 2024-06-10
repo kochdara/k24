@@ -287,29 +287,39 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     }
   }
 
+  var displayTitle = StateProvider<String?>((ref) => null);
   _fieldMinMax(Map<String, dynamic> field) {
     final fieldApp = MinMax.fromJson(field);
     final minField = fieldApp.min_field ?? Field_.fromJson({});
     final maxField = fieldApp.max_field ?? Field_.fromJson({});
 
     // set val //
-    // bool check = ref.watch(newData)[minField.fieldname]!=null && ref.watch(newData)[maxField.fieldname]!=null && ref.watch(newData)[minField.fieldname].isNotEmpty && ref.watch(newData)[maxField.fieldname].isNotEmpty;
-    // if(ref.watch(newData)[minField.fieldname] != null || ref.watch(newData)[maxField.fieldname] != null) {
-    //   field['displayTitle'] = '${fieldApp.title}: ${ref.watch(newData)[minField.fieldname]??''}${check?' - ':''}${ref.watch(newData)[maxField.fieldname]??''}';
-    // }
+    bool check = ref.watch(newData)[minField.fieldname]!=null && ref.watch(newData)[maxField.fieldname]!=null && ref.watch(newData)[minField.fieldname].isNotEmpty && ref.watch(newData)[maxField.fieldname].isNotEmpty;
+    if(ref.watch(newData)[minField.fieldname] != null || ref.watch(newData)[maxField.fieldname] != null) {
+      helper.futureAwait(duration: 1, () {
+        ref.read(displayTitle.notifier).state = '${fieldApp.title}: ${ref.watch(newData)[minField.fieldname]??''}${check?' - ':''}${ref.watch(newData)[maxField.fieldname]??''}';
+      });
+    }
 
     return buttons.textButtons(
-      title: '${field['displayTitle']??(fieldApp.title ?? 'MinMax')}',
+      title: ref.watch(displayTitle)??(fieldApp.title ?? 'MinMax'),
       showDropdown: true,
       onPressed: () async {
-        showCupertinoModalBottomSheet(
+        showBarModalBottomSheet(
           context: context,
           builder: (context) => MinMaxPageView(data: field),
         );
       },
-      textColor: field['displayTitle']!=null ? config.primaryAppColor.shade600 : Colors.black,
-      child: field['displayTitle']!=null ? InkWell(
+      textColor: ref.watch(displayTitle)!=null ? config.primaryAppColor.shade600 : Colors.black,
+      child: ref.watch(displayTitle)!=null ? InkWell(
         onTap: () async {
+          ref.read(displayTitle.notifier).state = null;
+          ref.read(newData.notifier).update((state) {
+            final newVal = {...state};
+            newVal[minField.fieldname] = null;
+            newVal[maxField.fieldname] = null;
+            return newVal;
+          });
           //
         },
         child: const Icon(Icons.close, size: 18),
@@ -328,7 +338,9 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
         title: '${fieldApp.title}: ${fieldName.fieldtitle ?? ''}',
         showDropdown: true,
         onPressed: () async {
-          //
+          showBarModalBottomSheet(context: context,
+            builder: (context) => GroupFieldView(data: field),
+          );
         },
         textColor: fieldName.fieldtitle != null ? config.primaryAppColor.shade600 : Colors.black,
         child: fieldName.fieldtitle != null ? InkWell(
@@ -479,13 +491,24 @@ class MinMaxPageView extends ConsumerWidget {
   final Config config = Config();
   final Buttons buttons = Buttons();
   final Forms forms = Forms();
+  final Helper helper = const Helper();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final mData = MinMax.fromJson(data);
 
-    var minField = mData.min_field ?? {};
-    var maxField = mData.max_field ?? {};
+    var minField = Field_.fromJson(mData.min_field?.toJson() ?? {});
+    var maxField = Field_.fromJson(mData.max_field?.toJson() ?? {});
+
+    var minCon = StateProvider((ref) => TextEditingController());
+    var maxCon = StateProvider((ref) => TextEditingController());
+    var valMap = StateProvider((ref) => {});
+    final newDa = ref.watch(newData);
+
+    helper.futureAwait(duration: 1, () {
+      ref.read(minCon.notifier).state.text = '${newDa[minField.fieldname] ?? ' '}';
+      ref.read(maxCon.notifier).state.text = '${newDa[maxField.fieldname] ?? ' '}';
+    });
 
     return Material(
       child: SafeArea(
@@ -524,15 +547,19 @@ class MinMaxPageView extends ConsumerWidget {
                             width: (width / 2) - 8,
                             child: forms.labelFormFields(
                                 autofocus: true,
-                                '',
-                                // '${minField['title']??''}',
-                                // controller: field?["min_controller"],
+                                minField.title??'',
+                                controller: ref.watch(minCon),
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                                   FilteringTextInputFormatter.digitsOnly
                                 ], keyboardType: TextInputType.number,
+                                textInputAction: TextInputAction.next,
                                 onChanged: (val) {
-                                  // field?["min_controller"].text = val;
+                                  ref.read(valMap.notifier).update((state) {
+                                    final newMap = {...state};
+                                    newMap[minField.fieldname] = val;
+                                    return newMap;
+                                  });
 
                                 }
                             ),
@@ -541,19 +568,31 @@ class MinMaxPageView extends ConsumerWidget {
                           SizedBox(
                             width: (width / 2) - 8,
                             child: forms.labelFormFields(
-                              '',
-                              // '${maxField['title']??''}',
-                              // controller: field?["max_controller"],
+                              maxField.title??'',
+                              controller: ref.read(maxCon),
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                                 FilteringTextInputFormatter.digitsOnly
                               ], keyboardType: TextInputType.number,
                               onChanged: (val) {
-                                // field?["max_controller"].text = val;
+                                ref.read(valMap.notifier).update((state) {
+                                  final newMap = {...state};
+                                  newMap[maxField.fieldname] = val;
+                                  return newMap;
+                                });
 
                               },
                               onFieldSubmitted: (val) {
-                                //
+                                final last = ref.watch(valMap);
+                                last.forEach((key, value) {
+                                  ref.read(newData.notifier).update((state) {
+                                    final newMap = {...state};
+                                    newMap[key] = value;
+                                    return newMap;
+                                  });
+                                });
+
+                                Navigator.pop(context);
                               },
                             ),
                           ),
@@ -569,13 +608,145 @@ class MinMaxPageView extends ConsumerWidget {
                     width: double.infinity,
                     child: buttons.textButtons(
                       title: 'Apply Filter',
-                      onPressed: () {},
+                      onPressed: () {
+                        final last = ref.watch(valMap);
+                        last.forEach((key, value) {
+                          ref.read(newData.notifier).update((state) {
+                            final newMap = {...state};
+                            newMap[key] = value;
+                            return newMap;
+                          });
+                        });
+
+                        Navigator.pop(context);
+                      },
                       padSize: 14,
                       textSize: 16,
                       textWeight: FontWeight.w500,
                       textColor: Colors.white,
                       bgColor: config.warningColor.shade400,
                     ),
+                  ),
+
+                  SizedBox(
+                    height: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+
+                ],
+              ),
+            ),
+
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// select type model ///
+class GroupFieldView extends ConsumerWidget {
+  GroupFieldView({super.key, required this.data});
+
+  final Map<String, dynamic> data;
+
+  final Labels labels = Labels();
+  final Config config = Config();
+  final Buttons buttons = Buttons();
+  final Forms forms = Forms();
+  final Helper helper = const Helper();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mData = RadioSelect.fromJson(data);
+    final list = mData.options ?? [];
+
+    return Material(
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            /// app bar ///
+            AppBar(
+              leading: Container(),
+              title: Container(),
+              centerTitle: true,
+              backgroundColor: Colors.grey.shade200,
+            ),
+
+            /// listing ///
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: Colors.grey.shade200, width: 1)),
+                color: Colors.grey.shade100,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  labels.label('${mData.title}', color: Colors.black, fontSize: 15),
+
+                  const SizedBox(height: 8),
+
+                  LayoutBuilder(
+                      builder: (BuildContext context, BoxConstraints constraints) {
+                        double width = constraints.maxWidth;
+                        return Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+
+                            SizedBox(
+                              width: (width / 3) - 10,
+                              child: buttons.textButtons(
+                                title: 'Any',
+                                onPressed: () {},
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                textSize: 15,
+                                bgColor: Colors.white,
+                                borderColor: config.secondaryColor.shade100,
+                              ),
+                            ),
+
+                            for(var v in list) ...[
+                              SizedBox(
+                                width: (width / 3) - 10,
+                                child: buttons.textButtons(
+                                  title: v?.fieldtitle ?? '',
+                                  onPressed: () {},
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  textSize: 15,
+                                  bgColor: Colors.white,
+                                  borderColor: config.secondaryColor.shade100,
+                                ),
+                              ),
+                            ],
+
+                          ],
+                        );
+                      }
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: buttons.textButtons(
+                      title: 'Apply Filter',
+                      onPressed: () {
+
+                        Navigator.pop(context);
+                      },
+                      padSize: 14,
+                      textSize: 16,
+                      textWeight: FontWeight.w500,
+                      textColor: Colors.white,
+                      bgColor: config.warningColor.shade400,
+                    ),
+                  ),
+
+                  SizedBox(
+                    height: MediaQuery.of(context).viewInsets.bottom,
                   ),
 
                 ],

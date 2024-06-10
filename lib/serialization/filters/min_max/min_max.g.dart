@@ -37,19 +37,15 @@ Field_ _$Field_FromJson(Map json) => Field_(
       title: const ToString().fromJson(json['title']),
       type: const ToString().fromJson(json['type']),
       slug: const ToString().fromJson(json['slug']),
-      validation: json['validation'] == null
-          ? null
-          : Validation_.fromJson(json['validation'] as Map),
+      validation: json['validation'] as Map?,
       fieldname: const ToString().fromJson(json['fieldname']),
       chained_field: const ToString().fromJson(json['chained_field']),
       display_icon: const ToBool().fromJson(json['display_icon']),
       popular: const ToBool().fromJson(json['popular']),
       display_icon_type: json['display_icon_type'],
-      prefix: json['prefix'] == null
-          ? null
-          : Prefix_.fromJson(json['prefix'] as Map),
+      prefix: json['prefix'] as Map?,
       options: (json['options'] as List<dynamic>?)
-          ?.map((e) => OptionM.fromJson(e as Map))
+          ?.map((e) => e == null ? null : OptionM.fromJson(e as Map))
           .toList(),
     );
 

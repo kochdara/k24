@@ -36,14 +36,14 @@ class Field_ {
   String? title;
   String? type;
   String? slug;
-  Validation_? validation;
+  Map? validation;
   String? fieldname;
   String? chained_field;
   bool? display_icon;
   bool? popular;
   dynamic display_icon_type;
-  Prefix_? prefix;
-  List<OptionM>? options;
+  Map? prefix;
+  List<OptionM?>? options;
 
   Field_({
     this.fieldid,
