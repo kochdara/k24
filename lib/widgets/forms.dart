@@ -5,9 +5,9 @@ import '../helpers/config.dart';
 
 class Forms {
 
-  final Config _config = Config();
+  final Config config = Config();
 
-  labelFormFields(String? label, { TextEditingController? controller, void Function(String)? onFieldSubmitted,
+  Widget labelFormFields(String? label, { TextEditingController? controller, void Function(String)? onFieldSubmitted,
     List<TextInputFormatter>? inputFormatters,
     Color? fillColor = Colors.white,
     Widget? prefixIcon,
@@ -26,7 +26,7 @@ class Forms {
   }) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: borderColor ?? _config.secondaryColor.shade100),
+        border: Border.all(color: borderColor ?? config.secondaryColor.shade100),
         borderRadius: BorderRadius.circular(radius),
       ),
       child: TextFormField(
@@ -50,12 +50,12 @@ class Forms {
             borderRadius: BorderRadius.circular(radius),
           ),
           labelText: label,
-          labelStyle: TextStyle(fontSize: 15, color: _config.secondaryColor.shade200),
+          labelStyle: TextStyle(fontSize: 15, color: config.secondaryColor.shade200),
           hintText: hintText,
-          hintStyle: TextStyle(color: _config.secondaryColor.shade200, fontWeight: FontWeight.normal),
+          hintStyle: TextStyle(color: config.secondaryColor.shade200, fontWeight: FontWeight.normal),
           isDense: true,
           filled: true,
-          fillColor: enabled ? fillColor : _config.secondaryColor.shade50,
+          fillColor: enabled ? fillColor : config.secondaryColor.shade50,
           prefixIcon: prefixIcon,
           suffixIcon: suffixIcon,
         ),
@@ -68,7 +68,7 @@ class Forms {
     );
   }
 
-  formField(String label, { TextEditingController? controller, void Function(String)? onFieldSubmitted,
+  Widget formField(String label, { TextEditingController? controller, void Function(String)? onFieldSubmitted,
     List<TextInputFormatter>? inputFormatters,
     Color? fillColor = Colors.white,
     Widget? prefixIcon,
@@ -99,10 +99,10 @@ class Forms {
           borderRadius: BorderRadius.circular(radius),
         ),
         hintText: 'Be the first to comment',
-        hintStyle: TextStyle(color: _config.secondaryColor.shade300),
+        hintStyle: TextStyle(color: config.secondaryColor.shade300),
         isDense: true,
         filled: true,
-        fillColor: enabled ? fillColor : _config.secondaryColor.shade50,
+        fillColor: enabled ? fillColor : config.secondaryColor.shade50,
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
       ),
@@ -113,7 +113,7 @@ class Forms {
     );
   }
 
-  text({
+  Widget text({
     Key? key,
     String? hintText,
     TextEditingController? controller,
@@ -135,7 +135,7 @@ class Forms {
           isDense: true,
           hintText: hintText,
           hintStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.normal),
-          fillColor: _config.primaryAppColor.shade300,
+          fillColor: config.primaryAppColor.shade300,
           filled: true,
           suffixIcon: suffixIcon,
         prefixIcon: prefixIcon,
@@ -148,15 +148,15 @@ class Forms {
     );
   }
 
-  label(String name, {bool required = false, bool error = false}) {
+  Widget label(String name, {bool required = false, bool error = false}) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: _config.labelPadding),
+      padding: EdgeInsets.symmetric(vertical: config.labelPadding),
       child: RichText(
         text: TextSpan(
-            style: TextStyle(fontWeight: _config.labelWeight, fontSize: _config.labelSize, color: error ? _config.dangerColor : _config.labelColor),
+            style: TextStyle(fontWeight: config.labelWeight, fontSize: config.labelSize, color: error ? config.dangerColor : config.labelColor),
             children: [
               TextSpan(text: name),
-              if(required) TextSpan(text: "*", style: TextStyle(color: _config.dangerColor)),
+              if(required) TextSpan(text: "*", style: TextStyle(color: config.dangerColor)),
             ]
         ),
       ),

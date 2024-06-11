@@ -6,7 +6,7 @@ part of 'sub_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$subListsHash() => r'64fc95e20ff8b21e586ed01dd2e36668d98f1708';
+String _$subListsHash() => r'ae3f92fed129a0f8151789a90da3b5bfb65e648a';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -29,12 +29,13 @@ class _SystemHash {
   }
 }
 
-abstract class _$SubLists extends BuildlessAsyncNotifier<List<GridCard>> {
+abstract class _$SubLists
+    extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {
   late final String category;
 
-  FutureOr<List<GridCard>> build({
-    String category = '',
-  });
+  FutureOr<List<GridCard>> build(
+    String category,
+  );
 }
 
 /// See also [SubLists].
@@ -47,11 +48,11 @@ class SubListsFamily extends Family<AsyncValue<List<GridCard>>> {
   const SubListsFamily();
 
   /// See also [SubLists].
-  SubListsProvider call({
-    String category = '',
-  }) {
+  SubListsProvider call(
+    String category,
+  ) {
     return SubListsProvider(
-      category: category,
+      category,
     );
   }
 
@@ -60,7 +61,7 @@ class SubListsFamily extends Family<AsyncValue<List<GridCard>>> {
     covariant SubListsProvider provider,
   ) {
     return call(
-      category: provider.category,
+      provider.category,
     );
   }
 
@@ -81,11 +82,11 @@ class SubListsFamily extends Family<AsyncValue<List<GridCard>>> {
 
 /// See also [SubLists].
 class SubListsProvider
-    extends AsyncNotifierProviderImpl<SubLists, List<GridCard>> {
+    extends AutoDisposeAsyncNotifierProviderImpl<SubLists, List<GridCard>> {
   /// See also [SubLists].
-  SubListsProvider({
-    String category = '',
-  }) : this._internal(
+  SubListsProvider(
+    String category,
+  ) : this._internal(
           () => SubLists()..category = category,
           from: subListsProvider,
           name: r'subListsProvider',
@@ -115,7 +116,7 @@ class SubListsProvider
     covariant SubLists notifier,
   ) {
     return notifier.build(
-      category: category,
+      category,
     );
   }
 
@@ -136,7 +137,8 @@ class SubListsProvider
   }
 
   @override
-  AsyncNotifierProviderElement<SubLists, List<GridCard>> createElement() {
+  AutoDisposeAsyncNotifierProviderElement<SubLists, List<GridCard>>
+      createElement() {
     return _SubListsProviderElement(this);
   }
 
@@ -154,13 +156,13 @@ class SubListsProvider
   }
 }
 
-mixin SubListsRef on AsyncNotifierProviderRef<List<GridCard>> {
+mixin SubListsRef on AutoDisposeAsyncNotifierProviderRef<List<GridCard>> {
   /// The parameter `category` of this provider.
   String get category;
 }
 
 class _SubListsProviderElement
-    extends AsyncNotifierProviderElement<SubLists, List<GridCard>>
+    extends AutoDisposeAsyncNotifierProviderElement<SubLists, List<GridCard>>
     with SubListsRef {
   _SubListsProviderElement(super.provider);
 
@@ -168,9 +170,9 @@ class _SubListsProviderElement
   String get category => (origin as SubListsProvider).category;
 }
 
-String _$getFiltersHash() => r'615c75f4a8af0396e0520a47e05f1e3a5b5a78c7';
+String _$getFiltersHash() => r'335ee356a73dfbe940fb887ee8c2d89723c48cbd';
 
-abstract class _$GetFilters extends BuildlessAsyncNotifier<List> {
+abstract class _$GetFilters extends BuildlessAutoDisposeAsyncNotifier<List> {
   late final String slug;
 
   FutureOr<List> build(
@@ -221,7 +223,8 @@ class GetFiltersFamily extends Family<AsyncValue<List>> {
 }
 
 /// See also [GetFilters].
-class GetFiltersProvider extends AsyncNotifierProviderImpl<GetFilters, List> {
+class GetFiltersProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<GetFilters, List> {
   /// See also [GetFilters].
   GetFiltersProvider(
     String slug,
@@ -277,7 +280,7 @@ class GetFiltersProvider extends AsyncNotifierProviderImpl<GetFilters, List> {
   }
 
   @override
-  AsyncNotifierProviderElement<GetFilters, List> createElement() {
+  AutoDisposeAsyncNotifierProviderElement<GetFilters, List> createElement() {
     return _GetFiltersProviderElement(this);
   }
 
@@ -295,29 +298,30 @@ class GetFiltersProvider extends AsyncNotifierProviderImpl<GetFilters, List> {
   }
 }
 
-mixin GetFiltersRef on AsyncNotifierProviderRef<List> {
+mixin GetFiltersRef on AutoDisposeAsyncNotifierProviderRef<List> {
   /// The parameter `slug` of this provider.
   String get slug;
 }
 
 class _GetFiltersProviderElement
-    extends AsyncNotifierProviderElement<GetFilters, List> with GetFiltersRef {
+    extends AutoDisposeAsyncNotifierProviderElement<GetFilters, List>
+    with GetFiltersRef {
   _GetFiltersProviderElement(super.provider);
 
   @override
   String get slug => (origin as GetFiltersProvider).slug;
 }
 
-String _$getLocationHash() => r'b33793541ec2e7dc5aac093d8cec6eda6d64bc22';
+String _$getLocationHash() => r'bfd7510939d686dc72f484c64695b31822a5a93b';
 
-abstract class _$GetLocation extends BuildlessAsyncNotifier<List> {
+abstract class _$GetLocation extends BuildlessAutoDisposeAsyncNotifier<List> {
   late final String type;
   late final String parent;
 
-  FutureOr<List> build({
-    String type = '',
-    String parent = '',
-  });
+  FutureOr<List> build(
+    String type,
+    String parent,
+  );
 }
 
 /// See also [GetLocation].
@@ -330,13 +334,13 @@ class GetLocationFamily extends Family<AsyncValue<List>> {
   const GetLocationFamily();
 
   /// See also [GetLocation].
-  GetLocationProvider call({
-    String type = '',
-    String parent = '',
-  }) {
+  GetLocationProvider call(
+    String type,
+    String parent,
+  ) {
     return GetLocationProvider(
-      type: type,
-      parent: parent,
+      type,
+      parent,
     );
   }
 
@@ -345,8 +349,8 @@ class GetLocationFamily extends Family<AsyncValue<List>> {
     covariant GetLocationProvider provider,
   ) {
     return call(
-      type: provider.type,
-      parent: provider.parent,
+      provider.type,
+      provider.parent,
     );
   }
 
@@ -366,12 +370,13 @@ class GetLocationFamily extends Family<AsyncValue<List>> {
 }
 
 /// See also [GetLocation].
-class GetLocationProvider extends AsyncNotifierProviderImpl<GetLocation, List> {
+class GetLocationProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<GetLocation, List> {
   /// See also [GetLocation].
-  GetLocationProvider({
-    String type = '',
-    String parent = '',
-  }) : this._internal(
+  GetLocationProvider(
+    String type,
+    String parent,
+  ) : this._internal(
           () => GetLocation()
             ..type = type
             ..parent = parent,
@@ -407,8 +412,8 @@ class GetLocationProvider extends AsyncNotifierProviderImpl<GetLocation, List> {
     covariant GetLocation notifier,
   ) {
     return notifier.build(
-      type: type,
-      parent: parent,
+      type,
+      parent,
     );
   }
 
@@ -432,7 +437,7 @@ class GetLocationProvider extends AsyncNotifierProviderImpl<GetLocation, List> {
   }
 
   @override
-  AsyncNotifierProviderElement<GetLocation, List> createElement() {
+  AutoDisposeAsyncNotifierProviderElement<GetLocation, List> createElement() {
     return _GetLocationProviderElement(this);
   }
 
@@ -453,7 +458,7 @@ class GetLocationProvider extends AsyncNotifierProviderImpl<GetLocation, List> {
   }
 }
 
-mixin GetLocationRef on AsyncNotifierProviderRef<List> {
+mixin GetLocationRef on AutoDisposeAsyncNotifierProviderRef<List> {
   /// The parameter `type` of this provider.
   String get type;
 
@@ -462,7 +467,7 @@ mixin GetLocationRef on AsyncNotifierProviderRef<List> {
 }
 
 class _GetLocationProviderElement
-    extends AsyncNotifierProviderElement<GetLocation, List>
+    extends AutoDisposeAsyncNotifierProviderElement<GetLocation, List>
     with GetLocationRef {
   _GetLocationProviderElement(super.provider);
 

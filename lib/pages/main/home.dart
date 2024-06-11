@@ -22,11 +22,11 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   final Buttons buttons = Buttons();
   final Labels labels = Labels();
-  final Config config = Config();
   final MyCards myCards = MyCards();
-  final Helper helper = const Helper();
 
   final scrollController = ScrollController();
+  StateProvider<bool> fetchingProvider = StateProvider<bool>((ref) => false);
+  StateProvider<bool> loadingProvider = StateProvider<bool>((ref) => false);
 
   @override
   void initState() {
@@ -43,17 +43,15 @@ class _HomePageState extends ConsumerState<HomePage> {
     final limit = ref.watch(homeListsProvider.notifier).limit;
     final current = ref.watch(homeListsProvider.notifier).current_result;
     var fet = ref.read(fetchingProvider.notifier);
+    ScrollPosition scroll = scrollController.position;
 
-    if (scrollController.position.pixels >= (scrollController.position.maxScrollExtent - 750)
+    if (scroll.pixels > 1500 && scroll.pixels >= (scroll.maxScrollExtent - 750)
         && (current >= limit) && !fet.state) {
       fet.state = true;
-
-      print(limit);
-      print(current);
-
       ref.read(homeListsProvider.notifier).fetchHome();
-
-      await helper.futureAwait(() { fet.state = false; });
+      print(current);
+      print(limit);
+      await futureAwait(() { fet.state = false; });
     }
   }
 
@@ -68,7 +66,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final mainCate = ref.watch(getMainCategoryProvider(parent: '0'));
+    final mainCate = ref.watch(getMainCategoryProvider('0'));
     final homeList = ref.watch(homeListsProvider);
 
     return Scaffold(
@@ -82,7 +80,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           controller: scrollController,
           child: Center(
             child: Container(
-              constraints: BoxConstraints(maxWidth: config.maxWidth),
+              constraints: const BoxConstraints(maxWidth: maxWidth),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -120,7 +118,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  appBar() {
+  Widget appBar() {
     return Stack(
       alignment: AlignmentDirectional.center,
       children: [
@@ -161,7 +159,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  titleAds() {
+  Widget titleAds() {
     return Container(
       width: double.infinity,
       constraints: const BoxConstraints(minHeight: 55),

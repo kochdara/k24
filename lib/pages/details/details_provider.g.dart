@@ -6,7 +6,7 @@ part of 'details_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getDetailPostHash() => r'fd4fe252df6bdb1c1ce1d101348ec846f9d6c712';
+String _$getDetailPostHash() => r'd0f06c1c607b1d318e31fac6a4db878d03f3487d';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -29,12 +29,13 @@ class _SystemHash {
   }
 }
 
-abstract class _$GetDetailPost extends BuildlessAsyncNotifier<GridCard> {
+abstract class _$GetDetailPost
+    extends BuildlessAutoDisposeAsyncNotifier<GridCard> {
   late final String id;
 
-  FutureOr<GridCard> build({
-    String id = '0',
-  });
+  FutureOr<GridCard> build(
+    String id,
+  );
 }
 
 /// See also [GetDetailPost].
@@ -47,11 +48,11 @@ class GetDetailPostFamily extends Family<AsyncValue<GridCard>> {
   const GetDetailPostFamily();
 
   /// See also [GetDetailPost].
-  GetDetailPostProvider call({
-    String id = '0',
-  }) {
+  GetDetailPostProvider call(
+    String id,
+  ) {
     return GetDetailPostProvider(
-      id: id,
+      id,
     );
   }
 
@@ -60,7 +61,7 @@ class GetDetailPostFamily extends Family<AsyncValue<GridCard>> {
     covariant GetDetailPostProvider provider,
   ) {
     return call(
-      id: provider.id,
+      provider.id,
     );
   }
 
@@ -81,11 +82,11 @@ class GetDetailPostFamily extends Family<AsyncValue<GridCard>> {
 
 /// See also [GetDetailPost].
 class GetDetailPostProvider
-    extends AsyncNotifierProviderImpl<GetDetailPost, GridCard> {
+    extends AutoDisposeAsyncNotifierProviderImpl<GetDetailPost, GridCard> {
   /// See also [GetDetailPost].
-  GetDetailPostProvider({
-    String id = '0',
-  }) : this._internal(
+  GetDetailPostProvider(
+    String id,
+  ) : this._internal(
           () => GetDetailPost()..id = id,
           from: getDetailPostProvider,
           name: r'getDetailPostProvider',
@@ -116,7 +117,7 @@ class GetDetailPostProvider
     covariant GetDetailPost notifier,
   ) {
     return notifier.build(
-      id: id,
+      id,
     );
   }
 
@@ -137,7 +138,8 @@ class GetDetailPostProvider
   }
 
   @override
-  AsyncNotifierProviderElement<GetDetailPost, GridCard> createElement() {
+  AutoDisposeAsyncNotifierProviderElement<GetDetailPost, GridCard>
+      createElement() {
     return _GetDetailPostProviderElement(this);
   }
 
@@ -155,13 +157,13 @@ class GetDetailPostProvider
   }
 }
 
-mixin GetDetailPostRef on AsyncNotifierProviderRef<GridCard> {
+mixin GetDetailPostRef on AutoDisposeAsyncNotifierProviderRef<GridCard> {
   /// The parameter `id` of this provider.
   String get id;
 }
 
 class _GetDetailPostProviderElement
-    extends AsyncNotifierProviderElement<GetDetailPost, GridCard>
+    extends AutoDisposeAsyncNotifierProviderElement<GetDetailPost, GridCard>
     with GetDetailPostRef {
   _GetDetailPostProviderElement(super.provider);
 
@@ -169,7 +171,7 @@ class _GetDetailPostProviderElement
   String get id => (origin as GetDetailPostProvider).id;
 }
 
-String _$relateDetailPostHash() => r'fcf994238429fb0c54f7c64d965db45870edafb0';
+String _$relateDetailPostHash() => r'2c422408469bccf61a54103f4b2f5e8b0a957b71';
 
 abstract class _$RelateDetailPost
     extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {

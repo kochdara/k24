@@ -1,5 +1,4 @@
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -7,12 +6,7 @@ import '../../serialization/grid_card/grid_card.dart';
 
 part 'sub_provider.g.dart';
 
-Config config = Config();
-
-StateProvider<Map> newData = StateProvider((ref) => {});
-StateProvider<int> indX = StateProvider((ref) => 0);
-
-@Riverpod(keepAlive: true)
+@riverpod
 class SubLists extends _$SubLists {
   late List<GridCard> list = [];
   String fields = 'thumbnail,photos,location,user,store,renew_date,link,category,is_saved,is_like,total_like,total_comment,highlight_specs,condition,object_highlight_specs';
@@ -25,7 +19,7 @@ class SubLists extends _$SubLists {
   int current_page = 0;
 
   @override
-  Future<List<GridCard>> build({ String category = '' }) async => subFetch(category);
+  Future<List<GridCard>> build(String category) async => subFetch(category);
 
   Future<List<GridCard>> subFetch(String category) async {
     bool dispose = false;
@@ -34,7 +28,7 @@ class SubLists extends _$SubLists {
 
     var subs = 'feed?lang=en&offset=${current_page * limit}&fields=$fields&functions=$fun';
     subs += '&category=$category';
-    final res = await config.getUrls(subs: subs, url: Urls.postUrl);
+    final res = await getUrls(subs: subs, url: Urls.postUrl);
     current_page++;
 
     final status = ConfigState.fromJson(res);
@@ -62,10 +56,11 @@ class SubLists extends _$SubLists {
     current_result = 0;
     current_page = 0;
     list = [];
+    state = const AsyncLoading();
 
     var subs = 'feed?lang=en&offset=0&fields=$fields&functions=$fun';
     subs += '&category=$category';
-    final res = await config.getUrls(subs: subs, url: Urls.postUrl);
+    final res = await getUrls(subs: subs, url: Urls.postUrl);
     current_page++;
 
     final status = ConfigState.fromJson(res);
@@ -87,7 +82,7 @@ class SubLists extends _$SubLists {
   }
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 class GetFilters extends _$GetFilters {
 
   List filters = [];
@@ -98,8 +93,8 @@ class GetFilters extends _$GetFilters {
   Future<List> fetchData(String slug) async {
     filters = [];
 
-    var url = 'filters/$slug?lang=${config.lang}&group=true&return_key=true&filter_version=${config.filterVersion}&has_post=true';
-    var result = await config.getUrls(subs: url, url: Urls.baseUrl);
+    var url = 'filters/$slug?lang=$lang&group=true&return_key=true&filter_version=$filterVersion&has_post=true';
+    var result = await getUrls(subs: url, url: Urls.baseUrl);
 
     final resp = ConfigState.fromJson(result);
 
@@ -125,17 +120,17 @@ class GetFilters extends _$GetFilters {
   }
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 class GetLocation extends _$GetLocation {
 
   @override
-  Future<List> build({String type = '', String parent = ''}) async => fetchData(type, parent);
+  Future<List> build(String type, String parent) async => fetchData(type, parent);
 
   Future<List> fetchData(String type, String parent) async {
-    var url = 'locations?lang=${config.lang}';
+    var url = 'locations?lang=$lang';
     if(type.isNotEmpty) url += '&type=$type';
     if(parent.isNotEmpty) url += '&parent=$parent';
-    var result = await config.getUrls(subs: url, url: Urls.baseUrl);
+    var result = await getUrls(subs: url, url: Urls.baseUrl);
     final resp = ConfigState.fromJson(result);
     return resp.data;
   }

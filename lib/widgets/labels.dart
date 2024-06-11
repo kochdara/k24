@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../helpers/config.dart';
 
-final Config _config = Config();
-
 class Labels {
 
-  label(String data, {
+  Widget label(String data, {
     double fontSize = 11,
     FontWeight fontWeight = FontWeight.normal,
     Color color = Colors.white,
@@ -22,7 +20,7 @@ class Labels {
         fontSize: fontSize,
         fontWeight: fontWeight,
         color: color,
-        height: _config.lineHeight,
+        height: lineHeight,
         fontStyle: fontStyle,
         decoration: decoration,
         decorationStyle: decorationStyle,
@@ -33,7 +31,7 @@ class Labels {
     );
   }
 
-  labelRich(String title, {
+  Widget labelRich(String title, {
     double fontSize = 11,
     FontWeight fontWeight = FontWeight.normal,
     Color color = Colors.black,
@@ -45,7 +43,7 @@ class Labels {
   }) {
     return RichText(
       text: TextSpan(
-          style: TextStyle(fontSize: fontSize, color: color, height: _config.lineHeight, fontFamily: 'en', fontWeight: fontWeight),
+          style: TextStyle(fontSize: fontSize, color: color, height: lineHeight, fontFamily: 'en', fontWeight: fontWeight),
           children: [
             if(title2.isNotEmpty) TextSpan(text: title2, style: TextStyle(fontWeight: fontWeight2, color: color2)),
             TextSpan(text: title),
@@ -55,7 +53,7 @@ class Labels {
     );
   }
 
-  labelIcon({
+  Widget labelIcon({
     String leftTitle = '',
     String rightTitle = '',
     Widget? leftIcon,

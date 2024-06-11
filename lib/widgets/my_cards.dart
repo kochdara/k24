@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:k24/serialization/category/main_category.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
@@ -22,7 +21,7 @@ class MyCards {
   final Buttons buttons = Buttons();
   final Config config = Config();
 
-  ads({ required String url, required bool loading }) {
+  Widget ads({ required String url, required bool loading }) {
     return Container(
       alignment: Alignment.center,
       child: Skeletonizer(
@@ -35,9 +34,9 @@ class MyCards {
     );
   }
 
-  postAdsCard(double? width, { double height = 240 }) {
+  Widget postAdsCard(double? width, { double height = 240 }) {
     return Container(
-      width: (width != null) ? config.responsive(width) : null,
+      width: (width != null) ? responsive(width) : null,
       height: height,
       decoration: BoxDecoration(
         color: config.primaryColor.shade900,
@@ -75,7 +74,7 @@ class MyCards {
     );
   }
 
-  noResultCard() {
+  Widget noResultCard() {
     return Container(
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(vertical: 44),
@@ -89,7 +88,7 @@ class MyCards {
     );
   }
 
-  notFound(BuildContext context, {String id = '', String message = ''}) {
+  Widget notFound(BuildContext context, {String id = '', String message = ''}) {
     final size = MediaQuery.of(context).size;
 
     return Container(
@@ -116,7 +115,7 @@ class MyCards {
     );
   }
 
-  cardCategory(List<MainCategory> data) {
+  Widget cardCategory(List<MainCategory> data) {
     return Visibility(
       visible: (data.isEmpty) ? false : true,
       child: Container(
@@ -128,8 +127,8 @@ class MyCards {
             builder: (BuildContext context, BoxConstraints constraints) {
               double width = constraints.maxWidth;
               return Wrap(
-                spacing: config.spaceMenu,
-                runSpacing: config.spaceMenu,
+                spacing: spaceMenu,
+                runSpacing: spaceMenu,
                 children: [
 
                   for(var v in data) ...[
@@ -161,7 +160,7 @@ class MyCards {
     );
   }
 
-  subCategory(List<MainCategory> list, {
+  Widget subCategory(List<MainCategory> list, {
     bool condition = false,
     required Map<dynamic, dynamic> setFilters,
     int? lengths
@@ -206,8 +205,8 @@ class MyCards {
                               double width = constraints.maxWidth;
 
                               return Wrap(
-                                spacing: config.spaceMenu,
-                                runSpacing: config.spaceMenu,
+                                spacing: spaceMenu,
+                                runSpacing: spaceMenu,
                                 children: [
 
                                   if(menus[k] != null) ...[
@@ -281,7 +280,7 @@ class MyCards {
     );
   }
 
-  shimmerCategory() {
+  Widget shimmerCategory() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 12.0),
@@ -294,11 +293,11 @@ class MyCards {
               baseColor: Colors.grey.shade200,
               highlightColor: Colors.white,
               child: Wrap(
-                spacing: config.spaceMenu,
-                runSpacing: config.spaceMenu,
+                spacing: spaceMenu,
+                runSpacing: spaceMenu,
                 children: [
 
-                  for(var v in config.mainCatSkeleton) ...[
+                  for(var v in mainCatSkeleton) ...[
                     cardMenu(map: {
                       'title': v.en_name,
                       'url': v.icon?.url,
@@ -320,9 +319,9 @@ class MyCards {
     );
   }
 
-  cardMenu({ required Map map, void Function()? onTap }) {
+  Widget cardMenu({ required Map map, void Function()? onTap }) {
     double width = 45;
-    Map res = config.responsiveSub(map['width']);
+    Map res = responsiveSub(map['width']);
 
     return InkWell(
       onTap: onTap,
@@ -365,7 +364,7 @@ class MyCards {
     );
   }
 
-  cardHome(List<GridCard> data, {
+  Widget cardHome(List<GridCard> data, {
     bool fetching = false,
     bool notRelates = true,
     ViewPage viewPage = ViewPage.grid
@@ -378,8 +377,8 @@ class MyCards {
           builder: (BuildContext context, BoxConstraints constraints) {
             double width = constraints.maxWidth;
             return Wrap(
-              spacing: config.spaceGrid,
-              runSpacing: config.spaceGrid,
+              spacing: spaceGrid,
+              runSpacing: spaceGrid,
               children: [
                 // post ads //
                 if(data.isNotEmpty && notRelates) ...[
@@ -396,7 +395,7 @@ class MyCards {
                 ],
 
                 // fetching //
-                if(fetching) for(var v in config.listViewSkeleton) ...[
+                if(fetching) for(var v in listViewSkeleton) ...[
                   Shimmer.fromColors(
                     baseColor: Colors.grey.shade200,
                     highlightColor: Colors.white,
@@ -421,7 +420,7 @@ class MyCards {
     );
   }
 
-  shimmerHome({ ViewPage viewPage = ViewPage.grid }) {
+  Widget shimmerHome({ ViewPage viewPage = ViewPage.grid }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       child: LayoutBuilder(
@@ -431,12 +430,12 @@ class MyCards {
             baseColor: Colors.grey.shade200,
             highlightColor: Colors.white,
             child: Wrap(
-              spacing: config.spaceGrid,
-              runSpacing: config.spaceGrid,
+              spacing: spaceGrid,
+              runSpacing: spaceGrid,
               children: [
 
                 // items //
-                for(var v in config.listViewSkeleton) ...[
+                for(var v in listViewSkeleton) ...[
                   if(viewPage == ViewPage.grid) gridCard(width, v, context: context),
                   if(viewPage == ViewPage.list) listCard(v, context: context),
                   if(viewPage == ViewPage.view) viewCards(v, context: context),
@@ -450,7 +449,7 @@ class MyCards {
     );
   }
 
-  gridCard(double width, GridCard v, { required BuildContext context }) {
+  Widget gridCard(double width, GridCard v, { required BuildContext context }) {
     List listImg = [];
     var data = v.data;
     String thumbnail = '';
@@ -488,7 +487,7 @@ class MyCards {
         ));
       },
       child: Container(
-        width: config.responsive(width),
+        width: responsive(width),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(4),
@@ -601,7 +600,7 @@ class MyCards {
                         leftIcon: Icon(Icons.access_time, size: 12, color: config.secondaryColor.shade200),
                         leftTitle: ' $times',
                         rightTitle: location,
-                        style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'en', height: config.lineHeight),
+                        style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'en', height: lineHeight),
                       ),
                       //
                       labels.label(type, color: config.secondaryColor.shade200, overflow: TextOverflow.ellipsis),
@@ -629,7 +628,7 @@ class MyCards {
     );
   }
 
-  listCard(GridCard v, { required BuildContext context }) {
+  Widget listCard(GridCard v, { required BuildContext context }) {
     List listImg = [];
     var data = v.data;
     // var setting = v['setting'] ?? {};
@@ -783,7 +782,7 @@ class MyCards {
                               leftIcon: Icon(Icons.access_time, size: 12, color: config.secondaryColor.shade200),
                               leftTitle: ' $times',
                               rightTitle: location,
-                              style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'en', height: config.lineHeight),
+                              style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'en', height: lineHeight),
                             ),
                             //
                             labels.label(type, color: config.secondaryColor.shade200, overflow: TextOverflow.ellipsis),
@@ -820,7 +819,7 @@ class MyCards {
     );
   }
 
-  viewCards(GridCard v, { required BuildContext context }) {
+  Widget viewCards(GridCard v, { required BuildContext context }) {
     var data = v.data;
     String thumbnail = '';
     List listImg = [];
@@ -896,7 +895,7 @@ class MyCards {
 
                   if(listImg.isNotEmpty) ...[
                     LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-                      final conf = config.responsiveImage(constraints.maxWidth) ?? {};
+                      final conf = responsiveImage(constraints.maxWidth);
                       var width = conf['width'];
                       var length = conf['length'] ?? 0;
 
@@ -954,7 +953,7 @@ class MyCards {
                     leftIcon: Icon(Icons.access_time, size: 12, color: config.secondaryColor.shade200),
                     leftTitle: ' $times',
                     rightTitle: location,
-                    style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'en', height: config.lineHeight),
+                    style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'en', height: lineHeight),
                   ),
                   const SizedBox(height: 4),
 

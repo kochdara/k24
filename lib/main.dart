@@ -7,7 +7,7 @@ void main() {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-Config _config = Config();
+Config config = Config();
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         appBarTheme: AppBarTheme(
-            color: _config.primaryAppColor.shade600,
+            color: config.primaryAppColor.shade600,
             shadowColor: Colors.black
         ),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),

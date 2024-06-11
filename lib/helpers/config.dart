@@ -9,21 +9,21 @@ import 'package:k24/serialization/try_convert.dart';
 
 part 'config.g.dart';
 
+const String baseUrl = "https://test-api.khmer24.mobi";
+const String postUrl = "https://test-posts.khmer24.mobi";
+const String notificationUrl = "https://test-notifications.khmer24.mobi";
+const String chatUrl = "https://test-chats.khmer24.mobi";
+const String commentUrl = "https://test-comments.khmer24.mobi";
+const String likeUrl = "https://test-likes.khmer24.mobi";
+const String insightUrl = "https://test-insights.khmer24.mobi";
+const String trackingUrl = "https://test-tracking.khmer24.mobi";
+const String paymentUrl = "https://test-payments.khmer24.mobi";
+const String jobUrl = "https://test-jobs.khmer24.mobi";
+
+const double radius = 6;
+const double maxWidth = 1080;
+
 class Config {
-  final String baseUrl = "https://test-api.khmer24.mobi";
-  final String postUrl = "https://test-posts.khmer24.mobi";
-  final String notificationUrl = "https://test-notifications.khmer24.mobi";
-  final String chatUrl = "https://test-chats.khmer24.mobi";
-  final String commentUrl = "https://test-comments.khmer24.mobi";
-  final String likeUrl = "https://test-likes.khmer24.mobi";
-  final String insightUrl = "https://test-insights.khmer24.mobi";
-  final String trackingUrl = "https://test-tracking.khmer24.mobi";
-  final String paymentUrl = "https://test-payments.khmer24.mobi";
-  final String jobUrl = "https://test-jobs.khmer24.mobi";
-
-  final double radius = 6;
-  final double maxWidth = 1080;
-
   final List<String> imageExtensions = ['jpg', 'jpeg', 'png'];
 
   static const int _primaryAppColorValue = 0xff03A9F4;
@@ -202,194 +202,192 @@ class Config {
     "info": Colors.white,
     "link": const Color(_primaryColorValue),
   };
-
-
-
-  // ########### //
-  // more config //
-  // ########### //
-  double bottomSheet = 18;
-  double lineHeight = 1.4;
-  double spaceGrid = 12;
-  double spaceMenu = 14;
-  String lang = 'en';
-  String fields = 'thumbnail,photos,location,user,store,renew_date,link,category,is_saved,is_like,total_like,total_comment,highlight_specs,condition,object_highlight_specs';
-  String fieldsDetails = 'all_photos,photo,photos,thumbnails,thumbnail,renew_date,posted_date,link,highlight_specs,object_highlight_specs,specs,object_specs,description,category,views,total_like,is_like,total_comment,is_saved,location,user,store,email,phone,status,is_job_applied';
-  String filterVersion = '4';
-
-  String mainFunctions = 'save,chat,like,comment,apply_job,shipping,banner[image,code,google_ads,iframe,innity],highlight_ads[highlight_specs],highlight_ads[object_highlight_specs]';
-  String detailsFunctions = 'save,chat,like,comment,apply_job,shipping,loan_calculator';
-
-  responsive(double width) {
-    double resWidth;
-    switch (width) {
-      case >=992: { // computer
-        resWidth = (width / 5) - 10;
-      }
-      break;
-
-      case >=768: { // tablet
-        resWidth = (width / 4) - 10;
-      }
-      break;
-
-      case >=576: { // large phone
-        resWidth = (width / 3) - 9;
-      }
-      break;
-
-      case >=400: { // normal phone
-        resWidth = (width / 2) - 7;
-      }
-      break;
-
-      default: { // default
-        resWidth = (width / 2) - 7;
-      }
-      break;
-    }
-    return resWidth;
-  }
-
-  responsiveSub(double width) {
-    double resWidth;
-    int length = 0;
-    switch (width) {
-      case >=992: { // computer
-        resWidth = (width / 8) - 14;
-        length = 8;
-      }
-      break;
-
-      case >=768: { // tablet
-        resWidth = (width / 7) - 14;
-        length = 6;
-      }
-      break;
-
-      case >=576: { // large phone
-        resWidth = (width / 6) - 14;
-        length = 5;
-      }
-      break;
-
-      case >=400: { // normal phone
-        resWidth = (width / 5) - 14;
-        length = 4;
-      }
-      break;
-
-      default: { // default
-        resWidth = (width / 4) - 14;
-        length = 4;
-      }
-      break;
-    }
-    return { 'width': resWidth, 'length': length };
-  }
-
-  responsiveImage(double width) {
-    double resWidth;
-    int length;
-    switch (width) {
-      case >=992: { // computer
-        resWidth = (width / 6) - 7;
-        length = 6;
-      }
-      break;
-
-      case >=768: { // tablet
-        resWidth = (width / 5) - 6;
-        length = 5;
-      }
-      break;
-
-      case >=576: { // large phone
-        resWidth = (width / 4) - 5;
-        length = 4;
-      }
-      break;
-
-      case >=400: { // normal phone
-        resWidth = (width / 3) - 3;
-        length = 3;
-      }
-      break;
-
-      default: { // default
-        resWidth = (width / 3) - 3;
-        length = 3;
-      }
-      break;
-    }
-    return { "width": resWidth, "length": length};
-  }
-
-  getUrls({ required String subs, Map<String, String>? headers, Urls url = Urls.postUrl }) async {
-    var base = '';
-    switch(url) {
-      case Urls.baseUrl:
-        base = baseUrl; break;
-      case Urls.chatUrl:
-        base = chatUrl; break;
-      case Urls.notificationUrl:
-        base = notificationUrl; break;
-      case Urls.commentUrl:
-        base = commentUrl; break;
-      case Urls.likeUrl:
-        base = likeUrl; break;
-      case Urls.insightUrl:
-        base = insightUrl; break;
-      case Urls.trackingUrl:
-        base = trackingUrl; break;
-      case Urls.paymentUrl:
-        base = paymentUrl; break;
-      case Urls.jobUrl:
-        base = jobUrl; break;
-      default:
-        base = postUrl;break;
-    }
-
-    try {
-      var url = Uri.parse('$base/$subs');
-      headers?.addAll({
-        'Display-Type': 'app',
-      });
-      var response = await http.get(url, headers: headers);
-
-      var decRes = jsonDecode(response.body);
-      // print(decRes);
-
-      if (response.statusCode == 200) {
-        var result = decRes;
-        var data = decRes['data'];
-        return {'status': 0, 'message': 'success', 'result': result, 'data': data, 'code': response.statusCode};
-      } else {
-        return {'status': 1, 'message': decRes, 'result': null, 'data': null, 'code': response.statusCode};
-      }
-    } catch(e) {
-      return {'status': 2, 'message': 'catch: $e', 'result': null, 'data': null, 'code': ''};
-    }
-  }
-
-  final List<GridCard> listViewSkeleton = [
-    GridCard.fromJson({"type": "post","data": {"id": "#","title": "Test post sell table.","price": "210.00","type": "normal", "thumbnail": "###", "location": {"en_name": "Siem Reap Siem Reap Siem Reap Siem"}, "condition": {"title": "Siem Reap Siem Reap Siem Reap Siem"}}, "setting": {}}),
-    GridCard.fromJson({"type": "post","data": {"id": "#","title": "Test post sell table.","price": "210.00","type": "normal", "thumbnail": "###", "location": {"en_name": "Siem Reap Siem Reap Siem Reap Siem"}, "condition": {"title": "Siem Reap Siem Reap Siem Reap Siem"}}, "setting": {}}),
-    GridCard.fromJson({"type": "post","data": {"id": "#","title": "Test post sell table.","price": "210.00","type": "normal", "thumbnail": "###", "location": {"en_name": "Siem Reap Siem Reap Siem Reap Siem"}, "condition": {"title": "Siem Reap Siem Reap Siem Reap Siem"}}, "setting": {}}),
-    GridCard.fromJson({"type": "post","data": {"id": "#","title": "Test post sell table.","price": "210.00","type": "normal", "thumbnail": "###", "location": {"en_name": "Siem Reap Siem Reap Siem Reap Siem"}, "condition": {"title": "Siem Reap Siem Reap Siem Reap Siem"}}, "setting": {}}),
-  ];
-
-  final List<MainCategory> mainCatSkeleton = [
-    MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
-    MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
-    MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
-    MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
-    MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
-    MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
-    MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
-    MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
-  ];
 }
+
+// ########### //
+// more config //
+// ########### //
+double bottomSheet = 18;
+double lineHeight = 1.4;
+double spaceGrid = 12;
+double spaceMenu = 14;
+String lang = 'en';
+String fields = 'thumbnail,photos,location,user,store,renew_date,link,category,is_saved,is_like,total_like,total_comment,highlight_specs,condition,object_highlight_specs';
+String fieldsDetails = 'all_photos,photo,photos,thumbnails,thumbnail,renew_date,posted_date,link,highlight_specs,object_highlight_specs,specs,object_specs,description,category,views,total_like,is_like,total_comment,is_saved,location,user,store,email,phone,status,is_job_applied';
+String filterVersion = '4';
+
+String mainFunctions = 'save,chat,like,comment,apply_job,shipping,banner[image,code,google_ads,iframe,innity],highlight_ads[highlight_specs],highlight_ads[object_highlight_specs]';
+String detailsFunctions = 'save,chat,like,comment,apply_job,shipping,loan_calculator';
+
+double responsive(double width) {
+  double resWidth;
+  switch (width) {
+    case >=992: { // computer
+      resWidth = (width / 5) - 10;
+    }
+    break;
+
+    case >=768: { // tablet
+      resWidth = (width / 4) - 10;
+    }
+    break;
+
+    case >=576: { // large phone
+      resWidth = (width / 3) - 9;
+    }
+    break;
+
+    case >=400: { // normal phone
+      resWidth = (width / 2) - 7;
+    }
+    break;
+
+    default: { // default
+      resWidth = (width / 2) - 7;
+    }
+    break;
+  }
+  return resWidth;
+}
+
+Map responsiveSub(double width) {
+  double resWidth;
+  int length = 0;
+  switch (width) {
+    case >=992: { // computer
+      resWidth = (width / 8) - 14;
+      length = 8;
+    }
+    break;
+
+    case >=768: { // tablet
+      resWidth = (width / 7) - 14;
+      length = 6;
+    }
+    break;
+
+    case >=576: { // large phone
+      resWidth = (width / 6) - 14;
+      length = 5;
+    }
+    break;
+
+    case >=400: { // normal phone
+      resWidth = (width / 5) - 14;
+      length = 4;
+    }
+    break;
+
+    default: { // default
+      resWidth = (width / 4) - 14;
+      length = 4;
+    }
+    break;
+  }
+  return { 'width': resWidth, 'length': length };
+}
+
+Map responsiveImage(double width) {
+  double resWidth;
+  int length;
+  switch (width) {
+    case >=992: { // computer
+      resWidth = (width / 6) - 7;
+      length = 6;
+    }
+    break;
+
+    case >=768: { // tablet
+      resWidth = (width / 5) - 6;
+      length = 5;
+    }
+    break;
+
+    case >=576: { // large phone
+      resWidth = (width / 4) - 5;
+      length = 4;
+    }
+    break;
+
+    case >=400: { // normal phone
+      resWidth = (width / 3) - 3;
+      length = 3;
+    }
+    break;
+
+    default: { // default
+      resWidth = (width / 3) - 3;
+      length = 3;
+    }
+    break;
+  }
+  return { "width": resWidth, "length": length};
+}
+
+Future<Map<String, dynamic>> getUrls({ required String subs, Map<String, String>? headers, Urls url = Urls.postUrl }) async {
+  var base = '';
+  switch(url) {
+    case Urls.baseUrl:
+      base = baseUrl; break;
+    case Urls.chatUrl:
+      base = chatUrl; break;
+    case Urls.notificationUrl:
+      base = notificationUrl; break;
+    case Urls.commentUrl:
+      base = commentUrl; break;
+    case Urls.likeUrl:
+      base = likeUrl; break;
+    case Urls.insightUrl:
+      base = insightUrl; break;
+    case Urls.trackingUrl:
+      base = trackingUrl; break;
+    case Urls.paymentUrl:
+      base = paymentUrl; break;
+    case Urls.jobUrl:
+      base = jobUrl; break;
+    default:
+      base = postUrl;break;
+  }
+
+  try {
+    var url = Uri.parse('$base/$subs');
+    headers?.addAll({
+      'Display-Type': 'app',
+    });
+    var response = await http.get(url, headers: headers);
+
+    var decRes = jsonDecode(response.body);
+    // print(decRes);
+
+    if (response.statusCode == 200) {
+      var result = decRes;
+      var data = decRes['data'];
+      return {'status': 0, 'message': 'success', 'result': result, 'data': data, 'code': response.statusCode};
+    } else {
+      return {'status': 1, 'message': decRes, 'result': null, 'data': null, 'code': response.statusCode};
+    }
+  } catch(e) {
+    return {'status': 2, 'message': 'catch: $e', 'result': null, 'data': null, 'code': ''};
+  }
+}
+
+final List<GridCard> listViewSkeleton = [
+  GridCard.fromJson({"type": "post","data": {"id": "#","title": "Test post sell table.","price": "210.00","type": "normal", "thumbnail": "###", "location": {"en_name": "Siem Reap Siem Reap Siem Reap Siem"}, "condition": {"title": "Siem Reap Siem Reap Siem Reap Siem"}}, "setting": {}}),
+  GridCard.fromJson({"type": "post","data": {"id": "#","title": "Test post sell table.","price": "210.00","type": "normal", "thumbnail": "###", "location": {"en_name": "Siem Reap Siem Reap Siem Reap Siem"}, "condition": {"title": "Siem Reap Siem Reap Siem Reap Siem"}}, "setting": {}}),
+  GridCard.fromJson({"type": "post","data": {"id": "#","title": "Test post sell table.","price": "210.00","type": "normal", "thumbnail": "###", "location": {"en_name": "Siem Reap Siem Reap Siem Reap Siem"}, "condition": {"title": "Siem Reap Siem Reap Siem Reap Siem"}}, "setting": {}}),
+  GridCard.fromJson({"type": "post","data": {"id": "#","title": "Test post sell table.","price": "210.00","type": "normal", "thumbnail": "###", "location": {"en_name": "Siem Reap Siem Reap Siem Reap Siem"}, "condition": {"title": "Siem Reap Siem Reap Siem Reap Siem"}}, "setting": {}}),
+];
+
+final List<MainCategory> mainCatSkeleton = [
+  MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
+  MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
+  MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
+  MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
+  MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
+  MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
+  MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
+  MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
+];
 
 @JsonSerializable(anyMap: true, explicitToJson: true, converters: [ ToString(), ToLists(), ToInt() ])
 class ConfigState {

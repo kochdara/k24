@@ -10,22 +10,20 @@ part 'home_provider.g.dart';
 
 Config config = Config();
 
-StateProvider<bool> fetchingProvider = StateProvider<bool>((ref) => false);
-StateProvider<bool> loadingProvider = StateProvider<bool>((ref) => false);
 StateProvider<ViewPage> viewPage = StateProvider<ViewPage>((ref) { return ViewPage.grid;});
 
-@Riverpod(keepAlive: true)
+@riverpod
 class GetMainCategory extends _$GetMainCategory {
   @override
-  Future<List<MainCategory>> build({ String parent = '0' }) async => fetchData(parent: parent);
+  Future<List<MainCategory>> build(String parent) async => fetchData(parent);
 
-  Future<List<MainCategory>> fetchData({ String parent = '0' }) async {
+  Future<List<MainCategory>> fetchData(String parent) async {
     bool dispose = false;
     ref.onDispose(() { dispose = true; });
     if(dispose) return [];
 
-    var url = 'categories?parent=$parent&lang=${config.lang}&v=1';
-    var result = await config.getUrls(subs: url, url: Urls.baseUrl);
+    var url = 'categories?parent=$parent&lang=$lang&v=1';
+    var result = await getUrls(subs: url, url: Urls.baseUrl);
 
     List<MainCategory> list = [];
     final resp = ConfigState.fromJson(result);
@@ -44,7 +42,7 @@ class GetMainCategory extends _$GetMainCategory {
   }
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 class HomeLists extends _$HomeLists {
   late List<GridCard> list = [];
   String fields = 'thumbnail,photos,location,user,store,renew_date,link,category,is_saved,is_like,total_like,total_comment,condition,highlight_specs';
@@ -65,7 +63,7 @@ class HomeLists extends _$HomeLists {
     if(current_result < limit || dispose) return [];
 
     final subs = 'feed?lang=en&offset=${current_page * limit}&fields=$fields&functions=$fun';
-    final res = await config.getUrls(subs: subs, url: Urls.postUrl);
+    final res = await getUrls(subs: subs, url: Urls.postUrl);
     current_page++;
 
     final status = ConfigState.fromJson(res);
@@ -93,9 +91,10 @@ class HomeLists extends _$HomeLists {
     current_result = 0;
     current_page = 0;
     list = [];
+    state = const AsyncLoading();
 
     final subs = 'feed?lang=en&offset=0&fields=$fields&functions=$fun';
-    final res = await config.getUrls(subs: subs, url: Urls.postUrl);
+    final res = await getUrls(subs: subs, url: Urls.postUrl);
     current_page++;
 
     final status = ConfigState.fromJson(res);

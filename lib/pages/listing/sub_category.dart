@@ -40,9 +40,11 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   final MyCards myCards = MyCards();
   final MyWidgets myWidgets = MyWidgets();
   final Forms forms = Forms();
-  final Helper helper = const Helper();
 
   final scrollController = ScrollController();
+  StateProvider<bool> fetchingProvider = StateProvider<bool>((ref) => false);
+  StateProvider<int> indX = StateProvider((ref) => 0);
+  StateProvider<Map> newData = StateProvider((ref) => {});
 
   @override
   void initState() {
@@ -59,29 +61,30 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   void loadMore() async {
     final dataCate = widget.data;
     final cate = dataCate['slug'];
-    final limit = ref.watch(subListsProvider(category: '$cate').notifier).limit;
-    final current = ref.watch(subListsProvider(category: '$cate').notifier).current_result;
+    final limit = ref.watch(subListsProvider('$cate').notifier).limit;
+    final current = ref.watch(subListsProvider('$cate').notifier).current_result;
     var fet = ref.read(fetchingProvider.notifier);
+    ScrollPosition scroll = scrollController.position;
 
-    if (scrollController.position.pixels >= (scrollController.position.maxScrollExtent - 750)
+    if (scroll.pixels > 1500 && scroll.pixels >= (scroll.maxScrollExtent - 750)
         && (current >= limit) && !fet.state) {
       fet.state = true;
-      ref.read(subListsProvider(category: '$cate').notifier).subFetch('$cate');
-      await helper.futureAwait(() { fet.state = false; });
+      ref.read(subListsProvider('$cate').notifier).subFetch('$cate');
+      await futureAwait(() { fet.state = false; });
     }
   }
 
   Future<void> handleRefresh() async {
     final dataCate = widget.data;
     final cate = dataCate['slug'];
-    await ref.read(subListsProvider(category: '$cate').notifier).refresh(category: '$cate');
+    await ref.read(subListsProvider('$cate').notifier).refresh(category: '$cate');
   }
 
   @override
   Widget build(BuildContext context) {
     final dataCate = widget.data;
-    final watchCate = ref.watch(getMainCategoryProvider(parent: '${dataCate['id']}'));
-    final watchLists = ref.watch(subListsProvider(category: '${dataCate['slug']}'));
+    final watchCate = ref.watch(getMainCategoryProvider('${dataCate['id']}'));
+    final watchLists = ref.watch(subListsProvider('${dataCate['slug']}'));
 
     return Scaffold(
       appBar: appBar(),
@@ -93,11 +96,9 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
           child: Center(
             child: LayoutBuilder(
                 builder: (BuildContext context, BoxConstraints constraints) {
-                  double width = constraints.maxWidth;
-                  config.responsiveSub(width);
 
                   return Container(
-                    constraints: BoxConstraints(maxWidth: config.maxWidth),
+                    constraints: const BoxConstraints(maxWidth: maxWidth),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
@@ -136,26 +137,12 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     );
   }
 
-  setupPage() {
+  void setupPage() {
     newData = StateProvider((ref) => {});
     indX = StateProvider((ref) => 0);
   }
 
-  getLocation({ String type = '', String parent = '' }) async {
-    List? data = [];
-    try {
-      var url = 'locations?lang=${config.lang}';
-      if(type.isNotEmpty) url += '&type=$type';
-      if(parent.isNotEmpty) url += '&parent=$parent';
-      var result = await config.getUrls(subs: url, url: Urls.baseUrl);
-      if(result['status'] == 0 && result['data']!=null) data = result['data'];
-    } catch(e) {
-      data = null;
-    }
-    return data;
-  }
-
-  appBar() {
+  PreferredSizeWidget appBar() {
     return AppBar(
       leading: IconButton(
         padding: const EdgeInsets.all(14),
@@ -187,7 +174,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     );
   }
 
-  titleFilter() {
+  Widget titleFilter() {
     final watchFilter = ref.watch(getFiltersProvider('${widget.data['slug'] ?? ""}'));
 
     return Container(
@@ -245,7 +232,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     );
   }
 
-  shimmerFilter() {
+  Widget shimmerFilter() {
     List length = [0,1,2,3];
     return Shimmer.fromColors(
       baseColor: Colors.grey.shade200,
@@ -264,7 +251,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     );
   }
 
-  fieldGenerator(Map<String, dynamic> field) {
+  Widget fieldGenerator(Map<String, dynamic> field) {
     switch(field["type"]) {
 
       case "radio":
@@ -288,7 +275,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   }
 
   var displayTitle = StateProvider<String?>((ref) => null);
-  _fieldMinMax(Map<String, dynamic> field) {
+  Widget _fieldMinMax(Map<String, dynamic> field) {
     final fieldApp = MinMax.fromJson(field);
     final minField = fieldApp.min_field ?? Field_.fromJson({});
     final maxField = fieldApp.max_field ?? Field_.fromJson({});
@@ -296,7 +283,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     // set val //
     bool check = ref.watch(newData)[minField.fieldname]!=null && ref.watch(newData)[maxField.fieldname]!=null && ref.watch(newData)[minField.fieldname].isNotEmpty && ref.watch(newData)[maxField.fieldname].isNotEmpty;
     if(ref.watch(newData)[minField.fieldname] != null || ref.watch(newData)[maxField.fieldname] != null) {
-      helper.futureAwait(duration: 1, () {
+      futureAwait(duration: 1, () {
         ref.read(displayTitle.notifier).state = '${fieldApp.title}: ${ref.watch(newData)[minField.fieldname]??''}${check?' - ':''}${ref.watch(newData)[maxField.fieldname]??''}';
       });
     }
@@ -307,7 +294,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
       onPressed: () async {
         showBarModalBottomSheet(
           context: context,
-          builder: (context) => MinMaxPageView(data: field),
+          builder: (context) => MinMaxPageView(data: field, newData: newData),
         );
       },
       textColor: ref.watch(displayTitle)!=null ? config.primaryAppColor.shade600 : Colors.black,
@@ -327,7 +314,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     );
   }
 
-  _fieldRadio(Map<String, dynamic> field) {
+  Widget _fieldRadio(Map<String, dynamic> field) {
     final fieldApp = RadioSelect.fromJson(field);
     var options = fieldApp.options ?? [];
     var fieldName = ValueSelect.fromJson(ref.watch(newData)[fieldApp.fieldname] ?? {});
@@ -339,7 +326,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
         showDropdown: true,
         onPressed: () async {
           showBarModalBottomSheet(context: context,
-            builder: (context) => GroupFieldView(data: field),
+            builder: (context) => GroupFieldView(data: field, newData: newData),
           );
         },
         textColor: fieldName.fieldtitle != null ? config.primaryAppColor.shade600 : Colors.black,
@@ -358,7 +345,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
       showDropdown: true,
       onPressed: () async {
         showBarModalBottomSheet(context: context,
-          builder: (context) => SelectTypePageView(data: field, selected: false),
+          builder: (context) => SelectTypePageView(data: field, selected: false, newData: newData),
         );
       },
       textColor: fieldName.fieldtitle != null ? config.primaryAppColor.shade600 : Colors.black,
@@ -375,7 +362,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     );
   }
 
-  _fieldSelect(Map<String, dynamic> field) {
+  Widget _fieldSelect(Map<String, dynamic> field) {
     final fieldS = RadioSelect.fromJson(field);
     var fieldName = ValueSelect.fromJson(ref.watch(newData)[fieldS.fieldname] ?? {});
 
@@ -397,7 +384,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
         prefColor: field['title2'] != null ? config.primaryAppColor.shade600 : Colors.black,
         onPressed: () async {
           final result = await showBarModalBottomSheet(context: context,
-            builder: (context) => ProvincePageView(data: field),
+            builder: (context) => ProvincePageView(data: field, newData: newData),
           );
 
           /// click clear on modal ///
@@ -428,7 +415,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
       showDropdown: true,
       onPressed: () async {
         showBarModalBottomSheet(context: context,
-          builder: (context) => SelectTypePageView(data: field, selected: true),
+          builder: (context) => SelectTypePageView(data: field, selected: true, newData: newData),
         );
       },
       textColor: fieldName.fieldtitle != null ? config.primaryAppColor.shade600 : Colors.black,
@@ -445,7 +432,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     );
   }
 
-  _fieldMore(Map field) {
+  Widget _fieldMore(Map field) {
     return buttons.textButtons(
       title: 'More',
       prefixChild: (ref.watch(indX) > 0) ? badges.Badge(
@@ -464,7 +451,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     );
   }
 
-  onClickMoreFilter() async {
+  void onClickMoreFilter() async {
     // final result = await Navigator.push(
     //   context,
     //   MaterialPageRoute(builder: (context) => MyFilters(title: 'Filters', filters: jsonEncode(ref.watch(newData)), condition: widget.condition, slug: '${widget.data['slug']??''}' )),
@@ -483,15 +470,15 @@ enum Filter { price, condition }
 
 /// select type model ///
 class MinMaxPageView extends ConsumerWidget {
-  MinMaxPageView({super.key, required this.data});
+  MinMaxPageView({super.key, required this.data, required this.newData});
 
   final Map<String, dynamic> data;
+  final StateProvider<Map> newData;
 
   final Labels labels = Labels();
   final Config config = Config();
   final Buttons buttons = Buttons();
   final Forms forms = Forms();
-  final Helper helper = const Helper();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -505,7 +492,7 @@ class MinMaxPageView extends ConsumerWidget {
     var valMap = StateProvider((ref) => {});
     final newDa = ref.watch(newData);
 
-    helper.futureAwait(duration: 1, () {
+    futureAwait(duration: 1, () {
       ref.read(minCon.notifier).state.text = '${newDa[minField.fieldname] ?? ' '}';
       ref.read(maxCon.notifier).state.text = '${newDa[maxField.fieldname] ?? ' '}';
     });
@@ -645,20 +632,30 @@ class MinMaxPageView extends ConsumerWidget {
 
 /// select type model ///
 class GroupFieldView extends ConsumerWidget {
-  GroupFieldView({super.key, required this.data});
+  GroupFieldView({super.key, required this.data, this.condition, required this.newData});
 
   final Map<String, dynamic> data;
+  final StateProvider<Map> newData;
+  final Map? condition;
 
   final Labels labels = Labels();
   final Config config = Config();
   final Buttons buttons = Buttons();
   final Forms forms = Forms();
-  final Helper helper = const Helper();
+
+  final lastVal = StateProvider((ref) => {});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final mData = RadioSelect.fromJson(data);
     final list = mData.options ?? [];
+
+    final last = ref.read(lastVal.notifier);
+    final watch = ref.watch(lastVal);
+
+    futureAwait(() {
+      last.state = condition!;
+    });
 
     return Material(
       child: SafeArea(
@@ -691,6 +688,7 @@ class GroupFieldView extends ConsumerWidget {
                   LayoutBuilder(
                       builder: (BuildContext context, BoxConstraints constraints) {
                         double width = constraints.maxWidth;
+
                         return Wrap(
                           spacing: 10,
                           runSpacing: 10,
@@ -700,11 +698,13 @@ class GroupFieldView extends ConsumerWidget {
                               width: (width / 3) - 10,
                               child: buttons.textButtons(
                                 title: 'Any',
-                                onPressed: () {},
+                                onPressed: () {
+                                  last.state = {'fieldtitle': 'Any', 'fieldvalue': '', 'popular': 'false', 'fieldid': '29'} as Map<String, dynamic>;
+                                },
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 textSize: 15,
-                                bgColor: Colors.white,
-                                borderColor: config.secondaryColor.shade100,
+                                bgColor: watch['fieldvalue'] == '' ? config.infoColor.shade50 : Colors.white,
+                                borderColor: watch['fieldvalue'] == '' ? config.infoColor.shade300 : config.secondaryColor.shade100,
                               ),
                             ),
 
@@ -713,11 +713,13 @@ class GroupFieldView extends ConsumerWidget {
                                 width: (width / 3) - 10,
                                 child: buttons.textButtons(
                                   title: v?.fieldtitle ?? '',
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    last.state = v?.toJson() as Map<String, dynamic>;
+                                  },
                                   padding: const EdgeInsets.symmetric(vertical: 16),
                                   textSize: 15,
-                                  bgColor: Colors.white,
-                                  borderColor: config.secondaryColor.shade100,
+                                  bgColor: v?.fieldvalue == watch['fieldvalue'] ? config.infoColor.shade50 : Colors.white,
+                                  borderColor: v?.fieldvalue == watch['fieldvalue'] ? config.infoColor.shade300 : config.secondaryColor.shade100,
                                 ),
                               ),
                             ],
@@ -734,7 +736,11 @@ class GroupFieldView extends ConsumerWidget {
                     child: buttons.textButtons(
                       title: 'Apply Filter',
                       onPressed: () {
-
+                        ref.read(newData.notifier).update((state) {
+                          final newMap = {...state};
+                          newMap[mData.fieldname] = watch;
+                          return newMap;
+                        });
                         Navigator.pop(context);
                       },
                       padSize: 14,
@@ -762,9 +768,10 @@ class GroupFieldView extends ConsumerWidget {
 
 /// select type model ///
 class SelectTypePageView extends ConsumerWidget {
-  SelectTypePageView({super.key, required this.data, required this.selected});
+  SelectTypePageView({super.key, required this.data, required this.selected, required this.newData});
 
   final Map<String, dynamic> data;
+  final StateProvider<Map> newData;
   final bool selected;
 
   final Labels labels = Labels();
@@ -850,9 +857,10 @@ class SelectTypePageView extends ConsumerWidget {
 
 /// group select type model ///
 class ProvincePageView extends ConsumerWidget {
-  ProvincePageView({super.key, required this.data});
+  ProvincePageView({super.key, required this.data, required this.newData});
 
   final Map<String, dynamic> data;
+  final StateProvider<Map> newData;
 
   final Labels labels = Labels();
   final Config config = Config();
@@ -929,7 +937,7 @@ class ProvincePageView extends ConsumerWidget {
                   child: Builder(
                     builder: (context) {
                       final wSlug = ref.watch(slug);
-                      final watchGetPro = ref.watch(getLocationProvider(type: '${fields[ref.watch(current)].slug}', parent: '${wSlug[ref.watch(current)??'']}'));
+                      final watchGetPro = ref.watch(getLocationProvider('${fields[ref.watch(current)].slug}', '${wSlug[ref.watch(current)??'']}'));
 
                       return watchGetPro.when(
                         skipLoadingOnRefresh: false,

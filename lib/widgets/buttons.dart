@@ -9,7 +9,7 @@ final Labels _labels = Labels();
 
 class Buttons {
 
-  invButton({ void Function()? onTap, IconData? icon, String? text }) {
+  Widget invButton({ void Function()? onTap, IconData? icon, String? text }) {
     return InkWell(
       onTap: onTap,
       child: Row(
@@ -25,7 +25,7 @@ class Buttons {
     );
   }
 
-  button(String title,
+  Widget button(String title,
       {
         Function()? onPressed,
         ButtonSizes buttonSize = ButtonSizes.normal,
@@ -79,7 +79,7 @@ class Buttons {
     );
   }
 
-  buttonTap({
+  Widget buttonTap({
     void Function()? onTap,
     IconData? icon, double size = 20, Color? color
   }) {
@@ -101,7 +101,7 @@ class Buttons {
     );
   }
 
-  textButtons({
+  Widget textButtons({
     required String title,
     required void Function()? onPressed,
     double radius = 4.0,
@@ -167,7 +167,7 @@ class Buttons {
     );
   }
 
-  dropdown(List options, {
+  Widget dropdown(List options, {
     var initialValue,
     Function(dynamic)? onSelected,
     ButtonSizes buttonSize = ButtonSizes.normal,
@@ -222,7 +222,7 @@ class Buttons {
     );
   }
 
-  dropdownSearch(List options, {
+  Widget dropdownSearch(List options, {
     String? label,
     String? hintText,
     var initialValue,

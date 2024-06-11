@@ -6,7 +6,7 @@ part of 'home_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getMainCategoryHash() => r'ee17e127c40d8704cccd9fc33df40c6edfab0ded';
+String _$getMainCategoryHash() => r'eba2cb435f96357d5c30279f402e6d0a655e520b';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -30,12 +30,12 @@ class _SystemHash {
 }
 
 abstract class _$GetMainCategory
-    extends BuildlessAsyncNotifier<List<MainCategory>> {
+    extends BuildlessAutoDisposeAsyncNotifier<List<MainCategory>> {
   late final String parent;
 
-  FutureOr<List<MainCategory>> build({
-    String parent = '0',
-  });
+  FutureOr<List<MainCategory>> build(
+    String parent,
+  );
 }
 
 /// See also [GetMainCategory].
@@ -48,11 +48,11 @@ class GetMainCategoryFamily extends Family<AsyncValue<List<MainCategory>>> {
   const GetMainCategoryFamily();
 
   /// See also [GetMainCategory].
-  GetMainCategoryProvider call({
-    String parent = '0',
-  }) {
+  GetMainCategoryProvider call(
+    String parent,
+  ) {
     return GetMainCategoryProvider(
-      parent: parent,
+      parent,
     );
   }
 
@@ -61,7 +61,7 @@ class GetMainCategoryFamily extends Family<AsyncValue<List<MainCategory>>> {
     covariant GetMainCategoryProvider provider,
   ) {
     return call(
-      parent: provider.parent,
+      provider.parent,
     );
   }
 
@@ -81,12 +81,12 @@ class GetMainCategoryFamily extends Family<AsyncValue<List<MainCategory>>> {
 }
 
 /// See also [GetMainCategory].
-class GetMainCategoryProvider
-    extends AsyncNotifierProviderImpl<GetMainCategory, List<MainCategory>> {
+class GetMainCategoryProvider extends AutoDisposeAsyncNotifierProviderImpl<
+    GetMainCategory, List<MainCategory>> {
   /// See also [GetMainCategory].
-  GetMainCategoryProvider({
-    String parent = '0',
-  }) : this._internal(
+  GetMainCategoryProvider(
+    String parent,
+  ) : this._internal(
           () => GetMainCategory()..parent = parent,
           from: getMainCategoryProvider,
           name: r'getMainCategoryProvider',
@@ -117,7 +117,7 @@ class GetMainCategoryProvider
     covariant GetMainCategory notifier,
   ) {
     return notifier.build(
-      parent: parent,
+      parent,
     );
   }
 
@@ -138,7 +138,7 @@ class GetMainCategoryProvider
   }
 
   @override
-  AsyncNotifierProviderElement<GetMainCategory, List<MainCategory>>
+  AutoDisposeAsyncNotifierProviderElement<GetMainCategory, List<MainCategory>>
       createElement() {
     return _GetMainCategoryProviderElement(this);
   }
@@ -157,26 +157,27 @@ class GetMainCategoryProvider
   }
 }
 
-mixin GetMainCategoryRef on AsyncNotifierProviderRef<List<MainCategory>> {
+mixin GetMainCategoryRef
+    on AutoDisposeAsyncNotifierProviderRef<List<MainCategory>> {
   /// The parameter `parent` of this provider.
   String get parent;
 }
 
 class _GetMainCategoryProviderElement
-    extends AsyncNotifierProviderElement<GetMainCategory, List<MainCategory>>
-    with GetMainCategoryRef {
+    extends AutoDisposeAsyncNotifierProviderElement<GetMainCategory,
+        List<MainCategory>> with GetMainCategoryRef {
   _GetMainCategoryProviderElement(super.provider);
 
   @override
   String get parent => (origin as GetMainCategoryProvider).parent;
 }
 
-String _$homeListsHash() => r'fb7664010747a1f968342916194a140d6f935997';
+String _$homeListsHash() => r'1fc9beb5c1e834c903357a1614ec422ab95f2be0';
 
 /// See also [HomeLists].
 @ProviderFor(HomeLists)
 final homeListsProvider =
-    AsyncNotifierProvider<HomeLists, List<GridCard>>.internal(
+    AutoDisposeAsyncNotifierProvider<HomeLists, List<GridCard>>.internal(
   HomeLists.new,
   name: r'homeListsProvider',
   debugGetCreateSourceHash:
@@ -185,6 +186,6 @@ final homeListsProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$HomeLists = AsyncNotifier<List<GridCard>>;
+typedef _$HomeLists = AutoDisposeAsyncNotifier<List<GridCard>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
