@@ -10,6 +10,10 @@ import '../../widgets/buttons.dart';
 import '../../widgets/labels.dart';
 import 'home_provider.dart';
 
+final Buttons buttons = Buttons();
+final Labels labels = Labels();
+final MyCards myCards = MyCards();
+
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key, required this.title});
 
@@ -20,10 +24,6 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  final Buttons buttons = Buttons();
-  final Labels labels = Labels();
-  final MyCards myCards = MyCards();
-
   final scrollController = ScrollController();
   StateProvider<bool> fetchingProvider = StateProvider<bool>((ref) => false);
   StateProvider<bool> loadingProvider = StateProvider<bool>((ref) => false);
@@ -56,12 +56,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Future<void> _handleRefresh() async {
-    final load = ref.read(loadingProvider.notifier);
-
-    load.state = true;
     await ref.read(homeListsProvider.notifier).refresh();
-
-    load.state = false;
   }
 
   @override
@@ -100,7 +95,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                   /// home list ///
                   homeList.when(
-                    error: (e, st) => Text('Error : $e'),
+                    error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: _handleRefresh),
                     loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPage)),
                     data: (data) => myCards.cardHome(
                       data,

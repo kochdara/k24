@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,6 +23,13 @@ import '../../widgets/labels.dart';
 import '../../widgets/my_cards.dart';
 import '../../widgets/my_widgets.dart';
 
+final Buttons buttons = Buttons();
+final Labels labels = Labels();
+final Config config = Config();
+final MyCards myCards = MyCards();
+final MyWidgets myWidgets = MyWidgets();
+final Forms forms = Forms();
+
 class SubCategory extends ConsumerStatefulWidget {
   const SubCategory({super.key, required this.title, required this.data, required this.condition, required this.setFilters});
 
@@ -34,22 +43,17 @@ class SubCategory extends ConsumerStatefulWidget {
 }
 
 class _SubCategoryState extends ConsumerState<SubCategory> {
-  final Buttons buttons = Buttons();
-  final Labels labels = Labels();
-  final Config config = Config();
-  final MyCards myCards = MyCards();
-  final MyWidgets myWidgets = MyWidgets();
-  final Forms forms = Forms();
-
   final scrollController = ScrollController();
   StateProvider<bool> fetchingProvider = StateProvider<bool>((ref) => false);
   StateProvider<int> indX = StateProvider((ref) => 0);
   StateProvider<Map> newData = StateProvider((ref) => {});
+  final displayTitle = StateProvider<String?>((ref) => null);
 
   @override
   void initState() {
     super.initState();
     scrollController.addListener(loadMore);
+    setupPage();
   }
 
   @override
@@ -69,7 +73,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     if (scroll.pixels > 1500 && scroll.pixels >= (scroll.maxScrollExtent - 750)
         && (current >= limit) && !fet.state) {
       fet.state = true;
-      ref.read(subListsProvider('$cate').notifier).subFetch('$cate');
+      ref.read(subListsProvider('$cate').notifier).subFetch(category: '$cate', newFilter: ref.watch(newData) as Map?);
       await futureAwait(() { fet.state = false; });
     }
   }
@@ -77,14 +81,26 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   Future<void> handleRefresh() async {
     final dataCate = widget.data;
     final cate = dataCate['slug'];
-    await ref.read(subListsProvider('$cate').notifier).refresh(category: '$cate');
+    final Map? filter = ref.watch(newData) as Map?;
+    await ref.read(subListsProvider('$cate', newFilter: filter).notifier)
+        .refresh(category: '$cate', newFilter: filter);
+
+    // String subs = '';
+    // newFilter.forEach((key, value) {
+    //   if(value is Map) {
+    //     if(value['fieldvalue'] != null) subs += '&$key=${value['fieldvalue']}';
+    //     if(value['slug'] != null) subs += '&$key=${value['slug']}';
+    //
+    //   } else {subs += '&$key=${value ?? ''}';}
+    // });
+    // print(subs);
   }
 
   @override
   Widget build(BuildContext context) {
     final dataCate = widget.data;
     final watchCate = ref.watch(getMainCategoryProvider('${dataCate['id']}'));
-    final watchLists = ref.watch(subListsProvider('${dataCate['slug']}'));
+    final watchLists = ref.watch(subListsProvider('${dataCate['slug']}', newFilter: ref.watch(newData) as Map?));
 
     return Scaffold(
       appBar: appBar(),
@@ -112,12 +128,12 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
                         watchCate.when(
                           error: (e, st) => Text('Error : $e'),
                           loading: () => myCards.shimmerCategory(),
-                          data: (data) => myCards.subCategory(data, setFilters: {}, condition: true),
+                          data: (data) => myCards.subCategory(data, setFilters: ref.watch(newData), condition: true),
                         ),
 
                         /// grid view ///
                         watchLists.when(
-                          error: (e, st) => myCards.notFound(context, id: '${dataCate['id']}', message: '$e'),
+                          error: (e, st) => myCards.notFound(context, id: '${dataCate['id']}', message: '$e', onPressed: handleRefresh),
                           loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPage)),
                           data: (data) => myCards.cardHome(
                             data,
@@ -138,7 +154,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   }
 
   void setupPage() {
-    newData = StateProvider((ref) => {});
+    newData = StateProvider((ref) => jsonDecode(widget.setFilters));
     indX = StateProvider((ref) => 0);
   }
 
@@ -274,7 +290,6 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     }
   }
 
-  var displayTitle = StateProvider<String?>((ref) => null);
   Widget _fieldMinMax(Map<String, dynamic> field) {
     final fieldApp = MinMax.fromJson(field);
     final minField = fieldApp.min_field ?? Field_.fromJson({});
@@ -292,10 +307,13 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
       title: ref.watch(displayTitle)??(fieldApp.title ?? 'MinMax'),
       showDropdown: true,
       onPressed: () async {
-        showBarModalBottomSheet(
+        final result = await showBarModalBottomSheet(
           context: context,
           builder: (context) => MinMaxPageView(data: field, newData: newData),
         );
+
+        /// submit ///
+        if(result != null) handleRefresh();
       },
       textColor: ref.watch(displayTitle)!=null ? config.primaryAppColor.shade600 : Colors.black,
       child: ref.watch(displayTitle)!=null ? InkWell(
@@ -307,7 +325,9 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
             newVal[maxField.fieldname] = null;
             return newVal;
           });
-          //
+
+          /// submit ///
+          handleRefresh();
         },
         child: const Icon(Icons.close, size: 18),
       ) : null,
@@ -325,14 +345,25 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
         title: '${fieldApp.title}: ${fieldName.fieldtitle ?? ''}',
         showDropdown: true,
         onPressed: () async {
-          showBarModalBottomSheet(context: context,
-            builder: (context) => GroupFieldView(data: field, newData: newData),
+          final condition = StateProvider<String>((ref) => fieldName.fieldvalue ?? '');
+          final result = await showBarModalBottomSheet(context: context,
+            builder: (context) => GroupFieldView(data: field, newData: newData, condition: condition),
           );
+
+          /// submit ///
+          if(result != null) handleRefresh();
         },
         textColor: fieldName.fieldtitle != null ? config.primaryAppColor.shade600 : Colors.black,
         child: fieldName.fieldtitle != null ? InkWell(
           onTap: () async {
-            //
+            ref.read(newData.notifier).update((state) {
+              final newMap = {...state};
+              newMap[fieldApp.fieldname] = null;
+              return newMap;
+            });
+
+            /// submit ///
+            handleRefresh();
           },
           child: const Icon(Icons.close, size: 18),
         ) : null,
@@ -344,9 +375,12 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
       title: fieldName.fieldtitle ?? (fieldApp.title ?? 'RadioType'),
       showDropdown: true,
       onPressed: () async {
-        showBarModalBottomSheet(context: context,
+        final result = await showBarModalBottomSheet(context: context,
           builder: (context) => SelectTypePageView(data: field, selected: false, newData: newData),
         );
+
+        /// submit ///
+        if(result != null) handleRefresh();
       },
       textColor: fieldName.fieldtitle != null ? config.primaryAppColor.shade600 : Colors.black,
       child: fieldName.fieldtitle != null ? InkWell(
@@ -356,6 +390,9 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
             newMap[fieldApp.fieldname] = null;
             return newMap;
           });
+
+          /// submit ///
+          handleRefresh();
         },
         child: const Icon(Icons.close, size: 18),
       ) : null,
@@ -388,11 +425,16 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
           );
 
           /// click clear on modal ///
-          if(result.toString().contains('clear')) {
-            setState(() { field['title2'] = null; });
-            for(var k=0; k<opt.length; k++) {
-              ref.read(newData.notifier).state[opt[k].slug] = null;
+          if(result != null) {
+            if(result.toString().contains('clear')) {
+              setState(() { field['title2'] = null; });
+              for(var k=0; k<opt.length; k++) {
+                ref.read(newData.notifier).state[opt[k].slug] = null;
+              }
             }
+
+            /// submit ///
+            handleRefresh();
           }
 
         },
@@ -403,6 +445,9 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
             for(var k=0; k<opt.length; k++) {
               ref.read(newData.notifier).state[opt[k].slug] = null;
             }
+
+            /// submit ///
+            handleRefresh();
           },
           child: const Icon(Icons.close, size: 18),
         ) : null,
@@ -414,9 +459,12 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
       title: fieldName.fieldtitle ?? (fieldS.title ?? 'SelectType'),
       showDropdown: true,
       onPressed: () async {
-        showBarModalBottomSheet(context: context,
+        final result = await showBarModalBottomSheet(context: context,
           builder: (context) => SelectTypePageView(data: field, selected: true, newData: newData),
         );
+
+        /// submit ///
+        if(result != null) handleRefresh();
       },
       textColor: fieldName.fieldtitle != null ? config.primaryAppColor.shade600 : Colors.black,
       child: fieldName.fieldtitle != null ? InkWell(
@@ -426,6 +474,9 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
             newMap[fieldS.fieldname] = null;
             return newMap;
           });
+
+          /// submit ///
+          handleRefresh();
         },
         child: const Icon(Icons.close, size: 18),
       ) : null,
@@ -468,17 +519,12 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
 
 enum Filter { price, condition }
 
-/// select type model ///
+/// min max model ///
 class MinMaxPageView extends ConsumerWidget {
-  MinMaxPageView({super.key, required this.data, required this.newData});
+  const MinMaxPageView({super.key, required this.data, required this.newData});
 
   final Map<String, dynamic> data;
   final StateProvider<Map> newData;
-
-  final Labels labels = Labels();
-  final Config config = Config();
-  final Buttons buttons = Buttons();
-  final Forms forms = Forms();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -579,7 +625,7 @@ class MinMaxPageView extends ConsumerWidget {
                                   });
                                 });
 
-                                Navigator.pop(context);
+                                Navigator.pop(context, 'success');
                               },
                             ),
                           ),
@@ -605,7 +651,7 @@ class MinMaxPageView extends ConsumerWidget {
                           });
                         });
 
-                        Navigator.pop(context);
+                        Navigator.pop(context, 'success');
                       },
                       padSize: 14,
                       textSize: 16,
@@ -630,18 +676,13 @@ class MinMaxPageView extends ConsumerWidget {
   }
 }
 
-/// select type model ///
+/// radio with tap model ///
 class GroupFieldView extends ConsumerWidget {
-  GroupFieldView({super.key, required this.data, this.condition, required this.newData});
+  GroupFieldView({super.key, required this.data, required this.condition, required this.newData});
 
   final Map<String, dynamic> data;
   final StateProvider<Map> newData;
-  final Map? condition;
-
-  final Labels labels = Labels();
-  final Config config = Config();
-  final Buttons buttons = Buttons();
-  final Forms forms = Forms();
+  final StateProvider<String> condition;
 
   final lastVal = StateProvider((ref) => {});
 
@@ -653,9 +694,8 @@ class GroupFieldView extends ConsumerWidget {
     final last = ref.read(lastVal.notifier);
     final watch = ref.watch(lastVal);
 
-    futureAwait(() {
-      last.state = condition!;
-    });
+    final setVal = ref.read(condition.notifier);
+    final watchVal = ref.watch(condition);
 
     return Material(
       child: SafeArea(
@@ -700,11 +740,12 @@ class GroupFieldView extends ConsumerWidget {
                                 title: 'Any',
                                 onPressed: () {
                                   last.state = {'fieldtitle': 'Any', 'fieldvalue': '', 'popular': 'false', 'fieldid': '29'} as Map<String, dynamic>;
+                                  setVal.state = '';
                                 },
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 textSize: 15,
-                                bgColor: watch['fieldvalue'] == '' ? config.infoColor.shade50 : Colors.white,
-                                borderColor: watch['fieldvalue'] == '' ? config.infoColor.shade300 : config.secondaryColor.shade100,
+                                bgColor: watchVal == '' ? config.infoColor.shade50 : Colors.white,
+                                borderColor: watchVal == '' ? config.infoColor.shade300 : config.secondaryColor.shade100,
                               ),
                             ),
 
@@ -715,11 +756,12 @@ class GroupFieldView extends ConsumerWidget {
                                   title: v?.fieldtitle ?? '',
                                   onPressed: () {
                                     last.state = v?.toJson() as Map<String, dynamic>;
+                                    setVal.state = v?.fieldvalue??'';
                                   },
                                   padding: const EdgeInsets.symmetric(vertical: 16),
                                   textSize: 15,
-                                  bgColor: v?.fieldvalue == watch['fieldvalue'] ? config.infoColor.shade50 : Colors.white,
-                                  borderColor: v?.fieldvalue == watch['fieldvalue'] ? config.infoColor.shade300 : config.secondaryColor.shade100,
+                                  bgColor: v?.fieldvalue == watchVal ? config.infoColor.shade50 : Colors.white,
+                                  borderColor: v?.fieldvalue == watchVal ? config.infoColor.shade300 : config.secondaryColor.shade100,
                                 ),
                               ),
                             ],
@@ -736,12 +778,15 @@ class GroupFieldView extends ConsumerWidget {
                     child: buttons.textButtons(
                       title: 'Apply Filter',
                       onPressed: () {
-                        ref.read(newData.notifier).update((state) {
-                          final newMap = {...state};
-                          newMap[mData.fieldname] = watch;
-                          return newMap;
-                        });
-                        Navigator.pop(context);
+                        if(watch.isNotEmpty) {
+                          ref.read(newData.notifier).update((state) {
+                            final newMap = {...state};
+                            newMap[mData.fieldname] = watch;
+                            return newMap;
+                          });
+                        }
+
+                        Navigator.pop(context, 'success');
                       },
                       padSize: 14,
                       textSize: 16,
@@ -768,14 +813,11 @@ class GroupFieldView extends ConsumerWidget {
 
 /// select type model ///
 class SelectTypePageView extends ConsumerWidget {
-  SelectTypePageView({super.key, required this.data, required this.selected, required this.newData});
+  const SelectTypePageView({super.key, required this.data, required this.selected, required this.newData});
 
   final Map<String, dynamic> data;
   final StateProvider<Map> newData;
   final bool selected;
-
-  final Labels labels = Labels();
-  final Config config = Config();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -805,7 +847,7 @@ class SelectTypePageView extends ConsumerWidget {
                       newMap[sortData.fieldname] = null;
                       return newMap;
                     });
-                    Navigator.pop(context);
+                    Navigator.pop(context, 'success');
                   },
                 ),
               ],
@@ -842,7 +884,7 @@ class SelectTypePageView extends ConsumerWidget {
                         newMap[sortData.fieldname] = options?.toJson();
                         return newMap;
                     });
-                    Navigator.pop(context);
+                    Navigator.pop(context, 'success');
                   },
                 );
               },
@@ -861,9 +903,6 @@ class ProvincePageView extends ConsumerWidget {
 
   final Map<String, dynamic> data;
   final StateProvider<Map> newData;
-
-  final Labels labels = Labels();
-  final Config config = Config();
 
   final current = StateProvider((ref) => 0);
   final slug = StateProvider((ref) => {});
@@ -924,7 +963,7 @@ class ProvincePageView extends ConsumerWidget {
                     });
                   });
                 }
-                Navigator.pop(context);
+                Navigator.pop(context, 'success');
 
               },
             ),
@@ -982,7 +1021,7 @@ class ProvincePageView extends ConsumerWidget {
                                         });
                                       });
                                     }
-                                    Navigator.pop(context);
+                                    Navigator.pop(context, 'success');
                                   }
 
                                 },

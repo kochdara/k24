@@ -88,7 +88,7 @@ class MyCards {
     );
   }
 
-  Widget notFound(BuildContext context, {String id = '', String message = ''}) {
+  Widget notFound(BuildContext context, {String id = '', String message = '', required void Function()? onPressed}) {
     final size = MediaQuery.of(context).size;
 
     return Container(
@@ -108,7 +108,7 @@ class MyCards {
             textWeight: FontWeight.w400,
             bgColor: Colors.transparent,
             borderColor: config.primaryAppColor.shade600,
-            onPressed: () { if(Navigator.canPop(context)) Navigator.pop(context); },
+            onPressed: onPressed,
           ),
         ],
       ),
@@ -146,7 +146,7 @@ class MyCards {
                             'id': v.id ?? '',
                             'title': v.en_name ?? '',
                             'slug': v.slug ?? ''
-                          }, condition: false, setFilters: jsonEncode(v))),
+                          }, condition: false, setFilters: jsonEncode({}))),
                         );
                       }
                     }),

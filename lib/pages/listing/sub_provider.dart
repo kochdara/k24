@@ -19,15 +19,27 @@ class SubLists extends _$SubLists {
   int current_page = 0;
 
   @override
-  Future<List<GridCard>> build(String category) async => subFetch(category);
+  Future<List<GridCard>> build(String category, {Map? newFilter}) async => subFetch(category: category, newFilter: newFilter);
 
-  Future<List<GridCard>> subFetch(String category) async {
+  Future<List<GridCard>> subFetch({ String category = '', Map? newFilter }) async {
     bool dispose = false;
     ref.onDispose(() { dispose = true; });
     if(current_result < limit || dispose) return [];
 
     var subs = 'feed?lang=en&offset=${current_page * limit}&fields=$fields&functions=$fun';
     subs += '&category=$category';
+
+    /// check loop filter ///
+    if(newFilter != null && newFilter.isNotEmpty) {
+      newFilter.forEach((key, value) {
+        if(value is Map) {
+          if(value['fieldvalue'] != null) subs += '&$key=${value['fieldvalue']}';
+          if(value['slug'] != null) subs += '&$key=${value['slug']}';
+
+        } else {subs += '&$key=${value ?? ''}';}
+      });
+    }
+
     final res = await getUrls(subs: subs, url: Urls.postUrl);
     current_page++;
 
@@ -49,7 +61,7 @@ class SubLists extends _$SubLists {
     return list;
   }
 
-  Future<void> refresh({ String category = '' }) async {
+  Future<void> refresh({ String category = '', Map? newFilter }) async {
     total = 0;
     limit = 0;
     offset_ = 0;
@@ -60,6 +72,18 @@ class SubLists extends _$SubLists {
 
     var subs = 'feed?lang=en&offset=0&fields=$fields&functions=$fun';
     subs += '&category=$category';
+
+    /// check loop filter ///
+    if(newFilter != null && newFilter.isNotEmpty) {
+      newFilter.forEach((key, value) {
+        if(value is Map) {
+          if(value['fieldvalue'] != null) subs += '&$key=${value['fieldvalue']}';
+          if(value['slug'] != null) subs += '&$key=${value['slug']}';
+
+        } else {subs += '&$key=${value ?? ''}';}
+      });
+    }
+
     final res = await getUrls(subs: subs, url: Urls.postUrl);
     current_page++;
 

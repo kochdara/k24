@@ -129,6 +129,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                       watchRelates: watchRelates,
                       location: location,
                       location2: location2,
+                      onPressed: _handleRefresh,
                     ),
                   ),
                 ),
@@ -155,7 +156,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                 child: AnimatedOpacity(
                   opacity: ref.watch(heightScrollProvider) >= (heightImg - 79) ? 0 : 1,
                   duration: const Duration(milliseconds: 100),
-                  child: appBar2(),
+                  child: appBar(transparent: true),
                 ),
               ),
             ],
@@ -167,7 +168,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     );
   }
 
-  PreferredSizeWidget appBar() {
+  PreferredSizeWidget appBar({ bool transparent = false }) {
     return AppBar(
       leading: IconButton(
         padding: const EdgeInsets.all(14),
@@ -176,35 +177,11 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
         },
         icon: const Icon(Icons.arrow_back, color: Colors.white),
       ),
-      title: label.label(widget.title, overflow: TextOverflow.ellipsis, fontSize: 20, fontWeight: FontWeight.w500),
+      title: transparent ? null : label.label(widget.title, overflow: TextOverflow.ellipsis, fontSize: 20, fontWeight: FontWeight.w500),
       titleSpacing: 0,
-      actions: [
-        IconButton(
-          onPressed: () { },
-          icon: const Icon(CupertinoIcons.bookmark, color: Colors.white),
-        ),
-
-        IconButton(
-          onPressed: () { },
-          icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_fill, color: Colors.white),
-        ),
-      ],
-    );
-  }
-
-  PreferredSizeWidget appBar2() {
-    return AppBar(
-      leading: IconButton(
-        padding: const EdgeInsets.all(14),
-        onPressed: () {
-          if(Navigator.canPop(context)) Navigator.pop(context);
-        },
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
-      ),
-      titleSpacing: 0,
-      backgroundColor: Colors.transparent,
-      shadowColor: Colors.transparent,
-      surfaceTintColor: Colors.transparent,
+      backgroundColor: transparent ? Colors.transparent : null,
+      shadowColor: transparent ? Colors.transparent : null,
+      surfaceTintColor: transparent ? Colors.transparent : null,
       actions: [
         IconButton(
           onPressed: () { },
@@ -311,6 +288,7 @@ class BodyWidget extends ConsumerWidget {
     required this.watchRelates,
     required this.location,
     required this.location2,
+    this.onPressed,
   });
 
   final String title;
@@ -323,6 +301,7 @@ class BodyWidget extends ConsumerWidget {
   final AsyncValue<List<GridCard>> watchRelates;
   final StateProvider<String> location;
   final StateProvider<String> location2;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -330,13 +309,13 @@ class BodyWidget extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
 
-        // header image list //
+        /// header image list ///
         Opacity(
           opacity: 0,
           child: myWidgets.imageList(context, ref, dataDetails.data?.thumbnail ?? '', listImg, title, heightImg: heightImg),
         ),
 
-        // body of content //
+        /// body of content ///
         Container(
           color: config.backgroundColor,
           child: Column(
@@ -361,7 +340,7 @@ class BodyWidget extends ConsumerWidget {
               SizedBox(height: space / 2),
 
               watchDetails.when(
-                error: (e, st) => myCards.notFound(context, id: '${dataDetails.data?.id}', message: '$e'),
+                error: (e, st) => myCards.notFound(context, id: '${dataDetails.data?.id}', message: '$e', onPressed: onPressed),
                 loading: () => shimmerDetails(),
                 data: (data) {
                   final datum = data.data;
@@ -698,7 +677,7 @@ class BodyWidget extends ConsumerWidget {
 
                       /// relate card ///
                       watchRelates.when(
-                        error: (e, st) => myCards.notFound(context, id: '${dataDetails.data?.id}', message: '$e'),
+                        error: (e, st) => myCards.notFound(context, id: '${dataDetails.data?.id}', message: '$e', onPressed: onPressed),
                         loading: () => myCards.shimmerHome(),
                         data: (data) => myCards.cardHome(data, fetching: false, notRelates: false),
                       ),

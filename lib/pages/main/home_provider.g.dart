@@ -6,7 +6,7 @@ part of 'home_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getMainCategoryHash() => r'eba2cb435f96357d5c30279f402e6d0a655e520b';
+String _$getMainCategoryHash() => r'ebe410f13058affca62b59bec546f005e7fe1b94';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -172,7 +172,7 @@ class _GetMainCategoryProviderElement
   String get parent => (origin as GetMainCategoryProvider).parent;
 }
 
-String _$homeListsHash() => r'1fc9beb5c1e834c903357a1614ec422ab95f2be0';
+String _$homeListsHash() => r'8fcffe7be306573d65ea085faa6d970c20434329';
 
 /// See also [HomeLists].
 @ProviderFor(HomeLists)

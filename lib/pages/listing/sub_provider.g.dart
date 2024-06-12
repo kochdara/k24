@@ -6,7 +6,7 @@ part of 'sub_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$subListsHash() => r'ae3f92fed129a0f8151789a90da3b5bfb65e648a';
+String _$subListsHash() => r'd23eda4bbc689bb03d4e5a713948306752404ca0';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -32,10 +32,12 @@ class _SystemHash {
 abstract class _$SubLists
     extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {
   late final String category;
+  late final Map<dynamic, dynamic>? newFilter;
 
   FutureOr<List<GridCard>> build(
-    String category,
-  );
+    String category, {
+    Map<dynamic, dynamic>? newFilter,
+  });
 }
 
 /// See also [SubLists].
@@ -49,10 +51,12 @@ class SubListsFamily extends Family<AsyncValue<List<GridCard>>> {
 
   /// See also [SubLists].
   SubListsProvider call(
-    String category,
-  ) {
+    String category, {
+    Map<dynamic, dynamic>? newFilter,
+  }) {
     return SubListsProvider(
       category,
+      newFilter: newFilter,
     );
   }
 
@@ -62,6 +66,7 @@ class SubListsFamily extends Family<AsyncValue<List<GridCard>>> {
   ) {
     return call(
       provider.category,
+      newFilter: provider.newFilter,
     );
   }
 
@@ -85,9 +90,12 @@ class SubListsProvider
     extends AutoDisposeAsyncNotifierProviderImpl<SubLists, List<GridCard>> {
   /// See also [SubLists].
   SubListsProvider(
-    String category,
-  ) : this._internal(
-          () => SubLists()..category = category,
+    String category, {
+    Map<dynamic, dynamic>? newFilter,
+  }) : this._internal(
+          () => SubLists()
+            ..category = category
+            ..newFilter = newFilter,
           from: subListsProvider,
           name: r'subListsProvider',
           debugGetCreateSourceHash:
@@ -97,6 +105,7 @@ class SubListsProvider
           dependencies: SubListsFamily._dependencies,
           allTransitiveDependencies: SubListsFamily._allTransitiveDependencies,
           category: category,
+          newFilter: newFilter,
         );
 
   SubListsProvider._internal(
@@ -107,9 +116,11 @@ class SubListsProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.category,
+    required this.newFilter,
   }) : super.internal();
 
   final String category;
+  final Map<dynamic, dynamic>? newFilter;
 
   @override
   FutureOr<List<GridCard>> runNotifierBuild(
@@ -117,6 +128,7 @@ class SubListsProvider
   ) {
     return notifier.build(
       category,
+      newFilter: newFilter,
     );
   }
 
@@ -125,13 +137,16 @@ class SubListsProvider
     return ProviderOverride(
       origin: this,
       override: SubListsProvider._internal(
-        () => create()..category = category,
+        () => create()
+          ..category = category
+          ..newFilter = newFilter,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         category: category,
+        newFilter: newFilter,
       ),
     );
   }
@@ -144,13 +159,16 @@ class SubListsProvider
 
   @override
   bool operator ==(Object other) {
-    return other is SubListsProvider && other.category == category;
+    return other is SubListsProvider &&
+        other.category == category &&
+        other.newFilter == newFilter;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, category.hashCode);
+    hash = _SystemHash.combine(hash, newFilter.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -159,6 +177,9 @@ class SubListsProvider
 mixin SubListsRef on AutoDisposeAsyncNotifierProviderRef<List<GridCard>> {
   /// The parameter `category` of this provider.
   String get category;
+
+  /// The parameter `newFilter` of this provider.
+  Map<dynamic, dynamic>? get newFilter;
 }
 
 class _SubListsProviderElement
@@ -168,9 +189,12 @@ class _SubListsProviderElement
 
   @override
   String get category => (origin as SubListsProvider).category;
+  @override
+  Map<dynamic, dynamic>? get newFilter =>
+      (origin as SubListsProvider).newFilter;
 }
 
-String _$getFiltersHash() => r'335ee356a73dfbe940fb887ee8c2d89723c48cbd';
+String _$getFiltersHash() => r'988cf26fe2bf7a94d8366a0348c48f285dcfadc2';
 
 abstract class _$GetFilters extends BuildlessAutoDisposeAsyncNotifier<List> {
   late final String slug;
@@ -312,7 +336,7 @@ class _GetFiltersProviderElement
   String get slug => (origin as GetFiltersProvider).slug;
 }
 
-String _$getLocationHash() => r'bfd7510939d686dc72f484c64695b31822a5a93b';
+String _$getLocationHash() => r'2d2a1e435b0c3b1b6729f8388c8dadf7f37c09cf';
 
 abstract class _$GetLocation extends BuildlessAutoDisposeAsyncNotifier<List> {
   late final String type;
