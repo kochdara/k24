@@ -1,4 +1,5 @@
 
+import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../helpers/config.dart';
@@ -11,18 +12,19 @@ class GetDetailPost extends _$GetDetailPost {
   String fields = 'photo,photos,thumbnails,thumbnail,renew_date,posted_date,link,highlight_specs,specs,description,category,views,total_like,total_comment,location,user,store,phone';
   String fun = 'save,chat,like,comment,apply_job,shipping';
 
-  @override
-  Future<GridCard> build(String id) async => fetch(id);
+  final Dio dio = Dio();
 
-  Future<GridCard> fetch(String id) async {
+  @override
+  Future<GridCard> build(String id) async => fetch();
+
+  Future<GridCard> fetch() async {
     state = const AsyncLoading();
     final subs = 'feed/$id?lang=$lang&fields=$fields&functions=$fun&filter_version=$filterVersion';
-    final res = await getUrls(subs: subs, url: Urls.postUrl);
+    final res = await dio.get('$postUrl/$subs');
 
-    final status = ConfigState.fromJson(res);
-    final resp = GridCard.fromJson(status.result);
+    final resp = GridCard.fromJson(res.data ?? {});
 
-    if(status.status == 0) return resp;
+    if(res.statusCode == 200) return resp;
 
     return GridCard();
   }
@@ -34,70 +36,46 @@ class RelateDetailPost extends _$RelateDetailPost {
   String fields = 'thumbnail,photos,user,store,renew_date,link,category,is_saved,is_like,total_like,total_comment';
   String fun = 'save,chat,like,comment,apply_job,shipping';
 
-  int total = 0;
+  final Dio dio = Dio();
+
   int limit = 0;
-  int offset_ = 0;
   int current_result = 0;
   int current_page = 0;
 
   @override
-  Future<List<GridCard>> build(String id) async => fetch(id);
+  Future<List<GridCard>> build(String id) async => fetch();
 
-  Future<List<GridCard>> fetch(String id) async {
-    bool dispose = false;
-    ref.onDispose(() { dispose = true; });
-    if(current_result < limit || dispose) return [];
-
-    final subs = 'feed/$id/relates?lang=$lang&offset=${current_page * limit}&fields=$fields&functions=$fun';
-    final res = await getUrls(subs: subs, url: Urls.postUrl);
-    current_page++;
-
-    final status = ConfigState.fromJson(res);
-    final resp = HomeSerial.fromJson(status.result ?? {});
-
-    if(status.status == 0) {
-      final data = resp.data;
-      total = resp.total ?? 0;
-      limit = resp.limit ?? 0;
-      offset_ = resp.offset ?? 0;
-      current_result = resp.current_result ?? 0;
-
-      for (var val in data!) {
-        list.add(val!);
-      }
-    }
-
+  Future<List<GridCard>> fetch() async {
+    await urlAPI();
     return list;
   }
 
-  Future<void> refresh(String id) async {
-    total = 0;
+  Future<void> refresh() async {
     limit = 0;
-    offset_ = 0;
     current_result = 0;
     current_page = 0;
     list = [];
     state = const AsyncLoading();
 
-    final subs = 'feed/$id/relates?lang=$lang&offset=0&fields=$fields&functions=$fun';
-    final res = await getUrls(subs: subs, url: Urls.postUrl);
+    await urlAPI();
+    state = AsyncData(list);
+  }
+
+  Future<void> urlAPI() async {
+    final subs = 'feed/$id/relates?lang=$lang&offset=${current_page * limit}&fields=$fields&functions=$fun';
+    final res = await dio.get('$postUrl/$subs');
     current_page++;
 
-    final status = ConfigState.fromJson(res);
-    final resp = HomeSerial.fromJson(status.result ?? {});
+    final resp = HomeSerial.fromJson(res.data ?? {});
 
-    if(status.status == 0) {
+    if(res.statusCode == 200) {
       final data = resp.data;
-      total = resp.total ?? 0;
       limit = resp.limit ?? 0;
-      offset_ = resp.offset ?? 0;
       current_result = resp.current_result ?? 0;
 
       for (var val in data!) {
         list.add(val!);
       }
     }
-
-    state = AsyncData(list);
   }
 }

@@ -6,7 +6,7 @@ part of 'details_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getDetailPostHash() => r'd0f06c1c607b1d318e31fac6a4db878d03f3487d';
+String _$getDetailPostHash() => r'099b22e112ff46399fc9f677739e42697db0aa03';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -171,7 +171,7 @@ class _GetDetailPostProviderElement
   String get id => (origin as GetDetailPostProvider).id;
 }
 
-String _$relateDetailPostHash() => r'7da675a229d1afe21b877b82f1a3b99e2237fbd9';
+String _$relateDetailPostHash() => r'a6ca265e7abbe414e8037f7a0837370c5099ca6e';
 
 abstract class _$RelateDetailPost
     extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {

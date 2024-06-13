@@ -40,6 +40,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
   StateProvider<String> location2 = StateProvider<String>((ref) => '');
   StateProvider<bool> hidden = StateProvider<bool>((ref) => true);
   StateProvider<double> heightScrollProvider = StateProvider<double>((ref) => 0.0);
+  StateProvider<int?> total_like = StateProvider((ref) => 0);
 
   List listImg = [];
   double space = 10;
@@ -61,7 +62,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     final id = dataDetails.data?.id;
 
     ref.refresh(getDetailPostProvider('$id').future);
-    await ref.read(relateDetailPostProvider('$id').notifier).refresh('$id');
+    await ref.read(relateDetailPostProvider('$id').notifier).refresh();
   }
 
   void scrollListener() {
@@ -129,6 +130,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                       watchRelates: watchRelates,
                       location: location,
                       location2: location2,
+                      total_like: total_like,
                       onPressed: _handleRefresh,
                     ),
                   ),
@@ -164,7 +166,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
           ],
         ),
       ),
-      bottomNavigationBar: bottomNav(total_like: dataDetails.data?.total_like ?? 0),
+      bottomNavigationBar: bottomNav(total_like: ref.watch(total_like)),
     );
   }
 
@@ -288,6 +290,7 @@ class BodyWidget extends ConsumerWidget {
     required this.watchRelates,
     required this.location,
     required this.location2,
+    required this.total_like,
     this.onPressed,
   });
 
@@ -301,6 +304,7 @@ class BodyWidget extends ConsumerWidget {
   final AsyncValue<List<GridCard>> watchRelates;
   final StateProvider<String> location;
   final StateProvider<String> location2;
+  final StateProvider<int?> total_like;
   final VoidCallback? onPressed;
 
   @override
@@ -346,7 +350,7 @@ class BodyWidget extends ConsumerWidget {
                   final datum = data.data;
 
                   if (datum?.location != null) {
-                    futureAwait(duration: 10, () {
+                    futureAwait(duration: 1, () {
                       ref.read(location.notifier).state = datum?.location?.en_name ?? '';
 
                       String? date = stringToString(date: '${datum?.renew_date}', format: 'dd, MMM yyyy');
@@ -354,6 +358,9 @@ class BodyWidget extends ConsumerWidget {
 
                       ref.read(location2.notifier).state = datum?.location?.address??'';
                       if(datum?.location?.long_location != null) {ref.read(location2.notifier).state += ', ${datum?.location?.long_location ?? ''}';}
+
+                      // update total like //
+                      ref.read(total_like.notifier).state = datum?.total_like ?? 0;
                     });
                   }
 
@@ -967,7 +974,7 @@ class PhotoHero extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: SizedBox(
-        width: double.infinity,
+        // width: double.infinity,
         child: Hero(
           tag: photo,
           child: Material(

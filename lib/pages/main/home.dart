@@ -1,4 +1,6 @@
 
+// ignore_for_file: unused_result
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,13 +51,12 @@ class _HomePageState extends ConsumerState<HomePage> {
         && (current >= limit) && !fet.state) {
       fet.state = true;
       ref.read(homeListsProvider.notifier).fetchHome();
-      print(current);
-      print(limit);
       await futureAwait(() { fet.state = false; });
     }
   }
 
   Future<void> _handleRefresh() async {
+    ref.refresh(getMainCategoryProvider('0').future);
     await ref.read(homeListsProvider.notifier).refresh();
   }
 

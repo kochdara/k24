@@ -51,6 +51,7 @@ class ValueSelect {
   bool? popular;
   String? fieldid;
   String? fieldparentvalue;
+  Iconr? icon;
 
   ValueSelect({
     this.fieldtitle,
@@ -58,9 +59,51 @@ class ValueSelect {
     this.popular,
     this.fieldid,
     this.fieldparentvalue,
+    this.icon,
   });
 
   factory ValueSelect.fromJson(Map<String, dynamic> json) => _$ValueSelectFromJson(json);
   Map toJson() => _$ValueSelectToJson(this);
 
 }
+
+@JsonSerializable(explicitToJson: true, converters: [ToString()])
+class Iconr {
+  String? url;
+  String? width;
+  String? height;
+  Larger? small;
+  Larger? medium;
+  Larger? large;
+
+  Iconr({
+    this.url,
+    this.width,
+    this.height,
+    this.small,
+    this.medium,
+    this.large,
+  });
+
+  factory Iconr.fromJson(Map<String, dynamic> json) => _$IconrFromJson(json);
+  Map toJson() => _$IconrToJson(this);
+
+}
+
+@JsonSerializable(explicitToJson: true, converters: [ToString()])
+class Larger {
+  String? url;
+  String? width;
+  String? height;
+
+  Larger({
+    this.url,
+    this.width,
+    this.height,
+  });
+
+  factory Larger.fromJson(Map<String, dynamic> json) => _$LargerFromJson(json);
+  Map toJson() => _$LargerToJson(this);
+
+}
+

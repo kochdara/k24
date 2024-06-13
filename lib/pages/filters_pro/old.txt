@@ -1,0 +1,804 @@
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:khmer24/helpers/config.dart';
+import 'package:khmer24/pages/my_filter_provider.dart';
+import 'package:khmer24/serialization/filters/min_max/min_max.dart';
+import 'package:khmer24/serialization/filters/radio_select/radio.dart';
+import 'package:khmer24/serialization/filters/switch/switch_type.dart';
+import 'package:khmer24/widgets/buttons.dart';
+import 'package:khmer24/widgets/forms.dart';
+import 'package:khmer24/widgets/labels.dart';
+import 'package:khmer24/widgets/my_cards.dart';
+import 'package:khmer24/widgets/my_widgets.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+
+import '../pages/main/home_provider.dart';
+
+class MyFilters extends ConsumerStatefulWidget {
+  const MyFilters({super.key, required this.title, required this.filters, required this.condition, required this.slug,});
+
+  final String title;
+  final String filters;
+  final bool condition;
+  final String slug;
+
+  @override
+  ConsumerState<MyFilters> createState() => _TestingPage4State();
+}
+
+class _TestingPage4State extends ConsumerState<MyFilters> {
+  final Buttons _buttons = Buttons();
+  final Config _config = Config();
+  final Labels _labels = Labels();
+  final Forms _forms = Forms();
+  final MyWidgets _myWidgets = MyWidgets();
+  final MyCards _myCards = MyCards();
+
+  final _scrollController = ScrollController();
+
+  // late StateProvider<Map> newData = StateProvider<Map>((ref) => {});
+
+  double space = 14;
+
+  @override
+  void initState() {
+    super.initState();
+    _setupPage();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final n = ref.watch(newDataFil);
+
+    return Scaffold(
+      appBar: appBar(),
+      backgroundColor: _config.backgroundColor,
+      body: body(),
+      bottomNavigationBar: bottomNav(checkVal: n.isNotEmpty),
+    );
+  }
+
+  _setupPage() async {
+    filterList = StateProvider((ref) => []);
+    newDataFil = StateProvider<Map>((ref) => jsonDecode(widget.filters));
+    loadingFil = StateProvider((ref) => true);
+
+    await futureAwait(() async {
+      await _getFilter();
+      ref.read(loadingFil.notifier).state = false;
+    });
+  }
+
+  _getFilter() async {
+    try {
+      // fetch data //
+      var url = 'filters/${widget.slug}?lang=${_config.lang}&group=true&return_key=true&filter_version=${_config.filterVersion}&has_post=true';
+
+      var res = await _config.getUrls(subs: url, url: Urls.baseUrl);
+
+      ref.read(filterList.notifier).state = [];
+
+      if(res['status'] == 0) {
+        // var result = res["result"];
+        var data = res["data"];
+
+        if (data != null) {
+          if(data['sort'] != null) ref.read(filterList.notifier).state.add(data['sort']);
+          if(data['date'] != null) ref.read(filterList.notifier).state.add(data['date']);
+
+          if(data['locations'] != null){
+            if(data['locations']['locations'] != null) ref.read(filterList.notifier).state.add(data['locations']['locations']);
+          }
+
+          if(data['prices'] != null){
+            if(data['prices']['ad_price'] != null) ref.read(filterList.notifier).state.add(data['prices']['ad_price']);
+            if(data['prices']['discount'] != null) ref.read(filterList.notifier).state.add(data['prices']['discount']);
+          }
+
+          if(data['deliveries'] != null) {
+            if(data['deliveries']['shipping'] != null) ref.read(filterList.notifier).state.add(data['deliveries']['shipping']);
+          }
+
+          if(data['fields'] != null) {
+            if(data['fields']['make-model-and-year'] != null) ref.read(filterList.notifier).state.add(data['fields']['make-model-and-year']);
+
+            if(data['fields']['ad_auto_condition'] != null) ref.read(filterList.notifier).state.add(data['fields']['ad_auto_condition']);
+
+            if(data['fields']['ad_condition'] != null) ref.read(filterList.notifier).state.add(data['fields']['ad_condition']);
+
+            if(data['fields']['ad_transmission'] != null) ref.read(filterList.notifier).state.add(data['fields']['ad_transmission']);
+
+            if(data['fields']['ad_fuel'] != null) ref.read(filterList.notifier).state.add(data['fields']['ad_fuel']);
+
+            if(data['fields']['ad_type'] != null) ref.read(filterList.notifier).state.add(data['fields']['ad_type']);
+          }
+
+        }
+      }
+    } catch(e) {
+      print(e);
+    }
+  }
+
+  _getLocation({ String type = '', String parent = '' }) async {
+    List? data = [];
+    try {
+      var url = 'locations?lang=${_config.lang}';
+      if(type.isNotEmpty) url += '&type=$type';
+      if(parent.isNotEmpty) url += '&parent=$parent';
+      var result = await _config.getUrls(subs: url, url: Urls.baseUrl);
+      if(result['status'] == 0 && result['data']!=null) data = result['data'];
+    } catch(e) {
+      data = null;
+    }
+    return data;
+  }
+
+  futureAwait(void Function() T, { int duration = 250 }) async {
+    await Future.delayed(Duration(milliseconds: duration), T);
+  }
+
+  appBar() {
+    return AppBar(
+      leading: IconButton(
+        padding: const EdgeInsets.all(14),
+        onPressed: () {
+          if(Navigator.canPop(context)) Navigator.pop(context);
+        },
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
+      ),
+      title: _labels.label(widget.title.isNotEmpty ? widget.title : 'Filters', fontSize: 22),
+      titleSpacing: 0,
+      actions: [
+        _buttons.textButtons(
+          title: 'Apply Filter',
+          textColor: Colors.white,
+          textWeight: FontWeight.w500,
+          textSize: 16,
+          onPressed: () { _submitBack(); },
+          bgColor: Colors.transparent,
+        ),
+      ],
+    );
+  }
+
+  _submitBack() async {
+    if(Navigator.canPop(context)) Navigator.pop(context, ref.watch(newDataFil));
+    // print(_newData);
+  }
+
+  body() {
+    final refWatch = ref.watch(filterList);
+
+    return SingleChildScrollView(
+      controller: _scrollController,
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          constraints: BoxConstraints(maxWidth: _config.maxWidth),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+
+              Text('${ref.watch(newDataFil)}', style: const TextStyle(fontSize: 16)),
+
+              (ref.watch(loadingFil)) ? Skeletonizer(
+                enabled: true,
+                child: Column(
+                  children: [
+                    for(var v=0; v<6; v++) ...[
+                      _forms.labelFormFields(
+                        _config.fields,
+                        readOnly: true,
+                        suffixIcon: const Icon(Icons.arrow_drop_down),
+                      ),
+
+                      SizedBox(height: space),
+                    ],
+                  ],
+                ),
+              ) : ListView.builder(
+                itemBuilder: (context, index) {
+                  Map field = refWatch[index];
+                  //
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // generate list filter //
+                      _fieldGenerator(field),
+
+                      SizedBox(height: space),
+                    ],
+                  );
+                },
+                itemCount: refWatch.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+              ),
+
+              // view button //
+              if(!ref.watch(loadingFil)) Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: _config.secondaryColor.shade100),
+                  color: Colors.white,
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _labels.label(
+                      'View',
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+
+                    Row(
+                      children: [
+                        _buttons.buttonTap(
+                          onTap: () {ref.read(viewPage.notifier).state = ViewPage.view;},
+                          icon: CupertinoIcons.list_bullet_below_rectangle,
+                          color: ref.watch(viewPage) == ViewPage.view ? _config.secondaryColor.shade700 : null,
+                          size: 23,
+                        ),
+
+                        _buttons.buttonTap(
+                          onTap: () {ref.read(viewPage.notifier).state = ViewPage.list;},
+                          icon: CupertinoIcons.list_bullet,
+                          color: ref.watch(viewPage) == ViewPage.list ? _config.secondaryColor.shade700 : null,
+                          size: 23,
+                        ),
+
+                        _buttons.buttonTap(
+                          onTap: () {ref.read(viewPage.notifier).state = ViewPage.grid;},
+                          icon: CupertinoIcons.square_grid_2x2,
+                          color: ref.watch(viewPage) == ViewPage.grid ? _config.secondaryColor.shade700 : null,
+                          size: 23,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  _fieldGenerator(Map field) {
+    switch(field["type"]) {
+
+      case "radio":
+        return _fieldRadio(field);
+
+      case "select":
+        return _fieldSelect(field);
+
+      case "min_max":
+        return _fieldMinMax(field);
+
+      case "switch":
+        return _fieldSwitch(field);
+
+      case "group_fields":
+        return _fieldSelect(field);
+
+      default:
+        return _fieldSelect(field);
+    }
+  }
+
+  final setController = StateProvider((ref) => true);
+  _fieldMinMax(Map field) {
+    final mFields = StateProvider((ref) => MinMax.fromJson(field));
+    final sField = ref.read(mFields.notifier);
+    final wField = ref.watch(mFields);
+    sField.state.min_controller ??= TextEditingController();
+    sField.state.max_controller ??= TextEditingController();
+
+    var minField = wField.min_field ?? Field_.fromJson({});
+    var maxField = wField.max_field ?? Field_.fromJson({});
+
+    // set value //
+    sField.state.min_controller.text = '${ref.watch(newDataFil)[minField.fieldname] ?? ''}';
+    sField.state.max_controller.text = '${ref.watch(newDataFil)[maxField.fieldname] ?? ''}';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _labels.label(wField.title ?? '', color: _config.secondaryColor.shade400, fontSize: 15),
+        const SizedBox(height: 8),
+        LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            double width = constraints.maxWidth;
+
+            // if type select //
+            if(minField.type == 'select') {
+              if(ref.watch(newDataFil)[minField.fieldname] != null) sField.state.min_controller.text = '${ref.watch(newDataFil)[minField.fieldname]['fieldvalue']??''}';
+              if(ref.watch(newDataFil)[maxField.fieldname] != null) sField.state.max_controller.text = '${ref.watch(newDataFil)[maxField.fieldname]['fieldvalue']??''}';
+
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: (width / 2) - 7,
+                    child: _forms.labelFormFields(
+                        minField.title ?? '',
+                        readOnly: true,
+                        controller: wField.min_controller,
+                        suffixIcon: const Icon(Icons.arrow_drop_down),
+                        onTap: () async {
+                          var val = ref.watch(newDataFil)[minField.fieldname] != null ? ref.watch(newDataFil)[minField.fieldname]['fieldvalue'] : '';
+
+                          final result = await _myWidgets.modalBottom(context, child: _myCards.selectCard(context, title2: '${minField.title}', provinceValue: '$val',
+                              list: minField.toJson()));
+
+                          if(result!=null) {
+                            ref.read(newDataFil.notifier).update((state) {
+                              final newMap = {...state};
+                              newMap[minField.fieldname] = result ?? {};
+                              return newMap;
+                            });
+                            sField.state.min_controller.text = '${result['fieldtitle'] ?? ''}';
+                          }
+
+                        }
+                    ),
+                  ),
+
+                  SizedBox(
+                    width: (width / 2) - 7,
+                    child: _forms.labelFormFields(
+                        maxField.title ?? '',
+                        readOnly: true,
+                        controller: wField.max_controller,
+                        suffixIcon: const Icon(Icons.arrow_drop_down),
+                        onTap: () async {
+                          var val = ref.watch(newDataFil)[maxField.fieldname] != null ? ref.watch(newDataFil)[maxField.fieldname]['fieldvalue'] : '';
+
+                          final result = await _myWidgets.modalBottom(context, child: _myCards.selectCard(context, title2: '${maxField.title}', provinceValue: '$val',
+                              list: maxField.toJson()));
+
+                          if(result!=null) {
+                            ref.read(newDataFil.notifier).update((state) {
+                              final newMap = {...state};
+                              newMap[maxField.fieldname] = result ?? {};
+                              return newMap;
+                            });
+                            sField.state.max_controller.text = '${result['fieldtitle'] ?? ''}';
+                          }
+
+                        }
+                    ),
+                  ),
+
+                ],
+              );
+            }
+
+
+
+            // if normal min-max //
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  width: (width / 2) - 7,
+                  child: _forms.labelFormFields(
+                      minField.title ?? '',
+                      controller: ref.watch(setController) ? wField.min_controller : null,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                        FilteringTextInputFormatter.digitsOnly
+                      ], keyboardType: TextInputType.number,
+                      onChanged: (val) {
+                        ref.read(setController.notifier).state = false;
+
+                        ref.read(newDataFil.notifier).update((state) {
+                          final newMap = {...state};
+                          newMap[minField.fieldname] = val;
+                          return newMap;
+                        });
+                      }
+                  ),
+                ),
+
+                SizedBox(
+                  width: (width / 2) - 7,
+                  child: _forms.labelFormFields(
+                      maxField.title ?? '',
+                      controller: ref.watch(setController) ? wField.max_controller : null,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                        FilteringTextInputFormatter.digitsOnly
+                      ], keyboardType: TextInputType.number,
+                      onChanged: (val) {
+                        ref.read(setController.notifier).state = false;
+
+                        ref.read(newDataFil.notifier).update((state) {
+                          final newMap = {...state};
+                          newMap[maxField.fieldname] = val;
+                          return newMap;
+                        });
+                        sField.state.max_controller.text = val;
+
+                      }
+                  ),
+                ),
+
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  _fieldRadio(Map field) {
+    final radioField = StateProvider((ref) => RadioSelect.fromJson(field));
+    final sRadioField = ref.read(radioField.notifier);
+    final wRadioField = ref.watch(radioField);
+    sRadioField.state.controller ??= TextEditingController();
+
+    // set value //
+    var sortValue = '';
+    if(ref.watch(newDataFil)[wRadioField.fieldname] != null) {
+      sortValue = ref.watch(newDataFil)[wRadioField.fieldname]['fieldvalue']??'';
+      sRadioField.state.controller.text = ref.watch(newDataFil)[wRadioField.fieldname]['fieldtitle']??'';
+    }
+
+    // group radio button //
+    var options = wRadioField.options ?? [];
+    if(options.isNotEmpty && options.length <= 3) {
+      List<Map<String, dynamic>> list = [];
+
+      list.add({
+        'fieldtitle': 'Any',
+        'fieldvalue': '',
+        'void': () {
+          ref.read(newDataFil.notifier).update((state) {
+            final newMap = {...state};
+            newMap[wRadioField.fieldname] = { 'fieldtitle': 'Any', 'fieldvalue': ''};
+            return newMap;
+          });
+        },
+      });
+
+      for(var v in options) {
+        list.add({
+          'fieldtitle': v.fieldtitle,
+          'fieldvalue': v.fieldvalue,
+          'void': () {
+            ref.read(newDataFil.notifier).update((state) {
+              final newMap = {...state};
+              newMap[wRadioField.fieldname] = { 'fieldtitle': v.fieldtitle, 'fieldvalue': v.fieldvalue};
+              return newMap;
+            });
+          },
+        });
+      }
+
+      var conVal = ref.watch(newDataFil)[wRadioField.fieldname] != null ? ref.watch(newDataFil)[wRadioField.fieldname]['fieldvalue']??'' : '';
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _labels.label(wRadioField.title ?? 'N/A', color: Colors.black, fontSize: 15),
+
+          const SizedBox(height: 8),
+
+          _myCards.radio2Card(
+            condition: '${conVal??''}',
+            list: list,
+            lengthRow: list.length,
+          ),
+        ],
+      );
+    }
+
+    // normal radio button //
+    return _forms.labelFormFields(
+        '${wRadioField.title}',
+        readOnly: true,
+        controller: wRadioField.controller,
+        suffixIcon: const Icon(Icons.arrow_drop_down),
+        onTap: () async {
+          final result = await _myWidgets.modalBottom(context, child: _myCards.radioCard(context, sortValue: sortValue, field: field));
+
+          if(result!=null) {
+            ref.read(newDataFil.notifier).update((state) {
+              final newMap = {...state};
+              newMap[wRadioField.fieldname] = result ?? {};
+              return newMap;
+            }); // update newData //
+            sRadioField.state.controller.text = result['fieldtitle'] ?? ''; // set controller //
+
+            if(!result.isNotEmpty) ref.read(newDataFil.notifier).state.remove(wRadioField.fieldname); // click clear //
+          }
+
+        }
+    );
+  }
+
+  StateProvider<int> i = StateProvider((ref) => 1);
+  _fieldSelect(Map field) {
+    final select = StateProvider((ref) => RadioSelect.fromJson(field));
+    final selectField = ref.watch(select);
+    final sSelectField = ref.read(select.notifier).state;
+    selectField.controller ??= TextEditingController();
+    var options = selectField.options ?? [];
+
+    // set control if have value //
+    if(ref.watch(newDataFil)[selectField.fieldname] != null) { selectField.controller.text = ref.watch(newDataFil)[selectField.fieldname]['fieldtitle']??'';}
+
+    // have fields select //
+    if(selectField.type == 'group_fields' && selectField.fields != null) {
+      StateProvider<dynamic> fields = StateProvider((ref) => field['fields'] ?? []);
+      var stateLoc = ref.read(fields.notifier).state;
+      var watchLoc = ref.watch(fields);
+
+      for(var v=0; v<watchLoc.length; v++) {
+        if (watchLoc[v]["controller"] == null) stateLoc[v]["controller"] = TextEditingController();
+      }
+
+      // if select location //
+      if(selectField.slug == 'locations') {
+
+        // set control if have value //
+        for(var v=0; v<watchLoc.length; v++) {
+          if(ref.watch(newDataFil)[watchLoc[v]['fieldname']] != null) {
+            var result = ref.watch(newDataFil)[watchLoc[v]['fieldname']]??{};
+            ref.read(newDataFil.notifier).state['slug_$v'] = result['slug'] ?? '';
+            stateLoc[v]["controller"].text = result['en_name'] ?? '';
+
+            // set enable of disable nex select //
+            futureAwait(() {
+              ref.read(i.notifier).state = v + 2;
+              if(result.isEmpty) ref.read(i.notifier).state = v + 1; // is click on clear
+            }, duration: 10);
+          }
+        }
+
+        return Column(
+          children: [
+
+            for(var v=0; v<watchLoc.length; v++) ...[
+              _forms.labelFormFields(
+                  '${watchLoc[v]['title']}',
+                  readOnly: true,
+                  enabled: (v < ref.watch(i)) ? true : false,
+                  controller: stateLoc[v]["controller"],
+                  suffixIcon: const Icon(Icons.arrow_drop_down),
+                  onTap: () async {
+                    var val = ref.watch(newDataFil)[watchLoc[v]['fieldname']] != null ? ref.watch(newDataFil)[watchLoc[v]['fieldname']]['slug']??'' : '';
+
+                    // open bottom modal //
+                    final result = await _myWidgets.modalBottom(context, child: _myCards.select2Card(context, title2: '${watchLoc[v]['title']}', provinceValue: '$val',
+                        future: _getLocation(type: '${watchLoc[v]['slug']}', parent: '${ref.watch(newDataFil)['slug_${v>0 ? v-1 : 0}']??''}')));
+
+                    if(result != null) {
+                      ref.read(newDataFil.notifier).update((state) {
+                        final newMap = {...state};
+                        newMap[watchLoc[v]['fieldname']] = result ?? {};
+                        newMap['slug_$v'] = result['slug'] ?? '';
+                        return newMap;
+                      });
+                      stateLoc[v]["controller"].text = result['en_name'] ?? '';
+
+                      // set enable of disable nex select //
+                      ref.read(i.notifier).state = v + 2;
+                      if(result.isEmpty) ref.read(i.notifier).state = v + 1; // is click on clear
+
+                      // clear next select //
+                      for(var v0=v+1; v0<watchLoc.length; v0++) {
+                        ref.read(newDataFil.notifier).state[watchLoc[v0]['fieldname']] = null;
+                        stateLoc[v0]["controller"].text = '';
+                      }
+
+                      if(result.isEmpty) ref.read(newDataFil.notifier).state.remove(watchLoc[v]['fieldname']); // clear val //
+                    }
+
+                  }
+              ),
+
+              if(v < watchLoc.length - 1) SizedBox(height: space),
+            ],
+
+          ],
+        );
+      }
+
+
+
+      // if select in fields //
+      /// set default val ///
+      for(var v=0; v<watchLoc.length; v++) {
+        if (ref.watch(newDataFil)[watchLoc[v]['fieldname']] != null) stateLoc[v]["controller"].text = ref.watch(newDataFil)[watchLoc[v]['fieldname']]['fieldtitle'] ?? '';
+      }
+      return Column(
+        children: [
+
+          for(var v=0; v<watchLoc.length; v++) ...[
+            // type select
+            if(watchLoc[v]['type'] == 'select') ...[
+              _forms.labelFormFields(
+                  '${watchLoc[v]['title']}',
+                  readOnly: true,
+                  controller: watchLoc[v]["controller"],
+                  suffixIcon: const Icon(Icons.arrow_drop_down),
+                  onTap: () async {
+                    // check model of car //
+                    final fieldApp = watchLoc[v];
+                    List? options = watchLoc[v]['options'] ?? [];
+                    if(ref.watch(newDataFil)['brand_${v-1}'] != null) options = fieldApp['options'].where((item) => item['fieldparentvalue'] == '${ref.watch(newDataFil)['brand_${v-1}']}').toList();
+
+                    var val = ref.watch(newDataFil)[watchLoc[v]['fieldname']] != null ? ref.watch(newDataFil)[watchLoc[v]['fieldname']]['fieldvalue']??'' : '';
+                    final result = await _myWidgets.modalBottom(context, child: _myCards.selectCard(context, title2: '${watchLoc[v]['title']}', provinceValue: '$val',
+                        list: watchLoc[v], options: options));
+
+                    if(result!=null) {
+                      ref.read(newDataFil.notifier).update((state) {
+                        final newMap = {...state};
+                        newMap[watchLoc[v]['fieldname']] = result ?? {};
+                        newMap['brand_$v'] = result['fieldvalue'] ?? '';
+                        return newMap;
+                      });
+                      stateLoc[v]["controller"].text = result['fieldtitle'] ?? '';
+                    }
+
+                  }
+              ),
+
+              // type min_max
+            ] else if(watchLoc[v]['type'] == 'min_max') ...[
+              _fieldMinMax(watchLoc[v]),
+
+            ],
+
+            if(v < watchLoc.length - 1) SizedBox(height: space),
+          ],
+
+        ],
+      );
+    }
+
+
+    // normal select not have fields //
+    return _forms.labelFormFields(
+        selectField.title ?? '',
+        readOnly: true,
+        controller: selectField.controller,
+        suffixIcon: const Icon(Icons.arrow_drop_down),
+        onTap: () async {
+          var val = ref.watch(newDataFil)[selectField.fieldname] != null ? ref.watch(newDataFil)[selectField.fieldname]['fieldvalue']??'' : '';
+
+          final result = await _myWidgets.modalBottom(context, child: _myCards.selectCard(context, title2: selectField.title ?? '', provinceValue: '$val',
+              list: field, maxHeight: options.length * 75.0));
+
+          if(result!=null) {
+            ref.read(newDataFil.notifier).update((state) {
+              final newMap = {...state};
+              newMap[selectField.fieldname] = result ?? {};
+              return newMap;
+            });
+            sSelectField.controller.text = result['fieldtitle'] ?? ''; // set controller //
+
+            if(!result.isNotEmpty) ref.read(newDataFil.notifier).state.remove(selectField.fieldname); // clear val //
+          }
+
+        }
+    );
+  }
+
+  _fieldSwitch(Map field) {
+    final switchField = SwitchType.fromJson(field);
+    var options = switchField.options ?? [];
+    var fil = options.where((item) { return item.value == '${ref.watch(newDataFil)[switchField.fieldname]??''}';}).toList();
+    ValueSwitch? app;
+
+    if(fil.isNotEmpty) { app = fil.first; }
+    else { app = switchField.value; }
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: _config.secondaryColor.shade100),
+        color: Colors.white,
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _labels.label('${switchField.title}', fontSize: 12, color: _config.secondaryColor.shade200),
+              _labels.label(app?.title ?? 'N/A', fontSize: 16, color: Colors.black),
+            ],
+          ),
+
+          CupertinoSwitch(
+            activeColor: _config.primaryAppColor.shade300,
+            thumbColor: Colors.white,
+            trackColor: Colors.black12,
+            value: ref.watch(newDataFil)[switchField.fieldname] == 'true' ? true : false,
+            onChanged: (value) => setState(() => ref.read(newDataFil.notifier).state[switchField.fieldname] = '$value'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bottomNav({ bool checkVal = false }) {
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          double width = constraints.maxWidth;
+
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 4,
+                  blurRadius: 4,
+                  offset: const Offset(0, 4), // changes position of shadow
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if(checkVal)
+                  SizedBox(
+                    width: (width / 3) - 4,
+                    child: _buttons.textButtons(
+                      title: 'Clear',
+                      onPressed: _clearVal,
+                      padSize: 14,
+                      textSize: 16,
+                      textWeight: FontWeight.w500,
+                      textColor: _config.secondaryColor.shade300,
+                    ),
+                  ),
+
+                SizedBox(
+                  width: checkVal ? (((width / 3) - 4) * 2) - 16 : width - 16,
+                  child: _buttons.textButtons(
+                    title: 'Apply Filter',
+                    onPressed: _submitBack,
+                    padSize: 14,
+                    textSize: 16,
+                    textWeight: FontWeight.w500,
+                    textColor: Colors.white,
+                    bgColor: _config.warningColor.shade400,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+    );
+  }
+
+  _clearVal() async {
+    ref.read(newDataFil.notifier).state = {};
+    await _getFilter();
+    ref.read(i.notifier).state = 1;
+  }
+
+}

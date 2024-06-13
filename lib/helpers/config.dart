@@ -1,13 +1,7 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:json_annotation/json_annotation.dart';
 import 'package:k24/serialization/category/main_category.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
-import 'package:k24/serialization/try_convert.dart';
-
-part 'config.g.dart';
 
 const String baseUrl = "https://test-api.khmer24.mobi";
 const String postUrl = "https://test-posts.khmer24.mobi";
@@ -324,53 +318,6 @@ Map responsiveImage(double width) {
   return { "width": resWidth, "length": length};
 }
 
-Future<Map<String, dynamic>> getUrls({ required String subs, Map<String, String>? headers, Urls url = Urls.postUrl }) async {
-  var base = '';
-  switch(url) {
-    case Urls.baseUrl:
-      base = baseUrl; break;
-    case Urls.chatUrl:
-      base = chatUrl; break;
-    case Urls.notificationUrl:
-      base = notificationUrl; break;
-    case Urls.commentUrl:
-      base = commentUrl; break;
-    case Urls.likeUrl:
-      base = likeUrl; break;
-    case Urls.insightUrl:
-      base = insightUrl; break;
-    case Urls.trackingUrl:
-      base = trackingUrl; break;
-    case Urls.paymentUrl:
-      base = paymentUrl; break;
-    case Urls.jobUrl:
-      base = jobUrl; break;
-    default:
-      base = postUrl;break;
-  }
-
-  try {
-    var url = Uri.parse('$base/$subs');
-    headers?.addAll({
-      'Display-Type': 'app',
-    });
-    var response = await http.get(url, headers: headers);
-
-    var decRes = jsonDecode(response.body);
-    // print(decRes);
-
-    if (response.statusCode == 200) {
-      var result = decRes;
-      var data = decRes['data'];
-      return {'status': 0, 'message': 'success', 'result': result, 'data': data, 'code': response.statusCode};
-    } else {
-      return {'status': 1, 'message': decRes, 'result': null, 'data': null, 'code': response.statusCode};
-    }
-  } catch(e) {
-    return {'status': 2, 'message': 'catch: $e', 'result': null, 'data': null, 'code': ''};
-  }
-}
-
 final List<GridCard> listViewSkeleton = [
   GridCard.fromJson({"type": "post","data": {"id": "#","title": "Test post sell table.","price": "210.00","type": "normal", "thumbnail": "###", "location": {"en_name": "Siem Reap Siem Reap Siem Reap Siem"}, "condition": {"title": "Siem Reap Siem Reap Siem Reap Siem"}}, "setting": {}}),
   GridCard.fromJson({"type": "post","data": {"id": "#","title": "Test post sell table.","price": "210.00","type": "normal", "thumbnail": "###", "location": {"en_name": "Siem Reap Siem Reap Siem Reap Siem"}, "condition": {"title": "Siem Reap Siem Reap Siem Reap Siem"}}, "setting": {}}),
@@ -388,22 +335,6 @@ final List<MainCategory> mainCatSkeleton = [
   MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
   MainCategory.fromJson({ "id": "#","en_name": "Vehicles &\n Vehicles","km_name": "រថយន្ត និង យានយន្ត", "icon": {"url": "#"}}),
 ];
-
-@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ ToString(), ToLists(), ToInt() ])
-class ConfigState {
-  int? status;
-  String? message;
-  dynamic result;
-  dynamic data;
-  int? code;
-
-  ConfigState({this.status, this.message, required this.result, this.data, this.code});
-
-  factory ConfigState.fromJson(Map<String, dynamic> json) => _$ConfigStateFromJson(json);
-  Map toJson() => _$ConfigStateToJson(this);
-}
-
-
 
 enum Urls {
   baseUrl,
