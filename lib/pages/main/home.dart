@@ -72,6 +72,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       backgroundColor: config.backgroundColor,
       body: RefreshIndicator(
         onRefresh: _handleRefresh,
+        notificationPredicate: (notification) => !homeList.isLoading,
         child: SingleChildScrollView(
           controller: scrollController,
           child: Center(

@@ -11,6 +11,9 @@ class GroupFields {
     String? title;
     String? type;
     String? slug;
+    bool? validation;
+    String? fieldname;
+    String? chained_field;
     bool? display_icon;
     bool? popular;
     dynamic display_icon_type;
@@ -21,6 +24,9 @@ class GroupFields {
         this.title,
         this.type,
         this.slug,
+        this.validation,
+        this.fieldname,
+        this.chained_field,
         this.display_icon,
         this.popular,
         this.display_icon_type,

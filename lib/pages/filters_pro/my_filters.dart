@@ -13,10 +13,13 @@ import 'package:k24/widgets/labels.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../../helpers/helper.dart';
+import '../../serialization/filters/group_fields/group_fields.dart';
 import '../../serialization/filters/min_max/min_max.dart';
+import '../../serialization/filters/provinces.dart';
 import '../../serialization/filters/radio_select/radio.dart';
 import '../../serialization/filters/switch/switch_type.dart';
 import '../../widgets/modals.dart';
+import '../listing/sub_provider.dart';
 import '../main/home_provider.dart';
 
 Config config = Config();
@@ -41,6 +44,8 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
   StateProvider<Map> newDataFil = StateProvider<Map>((ref) => {});
   final setCon = StateProvider((ref) => true);
   StateProvider<int> i = StateProvider((ref) => 1);
+  StateProvider<Map> parent = StateProvider((ref) => {});
+  StateProvider<bool> checkVal = StateProvider((ref) => false);
 
   double space = 10;
 
@@ -93,10 +98,18 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
     );
   }
 
-  Widget bottomNav({ bool checkVal = false }) {
+  Widget bottomNav() {
+    final val = ref.watch(newDataFil);
+    val.forEach((key, value) {
+      futureAwait(duration: 1, () {
+        if(value != null) ref.read(checkVal.notifier).state = true;
+      });
+    });
+
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
           double width = constraints.maxWidth;
+          double wid = (width / 3) - 4;
 
           return Container(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
@@ -114,9 +127,9 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if(checkVal)
+                if(ref.watch(checkVal))
                   SizedBox(
-                    width: (width / 3) - 4,
+                    width: wid,
                     child: buttons.textButtons(
                       title: 'Clear',
                       onPressed: () { },
@@ -128,10 +141,12 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
                   ),
 
                 SizedBox(
-                  width: checkVal ? (((width / 3) - 4) * 2) - 16 : width - 16,
+                  width: ref.watch(checkVal) ? (wid * 2) - 16 : width - 16,
                   child: buttons.textButtons(
                     title: 'Apply Filter',
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pop(context, ref.watch(newDataFil));
+                    },
                     padSize: 14,
                     textSize: 16,
                     textWeight: FontWeight.w500,
@@ -274,7 +289,7 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
 
     /// type group radio button ///
     List options = wRadioField.options ?? [];
-    var fieldName = ValueSelect.fromJson(ref.watch(newDataFil)[wRadioField.fieldname] ?? {});
+    final fieldName = ValueSelect.fromJson(ref.watch(newDataFil)[wRadioField.fieldname] ?? {});
     if (options.length <= 3) {
       final condition = StateProvider<String>((ref) => fieldName.fieldvalue ?? '');
       return GroupFieldPage(data: field as Map<String, dynamic>, newData: newDataFil, condition: condition);
@@ -287,12 +302,11 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
         controller: wRadioField.controller,
         suffixIcon: const Icon(Icons.arrow_drop_down),
         onTap: () async {
-          final result = await showBarModalBottomSheet(context: context,
+          await showBarModalBottomSheet(context: context,
             builder: (context) => SelectTypePageView(data: field as Map<String, dynamic>, selected: false, newData: newDataFil, expand: false),
           );
 
           /// submit ///
-          // if(result != null) handleRefresh();
         }
     );
   }
@@ -320,34 +334,55 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
 
       /// if select location ///
       if(wRadioField.slug == 'locations') {
+        final ir = ref.read(i.notifier);
+        final iw = ref.watch(i);
 
         // set control if have value //
         for(int v=0; v<watchLoc.length; v++) {
-          if(ref.watch(newDataFil)[watchLoc[v]['fieldname']] != null) {
-            Map result = ref.watch(newDataFil)[watchLoc[v]['fieldname']]??{};
-            ref.read(newDataFil.notifier).state['slug_$v'] = result['slug'] ?? '';
-            stateLoc[v]["controller"].text = result['en_name'] ?? '';
+          final newDa = ref.watch(newDataFil)[watchLoc[v]['fieldname']];
+          if(newDa != null) {
+            ref.read(parent.notifier).state[v+1] = newDa['slug'] ?? ''; // update parent
+            stateLoc[v]["controller"].text = newDa['en_name'] ?? '';
 
             // set enable of disable nex select //
             futureAwait(() {
-              ref.read(i.notifier).state = v + 2;
-              if(result.isEmpty) ref.read(i.notifier).state = v + 1; // is click on clear
-            }, duration: 10);
+              ir.state = v + 2;
+            }, duration: 1);
           }
         }
 
         return Column(
           children: [
 
-            for(var v=0; v<watchLoc.length; v++) ...[
+            for(int v=0; v<watchLoc.length; v++) ...[
               forms.labelFormFields(
                   '${watchLoc[v]['title']}',
                   readOnly: true,
-                  enabled: (v < ref.watch(i)) ? true : false,
+                  enabled: (v < iw) ? true : false,
                   controller: stateLoc[v]["controller"],
                   suffixIcon: const Icon(Icons.arrow_drop_down),
                   onTap: () async {
-                    //
+                    final result = await showBarModalBottomSheet(context: context,
+                      builder: (context) => ProvincePage(data: watchLoc[v], newData: newDataFil, valKey: v, parent: parent),
+                    );
+
+                    if(result != null) {
+                      stateLoc[v]["controller"].text = result['en_name'] ?? '';
+                      ir.state = v+2;
+
+                      /// on click clear //
+                      if(result.isEmpty) {
+                        ir.state = v + 1;
+                        ref.read(newDataFil.notifier).state.remove(watchLoc[v]['fieldname']);
+                      }
+
+                      // clear next select //
+                      for(int k=v+1; k<watchLoc.length; k++) {
+                        ref.read(newDataFil.notifier).state.remove(watchLoc[k]['fieldname']);
+                        stateLoc[k]["controller"].text = '';
+                      }
+                    }
+
                   }
               ),
 
@@ -360,7 +395,7 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
 
 
       /// set default val ///
-      for(var v=0; v<watchLoc.length; v++) {
+      for(int v=0; v<watchLoc.length; v++) {
         if (ref.watch(newDataFil)[watchLoc[v]['fieldname']] != null) {
           stateLoc[v]["controller"].text = ref.watch(newDataFil)[watchLoc[v]['fieldname']]['fieldtitle'] ?? '';
         }
@@ -369,7 +404,7 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
         children: [
 
           /// type select ///
-          for(var v=0; v<watchLoc.length; v++) ...[
+          for(int v=0; v<watchLoc.length; v++) ...[
             if(watchLoc[v]['type'] == 'select') ...[
               forms.labelFormFields(
                   '${watchLoc[v]['title']}',
@@ -406,31 +441,23 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
         controller: wRadioField.controller,
         suffixIcon: const Icon(Icons.arrow_drop_down),
         onTap: () async {
-          final result = await showBarModalBottomSheet(context: context,
+          await showBarModalBottomSheet(context: context,
             builder: (context) => SelectTypePageView(data: field as Map<String, dynamic>, selected: true, newData: newDataFil, expand: false),
           );
 
           /// submit ///
-          // if(result != null) handleRefresh();
         }
     );
   }
 
   Widget _fieldMinMax(Map field) {
-    final radioField = StateProvider((ref) => RadioSelect.fromJson(field as Map<String, dynamic>));
-    final sRadioField = ref.read(radioField.notifier);
-    final wRadioField = ref.watch(radioField);
-
-    /// set value ///
-
-    /// normal radio button ///
     return MinMaxPage(data: field as Map<String, dynamic>, newData: newDataFil, setCon: setCon);
   }
 
   Widget _fieldSwitch(Map field) {
     final switchField = SwitchType.fromJson(field);
-    var options = switchField.options ?? [];
-    var fil = options.where((item) { return item.value == '${ref.watch(newDataFil)[switchField.fieldname]??''}';}).toList();
+    List options = switchField.options ?? [];
+    List fil = options.where((item) { return item.value == '${ref.watch(newDataFil)[switchField.fieldname]??''}';}).toList();
     ValueSwitch? app;
 
     if(fil.isNotEmpty) { app = fil.first; }
@@ -491,10 +518,10 @@ class MinMaxPage extends ConsumerWidget {
     sField.state.min_controller ??= TextEditingController();
     sField.state.max_controller ??= TextEditingController();
 
-    var minField = wField.min_field ?? Field_.fromJson({});
-    var maxField = wField.max_field ?? Field_.fromJson({});
+    final minField = wField.min_field ?? Field_.fromJson({});
+    final maxField = wField.max_field ?? Field_.fromJson({});
 
-    // set value //
+    /// set value ///
     sField.state.min_controller.text = '${ref.watch(newData)[minField.fieldname] ?? ''}';
     sField.state.max_controller.text = '${ref.watch(newData)[maxField.fieldname] ?? ''}';
 
@@ -519,6 +546,48 @@ class MinMaxPage extends ConsumerWidget {
                   double width = constraints.maxWidth;
                   final set = ref.read(setCon.notifier);
                   final watch = ref.watch(setCon);
+
+                  if(minField.type == 'select') {
+                    /// set value select ///
+                    if(ref.watch(newData)[minField.fieldname] != null) wField.min_controller.text = ref.watch(newData)[minField.fieldname]['fieldtitle']??'';
+                    if(ref.watch(newData)[maxField.fieldname] != null) wField.max_controller.text = ref.watch(newData)[maxField.fieldname]['fieldtitle']??'';
+
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: (width / 2) - 7,
+                          child: forms.labelFormFields(
+                              minField.title ?? '',
+                              readOnly: true,
+                              controller: wField.min_controller,
+                              suffixIcon: const Icon(Icons.arrow_drop_down),
+                              onTap: () async {
+                                await showBarModalBottomSheet(context: context,
+                                  builder: (context) => SelectTypePageView(data: minField.toJson() as Map<String, dynamic>, selected: true, newData: newData, expand: true),
+                                );
+                              }
+                          ),
+                        ),
+
+                        SizedBox(
+                          width: (width / 2) - 7,
+                          child: forms.labelFormFields(
+                              maxField.title ?? '',
+                              readOnly: true,
+                              controller: wField.max_controller,
+                              suffixIcon: const Icon(Icons.arrow_drop_down),
+                              onTap: () async {
+                                await showBarModalBottomSheet(context: context,
+                                  builder: (context) => SelectTypePageView(data: maxField.toJson() as Map<String, dynamic>, selected: true, newData: newData, expand: true),
+                                );
+                              }
+                          ),
+                        ),
+
+                      ],
+                    );
+                  }
 
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -646,7 +715,7 @@ class GroupFieldPage extends ConsumerWidget {
                             ),
                           ),
 
-                          for(var v in list) ...[
+                          for(final v in list) ...[
                             SizedBox(
                               width: (width / 3) - 10,
                               child: buttons.textButtons(
@@ -685,3 +754,99 @@ class GroupFieldPage extends ConsumerWidget {
   }
 }
 
+/// group select type model ///
+class ProvincePage extends ConsumerWidget {
+  const ProvincePage({super.key, required this.data, required this.newData, required this.parent, required this.valKey});
+
+  final Map<String, dynamic> data;
+  final StateProvider<Map> newData;
+  final StateProvider<Map> parent;
+  final int valKey;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final groupData = GroupFields.fromJson(data);
+    final checkData = ref.watch(newData);
+
+    return Material(
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            /// app bar ///
+            AppBar(
+              leading: IconButton(
+                padding: const EdgeInsets.all(14),
+                icon: const Icon(Icons.keyboard_arrow_down_outlined, size: 32, color: Colors.blue),
+                onPressed: () { Navigator.pop(context); },
+              ),
+              title: labels.label(groupData.title ?? '', color: Colors.black, fontSize: 18),
+              actions: [
+                IconButton(
+                  padding: const EdgeInsets.all(14),
+                  icon: labels.label('Clear', color: Colors.blue, fontSize: 15),
+                  onPressed: () {
+                    Navigator.pop(context, {});
+                  },
+                ),
+              ],
+              centerTitle: true,
+              backgroundColor: Colors.grey.shade200,
+            ),
+
+            /// listing ///
+            Expanded(
+              child: Builder(
+                builder: (context) {
+                  final watchGetPro = ref.watch(getLocationProvider('${groupData.slug}', '${ref.watch(parent)[valKey]}'));
+
+                  return watchGetPro.when(
+                      skipLoadingOnRefresh: false,
+                      error: (e, st) => Text('error : $e'),
+                      loading: () => const Center(child: CircularProgressIndicator()),
+                      data: (data) {
+                        return ListView.builder(
+                          itemCount: data.length,
+                          shrinkWrap: true,
+                          controller: ModalScrollController.of(context),
+                          itemBuilder: (context, index) {
+                            final proData = Province.fromJson(data[index] ?? {});
+                            final dl = checkData[proData.type] ?? {};
+
+                            return ListTile(
+                              title: labels.label('${proData.en_name}', color: Colors.black, fontSize: 15, fontWeight: FontWeight.normal, overflow: TextOverflow.ellipsis),
+                              trailing: (dl['slug'] == proData.slug) ? Icon(Icons.check_circle, size: 20, color: config.primaryAppColor.shade600) : null,
+                              shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50, width: 1)),
+                              tileColor: Colors.white,
+                              onTap: () {
+                                ref.read(parent.notifier).update((state) {
+                                  final newMap = {...state};
+                                  newMap[valKey + 1] = proData.slug;
+                                  return newMap;
+                                });
+
+                                ref.read(newData.notifier).update((state) {
+                                  final newMap = {...state};
+                                  newMap[groupData.fieldname] = proData.toJson();
+                                  return newMap;
+                                });
+
+                                Navigator.pop(context, proData.toJson());
+
+                              },
+                            );
+                          },
+                        );
+                      }
+                  );
+                }
+              ),
+            ),
+
+          ],
+        ),
+      ),
+    );
+  }
+}

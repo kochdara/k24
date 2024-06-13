@@ -1,5 +1,6 @@
 
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../helpers/config.dart';
@@ -73,7 +74,7 @@ class RelateDetailPost extends _$RelateDetailPost {
       limit = resp.limit ?? 0;
       current_result = resp.current_result ?? 0;
 
-      for (var val in data!) {
+      for (final val in data!) {
         list.add(val!);
       }
     }

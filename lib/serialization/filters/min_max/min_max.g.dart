@@ -26,8 +26,8 @@ Map<String, dynamic> _$MinMaxToJson(MinMax instance) => <String, dynamic>{
       'title': const ToString().toJson(instance.title),
       'type': const ToString().toJson(instance.type),
       'slug': const ToString().toJson(instance.slug),
-      'min_field': instance.min_field,
-      'max_field': instance.max_field,
+      'min_field': instance.min_field?.toJson(),
+      'max_field': instance.max_field?.toJson(),
       'min_controller': instance.min_controller,
       'max_controller': instance.max_controller,
     };
@@ -45,7 +45,9 @@ Field_ _$Field_FromJson(Map json) => Field_(
       display_icon_type: json['display_icon_type'],
       prefix: json['prefix'] as Map?,
       options: (json['options'] as List<dynamic>?)
-          ?.map((e) => e == null ? null : OptionM.fromJson(e as Map))
+          ?.map((e) => e == null
+              ? null
+              : OptionM.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
     );
 
@@ -63,7 +65,7 @@ Map<String, dynamic> _$Field_ToJson(Field_ instance) => <String, dynamic>{
           instance.popular, const ToBool().toJson),
       'display_icon_type': instance.display_icon_type,
       'prefix': instance.prefix,
-      'options': instance.options,
+      'options': instance.options?.map((e) => e?.toJson()).toList(),
     };
 
 Json? _$JsonConverterToJson<Json, Value>(

@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:k24/serialization/try_convert.dart';
 part 'min_max.g.dart';
 
-@JsonSerializable(anyMap: true, converters: [ToString()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
 class MinMax {
   String? fieldid;
   String? title;
@@ -30,7 +30,7 @@ class MinMax {
 
 }
 
-@JsonSerializable(anyMap: true, converters: [ToString(), ToBool()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString(), ToBool()])
 class Field_ {
   String? fieldid;
   String? title;
@@ -95,7 +95,7 @@ class Validation_ {
 
 }
 
-@JsonSerializable(anyMap: true, converters: [ToString(), ToInt(), ToBool()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString(), ToInt(), ToBool()])
 class OptionM {
   String? fieldid;
   int? fieldtitle;
@@ -109,7 +109,7 @@ class OptionM {
     this.popular,
   });
 
-  factory OptionM.fromJson(Map json) => _$OptionMFromJson(json);
-  Map toJson() => _$OptionMToJson(this);
+  factory OptionM.fromJson(Map<String, dynamic> json) => _$OptionMFromJson(json);
+  Map<String, dynamic> toJson() => _$OptionMToJson(this);
 
 }

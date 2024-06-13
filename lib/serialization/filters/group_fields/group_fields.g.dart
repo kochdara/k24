@@ -11,6 +11,9 @@ GroupFields _$GroupFieldsFromJson(Map json) => GroupFields(
       title: const ToString().fromJson(json['title']),
       type: const ToString().fromJson(json['type']),
       slug: const ToString().fromJson(json['slug']),
+      validation: const ToBool().fromJson(json['validation']),
+      fieldname: const ToString().fromJson(json['fieldname']),
+      chained_field: const ToString().fromJson(json['chained_field']),
       display_icon: const ToBool().fromJson(json['display_icon']),
       popular: const ToBool().fromJson(json['popular']),
       display_icon_type: json['display_icon_type'],
@@ -26,6 +29,10 @@ Map<String, dynamic> _$GroupFieldsToJson(GroupFields instance) =>
       'title': const ToString().toJson(instance.title),
       'type': const ToString().toJson(instance.type),
       'slug': const ToString().toJson(instance.slug),
+      'validation': _$JsonConverterToJson<Object?, bool>(
+          instance.validation, const ToBool().toJson),
+      'fieldname': const ToString().toJson(instance.fieldname),
+      'chained_field': const ToString().toJson(instance.chained_field),
       'display_icon': _$JsonConverterToJson<Object?, bool>(
           instance.display_icon, const ToBool().toJson),
       'popular': _$JsonConverterToJson<Object?, bool>(

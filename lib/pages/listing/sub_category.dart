@@ -68,7 +68,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     final cate = dataCate['slug'];
     final limit = ref.watch(subListsProvider('$cate').notifier).limit;
     final current = ref.watch(subListsProvider('$cate').notifier).current_result;
-    var fet = ref.read(fetchingProvider.notifier);
+    final fet = ref.read(fetchingProvider.notifier);
     ScrollPosition scroll = scrollController.position;
 
     if (scroll.pixels > 1500 && scroll.pixels >= (scroll.maxScrollExtent - 750)
@@ -84,18 +84,13 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     final cate = dataCate['slug'];
     final Map? filter = ref.watch(newData) as Map?;
 
+    ref.read(indX.notifier).state = 0;
+    filter?.forEach((key, value) {
+      if(value != null) ref.read(indX.notifier).state++;
+    });
+
     ref.refresh(getMainCategoryProvider('$cate').future);
     await ref.read(subListsProvider('$cate', newFilter: filter).notifier).refresh();
-
-    // String subs = '';
-    // newFilter.forEach((key, value) {
-    //   if(value is Map) {
-    //     if(value['fieldvalue'] != null) subs += '&$key=${value['fieldvalue']}';
-    //     if(value['slug'] != null) subs += '&$key=${value['slug']}';
-    //
-    //   } else {subs += '&$key=${value ?? ''}';}
-    // });
-    // print(subs);
   }
 
   @override
@@ -109,6 +104,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
       backgroundColor: config.backgroundColor,
       body: RefreshIndicator(
         onRefresh: handleRefresh,
+        notificationPredicate: (notification) => !watchLists.isLoading,
         child: SingleChildScrollView(
           controller: scrollController,
           child: Center(
@@ -186,7 +182,17 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
         IconButton(
           padding: const EdgeInsets.all(12),
           onPressed: onClickMoreFilter,
-          icon: const Icon(Icons.tune, color: Colors.white, size: 28),
+          icon: (ref.watch(indX) > 0) ? badges.Badge(
+            badgeContent:  Text('${ref.watch(indX)}', style: const TextStyle(color: Colors.white, fontSize: 11)),
+            badgeAnimation: const badges.BadgeAnimation.fade(),
+            badgeStyle: badges.BadgeStyle(
+              shape: badges.BadgeShape.circle,
+              badgeColor: config.warningColor.shade400,
+              // padding: EdgeInsets.all(5),
+              elevation: 0,
+            ),
+            child: const Icon(Icons.tune, color: Colors.white, size: 28),
+          ) : const Icon(Icons.tune, color: Colors.white, size: 28),
         ),
       ],
     );
@@ -237,7 +243,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
                   spacing: 10,
                   children: [
 
-                    for(var v in data) fieldGenerator(v),
+                    for(final v in data) fieldGenerator(v),
 
                     const SizedBox(width: 2),
                   ],
@@ -258,7 +264,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
       child: Wrap(
         spacing: 10,
         children: [
-          for(var v in length) buttons.textButtons(
+          for(final v in length) buttons.textButtons(
             title: 'Fetching $v',
             showDropdown: true,
             onPressed: () { },
@@ -298,10 +304,12 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     final maxField = fieldApp.max_field ?? Field_.fromJson({});
 
     // set val //
-    bool check = ref.watch(newData)[minField.fieldname]!=null && ref.watch(newData)[maxField.fieldname]!=null && ref.watch(newData)[minField.fieldname].isNotEmpty && ref.watch(newData)[maxField.fieldname].isNotEmpty;
-    if(ref.watch(newData)[minField.fieldname] != null || ref.watch(newData)[maxField.fieldname] != null) {
+    final newDa = ref.watch(newData);
+    bool check = newDa[minField.fieldname]!=null && newDa[maxField.fieldname]!=null
+        && newDa[minField.fieldname].isNotEmpty && newDa[maxField.fieldname].isNotEmpty;
+    if(ref.read(newData)[minField.fieldname] != null || ref.read(newData)[maxField.fieldname] != null) {
       futureAwait(duration: 1, () {
-        ref.read(displayTitle.notifier).state = '${fieldApp.title}: ${ref.watch(newData)[minField.fieldname]??''}${check?' - ':''}${ref.watch(newData)[maxField.fieldname]??''}';
+        ref.read(displayTitle.notifier).state = '${fieldApp.title}: ${newDa[minField.fieldname]??''}${check?' - ':''}${newDa[maxField.fieldname]??''}';
       });
     }
 
@@ -320,13 +328,13 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
       textColor: ref.watch(displayTitle)!=null ? config.primaryAppColor.shade600 : Colors.black,
       child: ref.watch(displayTitle)!=null ? InkWell(
         onTap: () async {
-          ref.read(displayTitle.notifier).state = null;
           ref.read(newData.notifier).update((state) {
             final newVal = {...state};
             newVal[minField.fieldname] = null;
             newVal[maxField.fieldname] = null;
             return newVal;
           });
+          ref.read(displayTitle.notifier).state = null;
 
           /// submit ///
           handleRefresh();
@@ -338,8 +346,8 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
 
   Widget _fieldRadio(Map<String, dynamic> field) {
     final fieldApp = RadioSelect.fromJson(field);
-    var options = fieldApp.options ?? [];
-    var fieldName = ValueSelect.fromJson(ref.watch(newData)[fieldApp.fieldname] ?? {});
+    List options = fieldApp.options ?? [];
+    final fieldName = ValueSelect.fromJson(ref.watch(newData)[fieldApp.fieldname] ?? {});
 
     // type group radio button //
     if (options.length <= 3) {
@@ -403,24 +411,25 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
 
   Widget _fieldSelect(Map<String, dynamic> field) {
     final fieldS = RadioSelect.fromJson(field);
-    var fieldName = ValueSelect.fromJson(ref.watch(newData)[fieldS.fieldname] ?? {});
+    final fieldName = ValueSelect.fromJson(ref.watch(newData)[fieldS.fieldname] ?? {});
 
     /// normal select not have fields ///
     if(fieldS.type == 'group_fields' && fieldS.fields != null) {
-      var opt = fieldS.fields ?? [];
+      List opt = fieldS.fields ?? [];
+      String? disPlayTitle;
 
       // set value to location //
-      for(var v=0; v<opt.length; v++) {
+      for(int v=0; v<opt.length; v++) {
         if(ref.watch(newData)[opt[v].fieldname] != null && ref.watch(newData)[opt[v].fieldname].isNotEmpty) {
-          field['title2'] = ref.watch(newData)[opt[v].fieldname]['en_name'];
+          disPlayTitle = ref.watch(newData)[opt[v].fieldname]['en_name'];
         }
       }
 
       return buttons.textButtons(
-        title: '${field['title2'] ?? (fieldS.title ?? 'SelectType')}',
+        title: disPlayTitle ?? (fieldS.title ?? 'SelectType'),
         showDropdown: true,
         prefixIcon: Icons.location_on,
-        prefColor: field['title2'] != null ? config.primaryAppColor.shade600 : Colors.black,
+        prefColor: disPlayTitle != null ? config.primaryAppColor.shade600 : Colors.black,
         onPressed: () async {
           final result = await showBarModalBottomSheet(context: context,
             builder: (context) => ProvincePageView(data: field, newData: newData),
@@ -429,8 +438,8 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
           /// click clear on modal ///
           if(result != null) {
             if(result.toString().contains('clear')) {
-              setState(() { field['title2'] = null; });
-              for(var k=0; k<opt.length; k++) {
+              setState(() { disPlayTitle = null; });
+              for(int k=0; k<opt.length; k++) {
                 ref.read(newData.notifier).state[opt[k].slug] = null;
               }
             }
@@ -440,11 +449,11 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
           }
 
         },
-        textColor: field['title2'] != null ? config.primaryAppColor.shade600 : Colors.black,
-        child: field['title2'] != null ? InkWell(
+        textColor: disPlayTitle != null ? config.primaryAppColor.shade600 : Colors.black,
+        child: disPlayTitle != null ? InkWell(
           onTap: () async {
-            setState(() { field['title2'] = null; });
-            for(var k=0; k<opt.length; k++) {
+            setState(() { disPlayTitle = null; });
+            for(int k=0; k<opt.length; k++) {
               ref.read(newData.notifier).state[opt[k].slug] = null;
             }
 
@@ -512,7 +521,6 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
 
     if(result != null) {
       ref.read(newData.notifier).state = result ?? {};
-
       await handleRefresh();
     }
   }

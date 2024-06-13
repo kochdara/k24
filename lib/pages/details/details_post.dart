@@ -114,6 +114,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
             /// body ///
             RefreshIndicator(
               onRefresh: _handleRefresh,
+              notificationPredicate: (notification) => !watchRelates.isLoading,
               child: SingleChildScrollView(
                 controller: scrollController,
                 child: Center(

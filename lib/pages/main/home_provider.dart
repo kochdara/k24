@@ -82,7 +82,7 @@ class HomeLists extends _$HomeLists {
       limit = resp.limit ?? 0;
       current_result = resp.current_result ?? 0;
 
-      for (var val in data!) {
+      for (final val in data!) {
         list.add(val!);
       }
     }
