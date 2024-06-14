@@ -83,6 +83,13 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
 
   PreferredSizeWidget appBar() {
     return AppBar(
+      leading: IconButton(
+        padding: const EdgeInsets.all(14),
+        onPressed: () {
+          if(Navigator.canPop(context)) Navigator.pop(context);
+        },
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
+      ),
       title: labels.label(widget.title.isNotEmpty ? widget.title : 'Filters', fontSize: 22),
       titleSpacing: 0,
       actions: [
@@ -181,7 +188,7 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
+              
               watchFilter.when(
                 error: (error, stackTrace) => Text('error : $error'),
                 loading: () => shimmerLoad(),
@@ -431,7 +438,7 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
 
               /// type min_max //
             ] else if(watchLoc[v].type == 'min_max') ...[
-              _fieldMinMax(field['fields'][v]),
+              _fieldMinMax(watchLoc[v].toJson()),
 
             ],
 
@@ -824,49 +831,49 @@ class ProvincePage extends ConsumerWidget {
             /// listing ///
             Expanded(
               child: Builder(
-                  builder: (context) {
-                    final watchGetPro = ref.watch(getLocationProvider('${groupData.slug}', '${ref.watch(parent)[valKey]}'));
+                builder: (context) {
+                  final watchGetPro = ref.watch(getLocationProvider('${groupData.slug}', '${ref.watch(parent)[valKey]}'));
 
-                    return watchGetPro.when(
-                        skipLoadingOnRefresh: false,
-                        error: (e, st) => Text('error : $e'),
-                        loading: () => const Center(child: CircularProgressIndicator()),
-                        data: (data) {
-                          return ListView.builder(
-                            itemCount: data.length,
-                            shrinkWrap: true,
-                            controller: ModalScrollController.of(context),
-                            itemBuilder: (context, index) {
-                              final proData = Province.fromJson(data[index] ?? {});
-                              final dl = checkData[proData.type] ?? {};
+                  return watchGetPro.when(
+                      skipLoadingOnRefresh: false,
+                      error: (e, st) => Text('error : $e'),
+                      loading: () => const Center(child: CircularProgressIndicator()),
+                      data: (data) {
+                        return ListView.builder(
+                          itemCount: data.length,
+                          shrinkWrap: true,
+                          controller: ModalScrollController.of(context),
+                          itemBuilder: (context, index) {
+                            final proData = Province.fromJson(data[index] ?? {});
+                            final dl = checkData[proData.type] ?? {};
 
-                              return ListTile(
-                                title: labels.label('${proData.en_name}', color: Colors.black, fontSize: 15, fontWeight: FontWeight.normal, overflow: TextOverflow.ellipsis),
-                                trailing: (dl['slug'] == proData.slug) ? Icon(Icons.check_circle, size: 20, color: config.primaryAppColor.shade600) : null,
-                                shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50, width: 1)),
-                                tileColor: Colors.white,
-                                onTap: () {
-                                  ref.read(parent.notifier).update((state) {
-                                    final newMap = {...state};
-                                    newMap[valKey + 1] = proData.slug;
-                                    return newMap;
-                                  });
+                            return ListTile(
+                              title: labels.label('${proData.en_name}', color: Colors.black, fontSize: 15, fontWeight: FontWeight.normal, overflow: TextOverflow.ellipsis),
+                              trailing: (dl['slug'] == proData.slug) ? Icon(Icons.check_circle, size: 20, color: config.primaryAppColor.shade600) : null,
+                              shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50, width: 1)),
+                              tileColor: Colors.white,
+                              onTap: () {
+                                ref.read(parent.notifier).update((state) {
+                                  final newMap = {...state};
+                                  newMap[valKey + 1] = proData.slug;
+                                  return newMap;
+                                });
 
-                                  ref.read(newData.notifier).update((state) {
-                                    final newMap = {...state};
-                                    newMap[groupData.fieldname] = proData.toJson();
-                                    return newMap;
-                                  });
+                                ref.read(newData.notifier).update((state) {
+                                  final newMap = {...state};
+                                  newMap[groupData.fieldname] = proData.toJson();
+                                  return newMap;
+                                });
 
-                                  Navigator.pop(context, proData.toJson());
+                                Navigator.pop(context, proData.toJson());
 
-                                },
-                              );
-                            },
-                          );
-                        }
-                    );
-                  }
+                              },
+                            );
+                          },
+                        );
+                      }
+                  );
+                }
               ),
             ),
 

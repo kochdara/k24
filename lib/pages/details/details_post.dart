@@ -889,13 +889,6 @@ class _PreviewImageState extends ConsumerState<PreviewImage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          padding: const EdgeInsets.all(14),
-          onPressed: () {
-            if(Navigator.canPop(context)) Navigator.pop(context);
-          },
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-        ),
         title: label.label(widget.title, overflow: TextOverflow.ellipsis, fontSize: 20, fontWeight: FontWeight.w500),
         titleSpacing: 0,
       ),

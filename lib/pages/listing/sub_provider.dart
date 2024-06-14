@@ -102,7 +102,7 @@ class GetFilters extends _$GetFilters {
         if(data['fields'] != null) if(data['fields']['ad_condition'] != null) filters.add(data['fields']['ad_condition']);
 
         // more button //
-        filters.add({'fieldid': '0', 'title': 'More', 'type': 'more', 'slug': 'more'});
+        // filters.add({'fieldid': '0', 'title': 'More', 'type': 'more', 'slug': 'more'});
       }
     }
 

@@ -5,12 +5,51 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/widgets/labels.dart';
 
 import '../helpers/config.dart';
+import '../pages/accounts/login.dart';
 import '../pages/details/details_post.dart';
 
 class MyWidgets {
 
   final Config config = Config();
   final Labels labels = Labels();
+
+  Widget bottomBarPage(BuildContext context, WidgetRef ref, ScrollController scrollController, StateProvider<int> selectedIndex) {
+    return BottomNavigationBar(
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notify'),
+        BottomNavigationBarItem(icon: Icon(CupertinoIcons.camera_fill), label: ''),
+        BottomNavigationBarItem(icon: Icon(CupertinoIcons.chat_bubble_text_fill), label: 'Chat'),
+        BottomNavigationBarItem(icon: Icon(CupertinoIcons.person_crop_circle_fill), label: 'Account'),
+      ],
+      iconSize: 32,
+      selectedFontSize: 12,
+      showSelectedLabels: true,
+      selectedItemColor: config.primaryAppColor.shade600,
+      unselectedFontSize: 12,
+      showUnselectedLabels: true,
+      unselectedItemColor: config.secondaryColor.shade200,
+      currentIndex: ref.watch(selectedIndex),
+      type: BottomNavigationBarType.fixed,
+      onTap: (value) {
+        ref.read(selectedIndex.notifier).state = value;
+
+        switch(value) {
+          case 4:
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+            break;
+
+          default:
+            scrollController.animateTo(
+              scrollController.position.minScrollExtent,
+              curve: Curves.easeOut,
+              duration: const Duration(milliseconds: 500),
+            );
+            if(Navigator.canPop(context)) Navigator.pop(context);
+        }
+      },
+    );
+  }
 
   void modalBottom(BuildContext context, { required Widget child }) {
     showModalBottomSheet(

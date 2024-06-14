@@ -194,7 +194,7 @@ class _SubListsProviderElement
       (origin as SubListsProvider).newFilter;
 }
 
-String _$getFiltersHash() => r'bced87216e332a514f37ae9413ec391d3a4d69bc';
+String _$getFiltersHash() => r'385eda51585ca279b743e08412100c4f1547ae33';
 
 abstract class _$GetFilters extends BuildlessAutoDisposeAsyncNotifier<List> {
   late final String slug;

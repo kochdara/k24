@@ -364,7 +364,7 @@ class SelectTypePageView extends ConsumerWidget {
 
             /// listing ///
             Expanded(
-              flex: expand ? 1 : 0,
+              flex: (expand || sortData.options!.length >= 8) ? 1 : 0,
               child: ListView.builder(
                 itemCount: sortData.options?.length ?? 0,
                 shrinkWrap: true,

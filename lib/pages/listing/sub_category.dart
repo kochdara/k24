@@ -5,8 +5,10 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/helper.dart';
+import 'package:k24/pages/listing/search/search_page.dart';
 import 'package:k24/pages/listing/sub_provider.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:badges/badges.dart' as badges;
@@ -48,7 +50,8 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   StateProvider<bool> fetchingProvider = StateProvider<bool>((ref) => false);
   StateProvider<int> indX = StateProvider((ref) => 0);
   StateProvider<Map> newData = StateProvider((ref) => {});
-  final displayTitle = StateProvider<String?>((ref) => null);
+  StateProvider<String?> displayTitle = StateProvider<String?>((ref) => null);
+  StateProvider<bool> down = StateProvider<bool>((ref) => false);
 
   @override
   void initState() {
@@ -77,6 +80,11 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
       ref.read(subListsProvider('$cate', newFilter: ref.watch(newData) as Map?).notifier).subFetch();
       await futureAwait(() { fet.state = false; });
     }
+
+    final r = ref.read(down.notifier);
+    final w = ref.watch(down);
+    if (scroll.userScrollDirection == ScrollDirection.reverse && !w) {r.state = true;}
+    else if (scroll.userScrollDirection == ScrollDirection.forward && w) {r.state = false;}
   }
 
   Future<void> handleRefresh() async {
@@ -100,102 +108,109 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     final watchLists = ref.watch(subListsProvider('${dataCate['slug']}', newFilter: ref.watch(newData) as Map?));
 
     return Scaffold(
-      appBar: appBar(),
       backgroundColor: config.backgroundColor,
       body: RefreshIndicator(
         onRefresh: handleRefresh,
         notificationPredicate: (notification) => !watchLists.isLoading,
-        child: SingleChildScrollView(
+        child: CustomScrollView(
+          physics: const ClampingScrollPhysics(),
           controller: scrollController,
-          child: Center(
-            child: LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
-
-                  return Container(
-                    constraints: const BoxConstraints(maxWidth: maxWidth),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        /// top ads ///
-                        myCards.ads(url: 'https://www.khmer24.ws/www/delivery/ai.php?filename=08232023_bannercarsale_(640x290)-2.jpg%20(3)&contenttype=jpeg', loading: false),
-
-                        /// title & filters ///
-                        titleFilter(),
-
-                        /// main category ///
-                        watchCate.when(
-                          error: (e, st) => Text('Error : $e'),
-                          loading: () => myCards.shimmerCategory(),
-                          data: (data) => myCards.subCategory(data, setFilters: ref.watch(newData), condition: true),
-                        ),
-
-                        /// grid view ///
-                        watchLists.when(
-                          error: (e, st) => myCards.notFound(context, id: '${dataCate['id']}', message: '$e', onPressed: handleRefresh),
-                          loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPage)),
-                          data: (data) => myCards.cardHome(
-                            data,
-                            fetching: ref.watch(fetchingProvider),
-                            viewPage: ref.watch(viewPage),
-                          ),
-                        ),
-
-                      ],
+          slivers: [
+            /// app bar //
+            SliverAppBar(
+              pinned: true,
+              floating: true,
+              title: buttons.textButtons(
+                title: '${widget.data['title']??'Title of Category'}',
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SearchPage(title: '${widget.data['title']??'Title of Category'}',))),
+                bgColor: config.infoColor.shade300,
+                textColor: Colors.white,
+                textSize: 15,
+                textWeight: FontWeight.w500,
+                prefixIcon: CupertinoIcons.search,
+                prefixSize: 18,
+                prefColor: Colors.white,
+                mainAxisAlignment: MainAxisAlignment.start,
+              ),
+              titleSpacing: 0,
+              actions: [
+                IconButton(
+                  padding: const EdgeInsets.all(12),
+                  onPressed: onClickMoreFilter,
+                  icon: (ref.watch(indX) > 0) ? badges.Badge(
+                    badgeContent:  Text('${ref.watch(indX)}', style: const TextStyle(color: Colors.white, fontSize: 11)),
+                    badgeAnimation: const badges.BadgeAnimation.fade(),
+                    badgeStyle: badges.BadgeStyle(
+                      shape: badges.BadgeShape.circle,
+                      badgeColor: config.warningColor.shade400,
+                      // padding: EdgeInsets.all(5),
+                      elevation: 0,
                     ),
-                  );
-                }
+                    child: const Icon(Icons.tune, color: Colors.white, size: 28),
+                  ) : const Icon(Icons.tune, color: Colors.white, size: 28),
+                ),
+              ],
             ),
-          ),
+
+            /// body ///
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                childCount: 1, (context, index) {
+                  return Center(
+                  child: LayoutBuilder(
+                      builder: (BuildContext context, BoxConstraints constraints) {
+
+                        return Container(
+                          constraints: const BoxConstraints(maxWidth: maxWidth),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              /// top ads ///
+                              myCards.ads(url: 'https://www.khmer24.ws/www/delivery/ai.php?filename=08232023_bannercarsale_(640x290)-2.jpg%20(3)&contenttype=jpeg', loading: false),
+
+                              /// title & filters ///
+                              titleFilter(),
+
+                              /// main category ///
+                              watchCate.when(
+                                error: (e, st) => Text('Error : $e'),
+                                loading: () => myCards.shimmerCategory(),
+                                data: (data) => myCards.subCategory(data, setFilters: ref.watch(newData), condition: true),
+                              ),
+
+                              /// grid view ///
+                              watchLists.when(
+                                error: (e, st) => myCards.notFound(context, id: '${dataCate['id']}', message: '$e', onPressed: handleRefresh),
+                                loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPage)),
+                                data: (data) => myCards.cardHome(
+                                  data,
+                                  fetching: ref.watch(fetchingProvider),
+                                  viewPage: ref.watch(viewPage),
+                                ),
+                              ),
+
+                            ],
+                          ),
+                        );
+                      }
+                  ),
+                );
+                },
+              ),
+            ),
+
+          ],
         ),
       ),
+      bottomNavigationBar: !ref.watch(down) ? myWidgets.bottomBarPage(
+          context, ref, scrollController, selectedIndex
+      ) : null,
     );
   }
 
   void setupPage() {
     newData = StateProvider((ref) => jsonDecode(widget.setFilters));
     indX = StateProvider((ref) => 0);
-  }
-
-  PreferredSizeWidget appBar() {
-    return AppBar(
-      leading: IconButton(
-        padding: const EdgeInsets.all(14),
-        onPressed: () {
-          if(Navigator.canPop(context)) Navigator.pop(context);
-        },
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
-      ),
-      title: buttons.textButtons(
-        title: '${widget.data['title']??'Title of Category'}',
-        onPressed: () {},
-        bgColor: config.infoColor.shade300,
-        textColor: Colors.white,
-        textSize: 15,
-        textWeight: FontWeight.w500,
-        prefixIcon: CupertinoIcons.search,
-        prefixSize: 18,
-        prefColor: Colors.white,
-        mainAxisAlignment: MainAxisAlignment.start,
-      ),
-      titleSpacing: 0,
-      actions: [
-        IconButton(
-          padding: const EdgeInsets.all(12),
-          onPressed: onClickMoreFilter,
-          icon: (ref.watch(indX) > 0) ? badges.Badge(
-            badgeContent:  Text('${ref.watch(indX)}', style: const TextStyle(color: Colors.white, fontSize: 11)),
-            badgeAnimation: const badges.BadgeAnimation.fade(),
-            badgeStyle: badges.BadgeStyle(
-              shape: badges.BadgeShape.circle,
-              badgeColor: config.warningColor.shade400,
-              // padding: EdgeInsets.all(5),
-              elevation: 0,
-            ),
-            child: const Icon(Icons.tune, color: Colors.white, size: 28),
-          ) : const Icon(Icons.tune, color: Colors.white, size: 28),
-        ),
-      ],
-    );
   }
 
   Widget titleFilter() {
@@ -245,6 +260,8 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
 
                     for(final v in data) fieldGenerator(v),
 
+                    _fieldMore(),
+
                     const SizedBox(width: 2),
                   ],
                 );
@@ -290,11 +307,8 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
       case "group_fields":
         return _fieldSelect(field);
 
-      case "more":
-        return _fieldMore(field);
-
       default:
-        return _fieldMore(field);
+        return _fieldMore();
     }
   }
 
@@ -334,10 +348,10 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
             newVal[maxField.fieldname] = null;
             return newVal;
           });
-          ref.read(displayTitle.notifier).state = null;
+          displayTitle = StateProvider<String?>((ref) => null);
 
           /// submit ///
-          handleRefresh();
+          await handleRefresh();
         },
         child: const Icon(Icons.close, size: 18),
       ) : null,
@@ -494,7 +508,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     );
   }
 
-  Widget _fieldMore(Map field) {
+  Widget _fieldMore() {
     return buttons.textButtons(
       title: 'More',
       prefixChild: (ref.watch(indX) > 0) ? badges.Badge(
@@ -520,6 +534,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     );
 
     if(result != null) {
+      displayTitle = StateProvider<String?>((ref) => null);
       ref.read(newData.notifier).state = result ?? {};
       await handleRefresh();
     }

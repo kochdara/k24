@@ -1,6 +1,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:k24/helpers/helper.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../helpers/config.dart';
@@ -12,6 +13,7 @@ part 'home_provider.g.dart';
 Config config = Config();
 
 StateProvider<ViewPage> viewPage = StateProvider<ViewPage>((ref) { return ViewPage.grid;});
+StateProvider<int> selectedIndex = StateProvider<int>((ref) => 0);
 
 @riverpod
 class GetMainCategory extends _$GetMainCategory {
@@ -71,6 +73,8 @@ class HomeLists extends _$HomeLists {
   }
 
   Future<void> urlAPI() async {
+    final dio = await ref.getDebouncedHttpClient();
+
     final subs = 'feed?lang=en&offset=${current_page * limit}&fields=$fields&functions=$fun';
     final res = await dio.get('$postUrl/$subs');
     current_page++;

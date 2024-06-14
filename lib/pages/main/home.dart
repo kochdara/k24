@@ -3,9 +3,12 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/helper.dart';
+import 'package:k24/pages/accounts/login.dart';
+import 'package:k24/pages/details/details_post.dart';
 import 'package:k24/widgets/my_cards.dart';
 
 import '../../widgets/buttons.dart';
@@ -14,6 +17,7 @@ import 'home_provider.dart';
 
 final Buttons buttons = Buttons();
 final Labels labels = Labels();
+final Config config = Config();
 final MyCards myCards = MyCards();
 
 class HomePage extends ConsumerStatefulWidget {
@@ -29,6 +33,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   final scrollController = ScrollController();
   StateProvider<bool> fetchingProvider = StateProvider<bool>((ref) => false);
   StateProvider<bool> loadingProvider = StateProvider<bool>((ref) => false);
+  StateProvider<bool> down = StateProvider<bool>((ref) => false);
 
   @override
   void initState() {
@@ -44,7 +49,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   void loadMore() async {
     final limit = ref.watch(homeListsProvider.notifier).limit;
     final current = ref.watch(homeListsProvider.notifier).current_result;
-    var fet = ref.read(fetchingProvider.notifier);
+    final fet = ref.read(fetchingProvider.notifier);
     ScrollPosition scroll = scrollController.position;
 
     if (scroll.pixels > 1500 && scroll.pixels >= (scroll.maxScrollExtent - 750)
@@ -53,6 +58,11 @@ class _HomePageState extends ConsumerState<HomePage> {
       ref.read(homeListsProvider.notifier).fetchHome();
       await futureAwait(() { fet.state = false; });
     }
+
+    final r = ref.read(down.notifier);
+    final w = ref.watch(down);
+    if (scroll.userScrollDirection == ScrollDirection.reverse && !w) {r.state = true;}
+    else if (scroll.userScrollDirection == ScrollDirection.forward && w) {r.state = false;}
   }
 
   Future<void> _handleRefresh() async {
@@ -66,52 +76,65 @@ class _HomePageState extends ConsumerState<HomePage> {
     final homeList = ref.watch(homeListsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: appBar(),
-      ),
       backgroundColor: config.backgroundColor,
       body: RefreshIndicator(
         onRefresh: _handleRefresh,
         notificationPredicate: (notification) => !homeList.isLoading,
-        child: SingleChildScrollView(
+        child: CustomScrollView(
+          physics: const ClampingScrollPhysics(),
           controller: scrollController,
-          child: Center(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: maxWidth),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+          slivers: <Widget>[
+            /// app bar ///
+            SliverAppBar(title: appBar(), floating: true),
 
-                  /// top ads ///
-                  myCards.ads(url: 'https://images.khmer24.co/banners/2022-10/ABA-1664951593.jpg', loading: mainCate.isLoading),
+            /// body //
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                childCount: 1, (BuildContext context, int index) {
+                return Center(
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: maxWidth),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
 
-                  /// main category ///
-                  mainCate.when(
-                    error: (e, st) => Text('Error : $e'),
-                    loading: () => myCards.shimmerCategory(),
-                    data: (data) => myCards.cardCategory(data),
-                  ),
+                        /// top ads ///
+                        myCards.ads(url: 'https://images.khmer24.co/banners/2022-10/ABA-1664951593.jpg', loading: mainCate.isLoading),
 
-                  /// last title ///
-                  titleAds(),
+                        /// main category ///
+                        mainCate.when(
+                          error: (e, st) => Text('Error : $e'),
+                          loading: () => myCards.shimmerCategory(),
+                          data: (data) => myCards.cardCategory(data),
+                        ),
 
-                  /// home list ///
-                  homeList.when(
-                    error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: _handleRefresh),
-                    loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPage)),
-                    data: (data) => myCards.cardHome(
-                      data,
-                      fetching: ref.watch(fetchingProvider),
-                      viewPage: ref.watch(viewPage),
+                        /// last title ///
+                        titleAds(),
+
+                        /// home list ///
+                        homeList.when(
+                          error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: _handleRefresh),
+                          loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPage)),
+                          data: (data) => myCards.cardHome(
+                            data,
+                            fetching: ref.watch(fetchingProvider),
+                            viewPage: ref.watch(viewPage),
+                          ),
+                        ),
+
+                      ],
                     ),
                   ),
-
-                ],
-              ),
+                );
+              }),
             ),
-          ),
+
+          ],
         ),
       ),
+      bottomNavigationBar: !ref.watch(down) ? myWidgets.bottomBarPage(
+        context, ref, scrollController, selectedIndex
+      ) : null,
     );
   }
 

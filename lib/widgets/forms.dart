@@ -81,6 +81,7 @@ class Forms {
     bool readOnly = false,
     FocusNode? focusNode,
     bool autofocus = false,
+    String? hintText
   }) {
     return TextFormField(
       autofocus: autofocus,
@@ -98,7 +99,7 @@ class Forms {
           borderSide: BorderSide.none,
           borderRadius: BorderRadius.circular(radius),
         ),
-        hintText: 'Be the first to comment',
+        hintText: hintText??'Be the first to comment',
         hintStyle: TextStyle(color: config.secondaryColor.shade300),
         isDense: true,
         filled: true,

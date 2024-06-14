@@ -28,30 +28,27 @@ class GetFilterPro extends _$GetFilterPro {
         if(data['date'] != null) filters.add(data['date']);
 
         if(data['locations'] != null){
-          if(data['locations']['locations'] != null) filters.add(data['locations']['locations']);
+          (data['locations'] as Map).forEach((key, value) {
+            filters.add(data['locations'][key] ?? {});
+          });
         }
 
         if(data['prices'] != null){
-          if(data['prices']['ad_price'] != null) filters.add(data['prices']['ad_price']);
-          if(data['prices']['discount'] != null) filters.add(data['prices']['discount']);
+          (data['prices'] as Map).forEach((key, value) {
+            filters.add(data['prices'][key] ?? {});
+          });
         }
 
         if(data['deliveries'] != null) {
-          if(data['deliveries']['shipping'] != null) filters.add(data['deliveries']['shipping']);
+          (data['deliveries'] as Map).forEach((key, value) {
+            filters.add(data['deliveries'][key] ?? {});
+          });
         }
 
         if(data['fields'] != null) {
-          if(data['fields']['make-model-and-year'] != null) filters.add(data['fields']['make-model-and-year']);
-
-          if(data['fields']['ad_auto_condition'] != null) filters.add(data['fields']['ad_auto_condition']);
-
-          if(data['fields']['ad_condition'] != null) filters.add(data['fields']['ad_condition']);
-
-          if(data['fields']['ad_transmission'] != null) filters.add(data['fields']['ad_transmission']);
-
-          if(data['fields']['ad_fuel'] != null) filters.add(data['fields']['ad_fuel']);
-
-          if(data['fields']['ad_type'] != null) filters.add(data['fields']['ad_type']);
+          (data['fields'] as Map).forEach((key, value) {
+            filters.add(data['fields'][key] ?? {});
+          });
         }
 
       }
