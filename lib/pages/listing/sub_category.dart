@@ -52,6 +52,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   StateProvider<Map> newData = StateProvider((ref) => {});
   StateProvider<String?> displayTitle = StateProvider<String?>((ref) => null);
   StateProvider<bool> down = StateProvider<bool>((ref) => false);
+  StateProvider<int> selectedIndex = StateProvider<int>((ref) => 0);
 
   @override
   void initState() {
@@ -107,6 +108,8 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     final watchCate = ref.watch(getMainCategoryProvider('${dataCate['id']}'));
     final watchLists = ref.watch(subListsProvider('${dataCate['slug']}', newFilter: ref.watch(newData) as Map?));
 
+    final title = ref.watch(newData)['keyword'];
+
     return Scaffold(
       backgroundColor: config.backgroundColor,
       body: RefreshIndicator(
@@ -118,11 +121,27 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
           slivers: [
             /// app bar //
             SliverAppBar(
-              pinned: true,
               floating: true,
               title: buttons.textButtons(
-                title: '${widget.data['title']??'Title of Category'}',
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SearchPage(title: '${widget.data['title']??'Title of Category'}',))),
+                title: '${(title != null) ? 'Search: $title' : (widget.data['title']??'')}',
+                onPressed: () async {
+                  final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => SearchPage(
+                    title: '${widget.data['title']??'Title of Category'}',
+                    newData: newData,
+                  )));
+                  if(result != null) await handleRefresh();
+
+                },
+                closeButton: (title != null) ? const Icon(Icons.close, size: 20) : null,
+                closeButtonPress: () async {
+                  ref.read(newData.notifier).update((state) {
+                    final newMap = {...state};
+                    newMap.remove('keyword');
+                    return newMap;
+                  });
+                  await handleRefresh();
+
+                },
                 bgColor: config.infoColor.shade300,
                 textColor: Colors.white,
                 textSize: 15,

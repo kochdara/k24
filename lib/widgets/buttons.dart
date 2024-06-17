@@ -1,5 +1,7 @@
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:k24/widgets/labels.dart';
 
 import '../helpers/config.dart';
@@ -121,49 +123,74 @@ class Buttons {
     TextAlign? textAlign = TextAlign.start,
     MainAxisAlignment mainAxisAlignment = MainAxisAlignment.center,
     Color? borderColor,
+    Widget? closeButton,
+    void Function()? closeButtonPress,
   }) {
-    return TextButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: (bgColor!=null) ? bgColor : Colors.grey.shade200,
-        shape: RoundedRectangleBorder(
-          side: BorderSide(color: (borderColor ?? Colors.transparent)),
-          borderRadius: BorderRadius.circular(radius),
-        ),
-        padding: (padding != null) ? padding : EdgeInsets.all(padSize),
-      ),
-      child: Row(
-        mainAxisAlignment: mainAxisAlignment,
-        children: [
-          if(prefixIcon!=null) ...[
-            Icon(prefixIcon, size: prefixSize, color: prefColor),
-            const SizedBox(width: 6),
-          ],
-
-          if(prefixChild!=null) ...[
-            prefixChild,
-            const SizedBox(width: 6),
-          ],
-
-          Text(
-            title,
-            style: TextStyle(color: textColor, fontSize: textSize, fontWeight: textWeight),
-            overflow: TextOverflow.ellipsis,
-            maxLines: textLine,
-            textAlign: textAlign,
+    return Stack(
+      children: [
+        TextButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: (bgColor!=null) ? bgColor : Colors.grey.shade200,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(color: (borderColor ?? Colors.transparent)),
+              borderRadius: BorderRadius.circular(radius),
+            ),
+            padding: (padding != null) ? padding : EdgeInsets.all(padSize),
           ),
+          child: LayoutBuilder(
+            builder: (context, constraint) {
+              return Row(
+                mainAxisAlignment: mainAxisAlignment,
+                children: [
+                  if(prefixIcon!=null) ...[
+                    Icon(prefixIcon, size: prefixSize, color: prefColor),
+                    const SizedBox(width: 6),
+                  ],
 
-          if(child!=null) ...[
-            const SizedBox(width: 6),
-            child,
-          ],
+                  if(prefixChild!=null) ...[
+                    prefixChild,
+                    const SizedBox(width: 6),
+                  ],
 
-          const SizedBox(width: 2),
-          if(showDropdown) ...[
-            const Icon(Icons.arrow_drop_down_rounded, size: 24, color: Colors.black)
-          ],
-        ],
-      ),
+                  Container(
+                    constraints: BoxConstraints(
+                      maxWidth: constraint.maxWidth - 50,
+                    ),
+                    child: Text(
+                      title,
+                      style: TextStyle(color: textColor, fontSize: textSize, fontWeight: textWeight),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: textLine,
+                      textAlign: textAlign,
+                    ),
+                  ),
+
+                  if(child!=null) ...[
+                    const SizedBox(width: 6),
+                    child,
+                  ],
+
+                  const SizedBox(width: 2),
+                  if(showDropdown) ...[
+                    const Icon(Icons.arrow_drop_down_rounded, size: 24, color: Colors.black)
+                  ],
+                ],
+              );
+            }
+          ),
+        ),
+
+        /// close button //
+        if(closeButton != null) Positioned(
+          top: 0,
+          right: 0,
+          child: IconButton(
+            onPressed: closeButtonPress,
+            icon: closeButton,
+          ),
+        ),
+      ],
     );
   }
 

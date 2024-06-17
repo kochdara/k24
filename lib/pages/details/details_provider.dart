@@ -39,8 +39,7 @@ class RelateDetailPost extends _$RelateDetailPost {
   final Dio dio = Dio();
 
   int limit = 0;
-  int current_result = 0;
-  int current_page = 0;
+  int offset = 0;
 
   @override
   Future<List<GridCard>> build(String id) async => fetch();
@@ -52,8 +51,7 @@ class RelateDetailPost extends _$RelateDetailPost {
 
   Future<void> refresh() async {
     limit = 0;
-    current_result = 0;
-    current_page = 0;
+    offset = 0;
     list = [];
     state = const AsyncLoading();
 
@@ -62,16 +60,15 @@ class RelateDetailPost extends _$RelateDetailPost {
   }
 
   Future<void> urlAPI() async {
-    final subs = 'feed/$id/relates?lang=$lang&offset=${current_page * limit}&fields=$fields&functions=$fun';
+    final subs = 'feed/$id/relates?lang=$lang&offset=${offset + limit}&fields=$fields&functions=$fun';
     final res = await dio.get('$postUrl/$subs');
-    current_page++;
 
     final resp = HomeSerial.fromJson(res.data ?? {});
 
     if(res.statusCode == 200) {
       final data = resp.data;
       limit = resp.limit ?? 0;
-      current_result = resp.current_result ?? 0;
+      offset = resp.offset ?? 0;
 
       for (final val in data!) {
         list.add(val!);

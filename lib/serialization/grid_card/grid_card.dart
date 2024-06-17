@@ -63,6 +63,7 @@ class Data_ {
   DateTime? posted_date;
   String? link;
   String? short_link;
+  int? total_comment;
   User_? user;
   Store_? store;
   Location_? location;
@@ -91,6 +92,7 @@ class Data_ {
     this.posted_date,
     this.link,
     this.short_link,
+    this.total_comment,
     this.user,
     this.store,
     this.location,
@@ -266,6 +268,8 @@ class Store_ {
   String? title;
   String? username;
   String? userid;
+  Photo_? logo;
+  Cover? cover;
   bool? is_verify;
   dynamic created_date;
   String? taxed;
@@ -275,6 +279,8 @@ class Store_ {
     this.title,
     this.username,
     this.userid,
+    this.logo,
+    this.cover,
     this.is_verify,
     this.created_date,
     this.taxed,
@@ -335,6 +341,38 @@ class OnlineStatus {
 }
 
 @JsonSerializable(converters: [ToString()])
+class Cover {
+  String? url;
+  CoverLarge? small;
+  CoverLarge? medium;
+  CoverLarge? large;
+
+  Cover({
+    this.url,
+    this.small,
+    this.medium,
+    this.large,
+  });
+
+  factory Cover.fromJson(Map<String, dynamic> json) => _$CoverFromJson(json);
+  Map toJson() => _$CoverToJson(this);
+
+}
+
+@JsonSerializable(converters: [ToString()])
+class CoverLarge {
+  String? url;
+
+  CoverLarge({
+    this.url,
+  });
+
+  factory CoverLarge.fromJson(Map<String, dynamic> json) => _$CoverLargeFromJson(json);
+  Map toJson() => _$CoverLargeToJson(this);
+
+}
+
+@JsonSerializable(converters: [ToString()])
 class Photo_ {
   String? url;
   String? width;
@@ -371,6 +409,56 @@ class Large {
 
   factory Large.fromJson(Map<String, dynamic> json) => _$LargeFromJson(json);
   Map toJson() => _$LargeToJson(this);
+
+}
+
+@JsonSerializable(converters: [ToBool(), ToDateTime()])
+class Meta {
+  String? site_name;
+  String? title;
+  String? price;
+  String? currency;
+  String? description;
+  String? keyword;
+  String? author;
+  Fb? fb;
+  String? image;
+  String? url;
+  String? deeplink;
+  DateTime? date;
+
+  Meta({
+    this.site_name,
+    this.title,
+    this.price,
+    this.currency,
+    this.description,
+    this.keyword,
+    this.author,
+    this.fb,
+    this.image,
+    this.url,
+    this.deeplink,
+    this.date,
+  });
+
+  factory Meta.fromJson(Map<String, dynamic> json) => _$MetaFromJson(json);
+  Map toJson() => _$MetaToJson(this);
+
+}
+
+@JsonSerializable(converters: [ToBool()])
+class Fb {
+  String? id;
+  String? type;
+
+  Fb({
+    this.id,
+    this.type,
+  });
+
+  factory Fb.fromJson(Map<String, dynamic> json) => _$FbFromJson(json);
+  Map toJson() => _$FbToJson(this);
 
 }
 

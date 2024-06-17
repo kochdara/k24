@@ -81,6 +81,7 @@ Data_ _$Data_FromJson(Map json) => Data_(
       posted_date: const ToDateTime().fromJson(json['posted_date']),
       link: const ToString().fromJson(json['link']),
       short_link: const ToString().fromJson(json['short_link']),
+      total_comment: const ToInt().fromJson(json['total_comment']),
       user: json['user'] == null
           ? null
           : User_.fromJson(Map<String, dynamic>.from(json['user'] as Map)),
@@ -133,6 +134,8 @@ Map<String, dynamic> _$Data_ToJson(Data_ instance) => <String, dynamic>{
       'posted_date': const ToDateTime().toJson(instance.posted_date),
       'link': const ToString().toJson(instance.link),
       'short_link': const ToString().toJson(instance.short_link),
+      'total_comment': _$JsonConverterToJson<Object?, int>(
+          instance.total_comment, const ToInt().toJson),
       'user': instance.user?.toJson(),
       'store': instance.store?.toJson(),
       'location': instance.location?.toJson(),
@@ -279,6 +282,12 @@ Store_ _$Store_FromJson(Map<String, dynamic> json) => Store_(
       title: const ToString().fromJson(json['title']),
       username: const ToString().fromJson(json['username']),
       userid: const ToString().fromJson(json['userid']),
+      logo: json['logo'] == null
+          ? null
+          : Photo_.fromJson(json['logo'] as Map<String, dynamic>),
+      cover: json['cover'] == null
+          ? null
+          : Cover.fromJson(json['cover'] as Map<String, dynamic>),
       is_verify: const ToBool().fromJson(json['is_verify']),
       created_date: json['created_date'],
       taxed: const ToString().fromJson(json['taxed']),
@@ -289,6 +298,8 @@ Map<String, dynamic> _$Store_ToJson(Store_ instance) => <String, dynamic>{
       'title': const ToString().toJson(instance.title),
       'username': const ToString().toJson(instance.username),
       'userid': const ToString().toJson(instance.userid),
+      'logo': instance.logo,
+      'cover': instance.cover,
       'is_verify': _$JsonConverterToJson<Object?, bool>(
           instance.is_verify, const ToBool().toJson),
       'created_date': instance.created_date,
@@ -341,6 +352,35 @@ Map<String, dynamic> _$OnlineStatusToJson(OnlineStatus instance) =>
       'date': const ToDateTime().toJson(instance.date),
     };
 
+Cover _$CoverFromJson(Map<String, dynamic> json) => Cover(
+      url: const ToString().fromJson(json['url']),
+      small: json['small'] == null
+          ? null
+          : CoverLarge.fromJson(json['small'] as Map<String, dynamic>),
+      medium: json['medium'] == null
+          ? null
+          : CoverLarge.fromJson(json['medium'] as Map<String, dynamic>),
+      large: json['large'] == null
+          ? null
+          : CoverLarge.fromJson(json['large'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$CoverToJson(Cover instance) => <String, dynamic>{
+      'url': const ToString().toJson(instance.url),
+      'small': instance.small,
+      'medium': instance.medium,
+      'large': instance.large,
+    };
+
+CoverLarge _$CoverLargeFromJson(Map<String, dynamic> json) => CoverLarge(
+      url: const ToString().fromJson(json['url']),
+    );
+
+Map<String, dynamic> _$CoverLargeToJson(CoverLarge instance) =>
+    <String, dynamic>{
+      'url': const ToString().toJson(instance.url),
+    };
+
 Photo_ _$Photo_FromJson(Map<String, dynamic> json) => Photo_(
       url: const ToString().fromJson(json['url']),
       width: const ToString().fromJson(json['width']),
@@ -375,6 +415,48 @@ Map<String, dynamic> _$LargeToJson(Large instance) => <String, dynamic>{
       'url': const ToString().toJson(instance.url),
       'width': const ToString().toJson(instance.width),
       'height': const ToString().toJson(instance.height),
+    };
+
+Meta _$MetaFromJson(Map<String, dynamic> json) => Meta(
+      site_name: json['site_name'] as String?,
+      title: json['title'] as String?,
+      price: json['price'] as String?,
+      currency: json['currency'] as String?,
+      description: json['description'] as String?,
+      keyword: json['keyword'] as String?,
+      author: json['author'] as String?,
+      fb: json['fb'] == null
+          ? null
+          : Fb.fromJson(json['fb'] as Map<String, dynamic>),
+      image: json['image'] as String?,
+      url: json['url'] as String?,
+      deeplink: json['deeplink'] as String?,
+      date: const ToDateTime().fromJson(json['date']),
+    );
+
+Map<String, dynamic> _$MetaToJson(Meta instance) => <String, dynamic>{
+      'site_name': instance.site_name,
+      'title': instance.title,
+      'price': instance.price,
+      'currency': instance.currency,
+      'description': instance.description,
+      'keyword': instance.keyword,
+      'author': instance.author,
+      'fb': instance.fb,
+      'image': instance.image,
+      'url': instance.url,
+      'deeplink': instance.deeplink,
+      'date': const ToDateTime().toJson(instance.date),
+    };
+
+Fb _$FbFromJson(Map<String, dynamic> json) => Fb(
+      id: json['id'] as String?,
+      type: json['type'] as String?,
+    );
+
+Map<String, dynamic> _$FbToJson(Fb instance) => <String, dynamic>{
+      'id': instance.id,
+      'type': instance.type,
     };
 
 Setting_ _$Setting_FromJson(Map<String, dynamic> json) => Setting_(

@@ -206,116 +206,66 @@ double lineHeight = 1.4;
 double spaceGrid = 12;
 double spaceMenu = 14;
 String lang = 'en';
-String fields = 'thumbnail,photos,location,user,store,renew_date,link,category,is_saved,is_like,total_like,total_comment,highlight_specs,condition,object_highlight_specs';
-String fieldsDetails = 'all_photos,photo,photos,thumbnails,thumbnail,renew_date,posted_date,link,highlight_specs,object_highlight_specs,specs,object_specs,description,category,views,total_like,is_like,total_comment,is_saved,location,user,store,email,phone,status,is_job_applied';
-String filterVersion = '4';
-
-String mainFunctions = 'save,chat,like,comment,apply_job,shipping,banner[image,code,google_ads,iframe,innity],highlight_ads[highlight_specs],highlight_ads[object_highlight_specs]';
-String detailsFunctions = 'save,chat,like,comment,apply_job,shipping,loan_calculator';
+String filterVersion = '3';
 
 double responsive(double width) {
-  double resWidth;
   switch (width) {
-    case >=992: { // computer
-      resWidth = (width / 5) - 10;
-    }
-    break;
-
-    case >=768: { // tablet
-      resWidth = (width / 4) - 10;
-    }
-    break;
-
-    case >=576: { // large phone
-      resWidth = (width / 3) - 9;
-    }
-    break;
-
-    case >=400: { // normal phone
-      resWidth = (width / 2) - 7;
-    }
-    break;
-
-    default: { // default
-      resWidth = (width / 2) - 7;
-    }
-    break;
+    case >=992: return (width / 5) - 10; // computer
+    case >=768: return (width / 4) - 10; // tablet
+    case >=576: return (width / 3) - 9; // large phone
+    case >=400: return (width / 2) - 7; // normal phone
+    default: return (width / 2) - 7; // default
   }
-  return resWidth;
 }
 
 Map responsiveSub(double width) {
-  double resWidth;
-  int length = 0;
   switch (width) {
-    case >=992: { // computer
-      resWidth = (width / 8) - 14;
-      length = 8;
-    }
-    break;
-
-    case >=768: { // tablet
-      resWidth = (width / 7) - 14;
-      length = 6;
-    }
-    break;
-
-    case >=576: { // large phone
-      resWidth = (width / 6) - 14;
-      length = 5;
-    }
-    break;
-
-    case >=400: { // normal phone
-      resWidth = (width / 5) - 14;
-      length = 4;
-    }
-    break;
-
-    default: { // default
-      resWidth = (width / 4) - 14;
-      length = 4;
-    }
-    break;
+    case >=992: return { // computer
+      'width': (width / 8) - 14,
+      'length': 8
+    };
+    case >=768: return { // tablet
+      'width': (width / 7) - 14,
+      'length': 6
+    };
+    case >=576: return { // large phone
+      'width': (width / 6) - 14,
+      'length': 5
+    };
+    case >=400: return { // normal phone
+      'width': (width / 5) - 14,
+      'length': 4
+    };
+    default: return { // default
+      'width': (width / 4) - 14,
+      'length': 4
+    };
   }
-  return { 'width': resWidth, 'length': length };
 }
 
 Map responsiveImage(double width) {
-  double resWidth;
-  int length;
   switch (width) {
-    case >=992: { // computer
-      resWidth = (width / 6) - 7;
-      length = 6;
-    }
-    break;
-
-    case >=768: { // tablet
-      resWidth = (width / 5) - 6;
-      length = 5;
-    }
-    break;
-
-    case >=576: { // large phone
-      resWidth = (width / 4) - 5;
-      length = 4;
-    }
-    break;
-
-    case >=400: { // normal phone
-      resWidth = (width / 3) - 3;
-      length = 3;
-    }
-    break;
-
-    default: { // default
-      resWidth = (width / 3) - 3;
-      length = 3;
-    }
-    break;
+    case >=992: return { // computer
+      'width': (width / 6) - 7,
+      'length': 6
+    };
+    case >=768: return { // tablet
+      'width': (width / 5) - 6,
+      'length': 5
+    };
+    case >=576: return { // large phone
+      'width': (width / 4) - 5,
+      'length': 4
+    };
+    case >=400: return { // normal phone
+      'width': (width / 3) - 3,
+      'length': 3
+    };
+    default: return { // default
+      'width': (width / 3) - 3,
+      'length': 3
+    };
   }
-  return { "width": resWidth, "length": length};
 }
 
 final List<GridCard> listViewSkeleton = [

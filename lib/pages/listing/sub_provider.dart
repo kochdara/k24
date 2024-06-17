@@ -15,7 +15,7 @@ class SubLists extends _$SubLists {
 
   int limit = 0;
   int current_result = 0;
-  int current_page = 0;
+  int offset = 0;
 
   final Dio dio = Dio();
 
@@ -30,8 +30,8 @@ class SubLists extends _$SubLists {
 
   Future<void> refresh() async {
     limit = 0;
+    offset = 0;
     current_result = 0;
-    current_page = 0;
     list = [];
     state = const AsyncLoading();
 
@@ -40,7 +40,7 @@ class SubLists extends _$SubLists {
   }
 
   Future<void> urlAPI() async {
-    String subs = 'feed?lang=en&offset=${current_page * limit}&fields=$fields&functions=$fun';
+    String subs = 'feed?lang=en&offset=${offset + limit}&fields=$fields&functions=$fun';
     subs += '&category=$category';
 
     /// check loop filter ///
@@ -55,13 +55,13 @@ class SubLists extends _$SubLists {
     }
 
     final res = await dio.get('$postUrl/$subs');
-    current_page++;
 
     final resp = HomeSerial.fromJson(res.data ?? {});
 
     if(res.statusCode == 200) {
       final data = resp.data;
       limit = resp.limit ?? 0;
+      offset = resp.offset ?? 0;
       current_result = resp.current_result ?? 0;
 
       for (final val in data!) {

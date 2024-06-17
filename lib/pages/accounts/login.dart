@@ -70,7 +70,7 @@ class BodyLogin extends ConsumerWidget {
                 children: [
                   /// title ///
                   Container(
-                    height: 200,
+                    height: 170,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: config.primaryAppColor.shade600
@@ -79,8 +79,8 @@ class BodyLogin extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        labels.label('Khmer24', fontSize: 40, fontWeight: FontWeight.bold),
-                        labels.label('Buy faster, Sell faster', fontSize: 14, fontWeight: FontWeight.w500),
+                        labels.label('Khmer24', fontSize: 38, fontWeight: FontWeight.bold),
+                        labels.label('Buy faster, Sell faster', fontSize: 16, fontWeight: FontWeight.w500),
                       ],
                     ),
                   ),
@@ -117,9 +117,10 @@ class BodyLogin extends ConsumerWidget {
                                     title: labels.label('username', fontSize: 15, fontWeight: FontWeight.w500, color: Colors.black87),
                                   subtitle: labels.label('@username', fontSize: 12, color: Colors.black54),
                                   dense: true,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 14),
                                   trailing: IconButton(
                                     onPressed: () {},
-                                    padding: const EdgeInsets.all(14),
+                                    padding: const EdgeInsets.all(12),
                                     icon: Icon(Icons.more_vert_rounded, color: config.secondaryColor.shade400),
                                   ),
                                 ),
@@ -129,9 +130,9 @@ class BodyLogin extends ConsumerWidget {
                           ),
                         ),
 
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 20),
 
-                        labels.label('Login Or Register With Your Phone Number', fontSize: 14, color: Colors.black87,fontWeight: FontWeight.w500),
+                        labels.label('Login Or Register With Your Phone Number', fontSize: 14, color: Colors.black87),
 
                         const SizedBox(height: 20),
 
@@ -169,17 +170,9 @@ class BodyLogin extends ConsumerWidget {
                           ],
                         ),
 
-                        const SizedBox(height: 50),
+                        const SizedBox(height: 20),
 
-                        /// forgot password //
-                        InkWell(
-                          onTap: () { },
-                          child: labels.label('Forgot Password / Account', fontSize: 15, color: config.primaryAppColor.shade600,fontWeight: FontWeight.w500),
-                        ),
-
-                        const SizedBox(height: 10),
-
-                        labels.label('Quickly Connect', fontSize: 14, color: Colors.black87 ,fontWeight: FontWeight.w500),
+                        labels.label('Quickly Connect', fontSize: 14, color: Colors.black87 ),
 
                         /// more login //
                         Row(
