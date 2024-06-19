@@ -13,6 +13,7 @@ part 'home_provider.g.dart';
 Config config = Config();
 
 StateProvider<ViewPage> viewPage = StateProvider<ViewPage>((ref) { return ViewPage.grid;});
+StateProvider<int> selectedIndex = StateProvider<int>((ref) => 0);
 
 @riverpod
 class GetMainCategory extends _$GetMainCategory {

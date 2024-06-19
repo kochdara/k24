@@ -23,48 +23,46 @@ class Forms {
     String? hintText,
     Color? borderColor,
     TextInputAction? textInputAction,
+    bool obscureText = false,
+    String? Function(String?)? validator,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: borderColor ?? config.secondaryColor.shade100),
-        borderRadius: BorderRadius.circular(radius),
-      ),
-      child: TextFormField(
-        autofocus: autofocus,
-        enabled: enabled,
-        readOnly: readOnly,
-        controller: controller,
-        focusNode: focusNode,
-        keyboardType: keyboardType,
-        decoration: InputDecoration(
-          border: UnderlineInputBorder(
-            borderSide: const BorderSide(color: Colors.transparent),
-            borderRadius: BorderRadius.circular(radius),
-          ),
-          enabledBorder: UnderlineInputBorder(
-            borderSide: const BorderSide(color: Colors.transparent),
-            borderRadius: BorderRadius.circular(radius),
-          ),
-          focusedBorder: UnderlineInputBorder(
-            borderSide: const BorderSide(color: Colors.transparent),
-            borderRadius: BorderRadius.circular(radius),
-          ),
-          labelText: label,
-          labelStyle: TextStyle(fontSize: 15, color: config.secondaryColor.shade200),
-          hintText: hintText,
-          hintStyle: TextStyle(color: config.secondaryColor.shade200, fontWeight: FontWeight.normal),
-          isDense: true,
-          filled: true,
-          fillColor: enabled ? fillColor : config.secondaryColor.shade50,
-          prefixIcon: prefixIcon,
-          suffixIcon: suffixIcon,
+    return TextFormField(
+      autofocus: autofocus,
+      enabled: enabled,
+      readOnly: readOnly,
+      controller: controller,
+      focusNode: focusNode,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        border: UnderlineInputBorder(
+          borderSide: BorderSide(color: config.secondaryColor.shade100),
+          borderRadius: BorderRadius.circular(radius),
         ),
-        onFieldSubmitted: onFieldSubmitted,
-        onTap: onTap,
-        inputFormatters: inputFormatters,
-        onChanged: onChanged,
-        textInputAction: textInputAction,
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: config.secondaryColor.shade100),
+          borderRadius: BorderRadius.circular(radius),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: config.secondaryColor.shade100),
+          borderRadius: BorderRadius.circular(radius),
+        ),
+        labelText: label,
+        labelStyle: TextStyle(fontSize: 15, color: config.secondaryColor.shade200),
+        hintText: hintText,
+        hintStyle: TextStyle(color: config.secondaryColor.shade200, fontWeight: FontWeight.normal),
+        isDense: true,
+        filled: true,
+        fillColor: enabled ? fillColor : config.secondaryColor.shade50,
+        prefixIcon: prefixIcon,
+        suffixIcon: suffixIcon,
       ),
+      validator: validator,
+      obscureText: obscureText,
+      onFieldSubmitted: onFieldSubmitted,
+      onTap: onTap,
+      inputFormatters: inputFormatters,
+      onChanged: onChanged,
+      textInputAction: textInputAction,
     );
   }
 

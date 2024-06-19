@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/widgets/labels.dart';
 
 import '../helpers/config.dart';
-import '../pages/accounts/login.dart';
+import '../pages/accounts/check_login.dart';
 import '../pages/details/details_post.dart';
 
 class MyWidgets {
@@ -13,7 +13,7 @@ class MyWidgets {
   final Config config = Config();
   final Labels labels = Labels();
 
-  Widget bottomBarPage(BuildContext context, WidgetRef ref, ScrollController scrollController, StateProvider<int> selectedIndex) {
+  Widget bottomBarPage(BuildContext context, WidgetRef ref, StateProvider<int> selectedIndex) {
     return BottomNavigationBar(
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
@@ -36,16 +36,11 @@ class MyWidgets {
 
         switch(value) {
           case 4:
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckLoginPage()));
             break;
 
           default:
-            scrollController.animateTo(
-              scrollController.position.minScrollExtent,
-              curve: Curves.easeOut,
-              duration: const Duration(milliseconds: 500),
-            );
-            if(Navigator.canPop(context)) Navigator.pop(context);
+            Navigator.of(context).popUntil((route) => route.isFirst);
         }
       },
     );

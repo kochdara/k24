@@ -10,16 +10,19 @@ import 'package:k24/main.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/forms.dart';
 import 'package:k24/widgets/labels.dart';
+import 'package:k24/widgets/my_widgets.dart';
 
 final Forms forms = Forms();
 final Labels labels = Labels();
 final Buttons buttons = Buttons();
+final MyWidgets myWidgets = MyWidgets();
 
 class SearchPage extends ConsumerStatefulWidget {
-  const SearchPage({super.key, required this.title, required this.newData});
+  const SearchPage({super.key, required this.title, required this.newData, required this.selectedIndex});
 
   final String title;
   final StateProvider<Map> newData;
+  final StateProvider<int> selectedIndex;
 
   @override
   ConsumerState<SearchPage> createState() => _SearchPageState();
@@ -27,7 +30,8 @@ class SearchPage extends ConsumerStatefulWidget {
 
 class _SearchPageState extends ConsumerState<SearchPage> {
   StateProvider<List> keyVal = StateProvider<List>((ref) => []);
-  final FocusNode focusNode = FocusNode();
+  final StateProvider<FocusNode> focusNode = StateProvider((ref) => FocusNode());
+  StateProvider<String> title = StateProvider((ref) => '');
 
   @override
   void initState() {
@@ -36,10 +40,15 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   }
 
   setupPage() async {
-    final keys = await getSecure('keyword', type: Map);
+    final keys = await getSecure('keyword', type: Map) ?? [];
     ref.read(keyVal.notifier).update((state) {
       final newList = [...state, ...keys];
       return newList;
+    });
+    title = StateProvider((ref) => ref.watch(widget.newData)['keyword'] ?? '');
+
+    futureAwait(duration: 300, () {
+      ref.read(focusNode.notifier).state.requestFocus();
     });
   }
 
@@ -47,28 +56,16 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: config.backgroundColor,
-      body: BodySearch(ref, title: widget.title, focusNode: focusNode, newData: widget.newData, keyVal: keyVal),
+      body: bodySearch(),
+      bottomNavigationBar: myWidgets.bottomBarPage(
+        context, ref, widget.selectedIndex
+      ),
     );
   }
-}
 
-class BodySearch extends StatelessWidget {
-  const BodySearch(this.ref, {super.key, required this.title, required this.focusNode, required this.newData, required this.keyVal});
-
-  final WidgetRef ref;
-  final String title;
-  final FocusNode focusNode;
-  final StateProvider<Map> newData;
-  final StateProvider<List> keyVal;
-
-  @override
-  Widget build(BuildContext context) {
-    final title = ref.watch(newData)['keyword'] ?? '';
+  Widget bodySearch() {
+    final newDa = widget.newData;
     final watch = ref.watch(keyVal);
-
-    futureAwait(duration: 500, () {
-      focusNode.requestFocus();
-    });
 
     return CustomScrollView(
       slivers: [
@@ -81,10 +78,10 @@ class BodySearch extends StatelessWidget {
           title: forms.formField(
             'Search',
             hintText: 'Search...',
-            controller: TextEditingController(text: '$title'),
-            focusNode: focusNode,
+            controller: TextEditingController(text: ref.watch(title)),
+            focusNode: ref.watch(focusNode),
             onFieldSubmitted: (val) async {
-              ref.read(newData.notifier).update((state) {
+              ref.read(newDa.notifier).update((state) {
                 final newMap = {...state};
                 newMap['keyword'] = val;
                 return newMap;
@@ -97,7 +94,7 @@ class BodySearch extends StatelessWidget {
           ),
           actions: [
             IconButton(
-              onPressed: () { focusNode.requestFocus(); },
+              onPressed: () { ref.read(focusNode.notifier).state.requestFocus(); },
               padding: const EdgeInsets.all(14),
               icon: Icon(Icons.search, size: 28, color: config.secondaryColor.shade400),
             )
@@ -108,51 +105,57 @@ class BodySearch extends StatelessWidget {
         if(watch.isNotEmpty) SliverList(
           delegate: SliverChildBuilderDelegate(
             childCount: 1, (context, index) {
-              return Center(
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: maxWidth),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            labels.label('Recent Search', color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w500),
-                            IconButton(
-                              padding: const EdgeInsets.all(8),
-                              onPressed: () {
-                                deleteSecure('keyword');
+            return Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: maxWidth),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          labels.label('Recent Search', color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w500),
+                          IconButton(
+                            padding: const EdgeInsets.all(8),
+                            onPressed: () {
+                              deleteSecure('keyword');
 
-                                ref.read(keyVal.notifier).update((state) {
-                                  final newList = [];
-                                  return newList;
-                                });
-                              },
-                              icon: labels.label('Clear', color: config.primaryAppColor.shade600, fontSize: 14, fontWeight: FontWeight.w500),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      for(final v in watch)
-                        ListTile(
-                          leading: Icon(CupertinoIcons.arrow_counterclockwise, color: config.secondaryColor.shade300),
-                          title: Text('$v'),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 14),
-                          tileColor: Colors.white,
-                          shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50, width: 1)),
-                          trailing: IconButton(
-                            onPressed: () {},
-                            icon: Icon(Icons.edit, size: 20, color: config.secondaryColor.shade300),
-                            padding: const EdgeInsets.all(14),
+                              ref.read(title.notifier).update((state) => '');
+                              ref.read(keyVal.notifier).update((state) {
+                                final newList = [];
+                                return newList;
+                              });
+                              ref.read(focusNode.notifier).state.unfocus();
+                            },
+                            icon: labels.label('Clear', color: config.primaryAppColor.shade600, fontSize: 14, fontWeight: FontWeight.w500),
                           ),
+                        ],
+                      ),
+                    ),
+
+                    for(final v in watch)
+                      ListTile(
+                        leading: Icon(CupertinoIcons.arrow_counterclockwise, color: config.secondaryColor.shade300),
+                        title: Text('$v'),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+                        tileColor: Colors.white,
+                        shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50, width: 1)),
+                        trailing: IconButton(
+                          onPressed: () {},
+                          icon: Icon(Icons.edit, size: 20, color: config.secondaryColor.shade300),
+                          padding: const EdgeInsets.all(14),
                         ),
-                    ],
-                  ),
+                        onTap: () {
+                          ref.read(focusNode.notifier).state.unfocus();
+                          ref.read(title.notifier).update((state) => '$v');
+                        },
+                      ),
+                  ],
                 ),
-              );
-            },
+              ),
+            );
+          },
           ),
         )
 

@@ -52,7 +52,6 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   StateProvider<Map> newData = StateProvider((ref) => {});
   StateProvider<String?> displayTitle = StateProvider<String?>((ref) => null);
   StateProvider<bool> down = StateProvider<bool>((ref) => false);
-  StateProvider<int> selectedIndex = StateProvider<int>((ref) => 0);
 
   @override
   void initState() {
@@ -125,10 +124,11 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
               title: buttons.textButtons(
                 title: '${(title != null) ? 'Search: $title' : (widget.data['title']??'')}',
                 onPressed: () async {
-                  final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => SearchPage(
+                  final result = await routeNoAnimation(context, pageBuilder: SearchPage(
                     title: '${widget.data['title']??'Title of Category'}',
                     newData: newData,
-                  )));
+                    selectedIndex: selectedIndex,
+                  ));
                   if(result != null) await handleRefresh();
 
                 },
@@ -222,7 +222,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
         ),
       ),
       bottomNavigationBar: !ref.watch(down) ? myWidgets.bottomBarPage(
-          context, ref, scrollController, selectedIndex
+          context, ref, selectedIndex
       ) : null,
     );
   }

@@ -7,7 +7,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/helper.dart';
-import 'package:k24/pages/accounts/login.dart';
 import 'package:k24/pages/details/details_post.dart';
 import 'package:k24/widgets/my_cards.dart';
 
@@ -34,7 +33,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   StateProvider<bool> fetchingProvider = StateProvider<bool>((ref) => false);
   StateProvider<bool> loadingProvider = StateProvider<bool>((ref) => false);
   StateProvider<bool> down = StateProvider<bool>((ref) => false);
-  StateProvider<int> selectedIndex = StateProvider<int>((ref) => 0);
 
   @override
   void initState() {
@@ -134,7 +132,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         ),
       ),
       bottomNavigationBar: !ref.watch(down) ? myWidgets.bottomBarPage(
-        context, ref, scrollController, selectedIndex
+        context, ref, selectedIndex
       ) : null,
     );
   }

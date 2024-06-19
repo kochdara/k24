@@ -13,6 +13,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../helpers/config.dart';
+import '../helpers/helper.dart';
 import '../pages/details/details_post.dart';
 import '../pages/listing/sub_category.dart';
 
@@ -140,13 +141,13 @@ class MyCards {
                       'size': 12.0
                     }, onTap: () {
                       if(v.id != null && v.id != '#') {
-                        Navigator.push(
+                        routeNoAnimation(
                           context,
-                          MaterialPageRoute(builder: (context) => SubCategory(title: 'Sub Category', data: {
+                          pageBuilder: SubCategory(title: 'Sub Category', data: {
                             'id': v.id ?? '',
                             'title': v.en_name ?? '',
                             'slug': v.slug ?? ''
-                          }, condition: false, setFilters: jsonEncode({}))),
+                          }, condition: false, setFilters: jsonEncode({})),
                         );
                       }
                     }),
@@ -219,13 +220,13 @@ class MyCards {
                                         'size': 12.0
                                       }, onTap: () {
                                         if(v.id != null && v.id != '#') {
-                                          Navigator.push(
+                                          routeNoAnimation(
                                             context,
-                                            MaterialPageRoute(builder: (context) => SubCategory(title: 'Sub Category', data: {
+                                            pageBuilder: SubCategory(title: 'Sub Category', data: {
                                               'id': v.id ?? '',
                                               'title': v.en_name ?? '',
                                               'slug': v.slug ?? ''
-                                            }, condition: condition, setFilters: jsonEncode(setFilters))),
+                                            }, condition: condition, setFilters: jsonEncode(setFilters)),
                                           );
                                         }
                                       }),
@@ -482,9 +483,10 @@ class MyCards {
 
     return InkWell(
       onTap: () {
-        Navigator.push(context,
-          MaterialPageRoute(builder: (context) => DetailsPost(title: data?.title??'N/A', data: v),
-        ));
+        routeAnimation(
+          context,
+          pageBuilder: DetailsPost(title: data?.title??'N/A', data: v),
+        );
       },
       child: Container(
         width: responsive(width),
@@ -664,9 +666,9 @@ class MyCards {
 
     return InkWell(
       onTap: () {
-        Navigator.push(
+        routeAnimation(
           context,
-          MaterialPageRoute(builder: (context) => DetailsPost(title: data?.title??'N/A', data: v)),
+          pageBuilder: DetailsPost(title: data?.title??'N/A', data: v),
         );
       },
       child: Container(
@@ -843,9 +845,9 @@ class MyCards {
 
     return InkWell(
       onTap: () {
-        Navigator.push(
+        routeAnimation(
           context,
-          MaterialPageRoute(builder: (context) => DetailsPost(title: data?.title??'N/A', data: v)),
+          pageBuilder: DetailsPost(title: data?.title??'N/A', data: v),
         );
       },
       child: Container(
