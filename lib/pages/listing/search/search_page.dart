@@ -52,6 +52,20 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     });
   }
 
+  void onFieldSubmitted(String val) {
+    final newDa = widget.newData;
+    final watch = ref.watch(keyVal);
+
+    ref.read(newDa.notifier).update((state) {
+      final newMap = {...state};
+      newMap['keyword'] = val;
+      return newMap;
+    });
+
+    saveSecure('keyword', [...watch, val]);
+    Navigator.pop(context, 'success');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,7 +78,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   }
 
   Widget bodySearch() {
-    final newDa = widget.newData;
     final watch = ref.watch(keyVal);
 
     return CustomScrollView(
@@ -75,22 +88,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           backgroundColor: Colors.white,
           pinned: true,
           titleSpacing: 0,
-          title: forms.formField(
-            'Search',
+          title: forms.labelFormFields(
             hintText: 'Search...',
             controller: TextEditingController(text: ref.watch(title)),
             focusNode: ref.watch(focusNode),
-            onFieldSubmitted: (val) async {
-              ref.read(newDa.notifier).update((state) {
-                final newMap = {...state};
-                newMap['keyword'] = val;
-                return newMap;
-              });
-
-              saveSecure('keyword', [...watch, val]);
-              Navigator.pop(context, 'success');
-
-            },
+            onFieldSubmitted: onFieldSubmitted,
+            enabledBorder: const OutlineInputBorder(borderSide: BorderSide.none)
           ),
           actions: [
             IconButton(
@@ -142,14 +145,14 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                         tileColor: Colors.white,
                         shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50, width: 1)),
                         trailing: IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            ref.read(focusNode.notifier).state.unfocus();
+                            ref.read(title.notifier).update((state) => '$v');
+                          },
                           icon: Icon(Icons.edit, size: 20, color: config.secondaryColor.shade300),
                           padding: const EdgeInsets.all(14),
                         ),
-                        onTap: () {
-                          ref.read(focusNode.notifier).state.unfocus();
-                          ref.read(title.notifier).update((state) => '$v');
-                        },
+                        onTap: () => onFieldSubmitted('$v'),
                       ),
                   ],
                 ),

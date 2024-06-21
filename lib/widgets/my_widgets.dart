@@ -1,8 +1,16 @@
+// ignore_for_file: use_build_context_synchronously, empty_catches
+
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:k24/helpers/helper.dart';
+import 'package:k24/pages/accounts/profiles/profile_page.dart';
+import 'package:k24/pages/chats/chat_page.dart';
+import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/widgets/labels.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 import '../helpers/config.dart';
 import '../pages/accounts/check_login.dart';
@@ -31,16 +39,31 @@ class MyWidgets {
       unselectedItemColor: config.secondaryColor.shade200,
       currentIndex: ref.watch(selectedIndex),
       type: BottomNavigationBarType.fixed,
-      onTap: (value) {
+      onTap: (value) async {
+        DateTime expDate = DateTime.now();
+        final tokens = ref.watch(usersProvider);
+
         ref.read(selectedIndex.notifier).state = value;
+        try {
+          expDate = JwtDecoder.getExpirationDate('${tokens.tokens?.access_token}');
+        } catch(e) {}
 
-        switch(value) {
-          case 4:
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckLoginPage()));
-            break;
+        if(value != 0 && expDate.compareTo(DateTime.now()) <= 0) {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckLoginPage()));
 
-          default:
-            Navigator.of(context).popUntil((route) => route.isFirst);
+        } else {
+          switch (value) {
+            case 3:
+              routeNoAnimation(context, pageBuilder: ChatPageView(selectedIndex: selectedIndex));
+              break;
+
+            case 4:
+              routeNoAnimation(context, pageBuilder: const ProfilePage());
+              break;
+
+            default:
+              Navigator.of(context).popUntil((route) => route.isFirst);
+          }
         }
       },
     );

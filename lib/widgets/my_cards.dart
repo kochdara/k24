@@ -137,8 +137,8 @@ class MyCards {
                       'title': v.en_name,
                       'url': v.icon?.url,
                       'width': width,
-                      'img_width': 40.0,
-                      'size': 12.0
+                      'img_width': 35.0,
+                      'size': 11.0
                     }, onTap: () {
                       if(v.id != null && v.id != '#') {
                         routeNoAnimation(
@@ -321,7 +321,7 @@ class MyCards {
   }
 
   Widget cardMenu({ required Map map, void Function()? onTap }) {
-    double width = 45;
+    double width = 40;
     Map res = responsiveSub(map['width']);
 
     return InkWell(

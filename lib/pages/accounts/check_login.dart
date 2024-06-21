@@ -113,11 +113,11 @@ class BodyLogin extends ConsumerWidget {
                               children: [
                                 ListTile(
                                   onTap: () { },
-                                  leading: Icon(CupertinoIcons.person_crop_circle_fill, size: 50, color: config.secondaryColor.shade200),
+                                  leading: Icon(CupertinoIcons.person_crop_circle_fill, size: 50, color: config.secondaryColor.shade100),
                                     title: labels.label('username', fontSize: 15, fontWeight: FontWeight.w500, color: Colors.black87),
                                   subtitle: labels.label('@username', fontSize: 12, color: Colors.black54),
                                   dense: true,
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                                   trailing: IconButton(
                                     onPressed: () {},
                                     padding: const EdgeInsets.all(12),

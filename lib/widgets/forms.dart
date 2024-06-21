@@ -7,7 +7,10 @@ class Forms {
 
   final Config config = Config();
 
-  Widget labelFormFields(String? label, { TextEditingController? controller, void Function(String)? onFieldSubmitted,
+  Widget labelFormFields({
+    String? labelText,
+    TextEditingController? controller,
+    void Function(String)? onFieldSubmitted,
     List<TextInputFormatter>? inputFormatters,
     Color? fillColor = Colors.white,
     Widget? prefixIcon,
@@ -25,6 +28,7 @@ class Forms {
     TextInputAction? textInputAction,
     bool obscureText = false,
     String? Function(String?)? validator,
+    InputBorder? enabledBorder
   }) {
     return TextFormField(
       autofocus: autofocus,
@@ -34,19 +38,19 @@ class Forms {
       focusNode: focusNode,
       keyboardType: keyboardType,
       decoration: InputDecoration(
-        border: UnderlineInputBorder(
+        border: enabledBorder ?? UnderlineInputBorder(
           borderSide: BorderSide(color: config.secondaryColor.shade100),
           borderRadius: BorderRadius.circular(radius),
         ),
-        enabledBorder: UnderlineInputBorder(
+        enabledBorder: enabledBorder ?? UnderlineInputBorder(
           borderSide: BorderSide(color: config.secondaryColor.shade100),
           borderRadius: BorderRadius.circular(radius),
         ),
-        focusedBorder: UnderlineInputBorder(
+        focusedBorder: enabledBorder ?? UnderlineInputBorder(
           borderSide: BorderSide(color: config.secondaryColor.shade100),
           borderRadius: BorderRadius.circular(radius),
         ),
-        labelText: label,
+        labelText: labelText,
         labelStyle: TextStyle(fontSize: 15, color: config.secondaryColor.shade200),
         hintText: hintText,
         hintStyle: TextStyle(color: config.secondaryColor.shade200, fontWeight: FontWeight.normal),
@@ -66,7 +70,7 @@ class Forms {
     );
   }
 
-  Widget formField(String label, { TextEditingController? controller, void Function(String)? onFieldSubmitted,
+  Widget formField({ TextEditingController? controller,
     List<TextInputFormatter>? inputFormatters,
     Color? fillColor = Colors.white,
     Widget? prefixIcon,
@@ -81,7 +85,7 @@ class Forms {
     bool autofocus = false,
     String? hintText
   }) {
-    return TextFormField(
+    return TextField(
       autofocus: autofocus,
       enabled: enabled,
       readOnly: readOnly,
@@ -97,15 +101,14 @@ class Forms {
           borderSide: BorderSide.none,
           borderRadius: BorderRadius.circular(radius),
         ),
-        hintText: hintText??'Be the first to comment',
-        hintStyle: TextStyle(color: config.secondaryColor.shade300),
+        hintText: hintText,
+        hintStyle: TextStyle(color: config.secondaryColor.shade200, fontWeight: FontWeight.normal),
         isDense: true,
         filled: true,
         fillColor: enabled ? fillColor : config.secondaryColor.shade50,
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
       ),
-      onFieldSubmitted: onFieldSubmitted,
       onTap: onTap,
       inputFormatters: inputFormatters,
       onChanged: onChanged,

@@ -7,9 +7,8 @@ part of 'user_serial.dart';
 // **************************************************************************
 
 UserSerial _$UserSerialFromJson(Map json) => UserSerial(
-      data: json['data'] == null
-          ? null
-          : DataUser.fromJson(Map<String, dynamic>.from(json['data'] as Map)),
+      data:
+          json['data'] == null ? null : DataUser.fromJson(json['data'] as Map),
     );
 
 Map<String, dynamic> _$UserSerialToJson(UserSerial instance) =>
@@ -24,7 +23,7 @@ DataUser _$DataUserFromJson(Map json) => DataUser(
               Map<String, dynamic>.from(json['user'] as Map)),
       tokens: json['tokens'] == null
           ? null
-          : Tokens.fromJson(Map<String, dynamic>.from(json['tokens'] as Map)),
+          : Tokens.fromJson(json['tokens'] as Map),
     );
 
 Map<String, dynamic> _$DataUserToJson(DataUser instance) => <String, dynamic>{

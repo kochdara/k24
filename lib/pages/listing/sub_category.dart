@@ -52,6 +52,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   StateProvider<Map> newData = StateProvider((ref) => {});
   StateProvider<String?> displayTitle = StateProvider<String?>((ref) => null);
   StateProvider<bool> down = StateProvider<bool>((ref) => false);
+  StateProvider<int> selectedIndex = StateProvider<int>((ref) => 0);
 
   @override
   void initState() {

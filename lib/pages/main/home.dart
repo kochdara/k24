@@ -33,6 +33,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   StateProvider<bool> fetchingProvider = StateProvider<bool>((ref) => false);
   StateProvider<bool> loadingProvider = StateProvider<bool>((ref) => false);
   StateProvider<bool> down = StateProvider<bool>((ref) => false);
+  StateProvider<int> selectedIndex = StateProvider<int>((ref) => 0);
 
   @override
   void initState() {

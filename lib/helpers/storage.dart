@@ -36,7 +36,7 @@ getSecure(String key, {Type type = String}) async {
     if(type == Map) return jsonDecode(value);
     return value;
   }
-  return value;
+  return null;
 }
 
 saveSecure(String key, var value) async {

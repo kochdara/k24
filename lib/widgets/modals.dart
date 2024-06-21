@@ -86,7 +86,7 @@ class MinMaxPageView extends ConsumerWidget {
                           width: (width / 2) - 8,
                           child: forms.labelFormFields(
                               autofocus: true,
-                              minField.title??'',
+                              labelText: minField.title??'',
                               controller: ref.watch(minCon),
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
@@ -107,7 +107,7 @@ class MinMaxPageView extends ConsumerWidget {
                         SizedBox(
                           width: (width / 2) - 8,
                           child: forms.labelFormFields(
-                            maxField.title??'',
+                            labelText: maxField.title??'',
                             controller: ref.read(maxCon),
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),

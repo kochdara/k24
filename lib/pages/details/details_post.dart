@@ -173,13 +173,6 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
 
   PreferredSizeWidget appBar({ bool transparent = false }) {
     return AppBar(
-      leading: IconButton(
-        padding: const EdgeInsets.all(14),
-        onPressed: () {
-          if(Navigator.canPop(context)) Navigator.pop(context);
-        },
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
-      ),
       title: transparent ? null : label.label(widget.title, overflow: TextOverflow.ellipsis, fontSize: 20, fontWeight: FontWeight.w500),
       titleSpacing: 0,
       backgroundColor: transparent ? Colors.transparent : null,
@@ -664,9 +657,9 @@ class BodyWidget extends ConsumerWidget {
 
                                   Expanded(
                                     child: SizedBox(
-                                      height: 44,
-                                      child: forms.labelFormFields(null, hintText: 'Be the first to comment', radius: 20, readOnly: true,
-                                        fillColor: config.secondaryColor.shade50.withOpacity(0.5), borderColor: Colors.transparent,
+                                      height: 40,
+                                      child: forms.formField(hintText: 'Be the first to comment', radius: 20, readOnly: true,
+                                        fillColor: config.secondaryColor.shade50.withOpacity(0.5),
                                         suffixIcon: InkWell(
                                           onTap: () { },
                                           child: Icon(Icons.send, size: 20, color: config.secondaryColor.shade300),

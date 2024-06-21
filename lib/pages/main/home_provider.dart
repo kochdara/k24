@@ -2,9 +2,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/helper.dart';
+import 'package:k24/serialization/users/user_serial.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../helpers/config.dart';
+import '../../helpers/storage.dart';
 import '../../serialization/category/main_category.dart';
 import '../../serialization/grid_card/grid_card.dart';
 
@@ -13,7 +15,7 @@ part 'home_provider.g.dart';
 Config config = Config();
 
 StateProvider<ViewPage> viewPage = StateProvider<ViewPage>((ref) { return ViewPage.grid;});
-StateProvider<int> selectedIndex = StateProvider<int>((ref) => 0);
+StateProvider<DataUser> usersProvider = StateProvider<DataUser>((ref) { return DataUser();});
 
 @riverpod
 class GetMainCategory extends _$GetMainCategory {
@@ -23,6 +25,9 @@ class GetMainCategory extends _$GetMainCategory {
   Future<List<MainCategory>> build(String parent) async => fetchData();
 
   Future<List<MainCategory>> fetchData() async {
+    final getUsers = await getSecure('user', type: Map);
+    ref.read(usersProvider.notifier).update((state) => DataUser.fromJson(getUsers ?? {}));
+
     String url = 'categories?parent=$parent&lang=$lang&v=1';
     final res = await dio.get('$baseUrl/$url');
 
@@ -73,8 +78,6 @@ class HomeLists extends _$HomeLists {
   }
 
   Future<void> urlAPI() async {
-    final dio = await ref.getDebouncedHttpClient();
-
     final subs = 'feed?lang=en&offset=${offset + limit}&fields=$fields&functions=$fun';
     final res = await dio.get('$postUrl/$subs');
 

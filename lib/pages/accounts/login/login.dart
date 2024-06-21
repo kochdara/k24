@@ -1,4 +1,6 @@
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/pages/accounts/login/login_provider.dart';
@@ -9,6 +11,8 @@ import 'package:k24/widgets/labels.dart';
 import 'package:form_validator/form_validator.dart';
 
 import '../../../helpers/config.dart';
+import '../../../serialization/users/user_serial.dart';
+import '../../main/home_provider.dart';
 
 final Labels labels = Labels();
 final Forms forms = Forms();
@@ -55,11 +59,10 @@ class BodyProfile extends StatelessWidget {
     final data = ref.watch(loginAuth);
     if(formKey.currentState!.validate()) {
       try {
-        final response = await ref.read(apiServiceProvider).submitData(data);
+        await ref.read(apiServiceProvider).submitData(data, ref, context: context);
+        Navigator.of(context).popUntil((route) => route.isFirst);
 
-        myWidgets.showAlert(context, '${response.data?.toJson()}');
       } on Exception catch (e) {
-        print('Error submitting data: $e');
         myWidgets.showAlert(context, '$e');
 
       }
@@ -121,7 +124,7 @@ class BodyProfile extends StatelessWidget {
 
                         // phone //
                         forms.labelFormFields(
-                          'Phone Number or Username',
+                          labelText: 'Phone Number or Username',
                           autofocus: true,
                           textInputAction: TextInputAction.next,
                           validator: ValidationBuilder().minLength(3).maxLength(50).build(),
@@ -132,14 +135,14 @@ class BodyProfile extends StatelessWidget {
 
                         // phone //
                         forms.labelFormFields(
-                          'Password',
+                          labelText: 'Password',
                           obscureText: ref.watch(obscureText),
                           validator: ValidationBuilder().minLength(8).maxLength(50).build(),
                           onChanged: (val) => ref.read(loginAuth.notifier).update((state) => {...state, ...{'password': val}}),
                           suffixIcon: IconButton(
                             onPressed: () => ref.read(obscureText.notifier).state = !ref.watch(obscureText),
-                            icon: ref.watch(obscureText) ? Icon(Icons.visibility_outlined, size: 26, color: config.secondaryColor.shade300)
-                            :  Icon(Icons.visibility_off_outlined, size: 26, color: config.secondaryColor.shade300),
+                            icon: ref.watch(obscureText) ? Icon(Icons.visibility_outlined, size: 24, color: config.secondaryColor.shade200)
+                            :  Icon(Icons.visibility_off_outlined, size: 24, color: config.secondaryColor.shade200),
                           ),
                           onFieldSubmitted: (val) => onSubmit(context),
                         ),

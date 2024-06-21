@@ -305,7 +305,7 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
 
     /// normal radio button ///
     return forms.labelFormFields(
-        '${wRadioField.title}',
+        labelText: '${wRadioField.title}',
         readOnly: true,
         controller: wRadioField.controller,
         suffixIcon: const Icon(Icons.arrow_drop_down),
@@ -364,7 +364,7 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
 
             for(int v=0; v<watchLoc.length; v++) ...[
               forms.labelFormFields(
-                  '${watchLoc[v].title}',
+                  labelText: '${watchLoc[v].title}',
                   readOnly: true,
                   enabled: (v < iw) ? true : false,
                   controller: stateLoc[v].controller,
@@ -415,7 +415,7 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
           for(int v=0; v<watchLoc.length; v++) ...[
             if(watchLoc[v].type == 'select') ...[
               forms.labelFormFields(
-                  '${watchLoc[v].title}',
+                  labelText: '${watchLoc[v].title}',
                   readOnly: true,
                   controller: watchLoc[v].controller,
                   suffixIcon: const Icon(Icons.arrow_drop_down),
@@ -444,7 +444,7 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
 
     /// normal radio button ///
     return forms.labelFormFields(
-        '${wRadioField.title}',
+        labelText: '${wRadioField.title}',
         readOnly: true,
         controller: wRadioField.controller,
         suffixIcon: const Icon(Icons.arrow_drop_down),
@@ -514,7 +514,7 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
         children: [
           for(var v=0; v<6; v++) ...[
             forms.labelFormFields(
-              'demo',
+              labelText: 'demo',
               readOnly: true,
               suffixIcon: const Icon(Icons.arrow_drop_down),
             ),
@@ -586,7 +586,7 @@ class MinMaxPage extends ConsumerWidget {
                         SizedBox(
                           width: (width / 2) - 7,
                           child: forms.labelFormFields(
-                              minField.title ?? '',
+                              labelText: minField.title ?? '',
                               readOnly: true,
                               controller: wField.min_controller,
                               suffixIcon: const Icon(Icons.arrow_drop_down),
@@ -601,7 +601,7 @@ class MinMaxPage extends ConsumerWidget {
                         SizedBox(
                           width: (width / 2) - 7,
                           child: forms.labelFormFields(
-                              maxField.title ?? '',
+                              labelText: maxField.title ?? '',
                               readOnly: true,
                               controller: wField.max_controller,
                               suffixIcon: const Icon(Icons.arrow_drop_down),
@@ -623,7 +623,7 @@ class MinMaxPage extends ConsumerWidget {
                       SizedBox(
                         width: (width / 2) - 8,
                         child: forms.labelFormFields(
-                            minField.title??'',
+                            labelText: minField.title??'',
                             controller: watch ? wField.min_controller : null,
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
@@ -645,7 +645,7 @@ class MinMaxPage extends ConsumerWidget {
                       SizedBox(
                         width: (width / 2) - 8,
                         child: forms.labelFormFields(
-                          maxField.title??'',
+                          labelText: maxField.title??'',
                           controller: watch ? wField.max_controller : null,
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),

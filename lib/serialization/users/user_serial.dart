@@ -27,7 +27,7 @@ class DataUser {
     this.tokens,
   });
 
-  factory DataUser.fromJson(Map<String, dynamic> json) => _$DataUserFromJson(json);
+  factory DataUser.fromJson(Map json) => _$DataUserFromJson(json);
   Map toJson() => _$DataUserToJson(this);
 
 }
@@ -46,7 +46,7 @@ class Tokens {
     this.refresh_token,
   });
 
-  factory Tokens.fromJson(Map<String, dynamic> json) => _$TokensFromJson(json);
+  factory Tokens.fromJson(Map json) => _$TokensFromJson(json);
   Map toJson() => _$TokensToJson(this);
 
 }
