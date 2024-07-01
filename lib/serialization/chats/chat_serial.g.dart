@@ -18,15 +18,8 @@ ChatSerial _$ChatSerialFromJson(Map json) => ChatSerial(
 Map<String, dynamic> _$ChatSerialToJson(ChatSerial instance) =>
     <String, dynamic>{
       'data': instance.data?.map((e) => e?.toJson()).toList(),
-      'limit': _$JsonConverterToJson<Object?, int>(
-          instance.limit, const ToInt().toJson),
+      'limit': const ToInt().toJson(instance.limit),
     };
-
-Json? _$JsonConverterToJson<Json, Value>(
-  Value? value,
-  Json? Function(Value value) toJson,
-) =>
-    value == null ? null : toJson(value);
 
 ChatData _$ChatDataFromJson(Map json) => ChatData(
       id: const ToString().fromJson(json['id']),
@@ -41,9 +34,8 @@ ChatData _$ChatDataFromJson(Map json) => ChatData(
           ? null
           : LastMessage.fromJson(
               Map<String, dynamic>.from(json['last_message'] as Map)),
-      post: json['post'] == null
-          ? null
-          : ChatPost.fromJson(Map<String, dynamic>.from(json['post'] as Map)),
+      post:
+          json['post'] == null ? null : ChatPost.fromJson(json['post'] as Map),
       user: json['user'] == null
           ? null
           : ChatUser.fromJson(Map<String, dynamic>.from(json['user'] as Map)),
@@ -89,6 +81,12 @@ Map<String, dynamic> _$LastMessageToJson(LastMessage instance) =>
       'read_date': const ToDateTime().toJson(instance.read_date),
     };
 
+Json? _$JsonConverterToJson<Json, Value>(
+  Value? value,
+  Json? Function(Value value) toJson,
+) =>
+    value == null ? null : toJson(value);
+
 ChatPost _$ChatPostFromJson(Map json) => ChatPost(
       id: const ToString().fromJson(json['id']),
       title: const ToString().fromJson(json['title']),
@@ -110,6 +108,13 @@ ChatPost _$ChatPostFromJson(Map json) => ChatPost(
       thumbnails: (json['thumbnails'] as List<dynamic>?)
           ?.map(const ToString().fromJson)
           .toList(),
+      lat: (json['lat'] as num?)?.toDouble(),
+      lng: (json['lng'] as num?)?.toDouble(),
+      zoon: const ToInt().fromJson(json['zoon']),
+      file: const ToString().fromJson(json['file']),
+      type: const ToString().fromJson(json['type']),
+      size: const ToString().fromJson(json['size']),
+      name: const ToString().fromJson(json['name']),
     );
 
 Map<String, dynamic> _$ChatPostToJson(ChatPost instance) => <String, dynamic>{
@@ -127,6 +132,14 @@ Map<String, dynamic> _$ChatPostToJson(ChatPost instance) => <String, dynamic>{
       'photos': instance.photos?.map(const ToString().toJson).toList(),
       'thumbnail': const ToString().toJson(instance.thumbnail),
       'thumbnails': instance.thumbnails?.map(const ToString().toJson).toList(),
+      'lat': instance.lat,
+      'lng': instance.lng,
+      'zoon': _$JsonConverterToJson<Object?, int>(
+          instance.zoon, const ToInt().toJson),
+      'file': const ToString().toJson(instance.file),
+      'type': const ToString().toJson(instance.type),
+      'size': const ToString().toJson(instance.size),
+      'name': const ToString().toJson(instance.name),
     };
 
 ChatUser _$ChatUserFromJson(Map json) => ChatUser(

@@ -132,7 +132,7 @@ class MyCards {
                 runSpacing: spaceMenu,
                 children: [
 
-                  for(var v in data) ...[
+                  for(final v in data) ...[
                     cardMenu(map: {
                       'title': v.en_name,
                       'url': v.icon?.url,
@@ -171,12 +171,12 @@ class MyCards {
     int length = (list.length / num).ceil();
     Map<dynamic, List<MainCategory>>? menus = {};
 
-    for(var v=0; v<length; v++) {
+    for(int v=0; v<length; v++) {
 
       final men = list.getRange(v * num, (num * (v+1) <= list.length) ? num * (v+1) : list.length);
 
       if(men.isNotEmpty) {
-        for (var h in men) {
+        for (final h in men) {
           if(menus[v] == null) menus[v] = [];
           menus[v]?.add(h);
         }
@@ -195,7 +195,7 @@ class MyCards {
 
                 CarouselSlider(
                   items: [
-                    for(var k=0; k<length; k++) ...[
+                    for(int k=0; k<length; k++) ...[
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 12.0),
@@ -211,13 +211,13 @@ class MyCards {
                                 children: [
 
                                   if(menus[k] != null) ...[
-                                    for(var v in menus[k] as List<MainCategory>)
+                                    for(final v in menus[k] as List<MainCategory>)
                                       cardMenu(map: {
                                         'title': v.en_name,
                                         'url': v.icon?.url,
                                         'width': width,
-                                        'img_width': 40.0,
-                                        'size': 12.0
+                                        'img_width': 35.0,
+                                        'size': 11.0
                                       }, onTap: () {
                                         if(v.id != null && v.id != '#') {
                                           routeNoAnimation(
@@ -265,7 +265,7 @@ class MyCards {
                   child: Wrap(
                     spacing: 3,
                     children: [
-                      for(var v=0; v<length; v++) ...[
+                      for(int v=0; v<length; v++) ...[
                         if(v == current) ...[ Icon(Icons.radio_button_checked_outlined, color: config.warningColor.shade600, size: 11) ]
                         else ...[ Icon(Icons.radio_button_off, color: config.secondaryColor.shade600, size: 11), ],
                       ],
@@ -298,13 +298,13 @@ class MyCards {
                 runSpacing: spaceMenu,
                 children: [
 
-                  for(var v in mainCatSkeleton) ...[
+                  for(final v in mainCatSkeleton) ...[
                     cardMenu(map: {
                       'title': v.en_name,
                       'url': v.icon?.url,
                       'width': width,
-                      'img_width': 40.0,
-                      'size': 12.0
+                      'img_width': 35.0,
+                      'size': 11.0
                     }, onTap: () {
                       if(v.id != null && v.id != '#') {
                         //
@@ -322,7 +322,7 @@ class MyCards {
 
   Widget cardMenu({ required Map map, void Function()? onTap }) {
     double width = 40;
-    Map res = responsiveSub(map['width']);
+    double wid = responsiveSub(map['width']);
 
     return InkWell(
       onTap: onTap,
@@ -331,7 +331,7 @@ class MyCards {
       focusColor: Colors.transparent,
       splashColor: Colors.transparent,
       child: SizedBox(
-          width: res['width'] as double,
+          width: wid,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -389,14 +389,14 @@ class MyCards {
                 ],
 
                 // items //
-                for(var v in data) ...[
+                for(final v in data) ...[
                   if(viewPage == ViewPage.grid) gridCard(width, v, context: context)
                   else if(viewPage == ViewPage.list) listCard(v, context: context)
                   else if(viewPage == ViewPage.view) viewCards(v, context: context),
                 ],
 
                 // fetching //
-                if(fetching) for(var v in listViewSkeleton) ...[
+                if(fetching) for(final v in listViewSkeleton) ...[
                   Shimmer.fromColors(
                     baseColor: Colors.grey.shade200,
                     highlightColor: Colors.white,
@@ -436,7 +436,7 @@ class MyCards {
               children: [
 
                 // items //
-                for(var v in listViewSkeleton) ...[
+                for(final v in listViewSkeleton) ...[
                   if(viewPage == ViewPage.grid) gridCard(width, v, context: context),
                   if(viewPage == ViewPage.list) listCard(v, context: context),
                   if(viewPage == ViewPage.view) viewCards(v, context: context),
@@ -452,7 +452,7 @@ class MyCards {
 
   Widget gridCard(double width, GridCard v, { required BuildContext context }) {
     List listImg = [];
-    var data = v.data;
+    final data = v.data;
     String thumbnail = '';
 
     String times = '';
@@ -475,7 +475,7 @@ class MyCards {
       type += data.type ?? '';
       if(data.condition != null) type += ' • ${data.condition?.title ?? ''}';
       if(data.highlight_specs != null && data.highlight_specs is List) {
-        for(var v in data.highlight_specs as List<HighlightSpec?>) {
+        for(final v in data.highlight_specs as List<HighlightSpec?>) {
           type += ' • ${v?.display_value ?? ''}';
         }
       }
@@ -632,7 +632,7 @@ class MyCards {
 
   Widget listCard(GridCard v, { required BuildContext context }) {
     List listImg = [];
-    var data = v.data;
+    final data = v.data;
     // var setting = v['setting'] ?? {};
     String thumbnail = '';
 
@@ -656,7 +656,7 @@ class MyCards {
       type += data.type ?? '';
       if(data.condition != null) type += ' • ${data.condition?.title ?? ''}';
       if(data.highlight_specs != null && data.highlight_specs is List) {
-        for(var v in data.highlight_specs as List<HighlightSpec?>) {
+        for(final v in data.highlight_specs as List<HighlightSpec?>) {
           type += ' • ${v?.display_value ?? ''}';
         }
       }
@@ -822,7 +822,7 @@ class MyCards {
   }
 
   Widget viewCards(GridCard v, { required BuildContext context }) {
-    var data = v.data;
+    final data = v.data;
     String thumbnail = '';
     List listImg = [];
 
@@ -898,15 +898,15 @@ class MyCards {
                   if(listImg.isNotEmpty) ...[
                     LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
                       final conf = responsiveImage(constraints.maxWidth);
-                      var width = conf['width'];
-                      var length = conf['length'] ?? 0;
+                      final width = conf['width'];
+                      final length = conf['length'] ?? 0;
 
                       return Wrap(
                         direction: Axis.horizontal,
                         spacing: 4,
                         runSpacing: 4,
                         children: [
-                          for(var v=0; v<length; v++) ... [
+                          for(int v=0; v<length; v++) ... [
                             if(listImg.asMap().containsKey(v)) Stack(
                               children: [
 

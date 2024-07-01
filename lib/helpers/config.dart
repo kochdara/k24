@@ -218,28 +218,13 @@ double responsive(double width) {
   }
 }
 
-Map responsiveSub(double width) {
+double responsiveSub(double width) {
   switch (width) {
-    case >=992: return { // computer
-      'width': (width / 8) - 14,
-      'length': 8
-    };
-    case >=768: return { // tablet
-      'width': (width / 7) - 14,
-      'length': 6
-    };
-    case >=576: return { // large phone
-      'width': (width / 6) - 14,
-      'length': 5
-    };
-    case >=400: return { // normal phone
-      'width': (width / 5) - 14,
-      'length': 4
-    };
-    default: return { // default
-      'width': (width / 4) - 14,
-      'length': 4
-    };
+    case >=992: return (width / 8) - 14; // computer
+    case >=768: return (width / 7) - 14; // tablet
+    case >=576: return (width / 6) - 14; // large phone
+    case >=400: return (width / 5) - 14; // normal phone
+    default: return (width / 4) - 14; // default
   }
 }
 

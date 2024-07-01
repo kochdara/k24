@@ -16,7 +16,7 @@ stringWithNow({ String date = '2024-01-01', String format = 'dd-MM-yyyy HH:mm', 
     DateTime dateTime = DateTime.parse(date);
     var outputDate = DateFormat(format).format(dateTime);
     DateTime dateNow = DateTime.now().subtract(const Duration(days: 1));
-    if(dateNow.compareTo(dateTime) <= 0) return DateFormat('HH:mm').format(dateTime);
+    if(dateNow.compareTo(dateTime) <= 0) return DateFormat('HH:mm a').format(dateTime);
     return outputDate;
   } catch (e) {
     return null;

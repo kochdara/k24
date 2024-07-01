@@ -83,7 +83,8 @@ class Forms {
     bool readOnly = false,
     FocusNode? focusNode,
     bool autofocus = false,
-    String? hintText
+    String? hintText,
+    void Function(String)? onSubmitted
   }) {
     return TextField(
       autofocus: autofocus,
@@ -112,6 +113,7 @@ class Forms {
       onTap: onTap,
       inputFormatters: inputFormatters,
       onChanged: onChanged,
+      onSubmitted: onSubmitted,
     );
   }
 

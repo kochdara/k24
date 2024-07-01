@@ -368,10 +368,11 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
             newVal[maxField.fieldname] = null;
             return newVal;
           });
-          displayTitle = StateProvider<String?>((ref) => null);
+          ref.read(displayTitle.notifier).update((state) => null);
 
           /// submit ///
           await handleRefresh();
+          ref.read(displayTitle.notifier).update((state) => null);
         },
         child: const Icon(Icons.close, size: 18),
       ) : null,
@@ -554,7 +555,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     );
 
     if(result != null) {
-      displayTitle = StateProvider<String?>((ref) => null);
+      ref.read(displayTitle.notifier).update((state) => null);
       ref.read(newData.notifier).state = result ?? {};
       await handleRefresh();
     }

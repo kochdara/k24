@@ -6,6 +6,22 @@ part of 'conversation_serial.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+UploadTMPSerial _$UploadTMPSerialFromJson(Map<String, dynamic> json) =>
+    UploadTMPSerial(
+      status: const ToString().fromJson(json['status']),
+      message: const ToString().fromJson(json['message']),
+      file: const ToString().fromJson(json['file']),
+      type: const ToString().fromJson(json['type']),
+    );
+
+Map<String, dynamic> _$UploadTMPSerialToJson(UploadTMPSerial instance) =>
+    <String, dynamic>{
+      'status': const ToString().toJson(instance.status),
+      'message': const ToString().toJson(instance.message),
+      'file': const ToString().toJson(instance.file),
+      'type': const ToString().toJson(instance.type),
+    };
+
 ConSerial _$ConSerialFromJson(Map json) => ConSerial(
       data: (json['data'] as List<dynamic>?)
           ?.map((e) => e == null ? null : ConData.fromJson(e as Map?))

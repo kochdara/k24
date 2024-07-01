@@ -6,6 +6,25 @@ import '../chat_serial.dart';
 
 part 'conversation_serial.g.dart';
 
+@JsonSerializable(converters: [ToString()])
+class UploadTMPSerial {
+  String? status;
+  String? message;
+  String? file;
+  String? type;
+
+  UploadTMPSerial({
+    this.status,
+    this.message,
+    this.file,
+    this.type,
+  });
+
+  factory UploadTMPSerial.fromJson(Map<String, dynamic> json) => _$UploadTMPSerialFromJson(json);
+  Map<String, dynamic> toJson() => _$UploadTMPSerialToJson(this);
+
+}
+
 @JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToLists()])
 class ConSerial {
   List<ConData?>? data;

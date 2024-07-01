@@ -1,9 +1,32 @@
 //
 // ignore_for_file: deprecated_member_use
 
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:k24/pages/accounts/login/login_provider.dart';
+import 'package:k24/pages/main/home_provider.dart';
+
+final myService = MyApiService();
+
+FutureOr<String?> checkTokens(WidgetRef ref) async {
+  DateTime expDate = DateTime.now();
+  final tokens = ref.watch(usersProvider);
+  try {
+    expDate = JwtDecoder.getExpirationDate('${tokens.tokens?.access_token}');
+    /// exchange token ///
+    if(expDate.compareTo(DateTime.now().subtract(const Duration(seconds: 25))) <= 0){
+      final tokens = await myService.getNewToken(ref);
+      print('@# exchange');
+      return tokens.access_token;
+    }
+
+  } catch(e) {print('@# $e');}
+  return null;
+}
 
 Future routeNoAnimation(BuildContext context, { required Widget pageBuilder }) {
   return Navigator.push(
@@ -28,11 +51,11 @@ Future<void> futureAwait(void Function() T, { int duration = 1000 }) async {
 }
 
 extension DebounceAndCancelExtension on Ref {
-  Future<Dio> getDebouncedHttpClient([Duration? duration]) async {
+  Future<Dio> getDebouncedHttpClient(WidgetRef ref2, [Duration? duration]) async {
 
     bool didDispose = false;
     onDispose(() => didDispose = true);
-    await Future<void>.delayed(duration ?? const Duration(milliseconds: 100));
+    await Future<void>.delayed(duration ?? const Duration(milliseconds: 500));
 
     if (didDispose) {
       throw Exception('Cancelled');
@@ -40,6 +63,17 @@ extension DebounceAndCancelExtension on Ref {
 
     final dio = Dio();
     onDispose(dio.close);
+
+    DateTime expDate = DateTime.now();
+    final tokens = ref2.watch(usersProvider);
+    try {
+      expDate = JwtDecoder.getExpirationDate('${tokens.tokens?.access_token}');
+      /// exchange token ///
+      if(expDate.compareTo(DateTime.now()) <= 0) await myService.getNewToken(ref2);
+
+    } catch(e) {
+      print('@# $e');
+    }
 
     return dio;
   }

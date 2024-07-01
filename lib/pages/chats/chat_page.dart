@@ -30,7 +30,6 @@ class ChatPageView extends ConsumerStatefulWidget {
 }
 
 class _ChatPageViewState extends ConsumerState<ChatPageView> {
-
   @override
   void initState() {
     super.initState();
@@ -40,7 +39,7 @@ class _ChatPageViewState extends ConsumerState<ChatPageView> {
   trigger() {
     if(mounted) {
       print("@# 1");
-      ref.read(chatPageProvider.notifier).refresh(loading: false);
+      ref.refresh(chatPageProvider(ref).notifier).refresh(load: false);
       Future.delayed(Duration(seconds: ref.read(delayed)), () => trigger());
     }
   }
@@ -48,7 +47,7 @@ class _ChatPageViewState extends ConsumerState<ChatPageView> {
   @override
   Widget build(BuildContext context) {
     final username = ref.watch(usersProvider);
-    final watchChat = ref.watch(chatPageProvider);
+    final watchChat = ref.watch(chatPageProvider(ref));
 
     return DefaultTabController(
       length: 2,
@@ -78,6 +77,7 @@ class _ChatPageViewState extends ConsumerState<ChatPageView> {
         body: BodyChat(
           ref,
           watchChat: watchChat,
+          activePage: activePage,
         ),
         bottomSheet: myWidgets.bottomBarPage(
             context, ref, widget.selectedIndex
@@ -88,18 +88,24 @@ class _ChatPageViewState extends ConsumerState<ChatPageView> {
 }
 
 class BodyChat extends StatelessWidget {
-  const BodyChat(this.ref, {super.key, required this.watchChat});
+  const BodyChat(this.ref, {super.key, required this.watchChat, required this.activePage});
 
   final WidgetRef ref;
   final AsyncValue<List<ChatData>> watchChat;
+  final StateProvider<bool> activePage;
 
   @override
   Widget build(BuildContext context) {
+    final active = ref.read(activePage.notifier);
+
     return TabBarView(
       children: <Widget>[
         /// tap 1 ///
         RefreshIndicator(
-          onRefresh: () async => await ref.read(chatPageProvider.notifier).refresh(),
+          onRefresh: () async => {
+            active.update((state) => false),
+            await futureAwait(() { active.update((state) => true); }),
+          },
           notificationPredicate: (val) => !watchChat.isLoading,
           child: CustomScrollView(
             slivers: [
@@ -107,7 +113,10 @@ class BodyChat extends StatelessWidget {
                 delegate: SliverChildListDelegate([
                   watchChat.when(
                     error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () {}),
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading: () => const Padding(
+                      padding: EdgeInsets.all(14.0),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
                     data: (data) {
                       return Flex(
                         direction: Axis.vertical,
@@ -117,11 +126,21 @@ class BodyChat extends StatelessWidget {
                               tileColor: Colors.white,
                               leading: SizedBox(
                                 width: 55,
-                                child: (val.user?.photo != null) ? CircleAvatar(
-                                  radius: 60,
-                                  backgroundImage: NetworkImage(
-                                    '${val.user?.photo?.url}',
-                                  ),
+                                child: (val.user?.photo != null) ? Stack(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 60,
+                                      backgroundImage: NetworkImage(
+                                        '${val.user?.photo?.url}',
+                                      ),
+                                    ),
+
+                                    if(val.user?.online_status!.is_active == true) Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: Icon(Icons.circle_rounded, color: Colors.greenAccent.shade700, size: 15),
+                                    )
+                                  ],
                                 ) : Container(height: 55,
                                   decoration: BoxDecoration(color: config.secondaryColor.shade50, borderRadius: BorderRadius.circular(60)),
                                   child: Icon(Icons.person, size: 30, color: config.secondaryColor.shade200),
@@ -135,7 +154,7 @@ class BodyChat extends StatelessWidget {
                                   ),
 
                                   Expanded(flex: 0,
-                                    child: labels.label('${stringToString(date: '${val.updated_date}', format: 'dd MMM yyyy')}', fontSize: 13, color: Colors.black45),
+                                    child: labels.label('${stringWithNow(date: '${val.updated_date}', format: 'dd MMM yyyy')}', fontSize: 13, color: Colors.black45),
                                   ),
                                 ],
                               ),

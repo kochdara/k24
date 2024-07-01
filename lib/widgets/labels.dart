@@ -31,6 +31,32 @@ class Labels {
     );
   }
 
+  Widget selectLabel(String data, {
+    double fontSize = 11,
+    FontWeight fontWeight = FontWeight.normal,
+    Color color = Colors.white,
+    TextAlign? textAlign = TextAlign.start,
+    TextOverflow? overflow = TextOverflow.visible,
+    FontStyle? fontStyle,
+    TextDecoration? decoration,
+    TextDecorationStyle? decorationStyle,
+    int? maxLines,
+  }) {
+    return SelectableText(data,
+      style: TextStyle(
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+        height: lineHeight,
+        fontStyle: fontStyle,
+        decoration: decoration,
+        decorationStyle: decorationStyle,
+      ),
+      textAlign: textAlign,
+      maxLines: maxLines,
+    );
+  }
+
   Widget labelRich(String title, {
     double fontSize = 11,
     FontWeight fontWeight = FontWeight.normal,

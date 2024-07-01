@@ -9,11 +9,11 @@ part 'chat_serial.g.dart';
 @JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToInt(), ToLists()])
 class ChatSerial {
   List<ChatData?>? data;
-  int? limit;
+  int limit = 0;
 
   ChatSerial({
     this.data,
-    this.limit,
+    required this.limit,
   });
 
   factory ChatSerial.fromJson(Map<String, dynamic> json) => _$ChatSerialFromJson(json);
@@ -83,7 +83,7 @@ class LastMessage {
 
 }
 
-@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString(), ToLists()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString(), ToLists(), ToInt()])
 class ChatPost {
   String? id;
   String? title;
@@ -99,6 +99,13 @@ class ChatPost {
   List<String?>? photos;
   String? thumbnail;
   List<String?>? thumbnails;
+  double? lat;
+  double? lng;
+  int? zoon;
+  String? file;
+  String? type;
+  String? size;
+  String? name;
 
   ChatPost({
     this.id,
@@ -115,9 +122,16 @@ class ChatPost {
     this.photos,
     this.thumbnail,
     this.thumbnails,
+    this.lat,
+    this.lng,
+    this.zoon,
+    this.file,
+    this.type,
+    this.size,
+    this.name,
   });
 
-  factory ChatPost.fromJson(Map<String, dynamic> json) => _$ChatPostFromJson(json);
+  factory ChatPost.fromJson(Map json) => _$ChatPostFromJson(json);
   Map toJson() => _$ChatPostToJson(this);
 
 }

@@ -30,6 +30,9 @@ class _ProfilePageState extends ConsumerState<LoginPage> {
   StateProvider<bool> obscureText = StateProvider((ref) => true);
   final _formKey = GlobalKey<FormState>();
   final StateProvider<Map<String, dynamic>> loginAuth = StateProvider((ref) => {});
+  final StateProvider<MessageLogin> loginMessage = StateProvider((ref) => MessageLogin());
+  final loginNode = FocusNode();
+  final passwordNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +43,9 @@ class _ProfilePageState extends ConsumerState<LoginPage> {
         obscureText: obscureText,
         formKey: _formKey,
         loginAuth: loginAuth,
+        loginMessage: loginMessage,
+        loginNode: loginNode,
+        passwordNode: passwordNode,
       ),
     );
   }
@@ -47,31 +53,26 @@ class _ProfilePageState extends ConsumerState<LoginPage> {
 
 class BodyProfile extends StatelessWidget {
   BodyProfile(this.ref, {super.key, required this.obscureText, required this.formKey,
-    required this.loginAuth});
+    required this.loginAuth,
+    required this.loginMessage,
+    required this.loginNode,
+    required this.passwordNode,
+  });
 
   final WidgetRef ref;
   final GlobalKey<FormState> formKey;
   final StateProvider<bool> obscureText;
   final StateProvider<Map<String, dynamic>> loginAuth;
+  final StateProvider<MessageLogin> loginMessage;
   final apiServiceProvider = Provider((ref) => MyApiService());
-
-  void onSubmit(BuildContext context) async {
-    final data = ref.watch(loginAuth);
-    if(formKey.currentState!.validate()) {
-      try {
-        await ref.read(apiServiceProvider).submitData(data, ref, context: context);
-        Navigator.of(context).popUntil((route) => route.isFirst);
-
-      } on Exception catch (e) {
-        myWidgets.showAlert(context, '$e');
-
-      }
-
-    }
-  }
+  final FocusNode loginNode;
+  final FocusNode passwordNode;
 
   @override
   Widget build(BuildContext context) {
+    final watchAuth = ref.watch(loginAuth);
+    final watchMessage = ref.watch(loginMessage);
+
     return CustomScrollView(
       slivers: [
         /// app bar ///
@@ -119,33 +120,63 @@ class BodyProfile extends StatelessWidget {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     child: Flex(
                       direction: Axis.vertical,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
 
                         // phone //
                         forms.labelFormFields(
                           labelText: 'Phone Number or Username',
                           autofocus: true,
+                          focusNode: loginNode,
                           textInputAction: TextInputAction.next,
                           validator: ValidationBuilder().minLength(3).maxLength(50).build(),
-                          onChanged: (val) => ref.read(loginAuth.notifier).update((state) => {...state, ...{'login': val}}),
+                          onChanged: (val) {
+                            ref.read(loginMessage.notifier).update((state) => MessageLogin());
+                            ref.read(loginAuth.notifier).update((state) => {...state, ...{'login': val}});
+                          },
                         ),
+
+                        if(watchAuth['login'] != null && (watchAuth['login'].toString().length >= 3
+                            || watchAuth['login'].toString().length <= 50) && watchMessage.errors?.login?.message != null)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                            child: labels.label('${watchMessage.errors?.login?.message}', color: Colors.red.shade800, fontSize: 12),
+                          ),
 
                         const SizedBox(height: 20),
 
                         // phone //
                         forms.labelFormFields(
                           labelText: 'Password',
+                          focusNode: passwordNode,
                           obscureText: ref.watch(obscureText),
                           validator: ValidationBuilder().minLength(8).maxLength(50).build(),
-                          onChanged: (val) => ref.read(loginAuth.notifier).update((state) => {...state, ...{'password': val}}),
+                          onChanged: (val) {
+                            ref.read(loginMessage.notifier).update((state) => MessageLogin());
+                            ref.read(loginAuth.notifier).update((state) => {...state, ...{'password': val}});
+                          },
                           suffixIcon: IconButton(
                             onPressed: () => ref.read(obscureText.notifier).state = !ref.watch(obscureText),
                             icon: ref.watch(obscureText) ? Icon(Icons.visibility_outlined, size: 24, color: config.secondaryColor.shade200)
                             :  Icon(Icons.visibility_off_outlined, size: 24, color: config.secondaryColor.shade200),
                           ),
-                          onFieldSubmitted: (val) => onSubmit(context),
+                          onFieldSubmitted: (val) => onSubmit(context,
+                            ref,
+                            loginAuth,
+                            loginMessage,
+                            formKey,
+                            apiServiceProvider,
+                            loginNode,
+                            passwordNode,
+                          ),
                         ),
+
+                        if(watchAuth['password'] != null && (watchAuth['password'].toString().length >= 8
+                            || watchAuth['password'].toString().length <= 50) && watchMessage.errors?.password?.message != null)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                            child: labels.label('${watchMessage.errors?.password?.message}', color: Colors.red.shade800, fontSize: 12),
+                          ),
 
                         const SizedBox(height: 15),
 
@@ -169,7 +200,15 @@ class BodyProfile extends StatelessWidget {
                   /// apply ///
                   buttons.textButtons(
                     title: 'Submit',
-                    onPressed: () => onSubmit(context),
+                    onPressed: () => onSubmit(context,
+                      ref,
+                      loginAuth,
+                      loginMessage,
+                      formKey,
+                      apiServiceProvider,
+                      loginNode,
+                      passwordNode,
+                    ),
                     padSize: 14,
                     textSize: 16,
                     radius: 6,

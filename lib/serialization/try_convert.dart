@@ -118,7 +118,7 @@ class ToDateTime implements JsonConverter<DateTime?, Object?>{
     if(json is DateTime) return json;
 
     try {
-      final result = DateTime.tryParse(json.toString().trim().toLowerCase());
+      final result = DateTime.tryParse(json.toString().trim());
       return result;
     } catch (e) {
       return null;
@@ -135,7 +135,7 @@ class ToDateTime implements JsonConverter<DateTime?, Object?>{
 
   @override
   Object? toJson(DateTime? object) {
-    return object;
+    return object?.toIso8601String();
   }
 }
 

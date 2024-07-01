@@ -189,3 +189,62 @@ class SettingUser {
 
 }
 
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+class MessageLogin {
+  String? message;
+  String? type;
+  String? code;
+  KeyErrors? errors;
+
+  MessageLogin({
+    this.message,
+    this.type,
+    this.code,
+    this.errors,
+  });
+
+  factory MessageLogin.fromJson(Map<String, dynamic>? json) => _$MessageLoginFromJson(json!);
+  Map? toJson() => _$MessageLoginToJson(this);
+
+}
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+class KeyErrors {
+  LoginKey? login;
+  PasswordKey? password;
+
+  KeyErrors({
+    this.password,
+    this.login,
+  });
+
+  factory KeyErrors.fromJson(Map<String, dynamic>? json) => _$KeyErrorsFromJson(json!);
+  Map? toJson() => _$KeyErrorsToJson(this);
+
+}
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+class LoginKey {
+  String? message;
+
+  LoginKey({
+    this.message,
+  });
+
+  factory LoginKey.fromJson(Map<String, dynamic>? json) => _$LoginKeyFromJson(json!);
+  Map? toJson() => _$LoginKeyToJson(this);
+
+}
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+class PasswordKey {
+  String? message;
+
+  PasswordKey({
+    this.message,
+  });
+
+  factory PasswordKey.fromJson(Map<String, dynamic>? json) => _$PasswordKeyFromJson(json!);
+  Map? toJson() => _$PasswordKeyToJson(this);
+
+}

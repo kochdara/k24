@@ -6,22 +6,7 @@ part of 'chat_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$chatPageHash() => r'9ae76f5903c6f073e2e7b8bc1cb63a8cce6d5e14';
-
-/// See also [ChatPage].
-@ProviderFor(ChatPage)
-final chatPageProvider =
-    AutoDisposeAsyncNotifierProvider<ChatPage, List<ChatData>>.internal(
-  ChatPage.new,
-  name: r'chatPageProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$chatPageHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$ChatPage = AutoDisposeAsyncNotifier<List<ChatData>>;
-String _$conversationPageHash() => r'96fd031a6f3cb4ded6c4cefc9a3cf7648639c42c';
+String _$chatPageHash() => r'fc51503f33d6fd61cf14f1a928b6261f22675747';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -44,15 +29,160 @@ class _SystemHash {
   }
 }
 
+abstract class _$ChatPage
+    extends BuildlessAutoDisposeAsyncNotifier<List<ChatData>> {
+  late final WidgetRef context;
+
+  FutureOr<List<ChatData>> build(
+    WidgetRef context,
+  );
+}
+
+/// See also [ChatPage].
+@ProviderFor(ChatPage)
+const chatPageProvider = ChatPageFamily();
+
+/// See also [ChatPage].
+class ChatPageFamily extends Family<AsyncValue<List<ChatData>>> {
+  /// See also [ChatPage].
+  const ChatPageFamily();
+
+  /// See also [ChatPage].
+  ChatPageProvider call(
+    WidgetRef context,
+  ) {
+    return ChatPageProvider(
+      context,
+    );
+  }
+
+  @override
+  ChatPageProvider getProviderOverride(
+    covariant ChatPageProvider provider,
+  ) {
+    return call(
+      provider.context,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'chatPageProvider';
+}
+
+/// See also [ChatPage].
+class ChatPageProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<ChatPage, List<ChatData>> {
+  /// See also [ChatPage].
+  ChatPageProvider(
+    WidgetRef context,
+  ) : this._internal(
+          () => ChatPage()..context = context,
+          from: chatPageProvider,
+          name: r'chatPageProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$chatPageHash,
+          dependencies: ChatPageFamily._dependencies,
+          allTransitiveDependencies: ChatPageFamily._allTransitiveDependencies,
+          context: context,
+        );
+
+  ChatPageProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.context,
+  }) : super.internal();
+
+  final WidgetRef context;
+
+  @override
+  FutureOr<List<ChatData>> runNotifierBuild(
+    covariant ChatPage notifier,
+  ) {
+    return notifier.build(
+      context,
+    );
+  }
+
+  @override
+  Override overrideWith(ChatPage Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: ChatPageProvider._internal(
+        () => create()..context = context,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        context: context,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeAsyncNotifierProviderElement<ChatPage, List<ChatData>>
+      createElement() {
+    return _ChatPageProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatPageProvider && other.context == context;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin ChatPageRef on AutoDisposeAsyncNotifierProviderRef<List<ChatData>> {
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
+}
+
+class _ChatPageProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<ChatPage, List<ChatData>>
+    with ChatPageRef {
+  _ChatPageProviderElement(super.provider);
+
+  @override
+  WidgetRef get context => (origin as ChatPageProvider).context;
+}
+
+String _$conversationPageHash() => r'dac8abdbee43cc8b626502b180acc43a684fe85c';
+
 abstract class _$ConversationPage
     extends BuildlessAutoDisposeStreamNotifier<List<ConData>> {
+  late final WidgetRef context;
   late final String topic_id;
-  late final String first_message_id;
+  late final String first_message;
 
   Stream<List<ConData>> build(
-    String topic_id, {
-    String first_message_id = '',
-  });
+    WidgetRef context,
+    String topic_id,
+    String first_message,
+  );
 }
 
 /// See also [ConversationPage].
@@ -66,12 +196,14 @@ class ConversationPageFamily extends Family<AsyncValue<List<ConData>>> {
 
   /// See also [ConversationPage].
   ConversationPageProvider call(
-    String topic_id, {
-    String first_message_id = '',
-  }) {
+    WidgetRef context,
+    String topic_id,
+    String first_message,
+  ) {
     return ConversationPageProvider(
+      context,
       topic_id,
-      first_message_id: first_message_id,
+      first_message,
     );
   }
 
@@ -80,8 +212,9 @@ class ConversationPageFamily extends Family<AsyncValue<List<ConData>>> {
     covariant ConversationPageProvider provider,
   ) {
     return call(
+      provider.context,
       provider.topic_id,
-      first_message_id: provider.first_message_id,
+      provider.first_message,
     );
   }
 
@@ -105,12 +238,14 @@ class ConversationPageProvider extends AutoDisposeStreamNotifierProviderImpl<
     ConversationPage, List<ConData>> {
   /// See also [ConversationPage].
   ConversationPageProvider(
-    String topic_id, {
-    String first_message_id = '',
-  }) : this._internal(
+    WidgetRef context,
+    String topic_id,
+    String first_message,
+  ) : this._internal(
           () => ConversationPage()
+            ..context = context
             ..topic_id = topic_id
-            ..first_message_id = first_message_id,
+            ..first_message = first_message,
           from: conversationPageProvider,
           name: r'conversationPageProvider',
           debugGetCreateSourceHash:
@@ -120,8 +255,9 @@ class ConversationPageProvider extends AutoDisposeStreamNotifierProviderImpl<
           dependencies: ConversationPageFamily._dependencies,
           allTransitiveDependencies:
               ConversationPageFamily._allTransitiveDependencies,
+          context: context,
           topic_id: topic_id,
-          first_message_id: first_message_id,
+          first_message: first_message,
         );
 
   ConversationPageProvider._internal(
@@ -131,20 +267,23 @@ class ConversationPageProvider extends AutoDisposeStreamNotifierProviderImpl<
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
+    required this.context,
     required this.topic_id,
-    required this.first_message_id,
+    required this.first_message,
   }) : super.internal();
 
+  final WidgetRef context;
   final String topic_id;
-  final String first_message_id;
+  final String first_message;
 
   @override
   Stream<List<ConData>> runNotifierBuild(
     covariant ConversationPage notifier,
   ) {
     return notifier.build(
+      context,
       topic_id,
-      first_message_id: first_message_id,
+      first_message,
     );
   }
 
@@ -154,15 +293,17 @@ class ConversationPageProvider extends AutoDisposeStreamNotifierProviderImpl<
       origin: this,
       override: ConversationPageProvider._internal(
         () => create()
+          ..context = context
           ..topic_id = topic_id
-          ..first_message_id = first_message_id,
+          ..first_message = first_message,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
+        context: context,
         topic_id: topic_id,
-        first_message_id: first_message_id,
+        first_message: first_message,
       ),
     );
   }
@@ -176,15 +317,17 @@ class ConversationPageProvider extends AutoDisposeStreamNotifierProviderImpl<
   @override
   bool operator ==(Object other) {
     return other is ConversationPageProvider &&
+        other.context == context &&
         other.topic_id == topic_id &&
-        other.first_message_id == first_message_id;
+        other.first_message == first_message;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
     hash = _SystemHash.combine(hash, topic_id.hashCode);
-    hash = _SystemHash.combine(hash, first_message_id.hashCode);
+    hash = _SystemHash.combine(hash, first_message.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -192,11 +335,14 @@ class ConversationPageProvider extends AutoDisposeStreamNotifierProviderImpl<
 
 mixin ConversationPageRef
     on AutoDisposeStreamNotifierProviderRef<List<ConData>> {
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
+
   /// The parameter `topic_id` of this provider.
   String get topic_id;
 
-  /// The parameter `first_message_id` of this provider.
-  String get first_message_id;
+  /// The parameter `first_message` of this provider.
+  String get first_message;
 }
 
 class _ConversationPageProviderElement
@@ -205,10 +351,12 @@ class _ConversationPageProviderElement
   _ConversationPageProviderElement(super.provider);
 
   @override
+  WidgetRef get context => (origin as ConversationPageProvider).context;
+  @override
   String get topic_id => (origin as ConversationPageProvider).topic_id;
   @override
-  String get first_message_id =>
-      (origin as ConversationPageProvider).first_message_id;
+  String get first_message =>
+      (origin as ConversationPageProvider).first_message;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

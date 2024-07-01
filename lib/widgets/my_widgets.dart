@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/helper.dart';
+import 'package:k24/pages/accounts/login/login_provider.dart';
 import 'package:k24/pages/accounts/profiles/profile_page.dart';
 import 'package:k24/pages/chats/chat_page.dart';
 import 'package:k24/pages/main/home_provider.dart';
@@ -20,6 +21,7 @@ class MyWidgets {
 
   final Config config = Config();
   final Labels labels = Labels();
+  final myService = MyApiService();
 
   Widget bottomBarPage(BuildContext context, WidgetRef ref, StateProvider<int> selectedIndex) {
     return BottomNavigationBar(
@@ -46,7 +48,16 @@ class MyWidgets {
         ref.read(selectedIndex.notifier).state = value;
         try {
           expDate = JwtDecoder.getExpirationDate('${tokens.tokens?.access_token}');
-        } catch(e) {}
+
+          /// exchange token ///
+          if(expDate.compareTo(DateTime.now()) <= 0) {
+            final newToken = await myService.getNewToken(ref);
+            expDate = JwtDecoder.getExpirationDate('${newToken.access_token}');
+          }
+
+        } catch(e) {
+          print('@# $e');
+        }
 
         if(value != 0 && expDate.compareTo(DateTime.now()) <= 0) {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckLoginPage()));
@@ -129,7 +140,7 @@ class MyWidgets {
         children: (){
           List<Widget> list = [];
           int i = 1;
-          for(var val in items) {
+          for(final val in items) {
             if(list.isNotEmpty) list.add(Container(padding: const EdgeInsets.symmetric(horizontal: 20),child: const Icon(CupertinoIcons.forward, color: Colors.grey,),));
             list.add(Expanded(child: Container(
               padding: const EdgeInsets.symmetric(vertical: 10),
@@ -187,15 +198,15 @@ class MyWidgets {
               LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
                     final conf = responsiveImage(constraints.maxWidth);
-                    var width = conf['width'];
-                    var length = conf['length'] ?? 0;
+                    final width = conf['width'];
+                    final length = conf['length'] ?? 0;
 
                     return Wrap(
                       direction: Axis.horizontal,
                       spacing: 4,
                       runSpacing: 4,
                       children: [
-                        for(var v=0; v<length; v++) ... [
+                        for(int v=0; v<length; v++) ... [
                           if(listImg.asMap().containsKey(v))
                             Stack(
                               children: [

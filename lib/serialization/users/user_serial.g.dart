@@ -206,3 +206,57 @@ Map<String, dynamic> _$SettingUserToJson(SettingUser instance) =>
           instance.privacy, const ToBool().toJson),
       'payment': instance.payment?.map(const ToString().toJson).toList(),
     };
+
+MessageLogin _$MessageLoginFromJson(Map json) => MessageLogin(
+      message: const ToString().fromJson(json['message']),
+      type: const ToString().fromJson(json['type']),
+      code: const ToString().fromJson(json['code']),
+      errors: json['errors'] == null
+          ? null
+          : KeyErrors.fromJson((json['errors'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
+    );
+
+Map<String, dynamic> _$MessageLoginToJson(MessageLogin instance) =>
+    <String, dynamic>{
+      'message': const ToString().toJson(instance.message),
+      'type': const ToString().toJson(instance.type),
+      'code': const ToString().toJson(instance.code),
+      'errors': instance.errors?.toJson(),
+    };
+
+KeyErrors _$KeyErrorsFromJson(Map json) => KeyErrors(
+      password: json['password'] == null
+          ? null
+          : PasswordKey.fromJson((json['password'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
+      login: json['login'] == null
+          ? null
+          : LoginKey.fromJson((json['login'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
+    );
+
+Map<String, dynamic> _$KeyErrorsToJson(KeyErrors instance) => <String, dynamic>{
+      'login': instance.login?.toJson(),
+      'password': instance.password?.toJson(),
+    };
+
+LoginKey _$LoginKeyFromJson(Map json) => LoginKey(
+      message: const ToString().fromJson(json['message']),
+    );
+
+Map<String, dynamic> _$LoginKeyToJson(LoginKey instance) => <String, dynamic>{
+      'message': const ToString().toJson(instance.message),
+    };
+
+PasswordKey _$PasswordKeyFromJson(Map json) => PasswordKey(
+      message: const ToString().fromJson(json['message']),
+    );
+
+Map<String, dynamic> _$PasswordKeyToJson(PasswordKey instance) =>
+    <String, dynamic>{
+      'message': const ToString().toJson(instance.message),
+    };
