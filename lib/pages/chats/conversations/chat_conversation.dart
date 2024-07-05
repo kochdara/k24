@@ -2,20 +2,18 @@
 // ignore_for_file: unused_result
 
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/helper.dart';
-import 'package:k24/main.dart';
 import 'package:k24/pages/chats/chat_provider.dart';
+import 'package:k24/pages/chats/conversations/chat_conversation_provider.dart';
 import 'package:k24/widgets/forms.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
@@ -45,11 +43,20 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
   StateProvider<bool> moreProvider = StateProvider((ref) => false);
   StateProvider<int> lengthProvider = StateProvider((ref) => 1);
   StateProvider<Map<String, dynamic>> dataProvider = StateProvider((ref) => {});
-  final chatServiceProvider = Provider((ref) => ChatApiService());
+  final apiServiceProvider = Provider((ref) => MarkApiService());
 
   @override
   void initState() {
     super.initState();
+    setupPage();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void setupPage() {
     scrollDown();
     scrollController.addListener(() => onScroll(
       ref,
@@ -59,28 +66,32 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
     ));
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   void scrollDown({int duration = 1000, bool trig = true}) {
     futureAwait(duration: duration, () {
-      if(trig) trigger();
+      if(trig) trigger(widget.chatData);
       scrollController.jumpTo(0);
     });
   }
 
-  void trigger() {
-    if(mounted && ref.watch(activePage2)) {
+  void trigger(ChatData chatData) {
+    if(mounted) {
       print("@# 2");
       ref.read(conversationPageProvider(
         ref,
-        '${widget.chatData.id}',
-        jsonEncode(widget.chatData.last_message?.toJson() ?? {}),
+        chatData.id,
+        jsonEncode(chatData.last_message?.toJson() ?? {}),
+          chatData.to_id
       ).notifier).getNew();
+      // mark to as read
+      if(chatData.last_message?.is_read == false) {
+        ref.watch(apiServiceProvider).submitMarkRead({
+          'topic_id': '${chatData.id}',
+          'to_id': '${chatData.to_id}',
+          'id': '${chatData.last_message_id}'
+        }, ref); print('object:');
+      }
 
-      Future.delayed(Duration(seconds: ref.read(delayed)), () => trigger());
+      Future.delayed(Duration(seconds: ref.read(delayed)), () => trigger(chatData));
     }
   }
 
@@ -90,8 +101,9 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
     final watchHin = ref.watch(hiddenProvider);
     final watchConversation = ref.watch(conversationPageProvider(
       ref,
-      '${widget.chatData.id}',
-      jsonEncode(widget.chatData.last_message?.toJson() ?? {})
+      widget.chatData.id,
+      jsonEncode(widget.chatData.last_message?.toJson() ?? {}),
+      widget.chatData.to_id
     ));
     final text = ref.watch(dataProvider)['message']??'';
     final watchMore = ref.watch(moreProvider);
@@ -148,7 +160,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if(bottomHeight <= 10 || watchHin) ...[
                   button(watchMore ? Icons.close : Icons.add_circle, onPressed: () {
@@ -163,7 +175,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
 
                     if(image != null && image.path.isNotEmpty) {
                       final multipartImage = MultipartFile.fromFileSync(image.path,filename: image.name);
-                      final filePath = await ref.read(chatServiceProvider).uploadData({
+                      final filePath = await ref.read(apiServiceProvider).uploadData({
                         "file": multipartImage
                       }, ref);
 
@@ -193,7 +205,9 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
                         scrollDown(duration: 500, trig: false);
                       },
                       onChanged: (val) => ref.read(dataProvider.notifier).update((state) => {'message': val}),
-                      onSubmitted: (val) => onSubmit
+                      onSubmitted: (val) => onSubmit,
+                      maxLines: 2,
+                      style: const TextStyle(height: 1.45, fontSize: 13)
                     ),
                   ),
                 ),
@@ -215,6 +229,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
             if(watchMore) Divider(height: 12, color: config.secondaryColor.shade50),
 
             if(watchMore) Container(
+              padding: const EdgeInsets.only(top: 10.0),
               constraints: const BoxConstraints(maxHeight: 225, minHeight: 200),
               child: LayoutBuilder(
                 builder: (context, constraints) {
@@ -222,7 +237,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
                   double width = constraints.maxWidth;
                   if (width < 300) {
                     crossAxisCount = 2;
-                  } else if (width < 400) {
+                  } else if (width < 350) {
                     crossAxisCount = 3;
                   } else if (width < 500) {
                     crossAxisCount = 4;
@@ -246,7 +261,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
                             if (result != null) {
                               final files = result.files.single;
                               final multipartImage = MultipartFile.fromFileSync('${files.path}',filename: files.name);
-                              final filePath = await ref.read(chatServiceProvider).uploadData({
+                              final filePath = await ref.read(apiServiceProvider).uploadData({
                                 "file": multipartImage
                               }, ref);
 
@@ -264,14 +279,14 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
                           direction: Axis.vertical,
                           children: [
                             Card(
-                              margin: const EdgeInsets.all(8.0),
+                              margin: const EdgeInsets.only(bottom: 8.0),
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Icon(datum['icon'], size: 30, color: config.secondaryColor),
+                                padding: const EdgeInsets.all(14.0),
+                                child: Icon(datum['icon'], size: 26, color: config.secondaryColor.shade400),
                               ),
                             ),
 
-                            labels.label('${datum['label']}', color: Colors.black87, fontSize: 14, textAlign: TextAlign.center, maxLines: 2),
+                            labels.label('${datum['label']}', color: Colors.black87, fontSize: 13, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
                           ],
                         ),
                       );
@@ -287,17 +302,33 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
   }
 
   Future<void> onSubmit() async {
-    ref.read(dataProvider.notifier).update((state) =>
-    {...state, ...{'topic_id': '${widget.chatData.id}'}});
+
+    // Define topic as Map<String, String>
+    Map<String, String> topic = {};
+
+    // Consolidate conditions to determine topic
+    if (widget.chatData.id != '0') {
+      topic = {'topic_id': '${widget.chatData.id}'};
+    } else if (widget.chatData.to_id != '0') {
+      topic = {'to_id': '${widget.chatData.to_id}'};
+    } else if (widget.chatData.adid != '0') {
+      topic = {'adid': '${widget.chatData.adid}'};
+    }
+
+    // Update state immutably
+    ref.read(dataProvider.notifier).update((state) => {
+      ...state,
+      ...topic,
+    });
 
     print(ref.watch(dataProvider));
 
     /// submit data ///
-    await ref.read(chatServiceProvider).submitData(ref.watch(dataProvider), ref);
+    await ref.read(apiServiceProvider).submitData(ref.watch(dataProvider), ref);
 
     /// clear ///
     ref.read(dataProvider.notifier).update((state) => {});
-    scrollDown();
+    scrollDown(trig: false);
   }
 
   Widget button(IconData? icon, {
@@ -307,7 +338,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
       width: 38,
       child: IconButton(
         onPressed: onPressed,
-        icon: Icon(icon, size: 26, color: config.primaryAppColor.shade600),
+        icon: Icon(icon, size: 24, color: config.primaryAppColor.shade600),
         padding: EdgeInsets.zero,
         alignment: Alignment.center,
       ),

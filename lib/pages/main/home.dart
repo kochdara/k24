@@ -7,8 +7,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/helper.dart';
+import 'package:k24/pages/accounts/profile_public/another_profile.dart';
 import 'package:k24/pages/details/details_post.dart';
 import 'package:k24/widgets/my_cards.dart';
+import 'package:k24/widgets/my_widgets.dart';
 
 import '../../widgets/buttons.dart';
 import '../../widgets/labels.dart';
@@ -18,6 +20,7 @@ final Buttons buttons = Buttons();
 final Labels labels = Labels();
 final Config config = Config();
 final MyCards myCards = MyCards();
+final MyWidgets myWidgets = MyWidgets();
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key, required this.title});
@@ -47,15 +50,15 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void loadMore() async {
-    final limit = ref.watch(homeListsProvider.notifier).limit;
-    final current = ref.watch(homeListsProvider.notifier).current_result;
+    final limit = ref.watch(homeListsProvider(ref).notifier).limit;
+    final current = ref.watch(homeListsProvider(ref).notifier).current_result;
     final fet = ref.read(fetchingProvider.notifier);
     ScrollPosition scroll = scrollController.position;
 
     if (scroll.pixels > 1500 && scroll.pixels >= (scroll.maxScrollExtent - 750)
         && (current >= limit) && !fet.state) {
       fet.state = true;
-      ref.read(homeListsProvider.notifier).fetchHome();
+      ref.read(homeListsProvider(ref).notifier).fetchHome();
       await futureAwait(() { fet.state = false; });
     }
 
@@ -67,13 +70,13 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future<void> _handleRefresh() async {
     ref.refresh(getMainCategoryProvider('0').future);
-    await ref.read(homeListsProvider.notifier).refresh();
+    await ref.read(homeListsProvider(ref).notifier).refresh();
   }
 
   @override
   Widget build(BuildContext context) {
     final mainCate = ref.watch(getMainCategoryProvider('0'));
-    final homeList = ref.watch(homeListsProvider);
+    final homeList = ref.watch(homeListsProvider(ref));
 
     return Scaffold(
       backgroundColor: config.backgroundColor,
@@ -109,7 +112,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         ),
 
                         /// last title ///
-                        titleAds(),
+                        myWidgets.titleAds(ref),
 
                         /// home list ///
                         homeList.when(
@@ -133,7 +136,8 @@ class _HomePageState extends ConsumerState<HomePage> {
         ),
       ),
       bottomNavigationBar: !ref.watch(down) ? myWidgets.bottomBarPage(
-        context, ref, selectedIndex
+        context, ref, selectedIndex,
+        scrollController
       ) : null,
     );
   }
@@ -176,60 +180,6 @@ class _HomePageState extends ConsumerState<HomePage> {
             )
         )
       ],
-    );
-  }
-
-  Widget titleAds() {
-    return Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 55),
-      padding: const EdgeInsets.only(top: 16.0, left: 8.0, right: 8.0, bottom: 8.0),
-      child: Stack(
-        alignment: AlignmentDirectional.center,
-        children: [
-          Row(
-            children: [
-              labels.label('Latest Ads', fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold),
-            ],
-          ),
-
-          Positioned(
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Row(
-                children: [
-                  buttons.buttonTap(
-                    onTap: () {ref.read(viewPage.notifier).state = ViewPage.view;},
-                    icon: CupertinoIcons.list_bullet_below_rectangle,
-                    color: ref.watch(viewPage) == ViewPage.view ? config.secondaryColor.shade700 : null,
-                    size: 23,
-                  ),
-
-                  buttons.buttonTap(
-                    onTap: () {ref.read(viewPage.notifier).state = ViewPage.list;},
-                    icon: CupertinoIcons.list_bullet,
-                    color: ref.watch(viewPage) == ViewPage.list ? config.secondaryColor.shade700 : null,
-                    size: 23,
-                  ),
-
-                  buttons.buttonTap(
-                    onTap: () {ref.read(viewPage.notifier).state = ViewPage.grid;},
-                    icon: CupertinoIcons.square_grid_2x2,
-                    color: ref.watch(viewPage) == ViewPage.grid ? config.secondaryColor.shade700 : null,
-                    size: 23,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-        ],
-      ),
     );
   }
 

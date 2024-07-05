@@ -1,9 +1,12 @@
 
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../helpers/config.dart';
+import '../../helpers/helper.dart';
 import '../../serialization/grid_card/grid_card.dart';
+import '../main/home_provider.dart';
 
 part 'details_provider.g.dart';
 
@@ -42,7 +45,7 @@ class RelateDetailPost extends _$RelateDetailPost {
   int offset = 0;
 
   @override
-  Future<List<GridCard>> build(String id) async => fetch();
+  Future<List<GridCard>> build(WidgetRef context, String id) async => fetch();
 
   Future<List<GridCard>> fetch() async {
     await urlAPI();
@@ -60,19 +63,35 @@ class RelateDetailPost extends _$RelateDetailPost {
   }
 
   Future<void> urlAPI() async {
-    final subs = 'feed/$id/relates?lang=$lang&offset=${offset + limit}&fields=$fields&functions=$fun';
-    final res = await dio.get('$postUrl/$subs');
+    final accessToken = await checkTokens(context);
 
-    final resp = HomeSerial.fromJson(res.data ?? {});
+    try {
+      final tokens = ref.watch(usersProvider);
+      final subs = 'feed/$id/relates?lang=$lang&offset=${offset + limit}&fields=$fields&functions=$fun';
+      final res = await dio.get('$postUrl/$subs', options: Options(headers: {
+        'Access-Token': '${accessToken ?? tokens.tokens?.access_token}'}
+      ));
 
-    if(res.statusCode == 200) {
-      final data = resp.data;
-      limit = resp.limit ?? 0;
-      offset = resp.offset ?? 0;
+      final resp = HomeSerial.fromJson(res.data ?? {});
 
-      for (final val in data!) {
-        list.add(val!);
+      if(res.statusCode == 200) {
+        final data = resp.data;
+        limit = resp.limit ?? 0;
+        offset = resp.offset ?? 0;
+
+        for (final val in data!) {
+          final index = list.indexWhere((element) => element.data?.id == val?.data?.id);
+
+          if (index != -1) {
+            list[index] = val!;
+          } else {
+            list.add(val!);
+          }
+        }
       }
+    } catch (e, stacktrace) {
+      print('Error in : $e');
+      print(stacktrace);
     }
   }
 }

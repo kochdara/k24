@@ -89,7 +89,8 @@ DataMore _$DataMoreFromJson(Map json) => DataMore(
       email: const ToString().fromJson(json['email']),
       location: json['location'] == null
           ? null
-          : ConLocation.fromJson(json['location'] as Map?),
+          : Location_.fromJson(
+              Map<String, dynamic>.from(json['location'] as Map)),
       address: const ToString().fromJson(json['address']),
       map: json['map'],
       phone_white_operator: (json['phone_white_operator'] as List<dynamic>?)
@@ -110,42 +111,6 @@ Map<String, dynamic> _$DataMoreToJson(DataMore instance) => <String, dynamic>{
           instance.phone_white_operator?.map((e) => e?.toJson()).toList(),
     };
 
-ConLocation _$ConLocationFromJson(Map json) => ConLocation(
-      en_name: const ToString().fromJson(json['en_name']),
-      km_name: const ToString().fromJson(json['km_name']),
-      en_name2: const ToString().fromJson(json['en_name2']),
-      en_name3: const ToString().fromJson(json['en_name3']),
-      km_name2: const ToString().fromJson(json['km_name2']),
-      km_name3: const ToString().fromJson(json['km_name3']),
-      long_location: const ToString().fromJson(json['long_location']),
-    );
-
-Map<String, dynamic> _$ConLocationToJson(ConLocation instance) =>
-    <String, dynamic>{
-      'en_name': const ToString().toJson(instance.en_name),
-      'km_name': const ToString().toJson(instance.km_name),
-      'en_name2': const ToString().toJson(instance.en_name2),
-      'en_name3': const ToString().toJson(instance.en_name3),
-      'km_name2': const ToString().toJson(instance.km_name2),
-      'km_name3': const ToString().toJson(instance.km_name3),
-      'long_location': const ToString().toJson(instance.long_location),
-    };
-
-PhoneWhiteOperator _$PhoneWhiteOperatorFromJson(Map json) => PhoneWhiteOperator(
-      title: const ToString().fromJson(json['title']),
-      phone: const ToString().fromJson(json['phone']),
-      slug: const ToString().fromJson(json['slug']),
-      icon: const ToString().fromJson(json['icon']),
-    );
-
-Map<String, dynamic> _$PhoneWhiteOperatorToJson(PhoneWhiteOperator instance) =>
-    <String, dynamic>{
-      'title': const ToString().toJson(instance.title),
-      'phone': const ToString().toJson(instance.phone),
-      'slug': const ToString().toJson(instance.slug),
-      'icon': const ToString().toJson(instance.icon),
-    };
-
 ConImage _$ConImageFromJson(Map json) => ConImage(
       image: const ToString().fromJson(json['image']),
       thumbnail: const ToString().fromJson(json['thumbnail']),
@@ -156,14 +121,19 @@ ConImage _$ConImageFromJson(Map json) => ConImage(
       name: const ToString().fromJson(json['name']),
       small: json['small'] == null
           ? null
-          : ChatLarge.fromJson(Map<String, dynamic>.from(json['small'] as Map)),
+          : SizeOfImage.fromJson((json['small'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
       medium: json['medium'] == null
           ? null
-          : ChatLarge.fromJson(
-              Map<String, dynamic>.from(json['medium'] as Map)),
+          : SizeOfImage.fromJson((json['medium'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
       large: json['large'] == null
           ? null
-          : ChatLarge.fromJson(Map<String, dynamic>.from(json['large'] as Map)),
+          : SizeOfImage.fromJson((json['large'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
     );
 
 Map<String, dynamic> _$ConImageToJson(ConImage instance) => <String, dynamic>{

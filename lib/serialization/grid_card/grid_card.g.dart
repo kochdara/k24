@@ -71,10 +71,8 @@ Data_ _$Data_FromJson(Map json) => Data_(
           ?.map(const ToString().fromJson)
           .toList(),
       phone_white_operator: (json['phone_white_operator'] as List<dynamic>?)
-          ?.map((e) => e == null
-              ? null
-              : PhoneWhiteOperator_.fromJson(
-                  Map<String, dynamic>.from(e as Map)))
+          ?.map(
+              (e) => e == null ? null : PhoneWhiteOperator.fromJson(e as Map?))
           .toList(),
       views: const ToString().fromJson(json['views']),
       renew_date: const ToDateTime().fromJson(json['renew_date']),
@@ -94,7 +92,7 @@ Data_ _$Data_FromJson(Map json) => Data_(
               Map<String, dynamic>.from(json['location'] as Map)),
       category: json['category'] == null
           ? null
-          : Category_.fromJson(
+          : MainCategory.fromJson(
               Map<String, dynamic>.from(json['category'] as Map)),
       highlight_specs: (json['highlight_specs'] as List<dynamic>?)
           ?.map((e) => e == null
@@ -114,6 +112,8 @@ Data_ _$Data_FromJson(Map json) => Data_(
       type: const ToString().fromJson(json['type']),
       price: const ToDouble().fromJson(json['price']),
       total_like: const ToInt().fromJson(json['total_like']),
+      is_saved: const ToBool().fromJson(json['is_saved']),
+      is_like: const ToBool().fromJson(json['is_like']),
     );
 
 Map<String, dynamic> _$Data_ToJson(Data_ instance) => <String, dynamic>{
@@ -150,58 +150,10 @@ Map<String, dynamic> _$Data_ToJson(Data_ instance) => <String, dynamic>{
           instance.price, const ToDouble().toJson),
       'total_like': _$JsonConverterToJson<Object?, int>(
           instance.total_like, const ToInt().toJson),
-    };
-
-Category_ _$Category_FromJson(Map<String, dynamic> json) => Category_(
-      id: const ToString().fromJson(json['id']),
-      en_name: const ToString().fromJson(json['en_name']),
-      km_name: const ToString().fromJson(json['km_name']),
-      slug: const ToString().fromJson(json['slug']),
-      parent: const ToString().fromJson(json['parent']),
-      parent_data: json['parent_data'] == null
-          ? null
-          : ParentData.fromJson(json['parent_data'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$Category_ToJson(Category_ instance) => <String, dynamic>{
-      'id': const ToString().toJson(instance.id),
-      'en_name': const ToString().toJson(instance.en_name),
-      'km_name': const ToString().toJson(instance.km_name),
-      'slug': const ToString().toJson(instance.slug),
-      'parent': const ToString().toJson(instance.parent),
-      'parent_data': instance.parent_data,
-    };
-
-ParentData _$ParentDataFromJson(Map<String, dynamic> json) => ParentData(
-      id: const ToString().fromJson(json['id']),
-      en_name: const ToString().fromJson(json['en_name']),
-      km_name: const ToString().fromJson(json['km_name']),
-      slug: const ToString().fromJson(json['slug']),
-    );
-
-Map<String, dynamic> _$ParentDataToJson(ParentData instance) =>
-    <String, dynamic>{
-      'id': const ToString().toJson(instance.id),
-      'en_name': const ToString().toJson(instance.en_name),
-      'km_name': const ToString().toJson(instance.km_name),
-      'slug': const ToString().toJson(instance.slug),
-    };
-
-PhoneWhiteOperator_ _$PhoneWhiteOperator_FromJson(Map<String, dynamic> json) =>
-    PhoneWhiteOperator_(
-      title: const ToString().fromJson(json['title']),
-      slug: const ToString().fromJson(json['slug']),
-      icon: const ToString().fromJson(json['icon']),
-      phone: const ToString().fromJson(json['phone']),
-    );
-
-Map<String, dynamic> _$PhoneWhiteOperator_ToJson(
-        PhoneWhiteOperator_ instance) =>
-    <String, dynamic>{
-      'title': const ToString().toJson(instance.title),
-      'slug': const ToString().toJson(instance.slug),
-      'icon': const ToString().toJson(instance.icon),
-      'phone': const ToString().toJson(instance.phone),
+      'is_saved': _$JsonConverterToJson<Object?, bool>(
+          instance.is_saved, const ToBool().toJson),
+      'is_like': _$JsonConverterToJson<Object?, bool>(
+          instance.is_like, const ToBool().toJson),
     };
 
 Spec_ _$Spec_FromJson(Map<String, dynamic> json) => Spec_(
@@ -251,32 +203,6 @@ Map<String, dynamic> _$HighlightSpecToJson(HighlightSpec instance) =>
       'value_slug': const ToString().toJson(instance.value_slug),
     };
 
-Location_ _$Location_FromJson(Map<String, dynamic> json) => Location_(
-      id: const ToString().fromJson(json['id']),
-      en_name: const ToString().fromJson(json['en_name']),
-      km_name: const ToString().fromJson(json['km_name']),
-      en_name2: const ToString().fromJson(json['en_name2']),
-      km_name2: const ToString().fromJson(json['km_name2']),
-      en_name3: const ToString().fromJson(json['en_name3']),
-      km_name3: const ToString().fromJson(json['km_name3']),
-      slug: const ToString().fromJson(json['slug']),
-      address: const ToString().fromJson(json['address']),
-      long_location: const ToString().fromJson(json['long_location']),
-    );
-
-Map<String, dynamic> _$Location_ToJson(Location_ instance) => <String, dynamic>{
-      'id': const ToString().toJson(instance.id),
-      'en_name': const ToString().toJson(instance.en_name),
-      'km_name': const ToString().toJson(instance.km_name),
-      'en_name2': const ToString().toJson(instance.en_name2),
-      'km_name2': const ToString().toJson(instance.km_name2),
-      'en_name3': const ToString().toJson(instance.en_name3),
-      'km_name3': const ToString().toJson(instance.km_name3),
-      'slug': const ToString().toJson(instance.slug),
-      'address': const ToString().toJson(instance.address),
-      'long_location': const ToString().toJson(instance.long_location),
-    };
-
 Store_ _$Store_FromJson(Map<String, dynamic> json) => Store_(
       id: const ToString().fromJson(json['id']),
       title: const ToString().fromJson(json['title']),
@@ -284,10 +210,10 @@ Store_ _$Store_FromJson(Map<String, dynamic> json) => Store_(
       userid: const ToString().fromJson(json['userid']),
       logo: json['logo'] == null
           ? null
-          : Photo_.fromJson(json['logo'] as Map<String, dynamic>),
+          : CoverProfile.fromJson(json['logo'] as Map<String, dynamic>?),
       cover: json['cover'] == null
           ? null
-          : Cover.fromJson(json['cover'] as Map<String, dynamic>),
+          : CoverProfile.fromJson(json['cover'] as Map<String, dynamic>?),
       is_verify: const ToBool().fromJson(json['is_verify']),
       created_date: json['created_date'],
       taxed: const ToString().fromJson(json['taxed']),
@@ -312,11 +238,11 @@ User_ _$User_FromJson(Map<String, dynamic> json) => User_(
       username: const ToString().fromJson(json['username']),
       photo: json['photo'] == null
           ? null
-          : Photo_.fromJson(json['photo'] as Map<String, dynamic>),
+          : CoverProfile.fromJson(json['photo'] as Map<String, dynamic>?),
       online_status: json['online_status'] == null
           ? null
-          : OnlineStatus.fromJson(
-              json['online_status'] as Map<String, dynamic>),
+          : OnlineStatusProfile.fromJson(
+              json['online_status'] as Map<String, dynamic>?),
       is_verify: const ToBool().fromJson(json['is_verify']),
       registered_date: const ToDateTime().fromJson(json['registered_date']),
       taxed: const ToString().fromJson(json['taxed']),
@@ -334,129 +260,6 @@ Map<String, dynamic> _$User_ToJson(User_ instance) => <String, dynamic>{
       'registered_date': const ToDateTime().toJson(instance.registered_date),
       'taxed': const ToString().toJson(instance.taxed),
       'user_type': const ToString().toJson(instance.user_type),
-    };
-
-OnlineStatus _$OnlineStatusFromJson(Map<String, dynamic> json) => OnlineStatus(
-      is_active: const ToBool().fromJson(json['is_active']),
-      last_active: const ToString().fromJson(json['last_active']),
-      time: json['time'],
-      date: const ToDateTime().fromJson(json['date']),
-    );
-
-Map<String, dynamic> _$OnlineStatusToJson(OnlineStatus instance) =>
-    <String, dynamic>{
-      'is_active': _$JsonConverterToJson<Object?, bool>(
-          instance.is_active, const ToBool().toJson),
-      'last_active': const ToString().toJson(instance.last_active),
-      'time': instance.time,
-      'date': const ToDateTime().toJson(instance.date),
-    };
-
-Cover _$CoverFromJson(Map<String, dynamic> json) => Cover(
-      url: const ToString().fromJson(json['url']),
-      small: json['small'] == null
-          ? null
-          : CoverLarge.fromJson(json['small'] as Map<String, dynamic>),
-      medium: json['medium'] == null
-          ? null
-          : CoverLarge.fromJson(json['medium'] as Map<String, dynamic>),
-      large: json['large'] == null
-          ? null
-          : CoverLarge.fromJson(json['large'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$CoverToJson(Cover instance) => <String, dynamic>{
-      'url': const ToString().toJson(instance.url),
-      'small': instance.small,
-      'medium': instance.medium,
-      'large': instance.large,
-    };
-
-CoverLarge _$CoverLargeFromJson(Map<String, dynamic> json) => CoverLarge(
-      url: const ToString().fromJson(json['url']),
-    );
-
-Map<String, dynamic> _$CoverLargeToJson(CoverLarge instance) =>
-    <String, dynamic>{
-      'url': const ToString().toJson(instance.url),
-    };
-
-Photo_ _$Photo_FromJson(Map<String, dynamic> json) => Photo_(
-      url: const ToString().fromJson(json['url']),
-      width: const ToString().fromJson(json['width']),
-      height: const ToString().fromJson(json['height']),
-      small: json['small'] == null
-          ? null
-          : Large.fromJson(json['small'] as Map<String, dynamic>),
-      medium: json['medium'] == null
-          ? null
-          : Large.fromJson(json['medium'] as Map<String, dynamic>),
-      large: json['large'] == null
-          ? null
-          : Large.fromJson(json['large'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$Photo_ToJson(Photo_ instance) => <String, dynamic>{
-      'url': const ToString().toJson(instance.url),
-      'width': const ToString().toJson(instance.width),
-      'height': const ToString().toJson(instance.height),
-      'small': instance.small,
-      'medium': instance.medium,
-      'large': instance.large,
-    };
-
-Large _$LargeFromJson(Map<String, dynamic> json) => Large(
-      url: const ToString().fromJson(json['url']),
-      width: const ToString().fromJson(json['width']),
-      height: const ToString().fromJson(json['height']),
-    );
-
-Map<String, dynamic> _$LargeToJson(Large instance) => <String, dynamic>{
-      'url': const ToString().toJson(instance.url),
-      'width': const ToString().toJson(instance.width),
-      'height': const ToString().toJson(instance.height),
-    };
-
-Meta _$MetaFromJson(Map<String, dynamic> json) => Meta(
-      site_name: json['site_name'] as String?,
-      title: json['title'] as String?,
-      price: json['price'] as String?,
-      currency: json['currency'] as String?,
-      description: json['description'] as String?,
-      keyword: json['keyword'] as String?,
-      author: json['author'] as String?,
-      fb: json['fb'] == null
-          ? null
-          : Fb.fromJson(json['fb'] as Map<String, dynamic>),
-      image: json['image'] as String?,
-      url: json['url'] as String?,
-      deeplink: json['deeplink'] as String?,
-      date: const ToDateTime().fromJson(json['date']),
-    );
-
-Map<String, dynamic> _$MetaToJson(Meta instance) => <String, dynamic>{
-      'site_name': instance.site_name,
-      'title': instance.title,
-      'price': instance.price,
-      'currency': instance.currency,
-      'description': instance.description,
-      'keyword': instance.keyword,
-      'author': instance.author,
-      'fb': instance.fb,
-      'image': instance.image,
-      'url': instance.url,
-      'deeplink': instance.deeplink,
-      'date': const ToDateTime().toJson(instance.date),
-    };
-
-Fb _$FbFromJson(Map<String, dynamic> json) => Fb(
-      id: json['id'] as String?,
-      type: json['type'] as String?,
-    );
-
-Map<String, dynamic> _$FbToJson(Fb instance) => <String, dynamic>{
-      'id': instance.id,
-      'type': instance.type,
     };
 
 Setting_ _$Setting_FromJson(Map<String, dynamic> json) => Setting_(

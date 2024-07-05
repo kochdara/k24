@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/helper.dart';
+import 'package:k24/pages/accounts/profile_public/another_profile.dart';
+import 'package:k24/pages/chats/conversations/chat_conversation_provider.dart';
 import 'package:k24/pages/details/details_provider.dart';
+import 'package:k24/serialization/chats/chat_serial.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/forms.dart';
@@ -16,6 +19,8 @@ import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../helpers/converts.dart';
+import '../../serialization/helper.dart';
+import '../chats/conversations/chat_conversation.dart';
 
 final Config config = Config();
 final Labels label = Labels();
@@ -62,7 +67,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     final id = dataDetails.data?.id;
 
     ref.refresh(getDetailPostProvider('$id').future);
-    await ref.read(relateDetailPostProvider('$id').notifier).refresh();
+    await ref.read(relateDetailPostProvider(ref, '$id').notifier).refresh();
   }
 
   void scrollListener() {
@@ -73,8 +78,10 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
   @override
   Widget build(BuildContext context) {
     final dataDetails = widget.data;
-    final watchDetails = ref.watch(getDetailPostProvider('${dataDetails.data?.id}'));
-    final watchRelates = ref.watch(relateDetailPostProvider('${dataDetails.data?.id}'));
+    final adid = dataDetails.data?.id;
+    final watchDetails = ref.watch(getDetailPostProvider('$adid'));
+    final watchRelates = ref.watch(relateDetailPostProvider(ref, '$adid'));
+    final watchChat = ref.watch(getTopByUidProvider(ref, adid: '$adid'));
 
     if(dataDetails.data != null) {
       listImg = dataDetails.data?.photos ?? [];
@@ -167,7 +174,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
           ],
         ),
       ),
-      bottomNavigationBar: bottomNav(total_like: ref.watch(total_like)),
+      bottomNavigationBar: (watchDetails.hasValue) ? bottomNav(watchChat.valueOrNull, total_like: ref.watch(total_like)) : null,
     );
   }
 
@@ -192,7 +199,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     );
   }
 
-  Widget bottomNav({int? total_like = 0}) {
+  Widget bottomNav(ChatData? chatData, {int? total_like = 0, }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
       decoration: BoxDecoration(
@@ -248,7 +255,9 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                   width: width2,
                   child: buttons.textButtons(
                     title: 'Chat',
-                    onPressed: () { },
+                    onPressed: () {
+                      routeAnimation(context, pageBuilder: ChatConversations(chatData: chatData ?? ChatData()));
+                    },
                     padSize: 10,
                     textSize: 18,
                     textWeight: FontWeight.w500,
@@ -408,7 +417,7 @@ class BodyWidget extends ConsumerWidget {
 
                             // contact //
                             if(datum?.phone_white_operator != null && datum?.phone_white_operator is List) ...[
-                              for(final v in datum?.phone_white_operator as List<PhoneWhiteOperator_?>) ...[
+                              for(final v in datum?.phone_white_operator as List<PhoneWhiteOperator?>) ...[
                                 contactCard(ref, tell: '${v?.phone}', url: '${v?.icon}'),
 
                                 SizedBox(height: space / 2),
@@ -539,76 +548,79 @@ class BodyWidget extends ConsumerWidget {
                       SizedBox(height: space / 2),
 
                       /// user card ///
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        width: double.infinity,
-                        color: Colors.white,
-                        child: Column(
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                (datum?.user?.photo?.small != null) ? SizedBox(width: 60, height: 60,
-                                    child: Image.network('${datum?.user?.photo?.small?.url}', fit: BoxFit.cover)
-                                ) : Container(width: 60, height: 60,
-                                  decoration: BoxDecoration(
-                                    color: Colors.black12,
-                                    borderRadius: BorderRadius.circular(32),
+                      InkWell(
+                        onTap: () => routeAnimation(context, pageBuilder: AnotherProfilePage(userData: datum!.user)),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          width: double.infinity,
+                          color: Colors.white,
+                          child: Column(
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  (datum?.user?.photo?.small != null) ? SizedBox(width: 60, height: 60,
+                                      child: Image.network('${datum?.user?.photo?.small?.url}', fit: BoxFit.cover)
+                                  ) : Container(width: 60, height: 60,
+                                    decoration: BoxDecoration(
+                                      color: Colors.black12,
+                                      borderRadius: BorderRadius.circular(32),
+                                    ),
+                                    child: const Icon(Icons.person, color: Colors.white, size: 40),
                                   ),
-                                  child: const Icon(Icons.person, color: Colors.white, size: 40),
-                                ),
 
-                                const SizedBox(width: 12),
+                                  const SizedBox(width: 12),
 
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      label.label(datum?.user?.name??'N/A', fontSize: 17, fontWeight: FontWeight.w500, color: Colors.black),
-                                      label.label('@${datum?.user?.username??'n/a'}', fontSize: 13, color: Colors.black),
-                                      label.label('Member Since ${stringToString(date: '${datum?.user?.registered_date}', format: 'dd, MMM yyyy')}', fontSize: 13, color: config.secondaryColor.shade300),
-                                    ],
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        label.label(datum?.user?.name??'N/A', fontSize: 17, fontWeight: FontWeight.w500, color: Colors.black),
+                                        label.label('@${datum?.user?.username??'n/a'}', fontSize: 13, color: Colors.black),
+                                        label.label('Member Since ${stringToString(date: '${datum?.user?.registered_date}', format: 'dd, MMM yyyy')}', fontSize: 13, color: config.secondaryColor.shade300),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+
+                              const SizedBox(height: 8),
+
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: buttons.textButtons(
+                                      title: 'View Profile',
+                                      onPressed: () => routeAnimation(context, pageBuilder: AnotherProfilePage(userData: datum!.user)),
+                                      padSize: 10,
+                                      textSize: 14,
+                                      textWeight: FontWeight.w500,
+                                      textColor: config.primaryAppColor.shade600,
+                                      bgColor: config.primaryAppColor.shade50.withOpacity(0.75),
+                                    ),
                                   ),
-                                )
-                              ],
-                            ),
 
-                            const SizedBox(height: 8),
+                                  const SizedBox(width: 12),
 
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: buttons.textButtons(
-                                    title: 'View Profile',
+                                  buttons.textButtons(
+                                    title: 'Report',
                                     onPressed: () { },
                                     padSize: 10,
                                     textSize: 14,
                                     textWeight: FontWeight.w500,
                                     textColor: config.primaryAppColor.shade600,
-                                    bgColor: config.primaryAppColor.shade50.withOpacity(0.75),
+                                    prefixIcon: Icons.add,
+                                    prefColor: config.primaryAppColor.shade600,
+                                    prefixSize: 16,
+                                    bgColor: Colors.transparent,
+                                    borderColor: config.primaryAppColor.shade100,
                                   ),
-                                ),
 
-                                const SizedBox(width: 12),
+                                ],
+                              ),
 
-                                buttons.textButtons(
-                                  title: 'Report',
-                                  onPressed: () { },
-                                  padSize: 10,
-                                  textSize: 14,
-                                  textWeight: FontWeight.w500,
-                                  textColor: config.primaryAppColor.shade600,
-                                  prefixIcon: Icons.add,
-                                  prefColor: config.primaryAppColor.shade600,
-                                  prefixSize: 16,
-                                  bgColor: Colors.transparent,
-                                  borderColor: config.primaryAppColor.shade100,
-                                ),
-
-                              ],
-                            ),
-
-                          ],
+                            ],
+                          ),
                         ),
                       ),
 

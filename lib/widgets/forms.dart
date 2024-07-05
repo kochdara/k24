@@ -84,7 +84,9 @@ class Forms {
     FocusNode? focusNode,
     bool autofocus = false,
     String? hintText,
-    void Function(String)? onSubmitted
+    void Function(String)? onSubmitted,
+    int? maxLines = 1,
+    TextStyle? style,
   }) {
     return TextField(
       autofocus: autofocus,
@@ -110,6 +112,8 @@ class Forms {
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
       ),
+      style: style,
+      maxLines: maxLines,
       onTap: onTap,
       inputFormatters: inputFormatters,
       onChanged: onChanged,

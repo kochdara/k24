@@ -1,8 +1,8 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import '../../helper.dart';
 import '../../try_convert.dart';
-import '../chat_serial.dart';
 
 part 'conversation_serial.g.dart';
 
@@ -92,7 +92,7 @@ class DataMore {
   String? company;
   List<String?>? phone;
   String? email;
-  ConLocation? location;
+  Location_? location;
   String? address;
   dynamic map;
   List<PhoneWhiteOperator?>? phone_white_operator;
@@ -114,50 +114,6 @@ class DataMore {
 }
 
 @JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
-class ConLocation {
-  String? en_name;
-  String? km_name;
-  String? en_name2;
-  String? en_name3;
-  String? km_name2;
-  String? km_name3;
-  String? long_location;
-
-  ConLocation({
-    this.en_name,
-    this.km_name,
-    this.en_name2,
-    this.en_name3,
-    this.km_name2,
-    this.km_name3,
-    this.long_location,
-  });
-
-  factory ConLocation.fromJson(Map? json) => _$ConLocationFromJson(json!);
-  Map? toJson() => _$ConLocationToJson(this);
-
-}
-
-@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
-class PhoneWhiteOperator {
-  String? title;
-  String? phone;
-  String? slug;
-  String? icon;
-
-  PhoneWhiteOperator({
-    this.title,
-    this.phone,
-    this.slug,
-    this.icon,
-  });
-
-  factory PhoneWhiteOperator.fromJson(Map? json) => _$PhoneWhiteOperatorFromJson(json!);
-  Map? toJson() => _$PhoneWhiteOperatorToJson(this);
-
-}
-
-@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
 class ConImage {
   String? image;
   String? thumbnail;
@@ -166,9 +122,9 @@ class ConImage {
   String? type;
   String? size;
   String? name;
-  ChatLarge? small;
-  ChatLarge? medium;
-  ChatLarge? large;
+  SizeOfImage? small;
+  SizeOfImage? medium;
+  SizeOfImage? large;
 
   ConImage({
     this.image,

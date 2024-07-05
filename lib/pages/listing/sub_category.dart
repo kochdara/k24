@@ -70,15 +70,15 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   void loadMore() async {
     final dataCate = widget.data;
     final cate = dataCate['slug'];
-    final limit = ref.watch(subListsProvider('$cate').notifier).limit;
-    final current = ref.watch(subListsProvider('$cate').notifier).current_result;
+    final limit = ref.watch(subListsProvider(ref, '$cate').notifier).limit;
+    final current = ref.watch(subListsProvider(ref, '$cate').notifier).current_result;
     final fet = ref.read(fetchingProvider.notifier);
     ScrollPosition scroll = scrollController.position;
 
     if (scroll.pixels > 1500 && scroll.pixels >= (scroll.maxScrollExtent - 750)
         && (current >= limit) && !fet.state) {
       fet.state = true;
-      ref.read(subListsProvider('$cate', newFilter: ref.watch(newData) as Map?).notifier).subFetch();
+      ref.read(subListsProvider(ref, '$cate', newFilter: ref.watch(newData) as Map?).notifier).subFetch();
       await futureAwait(() { fet.state = false; });
     }
 
@@ -99,14 +99,14 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     });
 
     ref.refresh(getMainCategoryProvider('$cate').future);
-    await ref.read(subListsProvider('$cate', newFilter: filter).notifier).refresh();
+    await ref.read(subListsProvider(ref, '$cate', newFilter: filter).notifier).refresh();
   }
 
   @override
   Widget build(BuildContext context) {
     final dataCate = widget.data;
     final watchCate = ref.watch(getMainCategoryProvider('${dataCate['id']}'));
-    final watchLists = ref.watch(subListsProvider('${dataCate['slug']}', newFilter: ref.watch(newData) as Map?));
+    final watchLists = ref.watch(subListsProvider(ref, '${dataCate['slug']}', newFilter: ref.watch(newData) as Map?));
 
     final title = ref.watch(newData)['keyword'];
 
@@ -223,7 +223,8 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
         ),
       ),
       bottomNavigationBar: !ref.watch(down) ? myWidgets.bottomBarPage(
-          context, ref, selectedIndex
+          context, ref, selectedIndex,
+        null,
       ) : null,
     );
   }

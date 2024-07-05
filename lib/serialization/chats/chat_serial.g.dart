@@ -24,7 +24,7 @@ Map<String, dynamic> _$ChatSerialToJson(ChatSerial instance) =>
 ChatData _$ChatDataFromJson(Map json) => ChatData(
       id: const ToString().fromJson(json['id']),
       adid: const ToString().fromJson(json['adid']),
-      toId: const ToString().fromJson(json['toId']),
+      to_id: const ToString().fromJson(json['to_id']),
       last_message_id: const ToString().fromJson(json['last_message_id']),
       create_time: const ToString().fromJson(json['create_time']),
       updated_time: const ToString().fromJson(json['updated_time']),
@@ -44,7 +44,7 @@ ChatData _$ChatDataFromJson(Map json) => ChatData(
 Map<String, dynamic> _$ChatDataToJson(ChatData instance) => <String, dynamic>{
       'id': const ToString().toJson(instance.id),
       'adid': const ToString().toJson(instance.adid),
-      'toId': const ToString().toJson(instance.toId),
+      'to_id': const ToString().toJson(instance.to_id),
       'last_message_id': const ToString().toJson(instance.last_message_id),
       'create_time': const ToString().toJson(instance.create_time),
       'updated_time': const ToString().toJson(instance.updated_time),
@@ -150,11 +150,14 @@ ChatUser _$ChatUserFromJson(Map json) => ChatUser(
       banned_detail: const ToString().fromJson(json['banned_detail']),
       photo: json['photo'] == null
           ? null
-          : ChatPhoto.fromJson(Map<String, dynamic>.from(json['photo'] as Map)),
+          : CoverProfile.fromJson((json['photo'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
       online_status: json['online_status'] == null
           ? null
-          : OnlineStatus.fromJson(
-              Map<String, dynamic>.from(json['online_status'] as Map)),
+          : OnlineStatusProfile.fromJson((json['online_status'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
       is_verify: const ToBool().fromJson(json['is_verify']),
     );
 
@@ -169,57 +172,4 @@ Map<String, dynamic> _$ChatUserToJson(ChatUser instance) => <String, dynamic>{
       'online_status': instance.online_status?.toJson(),
       'is_verify': _$JsonConverterToJson<Object?, bool>(
           instance.is_verify, const ToBool().toJson),
-    };
-
-OnlineStatus _$OnlineStatusFromJson(Map json) => OnlineStatus(
-      is_active: const ToBool().fromJson(json['is_active']),
-      last_active: const ToString().fromJson(json['last_active']),
-      time: json['time'],
-      date: const ToDateTime().fromJson(json['date']),
-    );
-
-Map<String, dynamic> _$OnlineStatusToJson(OnlineStatus instance) =>
-    <String, dynamic>{
-      'is_active': _$JsonConverterToJson<Object?, bool>(
-          instance.is_active, const ToBool().toJson),
-      'last_active': const ToString().toJson(instance.last_active),
-      'time': instance.time,
-      'date': const ToDateTime().toJson(instance.date),
-    };
-
-ChatPhoto _$ChatPhotoFromJson(Map json) => ChatPhoto(
-      url: const ToString().fromJson(json['url']),
-      width: const ToString().fromJson(json['width']),
-      height: const ToString().fromJson(json['height']),
-      small: json['small'] == null
-          ? null
-          : ChatLarge.fromJson(Map<String, dynamic>.from(json['small'] as Map)),
-      medium: json['medium'] == null
-          ? null
-          : ChatLarge.fromJson(
-              Map<String, dynamic>.from(json['medium'] as Map)),
-      large: json['large'] == null
-          ? null
-          : ChatLarge.fromJson(Map<String, dynamic>.from(json['large'] as Map)),
-    );
-
-Map<String, dynamic> _$ChatPhotoToJson(ChatPhoto instance) => <String, dynamic>{
-      'url': const ToString().toJson(instance.url),
-      'width': const ToString().toJson(instance.width),
-      'height': const ToString().toJson(instance.height),
-      'small': instance.small?.toJson(),
-      'medium': instance.medium?.toJson(),
-      'large': instance.large?.toJson(),
-    };
-
-ChatLarge _$ChatLargeFromJson(Map json) => ChatLarge(
-      url: const ToString().fromJson(json['url']),
-      width: const ToString().fromJson(json['width']),
-      height: const ToString().fromJson(json['height']),
-    );
-
-Map<String, dynamic> _$ChatLargeToJson(ChatLarge instance) => <String, dynamic>{
-      'url': const ToString().toJson(instance.url),
-      'width': const ToString().toJson(instance.width),
-      'height': const ToString().toJson(instance.height),
     };

@@ -1,9 +1,12 @@
 
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../helpers/helper.dart';
 import '../../serialization/grid_card/grid_card.dart';
+import '../main/home_provider.dart';
 
 part 'sub_provider.g.dart';
 
@@ -20,7 +23,7 @@ class SubLists extends _$SubLists {
   final Dio dio = Dio();
 
   @override
-  Future<List<GridCard>> build(String category, {Map? newFilter}) async => subFetch();
+  Future<List<GridCard>> build(WidgetRef context, String category, {Map? newFilter}) async => subFetch();
 
   Future<List<GridCard>> subFetch() async {
     if(current_result < limit) return [];
@@ -40,33 +43,49 @@ class SubLists extends _$SubLists {
   }
 
   Future<void> urlAPI() async {
-    String subs = 'feed?lang=en&offset=${offset + limit}&fields=$fields&functions=$fun';
-    subs += '&category=$category';
+    final accessToken = await checkTokens(context);
 
-    /// check loop filter ///
-    if(newFilter != null && newFilter!.isNotEmpty) {
-      newFilter!.forEach((key, value) {
-        if(value is Map) {
-          if(value['fieldvalue'] != null) subs += '&$key=${value['fieldvalue']}';
-          if(value['slug'] != null) subs += '&$key=${value['slug']}';
+    try {
+      final tokens = ref.watch(usersProvider);
+      String subs = 'feed?lang=en&offset=${offset + limit}&fields=$fields&functions=$fun';
+      subs += '&category=$category';
 
-        } else {subs += '&$key=${value ?? ''}';}
-      });
-    }
+      /// check loop filter ///
+      if(newFilter != null && newFilter!.isNotEmpty) {
+        newFilter!.forEach((key, value) {
+          if(value is Map) {
+            if(value['fieldvalue'] != null) subs += '&$key=${value['fieldvalue']}';
+            if(value['slug'] != null) subs += '&$key=${value['slug']}';
 
-    final res = await dio.get('$postUrl/$subs');
-
-    final resp = HomeSerial.fromJson(res.data ?? {});
-
-    if(res.statusCode == 200) {
-      final data = resp.data;
-      limit = resp.limit ?? 0;
-      offset = resp.offset ?? 0;
-      current_result = resp.current_result ?? 0;
-
-      for (final val in data!) {
-        list.add(val!);
+          } else {subs += '&$key=${value ?? ''}';}
+        });
       }
+
+      final res = await dio.get('$postUrl/$subs', options: Options(headers: {
+        'Access-Token': '${accessToken ?? tokens.tokens?.access_token}'}
+      ));
+
+      final resp = HomeSerial.fromJson(res.data ?? {});
+
+      if(res.statusCode == 200) {
+        final data = resp.data;
+        limit = resp.limit ?? 0;
+        offset = resp.offset ?? 0;
+        current_result = resp.current_result ?? 0;
+
+        for (final val in data!) {
+          final index = list.indexWhere((element) => element.data?.id == val?.data?.id);
+
+          if (index != -1) {
+            list[index] = val!;
+          } else {
+            list.add(val!);
+          }
+        }
+      }
+    } catch (e, stacktrace) {
+      print('Error in : $e');
+      print(stacktrace);
     }
   }
 }

@@ -66,7 +66,7 @@ ValueSelect _$ValueSelectFromJson(Map<String, dynamic> json) => ValueSelect(
       fieldparentvalue: const ToString().fromJson(json['fieldparentvalue']),
       icon: json['icon'] == null
           ? null
-          : Iconr.fromJson(json['icon'] as Map<String, dynamic>),
+          : IconSerial.fromJson(json['icon'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ValueSelectToJson(ValueSelect instance) =>
@@ -78,40 +78,4 @@ Map<String, dynamic> _$ValueSelectToJson(ValueSelect instance) =>
       'fieldid': const ToString().toJson(instance.fieldid),
       'fieldparentvalue': const ToString().toJson(instance.fieldparentvalue),
       'icon': instance.icon?.toJson(),
-    };
-
-Iconr _$IconrFromJson(Map<String, dynamic> json) => Iconr(
-      url: const ToString().fromJson(json['url']),
-      width: const ToString().fromJson(json['width']),
-      height: const ToString().fromJson(json['height']),
-      small: json['small'] == null
-          ? null
-          : Larger.fromJson(json['small'] as Map<String, dynamic>),
-      medium: json['medium'] == null
-          ? null
-          : Larger.fromJson(json['medium'] as Map<String, dynamic>),
-      large: json['large'] == null
-          ? null
-          : Larger.fromJson(json['large'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$IconrToJson(Iconr instance) => <String, dynamic>{
-      'url': const ToString().toJson(instance.url),
-      'width': const ToString().toJson(instance.width),
-      'height': const ToString().toJson(instance.height),
-      'small': instance.small?.toJson(),
-      'medium': instance.medium?.toJson(),
-      'large': instance.large?.toJson(),
-    };
-
-Larger _$LargerFromJson(Map<String, dynamic> json) => Larger(
-      url: const ToString().fromJson(json['url']),
-      width: const ToString().fromJson(json['width']),
-      height: const ToString().fromJson(json['height']),
-    );
-
-Map<String, dynamic> _$LargerToJson(Larger instance) => <String, dynamic>{
-      'url': const ToString().toJson(instance.url),
-      'width': const ToString().toJson(instance.width),
-      'height': const ToString().toJson(instance.height),
     };

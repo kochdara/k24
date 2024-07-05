@@ -16,8 +16,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'chat_provider.g.dart';
 
 final Provider<int> delayed = Provider<int>((ref) => 5);
-StateProvider<bool> activePage = StateProvider<bool>((ref) => true);
-StateProvider<bool> activePage2 = StateProvider<bool>((ref) => true);
 
 @riverpod
 class ChatPage extends _$ChatPage {
@@ -46,7 +44,6 @@ class ChatPage extends _$ChatPage {
   }
 
   Future<void> urlAPI() async {
-    activePage = StateProvider<bool>((ref) => true);
     final accessToken = await checkTokens(context);
     try {
       final tokens = ref.watch(usersProvider);
@@ -70,7 +67,6 @@ class ChatPage extends _$ChatPage {
     } catch (e, stacktrace) {
       print('Error in : $e');
       print(stacktrace);
-      activePage = StateProvider<bool>((ref) => false);
       return;
     }
   }
@@ -85,9 +81,9 @@ class ConversationPage extends _$ConversationPage {
   Dio dio = Dio();
 
   @override
-  Stream<List<ConData>> build(WidgetRef context, String topic_id, String first_message) async* {
+  Stream<List<ConData>> build(WidgetRef context, String? topic_id, String first_message, String? to_id) async* {
     final decode = ConData.fromJson(jsonDecode(first_message));
-    list.insert(0, decode);
+    if(decode.id != null) list.insert(0, decode);
     await urlAPI(first_message_id: '${decode.id}');
     yield list;
   }
@@ -116,13 +112,17 @@ class ConversationPage extends _$ConversationPage {
     String first_message_id = '',
   }) async {
     length = 0;
-    activePage2 = StateProvider<bool>((ref) => true);
     final accessToken = await checkTokens(context);
     try {
       if(first_message_id.isNotEmpty) message_id = first_message_id;
       final tokens = ref.watch(usersProvider);
-      final subs = 'messages?topic_id=$topic_id&lang=$lang&'
+      String subs = 'messages?lang=$lang&'
           'first_message_id=${(addNew)?'':message_id}&limit=$limited';
+      if(topic_id != null && topic_id!.isNotEmpty && topic_id != '0') {
+        subs += '&topic_id=$topic_id';
+      } else {
+        subs += '&to_id=$to_id';
+      }
       final res = await dio.get('$chatUrl/$subs', options: Options(headers: {
         'Access-Token': '${accessToken ?? tokens.tokens?.access_token}'}
       ));
@@ -152,55 +152,8 @@ class ConversationPage extends _$ConversationPage {
     } catch (e, stacktrace) {
       print('Error in : $e');
       print(stacktrace);
-      activePage2 = StateProvider<bool>((ref) => false);
       return 0;
     }
-  }
-}
-
-class ChatApiService {
-  final Dio dio = Dio();
-
-  Future<ConData> submitData(Map<String, dynamic> data, WidgetRef ref) async {
-    try {
-      final tokens = ref.watch(usersProvider);
-
-      final formData = FormData.fromMap(data);
-      final subs = 'messages?lang=$lang';
-      final res = await dio.post('$chatUrl/$subs', data: formData, options: Options(headers: {
-        'Access-Token': '${tokens.tokens?.access_token}',
-      }, contentType: Headers.formUrlEncodedContentType));
-      final resp = ConData.fromJson(res.data ?? {});
-
-      return resp;
-    } catch (e, stacktrace) {
-      _handleError('submitData', e, stacktrace);
-      return ConData();
-    }
-  }
-
-  Future<UploadTMPSerial> uploadData(Map<String, dynamic> data, WidgetRef ref) async {
-    try {
-      final tokens = ref.watch(usersProvider);
-
-      final formData = FormData.fromMap(data);
-      final subs = 'upload?lang=$lang';
-      final res = await dio.post('$chatUrl/$subs', data: formData, options: Options(headers: {
-        'Access-Token': '${tokens.tokens?.access_token}'
-      }));
-      final datum = res.data ?? {};
-      final resp = UploadTMPSerial.fromJson(datum['data'] ?? {});
-
-      return resp;
-    } catch (e, stacktrace) {
-      _handleError('uploadData', e, stacktrace);
-      return UploadTMPSerial();
-    }
-  }
-
-  void _handleError(String methodName, dynamic error, StackTrace stacktrace) {
-    print('Error in $methodName: $error');
-    print(stacktrace);
   }
 }
 
@@ -217,6 +170,7 @@ void onScroll(WidgetRef ref, ScrollController scrollController,
         ref,
         '${chatData.id}',
         jsonEncode(chatData.last_message?.toJson() ?? {}),
+        chatData.to_id
       ).notifier);
 
       final oldLength = await conversationPageNotifier.getOld();

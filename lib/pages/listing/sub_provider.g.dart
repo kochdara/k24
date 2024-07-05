@@ -6,7 +6,7 @@ part of 'sub_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$subListsHash() => r'71a13b993323bb151cebdb52f694d42395948ffb';
+String _$subListsHash() => r'f5bf59ad8a975a051132469abf3b49dff5f7988a';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -31,10 +31,12 @@ class _SystemHash {
 
 abstract class _$SubLists
     extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {
+  late final WidgetRef context;
   late final String category;
   late final Map<dynamic, dynamic>? newFilter;
 
   FutureOr<List<GridCard>> build(
+    WidgetRef context,
     String category, {
     Map<dynamic, dynamic>? newFilter,
   });
@@ -51,10 +53,12 @@ class SubListsFamily extends Family<AsyncValue<List<GridCard>>> {
 
   /// See also [SubLists].
   SubListsProvider call(
+    WidgetRef context,
     String category, {
     Map<dynamic, dynamic>? newFilter,
   }) {
     return SubListsProvider(
+      context,
       category,
       newFilter: newFilter,
     );
@@ -65,6 +69,7 @@ class SubListsFamily extends Family<AsyncValue<List<GridCard>>> {
     covariant SubListsProvider provider,
   ) {
     return call(
+      provider.context,
       provider.category,
       newFilter: provider.newFilter,
     );
@@ -90,10 +95,12 @@ class SubListsProvider
     extends AutoDisposeAsyncNotifierProviderImpl<SubLists, List<GridCard>> {
   /// See also [SubLists].
   SubListsProvider(
+    WidgetRef context,
     String category, {
     Map<dynamic, dynamic>? newFilter,
   }) : this._internal(
           () => SubLists()
+            ..context = context
             ..category = category
             ..newFilter = newFilter,
           from: subListsProvider,
@@ -104,6 +111,7 @@ class SubListsProvider
                   : _$subListsHash,
           dependencies: SubListsFamily._dependencies,
           allTransitiveDependencies: SubListsFamily._allTransitiveDependencies,
+          context: context,
           category: category,
           newFilter: newFilter,
         );
@@ -115,10 +123,12 @@ class SubListsProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
+    required this.context,
     required this.category,
     required this.newFilter,
   }) : super.internal();
 
+  final WidgetRef context;
   final String category;
   final Map<dynamic, dynamic>? newFilter;
 
@@ -127,6 +137,7 @@ class SubListsProvider
     covariant SubLists notifier,
   ) {
     return notifier.build(
+      context,
       category,
       newFilter: newFilter,
     );
@@ -138,6 +149,7 @@ class SubListsProvider
       origin: this,
       override: SubListsProvider._internal(
         () => create()
+          ..context = context
           ..category = category
           ..newFilter = newFilter,
         from: from,
@@ -145,6 +157,7 @@ class SubListsProvider
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
+        context: context,
         category: category,
         newFilter: newFilter,
       ),
@@ -160,6 +173,7 @@ class SubListsProvider
   @override
   bool operator ==(Object other) {
     return other is SubListsProvider &&
+        other.context == context &&
         other.category == category &&
         other.newFilter == newFilter;
   }
@@ -167,6 +181,7 @@ class SubListsProvider
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
     hash = _SystemHash.combine(hash, category.hashCode);
     hash = _SystemHash.combine(hash, newFilter.hashCode);
 
@@ -175,6 +190,9 @@ class SubListsProvider
 }
 
 mixin SubListsRef on AutoDisposeAsyncNotifierProviderRef<List<GridCard>> {
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
+
   /// The parameter `category` of this provider.
   String get category;
 
@@ -187,6 +205,8 @@ class _SubListsProviderElement
     with SubListsRef {
   _SubListsProviderElement(super.provider);
 
+  @override
+  WidgetRef get context => (origin as SubListsProvider).context;
   @override
   String get category => (origin as SubListsProvider).category;
   @override

@@ -1,6 +1,10 @@
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:k24/serialization/try_convert.dart';
+import 'package:k24/serialization/users/user_serial.dart';
+
+import '../category/main_category.dart';
+import '../helper.dart';
 
 part 'grid_card.g.dart';
 
@@ -57,7 +61,7 @@ class Data_ {
   String? thumbnail;
   List<String?>? thumbnails;
   List<String?>? phone;
-  List<PhoneWhiteOperator_?>? phone_white_operator;
+  List<PhoneWhiteOperator?>? phone_white_operator;
   String? views;
   DateTime? renew_date;
   DateTime? posted_date;
@@ -67,7 +71,7 @@ class Data_ {
   User_? user;
   Store_? store;
   Location_? location;
-  Category_? category;
+  MainCategory? category;
   List<HighlightSpec?>? highlight_specs;
   List<Spec_?>? specs;
   String? status;
@@ -75,6 +79,8 @@ class Data_ {
   String? type;
   double? price;
   int? total_like;
+  bool? is_saved;
+  bool? is_like;
 
   Data_({
     this.id,
@@ -104,71 +110,12 @@ class Data_ {
     this.type,
     this.price,
     this.total_like,
+    this.is_saved,
+    this.is_like,
   });
 
   factory Data_.fromJson(Map json) => _$Data_FromJson(json);
   Map toJson() => _$Data_ToJson(this);
-
-}
-
-@JsonSerializable(converters: [ToString()])
-class Category_ {
-  String? id;
-  String? en_name;
-  String? km_name;
-  String? slug;
-  String? parent;
-  ParentData? parent_data;
-
-  Category_({
-    this.id,
-    this.en_name,
-    this.km_name,
-    this.slug,
-    this.parent,
-    this.parent_data,
-  });
-
-  factory Category_.fromJson(Map<String, dynamic> json) => _$Category_FromJson(json);
-  Map toJson() => _$Category_ToJson(this);
-
-}
-
-@JsonSerializable(converters: [ToString()])
-class ParentData {
-  String? id;
-  String? en_name;
-  String? km_name;
-  String? slug;
-
-  ParentData({
-    this.id,
-    this.en_name,
-    this.km_name,
-    this.slug,
-  });
-
-  factory ParentData.fromJson(Map<String, dynamic> json) => _$ParentDataFromJson(json);
-  Map toJson() => _$ParentDataToJson(this);
-
-}
-
-@JsonSerializable(converters: [ToString()])
-class PhoneWhiteOperator_ {
-  String? title;
-  String? slug;
-  String? icon;
-  String? phone;
-
-  PhoneWhiteOperator_({
-    this.title,
-    this.slug,
-    this.icon,
-    this.phone,
-  });
-
-  factory PhoneWhiteOperator_.fromJson(Map<String, dynamic> json) => _$PhoneWhiteOperator_FromJson(json);
-  Map toJson() => _$PhoneWhiteOperator_ToJson(this);
 
 }
 
@@ -231,45 +178,14 @@ class HighlightSpec {
 
 }
 
-@JsonSerializable(converters: [ToString()])
-class Location_ {
-  String? id;
-  String? en_name;
-  String? km_name;
-  String? en_name2;
-  String? km_name2;
-  String? en_name3;
-  String? km_name3;
-  String? slug;
-  String? address;
-  String? long_location;
-
-  Location_({
-    this.id,
-    this.en_name,
-    this.km_name,
-    this.en_name2,
-    this.km_name2,
-    this.en_name3,
-    this.km_name3,
-    this.slug,
-    this.address,
-    this.long_location,
-  });
-
-  factory Location_.fromJson(Map<String, dynamic> json) => _$Location_FromJson(json);
-  Map toJson() => _$Location_ToJson(this);
-
-}
-
 @JsonSerializable(converters: [ToString(), ToBool()])
 class Store_ {
   String? id;
   String? title;
   String? username;
   String? userid;
-  Photo_? logo;
-  Cover? cover;
+  CoverProfile? logo;
+  CoverProfile? cover;
   bool? is_verify;
   dynamic created_date;
   String? taxed;
@@ -297,8 +213,8 @@ class User_ {
   String? id;
   String? name;
   String? username;
-  Photo_? photo;
-  OnlineStatus? online_status;
+  CoverProfile? photo;
+  OnlineStatusProfile? online_status;
   bool? is_verify;
   DateTime? registered_date;
   String? taxed;
@@ -318,147 +234,6 @@ class User_ {
 
   factory User_.fromJson(Map<String, dynamic> json) => _$User_FromJson(json);
   Map toJson() => _$User_ToJson(this);
-
-}
-
-@JsonSerializable(converters: [ToString(), ToBool(), ToDouble(), ToDateTime()])
-class OnlineStatus {
-  bool? is_active;
-  String? last_active;
-  dynamic time;
-  DateTime? date;
-
-  OnlineStatus({
-    this.is_active,
-    this.last_active,
-    this.time,
-    this.date,
-  });
-
-  factory OnlineStatus.fromJson(Map<String, dynamic> json) => _$OnlineStatusFromJson(json);
-  Map toJson() => _$OnlineStatusToJson(this);
-
-}
-
-@JsonSerializable(converters: [ToString()])
-class Cover {
-  String? url;
-  CoverLarge? small;
-  CoverLarge? medium;
-  CoverLarge? large;
-
-  Cover({
-    this.url,
-    this.small,
-    this.medium,
-    this.large,
-  });
-
-  factory Cover.fromJson(Map<String, dynamic> json) => _$CoverFromJson(json);
-  Map toJson() => _$CoverToJson(this);
-
-}
-
-@JsonSerializable(converters: [ToString()])
-class CoverLarge {
-  String? url;
-
-  CoverLarge({
-    this.url,
-  });
-
-  factory CoverLarge.fromJson(Map<String, dynamic> json) => _$CoverLargeFromJson(json);
-  Map toJson() => _$CoverLargeToJson(this);
-
-}
-
-@JsonSerializable(converters: [ToString()])
-class Photo_ {
-  String? url;
-  String? width;
-  String? height;
-  Large? small;
-  Large? medium;
-  Large? large;
-
-  Photo_({
-    this.url,
-    this.width,
-    this.height,
-    this.small,
-    this.medium,
-    this.large,
-  });
-
-  factory Photo_.fromJson(Map<String, dynamic> json) => _$Photo_FromJson(json);
-  Map toJson() => _$Photo_ToJson(this);
-
-}
-
-@JsonSerializable(converters: [ToString()])
-class Large {
-  String? url;
-  String? width;
-  String? height;
-
-  Large({
-    this.url,
-    this.width,
-    this.height,
-  });
-
-  factory Large.fromJson(Map<String, dynamic> json) => _$LargeFromJson(json);
-  Map toJson() => _$LargeToJson(this);
-
-}
-
-@JsonSerializable(converters: [ToBool(), ToDateTime()])
-class Meta {
-  String? site_name;
-  String? title;
-  String? price;
-  String? currency;
-  String? description;
-  String? keyword;
-  String? author;
-  Fb? fb;
-  String? image;
-  String? url;
-  String? deeplink;
-  DateTime? date;
-
-  Meta({
-    this.site_name,
-    this.title,
-    this.price,
-    this.currency,
-    this.description,
-    this.keyword,
-    this.author,
-    this.fb,
-    this.image,
-    this.url,
-    this.deeplink,
-    this.date,
-  });
-
-  factory Meta.fromJson(Map<String, dynamic> json) => _$MetaFromJson(json);
-  Map toJson() => _$MetaToJson(this);
-
-}
-
-@JsonSerializable(converters: [ToBool()])
-class Fb {
-  String? id;
-  String? type;
-
-  Fb({
-    this.id,
-    this.type,
-  });
-
-  factory Fb.fromJson(Map<String, dynamic> json) => _$FbFromJson(json);
-  Map toJson() => _$FbToJson(this);
 
 }
 

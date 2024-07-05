@@ -1,5 +1,6 @@
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:k24/serialization/helper.dart';
 import 'package:k24/serialization/try_convert.dart';
 part 'radio.g.dart';
 
@@ -51,7 +52,7 @@ class ValueSelect {
   bool? popular;
   String? fieldid;
   String? fieldparentvalue;
-  Iconr? icon;
+  IconSerial? icon;
 
   ValueSelect({
     this.fieldtitle,
@@ -66,44 +67,3 @@ class ValueSelect {
   Map toJson() => _$ValueSelectToJson(this);
 
 }
-
-@JsonSerializable(explicitToJson: true, converters: [ToString()])
-class Iconr {
-  String? url;
-  String? width;
-  String? height;
-  Larger? small;
-  Larger? medium;
-  Larger? large;
-
-  Iconr({
-    this.url,
-    this.width,
-    this.height,
-    this.small,
-    this.medium,
-    this.large,
-  });
-
-  factory Iconr.fromJson(Map<String, dynamic> json) => _$IconrFromJson(json);
-  Map toJson() => _$IconrToJson(this);
-
-}
-
-@JsonSerializable(explicitToJson: true, converters: [ToString()])
-class Larger {
-  String? url;
-  String? width;
-  String? height;
-
-  Larger({
-    this.url,
-    this.width,
-    this.height,
-  });
-
-  factory Larger.fromJson(Map<String, dynamic> json) => _$LargerFromJson(json);
-  Map toJson() => _$LargerToJson(this);
-
-}
-

@@ -1,5 +1,8 @@
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:k24/serialization/helper.dart';
+import 'package:k24/serialization/helper.dart';
+import 'package:k24/serialization/helper.dart';
 import 'package:k24/serialization/try_convert.dart';
 
 part 'main_category.g.dart';
@@ -9,10 +12,11 @@ class MainCategory {
   String? id;
   String? en_name;
   String? km_name;
-  Icon2? icon;
+  IconSerial? icon;
   String? slug;
   String? parent;
   bool? popular;
+  ParentData? parent_data;
 
   MainCategory({
     this.id,
@@ -29,42 +33,21 @@ class MainCategory {
 
 }
 
-@JsonSerializable(anyMap: true, converters: [ToString()])
-class Icon2 {
-  String? url;
-  String? width;
-  String? height;
-  Large? small;
-  Large? medium;
-  Large? large;
-
-  Icon2({
-    this.url,
-    this.width,
-    this.height,
-    this.small,
-    this.medium,
-    this.large,
-  });
-
-  factory Icon2.fromJson(Map json) => _$Icon2FromJson(json);
-  Map toJson() => _$Icon2ToJson(this);
-
-}
-
 @JsonSerializable(converters: [ToString()])
-class Large {
-  String? url;
-  String? width;
-  String? height;
+class ParentData {
+  String? id;
+  String? en_name;
+  String? km_name;
+  String? slug;
 
-  Large({
-    this.url,
-    this.width,
-    this.height,
+  ParentData({
+    this.id,
+    this.en_name,
+    this.km_name,
+    this.slug,
   });
 
-  factory Large.fromJson(Map<String, dynamic> json) => _$LargeFromJson(json);
-  Map toJson() => _$LargeToJson(this);
+  factory ParentData.fromJson(Map<String, dynamic> json) => _$ParentDataFromJson(json);
+  Map toJson() => _$ParentDataToJson(this);
 
 }

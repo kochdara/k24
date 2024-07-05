@@ -1,52 +1,48 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k24/helpers/helper.dart';
-import 'package:k24/serialization/users/user_serial.dart';
+import 'package:k24/serialization/profiles/profile_serial.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../helpers/config.dart';
-import '../../helpers/storage.dart';
-import '../../serialization/category/main_category.dart';
-import '../../serialization/grid_card/grid_card.dart';
+import '../../../helpers/config.dart';
+import '../../../helpers/helper.dart';
+import '../../../serialization/grid_card/grid_card.dart';
+import '../../main/home_provider.dart';
 
-part 'home_provider.g.dart';
-
-Config config = Config();
-
-StateProvider<ViewPage> viewPage = StateProvider<ViewPage>((ref) { return ViewPage.grid;});
-StateProvider<DataUser> usersProvider = StateProvider<DataUser>((ref) { return DataUser();});
+part 'profile_provider.g.dart';
 
 @riverpod
-class GetMainCategory extends _$GetMainCategory {
-  final Dio dio = Dio();
+class ProfilePublic extends _$ProfilePublic {
+  String fields = 'cover,photo,logo,link,username,online_status,type,is_verify,about,registered_date,created_date,owner_id,category,contact[name,location,phone,address,map],business_hours,branches,keywords,verified,is_saved,following,followers,is_follow';
+  String meta = 'true';
+  String functions = 'chat,save,follow';
+
+  Dio dio = Dio();
 
   @override
-  Future<List<MainCategory>> build(String parent) async => fetchData();
+  FutureOr<ProfileSerial?> build(WidgetRef context, String username) async {
+    final accessToken = await checkTokens(context);
+    try {
+      final tokens = ref.watch(usersProvider);
+      String subs = 'profiles/$username?lang=$lang&fields=$fields&meta=$meta&functions=$functions';
+      final res = await dio.get('$baseUrl/$subs', options: Options(headers: {
+        'Access-Token': '${accessToken ?? tokens.tokens?.access_token}'}
+      ));
 
-  Future<List<MainCategory>> fetchData() async {
-    final getUsers = await getSecure('user', type: Map);
-    ref.read(usersProvider.notifier).update((state) => DataUser.fromJson(getUsers ?? {}));
+      final resp = ProfileSerial.fromJson(res.data ?? {});
 
-    String url = 'categories?parent=$parent&lang=$lang&v=1';
-    final res = await dio.get('$baseUrl/$url');
-
-    final resp = res.data;
-    List<MainCategory> list = [];
-
-    if(res.statusCode == 200 && resp != null) {
-      final data = resp['data'];
-      for (final val in data) {
-        list.add(MainCategory.fromJson(val));
-      }
+      if (res.statusCode == 200) return resp;
+    } catch (e, stacktrace) {
+      print('Error in : $e');
+      print(stacktrace);
+      return ProfileSerial(data: DataProfile());
     }
-
-    return list;
+    return null;
   }
 }
 
 @riverpod
-class HomeLists extends _$HomeLists {
+class ProfileList extends _$ProfileList {
   late List<GridCard> list = [];
   String fields = 'thumbnail,photos,location,user,store,renew_date,link,category,is_saved,is_like,total_like,total_comment,condition,highlight_specs';
   String fun = 'save,chat,like,comment,apply_job,shipping';
@@ -58,7 +54,7 @@ class HomeLists extends _$HomeLists {
   int offset = 0;
 
   @override
-  Future<List<GridCard>> build(WidgetRef context) async => fetchHome();
+  Future<List<GridCard>> build(WidgetRef context, String username) async => fetchHome();
 
   Future<List<GridCard>> fetchHome() async {
     if(current_result < limit) return [];
@@ -82,7 +78,7 @@ class HomeLists extends _$HomeLists {
 
     try {
       final tokens = ref.watch(usersProvider);
-      final subs = 'feed?lang=en&offset=${offset + limit}&fields=$fields&functions=$fun';
+      final subs = '$username/feed?lang=en&offset=${offset + limit}&fields=$fields&functions=$fun';
       final res = await dio.get('$postUrl/$subs', options: Options(headers: {
         'Access-Token': '${accessToken ?? tokens.tokens?.access_token}'}
       ));
@@ -104,6 +100,7 @@ class HomeLists extends _$HomeLists {
             list.add(val!);
           }
         }
+
       }
     } catch (e, stacktrace) {
       print('Error in : $e');
@@ -111,3 +108,4 @@ class HomeLists extends _$HomeLists {
     }
   }
 }
+

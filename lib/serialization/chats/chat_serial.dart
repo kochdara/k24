@@ -1,7 +1,9 @@
 
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:k24/serialization/users/user_serial.dart';
 
+import '../helper.dart';
 import '../try_convert.dart';
 
 part 'chat_serial.g.dart';
@@ -25,7 +27,7 @@ class ChatSerial {
 class ChatData {
   String? id;
   String? adid;
-  String? toId;
+  String? to_id;
   String? last_message_id;
   String? create_time;
   String? updated_time;
@@ -38,7 +40,7 @@ class ChatData {
   ChatData({
     this.id,
     this.adid,
-    this.toId,
+    this.to_id,
     this.last_message_id,
     this.create_time,
     this.updated_time,
@@ -143,8 +145,8 @@ class ChatUser {
   String? username;
   bool? banned;
   String? banned_detail;
-  ChatPhoto? photo;
-  OnlineStatus? online_status;
+  CoverProfile? photo;
+  OnlineStatusProfile? online_status;
   bool? is_verify;
 
   ChatUser({
@@ -160,65 +162,6 @@ class ChatUser {
 
   factory ChatUser.fromJson(Map<String, dynamic> json) => _$ChatUserFromJson(json);
   Map toJson() => _$ChatUserToJson(this);
-
-}
-
-@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString(), ToBool(), ToDateTime()])
-class OnlineStatus {
-  bool? is_active;
-  String? last_active;
-  dynamic time;
-  DateTime? date;
-
-  OnlineStatus({
-    this.is_active,
-    this.last_active,
-    this.time,
-    this.date,
-  });
-
-  factory OnlineStatus.fromJson(Map<String, dynamic> json) => _$OnlineStatusFromJson(json);
-  Map toJson() => _$OnlineStatusToJson(this);
-
-}
-
-@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
-class ChatPhoto {
-  String? url;
-  String? width;
-  String? height;
-  ChatLarge? small;
-  ChatLarge? medium;
-  ChatLarge? large;
-
-  ChatPhoto({
-    this.url,
-    this.width,
-    this.height,
-    this.small,
-    this.medium,
-    this.large,
-  });
-
-  factory ChatPhoto.fromJson(Map<String, dynamic> json) => _$ChatPhotoFromJson(json);
-  Map toJson() => _$ChatPhotoToJson(this);
-
-}
-
-@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
-class ChatLarge {
-  String? url;
-  String? width;
-  String? height;
-
-  ChatLarge({
-    this.url,
-    this.width,
-    this.height,
-  });
-
-  factory ChatLarge.fromJson(Map<String, dynamic> json) => _$ChatLargeFromJson(json);
-  Map toJson() => _$ChatLargeToJson(this);
 
 }
 

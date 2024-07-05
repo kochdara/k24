@@ -6,22 +6,22 @@ import 'package:k24/widgets/labels.dart';
 
 import '../helpers/config.dart';
 
-final Config _config = Config();
-final Labels _labels = Labels();
+final Config config = Config();
+final Labels labels = Labels();
 
 class Buttons {
 
-  Widget invButton({ void Function()? onTap, IconData? icon, String? text }) {
+  Widget invButton({ void Function()? onTap, IconData? icon, String? text, Color? color }) {
     return InkWell(
       onTap: onTap,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
 
-          if(icon != null) Icon(icon, color: _config.secondaryColor.shade400, size: 24),
+          if(icon != null) Icon(icon, color: color ?? config.secondaryColor.shade400, size: 24),
           if(icon != null) const SizedBox(width: 6),
 
-          if(text != null) _labels.label(text, color: _config.secondaryColor.shade400, fontSize: 15),
+          if(text != null) labels.label(text, color: config.secondaryColor.shade400, fontSize: 15),
         ],
       ),
     );
@@ -61,7 +61,7 @@ class Buttons {
             borderRadius: BorderRadius.circular(buttonComposer.getBorderRadius),
             side: buttonComposer.getBorderColor != null ? BorderSide(width: borderWidth, color: buttonComposer.getBorderColor!) : BorderSide.none
         ),
-        textStyle: TextStyle(fontSize: buttonComposer.getFontSize, fontWeight: fontWeight ?? _config.buttonFontWeight),
+        textStyle: TextStyle(fontSize: buttonComposer.getFontSize, fontWeight: fontWeight ?? config.buttonFontWeight),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -96,7 +96,7 @@ class Buttons {
         child: Icon(
           icon,
           size: size,
-          color: color??_config.secondaryColor.shade200,
+          color: color??config.secondaryColor.shade200,
           weight: 10,
         ),
       ),
@@ -106,7 +106,7 @@ class Buttons {
   Widget textButtons({
     required String title,
     required void Function()? onPressed,
-    double radius = 4.0,
+    double radius = 6.0,
     double padSize = 8,
     EdgeInsetsGeometry? padding,
     bool showDropdown = false,
@@ -223,7 +223,7 @@ class Buttons {
             value: val,
             child: Row(
               children: [
-                if(val is Map && val["icon"] != null) Icon(val["icon"], color: val["color"] ?? _config.secondaryColor,),
+                if(val is Map && val["icon"] != null) Icon(val["icon"], color: val["color"] ?? config.secondaryColor,),
                 if(val is Map && val["icon"] != null) const SizedBox(width: 12,),
                 Text(val is String ? val : val["title"], style: val is Map && val["color"] != null ? TextStyle(color: val["color"]) : null,),
               ],
@@ -346,22 +346,22 @@ class ButtonComposer {
     this.borderColor,
   });
 
-  double get getBorderRadius => _config.buttonRadius[buttonSize.name.toString()] ?? 6;
-  double get getFontSize => _config.buttonFontSizes[buttonSize.name.toString()] ?? 17;
-  EdgeInsets get getPadding => _config.buttonPadding[buttonSize.name.toString()] ?? const EdgeInsets.symmetric(horizontal: 18, vertical: 18);
+  double get getBorderRadius => config.buttonRadius[buttonSize.name.toString()] ?? 6;
+  double get getFontSize => config.buttonFontSizes[buttonSize.name.toString()] ?? 17;
+  EdgeInsets get getPadding => config.buttonPadding[buttonSize.name.toString()] ?? const EdgeInsets.symmetric(horizontal: 18, vertical: 18);
 
   Color? get getTextColor => () {
     if(textColor == null) {
-      textColor = (buttonType != ButtonTypes.solid ? _config.buttonVariants["solid"]![buttonVariant.name.toString()] : _config.buttonTextColors[buttonVariant.name.toString()]) ?? Colors.white;
-      if(buttonType != ButtonTypes.solid && buttonVariant == ButtonVariants.link) textColor = _config.primaryColor;
+      textColor = (buttonType != ButtonTypes.solid ? config.buttonVariants["solid"]![buttonVariant.name.toString()] : config.buttonTextColors[buttonVariant.name.toString()]) ?? Colors.white;
+      if(buttonType != ButtonTypes.solid && buttonVariant == ButtonVariants.link) textColor = config.primaryColor;
     }
     return textColor;
   }();
 
-  Color? get getBackgroundColor => backgroundColor ?? ([ButtonTypes.outline, ButtonTypes.basic, ButtonTypes.basicOutline].contains(buttonType) ? null : (_config.buttonVariants[buttonType.name.toString()]![buttonVariant.name.toString()] ?? _config.primaryAppColor));
+  Color? get getBackgroundColor => backgroundColor ?? ([ButtonTypes.outline, ButtonTypes.basic, ButtonTypes.basicOutline].contains(buttonType) ? null : (config.buttonVariants[buttonType.name.toString()]![buttonVariant.name.toString()] ?? config.primaryAppColor));
 
   Color? get getBorderColor => () {
-    if(borderColor == null && [ButtonTypes.outline, ButtonTypes.basicOutline].contains(buttonType) && buttonVariant != ButtonVariants.link) borderColor = buttonType == ButtonTypes.basicOutline ? _config.borderColor : textColor;
+    if(borderColor == null && [ButtonTypes.outline, ButtonTypes.basicOutline].contains(buttonType) && buttonVariant != ButtonVariants.link) borderColor = buttonType == ButtonTypes.basicOutline ? config.borderColor : textColor;
     return borderColor;
   }();
 

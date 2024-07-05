@@ -6,7 +6,7 @@ part of 'chat_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$chatPageHash() => r'fc51503f33d6fd61cf14f1a928b6261f22675747';
+String _$chatPageHash() => r'f0a3ede6be71df27b336d39978892fbc126f5478';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -170,18 +170,20 @@ class _ChatPageProviderElement
   WidgetRef get context => (origin as ChatPageProvider).context;
 }
 
-String _$conversationPageHash() => r'dac8abdbee43cc8b626502b180acc43a684fe85c';
+String _$conversationPageHash() => r'804fa0ef60b9f17386a8bb4ff9619873774019a2';
 
 abstract class _$ConversationPage
     extends BuildlessAutoDisposeStreamNotifier<List<ConData>> {
   late final WidgetRef context;
-  late final String topic_id;
+  late final String? topic_id;
   late final String first_message;
+  late final String? to_id;
 
   Stream<List<ConData>> build(
     WidgetRef context,
-    String topic_id,
+    String? topic_id,
     String first_message,
+    String? to_id,
   );
 }
 
@@ -197,13 +199,15 @@ class ConversationPageFamily extends Family<AsyncValue<List<ConData>>> {
   /// See also [ConversationPage].
   ConversationPageProvider call(
     WidgetRef context,
-    String topic_id,
+    String? topic_id,
     String first_message,
+    String? to_id,
   ) {
     return ConversationPageProvider(
       context,
       topic_id,
       first_message,
+      to_id,
     );
   }
 
@@ -215,6 +219,7 @@ class ConversationPageFamily extends Family<AsyncValue<List<ConData>>> {
       provider.context,
       provider.topic_id,
       provider.first_message,
+      provider.to_id,
     );
   }
 
@@ -239,13 +244,15 @@ class ConversationPageProvider extends AutoDisposeStreamNotifierProviderImpl<
   /// See also [ConversationPage].
   ConversationPageProvider(
     WidgetRef context,
-    String topic_id,
+    String? topic_id,
     String first_message,
+    String? to_id,
   ) : this._internal(
           () => ConversationPage()
             ..context = context
             ..topic_id = topic_id
-            ..first_message = first_message,
+            ..first_message = first_message
+            ..to_id = to_id,
           from: conversationPageProvider,
           name: r'conversationPageProvider',
           debugGetCreateSourceHash:
@@ -258,6 +265,7 @@ class ConversationPageProvider extends AutoDisposeStreamNotifierProviderImpl<
           context: context,
           topic_id: topic_id,
           first_message: first_message,
+          to_id: to_id,
         );
 
   ConversationPageProvider._internal(
@@ -270,11 +278,13 @@ class ConversationPageProvider extends AutoDisposeStreamNotifierProviderImpl<
     required this.context,
     required this.topic_id,
     required this.first_message,
+    required this.to_id,
   }) : super.internal();
 
   final WidgetRef context;
-  final String topic_id;
+  final String? topic_id;
   final String first_message;
+  final String? to_id;
 
   @override
   Stream<List<ConData>> runNotifierBuild(
@@ -284,6 +294,7 @@ class ConversationPageProvider extends AutoDisposeStreamNotifierProviderImpl<
       context,
       topic_id,
       first_message,
+      to_id,
     );
   }
 
@@ -295,7 +306,8 @@ class ConversationPageProvider extends AutoDisposeStreamNotifierProviderImpl<
         () => create()
           ..context = context
           ..topic_id = topic_id
-          ..first_message = first_message,
+          ..first_message = first_message
+          ..to_id = to_id,
         from: from,
         name: null,
         dependencies: null,
@@ -304,6 +316,7 @@ class ConversationPageProvider extends AutoDisposeStreamNotifierProviderImpl<
         context: context,
         topic_id: topic_id,
         first_message: first_message,
+        to_id: to_id,
       ),
     );
   }
@@ -319,7 +332,8 @@ class ConversationPageProvider extends AutoDisposeStreamNotifierProviderImpl<
     return other is ConversationPageProvider &&
         other.context == context &&
         other.topic_id == topic_id &&
-        other.first_message == first_message;
+        other.first_message == first_message &&
+        other.to_id == to_id;
   }
 
   @override
@@ -328,6 +342,7 @@ class ConversationPageProvider extends AutoDisposeStreamNotifierProviderImpl<
     hash = _SystemHash.combine(hash, context.hashCode);
     hash = _SystemHash.combine(hash, topic_id.hashCode);
     hash = _SystemHash.combine(hash, first_message.hashCode);
+    hash = _SystemHash.combine(hash, to_id.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -339,10 +354,13 @@ mixin ConversationPageRef
   WidgetRef get context;
 
   /// The parameter `topic_id` of this provider.
-  String get topic_id;
+  String? get topic_id;
 
   /// The parameter `first_message` of this provider.
   String get first_message;
+
+  /// The parameter `to_id` of this provider.
+  String? get to_id;
 }
 
 class _ConversationPageProviderElement
@@ -353,10 +371,12 @@ class _ConversationPageProviderElement
   @override
   WidgetRef get context => (origin as ConversationPageProvider).context;
   @override
-  String get topic_id => (origin as ConversationPageProvider).topic_id;
+  String? get topic_id => (origin as ConversationPageProvider).topic_id;
   @override
   String get first_message =>
       (origin as ConversationPageProvider).first_message;
+  @override
+  String? get to_id => (origin as ConversationPageProvider).to_id;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

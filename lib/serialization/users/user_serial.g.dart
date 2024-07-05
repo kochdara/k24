@@ -66,6 +66,16 @@ UserProfile _$UserProfileFromJson(Map json) => UserProfile(
           ? null
           : AccountVerification.fromJson(
               Map<String, dynamic>.from(json['account_verification'] as Map)),
+      photo: json['photo'] == null
+          ? null
+          : CoverProfile.fromJson((json['photo'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
+      cover: json['cover'] == null
+          ? null
+          : CoverProfile.fromJson((json['cover'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
       is_has_password: const ToBool().fromJson(json['is_has_password']),
       phone_activated: const ToBool().fromJson(json['phone_activated']),
       email_activated: const ToBool().fromJson(json['email_activated']),
@@ -98,6 +108,8 @@ Map<String, dynamic> _$UserProfileToJson(UserProfile instance) =>
       'is_verify': _$JsonConverterToJson<Object?, bool>(
           instance.is_verify, const ToBool().toJson),
       'account_verification': instance.account_verification?.toJson(),
+      'photo': instance.photo?.toJson(),
+      'cover': instance.cover?.toJson(),
       'is_has_password': _$JsonConverterToJson<Object?, bool>(
           instance.is_has_password, const ToBool().toJson),
       'phone_activated': _$JsonConverterToJson<Object?, bool>(
@@ -139,13 +151,84 @@ Map<String, dynamic> _$PhoneUserToJson(PhoneUser instance) => <String, dynamic>{
     };
 
 ContactUser _$ContactUserFromJson(Map json) => ContactUser(
+      map: json['map'] == null
+          ? null
+          : MapClass.fromJson(Map<String, dynamic>.from(json['map'] as Map)),
+      location: json['location'] == null
+          ? null
+          : CommuneUser.fromJson(
+              Map<String, dynamic>.from(json['location'] as Map)),
+      commune: json['commune'] == null
+          ? null
+          : CommuneUser.fromJson(
+              Map<String, dynamic>.from(json['commune'] as Map)),
+      district: json['district'] == null
+          ? null
+          : CommuneUser.fromJson(
+              Map<String, dynamic>.from(json['district'] as Map)),
+      address: json['address'] as String?,
       phone:
           (json['phone'] as List<dynamic>?)?.map((e) => e as String?).toList(),
     );
 
 Map<String, dynamic> _$ContactUserToJson(ContactUser instance) =>
     <String, dynamic>{
+      'map': instance.map?.toJson(),
+      'location': instance.location?.toJson(),
+      'commune': instance.commune?.toJson(),
+      'district': instance.district?.toJson(),
+      'address': instance.address,
       'phone': instance.phone,
+    };
+
+CommuneUser _$CommuneUserFromJson(Map json) => CommuneUser(
+      id: const ToString().fromJson(json['id']),
+      kmName: const ToString().fromJson(json['kmName']),
+      enName: const ToString().fromJson(json['enName']),
+      slug: const ToString().fromJson(json['slug']),
+    );
+
+Map<String, dynamic> _$CommuneUserToJson(CommuneUser instance) =>
+    <String, dynamic>{
+      'id': const ToString().toJson(instance.id),
+      'kmName': const ToString().toJson(instance.kmName),
+      'enName': const ToString().toJson(instance.enName),
+      'slug': const ToString().toJson(instance.slug),
+    };
+
+CoverProfile _$CoverProfileFromJson(Map json) => CoverProfile(
+      url: const ToString().fromJson(json['url']),
+      width: const ToString().fromJson(json['width']),
+      height: const ToString().fromJson(json['height']),
+      small: json['small'] == null
+          ? null
+          : SizeOfImage.fromJson((json['small'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
+      medium: json['medium'] == null
+          ? null
+          : SizeOfImage.fromJson((json['medium'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
+      large: json['large'] == null
+          ? null
+          : SizeOfImage.fromJson((json['large'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
+      align: const ToString().fromJson(json['align']),
+      offset: json['offset'],
+    );
+
+Map<String, dynamic> _$CoverProfileToJson(CoverProfile instance) =>
+    <String, dynamic>{
+      'url': const ToString().toJson(instance.url),
+      'width': const ToString().toJson(instance.width),
+      'height': const ToString().toJson(instance.height),
+      'small': instance.small?.toJson(),
+      'medium': instance.medium?.toJson(),
+      'large': instance.large?.toJson(),
+      'align': const ToString().toJson(instance.align),
+      'offset': instance.offset,
     };
 
 Membership _$MembershipFromJson(Map json) => Membership(

@@ -1,5 +1,6 @@
 
 import 'package:json_annotation/json_annotation.dart';
+import '../helper.dart';
 import '../try_convert.dart';
 
 part 'user_serial.g.dart';
@@ -61,6 +62,8 @@ class UserProfile {
   String? company;
   bool? is_verify;
   AccountVerification? account_verification;
+  CoverProfile? photo;
+  CoverProfile? cover;
   bool? is_has_password;
   bool? phone_activated;
   bool? email_activated;
@@ -80,6 +83,8 @@ class UserProfile {
     this.company,
     this.is_verify,
     this.account_verification,
+    this.photo,
+    this.cover,
     this.is_has_password,
     this.phone_activated,
     this.email_activated,
@@ -126,14 +131,70 @@ class PhoneUser {
 
 @JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToLists()])
 class ContactUser {
+  MapClass? map;
+  CommuneUser? location;
+  CommuneUser? commune;
+  CommuneUser? district;
+  String? address;
   List<String?>? phone;
 
   ContactUser({
+    this.map,
+    this.location,
+    this.commune,
+    this.district,
+    this.address,
     this.phone,
   });
 
   factory ContactUser.fromJson(Map<String, dynamic> json) => _$ContactUserFromJson(json);
   Map toJson() => _$ContactUserToJson(this);
+
+}
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+class CommuneUser {
+  String? id;
+  String? kmName;
+  String? enName;
+  String? slug;
+
+  CommuneUser({
+    this.id,
+    this.kmName,
+    this.enName,
+    this.slug,
+  });
+
+  factory CommuneUser.fromJson(Map<String, dynamic> json) => _$CommuneUserFromJson(json);
+  Map toJson() => _$CommuneUserToJson(this);
+
+}
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+class CoverProfile {
+  String? url;
+  String? width;
+  String? height;
+  SizeOfImage? small;
+  SizeOfImage? medium;
+  SizeOfImage? large;
+  String? align;
+  dynamic offset;
+
+  CoverProfile({
+    this.url,
+    this.width,
+    this.height,
+    this.small,
+    this.medium,
+    this.large,
+    this.align,
+    this.offset,
+  });
+
+  factory CoverProfile.fromJson(Map<String, dynamic>? json) => _$CoverProfileFromJson(json!);
+  Map<String, dynamic>? toJson() => _$CoverProfileToJson(this);
 
 }
 
@@ -188,6 +249,11 @@ class SettingUser {
   Map toJson() => _$SettingUserToJson(this);
 
 }
+
+
+
+
+
 
 @JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
 class MessageLogin {

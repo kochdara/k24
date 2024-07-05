@@ -16,6 +16,7 @@ final Forms forms = Forms();
 final Labels labels = Labels();
 final Buttons buttons = Buttons();
 final MyWidgets myWidgets = MyWidgets();
+final Config config = Config();
 
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key, required this.title, required this.newData, required this.selectedIndex});
@@ -72,7 +73,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       backgroundColor: config.backgroundColor,
       body: bodySearch(),
       bottomNavigationBar: myWidgets.bottomBarPage(
-        context, ref, widget.selectedIndex
+        context, ref, widget.selectedIndex,
+          null
       ),
     );
   }

@@ -4,12 +4,14 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/accounts/login/login_provider.dart';
 import 'package:k24/pages/accounts/profiles/profile_page.dart';
 import 'package:k24/pages/chats/chat_page.dart';
 import 'package:k24/pages/main/home_provider.dart';
+import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
@@ -22,8 +24,10 @@ class MyWidgets {
   final Config config = Config();
   final Labels labels = Labels();
   final myService = MyApiService();
+  final Buttons buttons = Buttons();
 
-  Widget bottomBarPage(BuildContext context, WidgetRef ref, StateProvider<int> selectedIndex) {
+  Widget bottomBarPage(BuildContext context, WidgetRef ref, StateProvider<int> selectedIndex,
+      ScrollController? scrollController) {
     return BottomNavigationBar(
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
@@ -45,7 +49,6 @@ class MyWidgets {
         DateTime expDate = DateTime.now();
         final tokens = ref.watch(usersProvider);
 
-        ref.read(selectedIndex.notifier).state = value;
         try {
           expDate = JwtDecoder.getExpirationDate('${tokens.tokens?.access_token}');
 
@@ -69,13 +72,21 @@ class MyWidgets {
               break;
 
             case 4:
-              routeNoAnimation(context, pageBuilder: const ProfilePage());
+              routeNoAnimation(context, pageBuilder: ProfilePage(selectedIndex: selectedIndex,));
               break;
 
             default:
               Navigator.of(context).popUntil((route) => route.isFirst);
+              if(scrollController != null) {
+                scrollController.animateTo(
+                  0.0,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                );
+              }
           }
         }
+        ref.read(selectedIndex.notifier).state = value;
       },
     );
   }
@@ -237,6 +248,62 @@ class MyWidgets {
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget titleAds(WidgetRef ref, {
+    String title = 'Latest Ads'
+  }) {
+    return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(minHeight: 55),
+      padding: const EdgeInsets.only(top: 16.0, left: 8.0, right: 8.0, bottom: 8.0),
+      child: Stack(
+        alignment: AlignmentDirectional.center,
+        children: [
+          Row(
+            children: [
+              labels.label(title, fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold),
+            ],
+          ),
+
+          Positioned(
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                children: [
+                  buttons.buttonTap(
+                    onTap: () {ref.read(viewPage.notifier).state = ViewPage.view;},
+                    icon: CupertinoIcons.list_bullet_below_rectangle,
+                    color: ref.watch(viewPage) == ViewPage.view ? config.secondaryColor.shade700 : null,
+                    size: 23,
+                  ),
+
+                  buttons.buttonTap(
+                    onTap: () {ref.read(viewPage.notifier).state = ViewPage.list;},
+                    icon: CupertinoIcons.list_bullet,
+                    color: ref.watch(viewPage) == ViewPage.list ? config.secondaryColor.shade700 : null,
+                    size: 23,
+                  ),
+
+                  buttons.buttonTap(
+                    onTap: () {ref.read(viewPage.notifier).state = ViewPage.grid;},
+                    icon: CupertinoIcons.square_grid_2x2,
+                    color: ref.watch(viewPage) == ViewPage.grid ? config.secondaryColor.shade700 : null,
+                    size: 23,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+        ],
       ),
     );
   }

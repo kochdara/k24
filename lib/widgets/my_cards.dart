@@ -618,7 +618,8 @@ class MyCards {
                   bottom: 6,
                   child: InkWell(
                     onTap: () { },
-                    child: Icon(CupertinoIcons.heart, color: config.secondaryColor.shade200, size: 22),
+                    child: (data?.is_like == true) ? Icon(CupertinoIcons.heart_fill, color: config.primaryAppColor.shade600, size: 22) :
+                    Icon(CupertinoIcons.heart, color: config.secondaryColor.shade200, size: 22),
                   ),
                 )
               ],
@@ -807,7 +808,8 @@ class MyCards {
                     bottom: 6,
                     child: InkWell(
                       onTap: () { },
-                      child: Icon(CupertinoIcons.heart, color: config.secondaryColor.shade200, size: 22),
+                      child: (data?.is_like == true) ? Icon(CupertinoIcons.heart_fill, color: config.primaryAppColor.shade600, size: 22) :
+                      Icon(CupertinoIcons.heart, color: config.secondaryColor.shade200, size: 22),
                     ),
                   ),
 
@@ -972,8 +974,9 @@ class MyCards {
                         children: [
 
                           buttons.invButton(
-                            icon: CupertinoIcons.heart, text: 'Like',
+                            icon: (data?.is_like == true) ? CupertinoIcons.heart_fill : CupertinoIcons.heart, text: 'Like',
                             onTap: () { },
+                            color: (data?.is_like == true) ? config.primaryAppColor.shade600 : null
                           ),
                           const SizedBox(width: 14),
 

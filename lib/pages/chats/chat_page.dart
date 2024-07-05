@@ -1,6 +1,7 @@
 
 // ignore_for_file: unused_result
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
@@ -53,7 +54,7 @@ class _ChatPageViewState extends ConsumerState<ChatPageView> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          leading: const Icon(Icons.supervised_user_circle_sharp, size: 42),
+          leading: Icon(CupertinoIcons.person_circle_fill, color: config.secondaryColor.shade50, size: 42),
           title: labels.label('${username.user?.name}', fontSize: 20, fontWeight: FontWeight.w500),
           titleSpacing: 6,
           actions: [
@@ -77,10 +78,10 @@ class _ChatPageViewState extends ConsumerState<ChatPageView> {
         body: BodyChat(
           ref,
           watchChat: watchChat,
-          activePage: activePage,
         ),
         bottomSheet: myWidgets.bottomBarPage(
-            context, ref, widget.selectedIndex
+            context, ref, widget.selectedIndex,
+            null
         ),
       ),
     );
@@ -88,24 +89,18 @@ class _ChatPageViewState extends ConsumerState<ChatPageView> {
 }
 
 class BodyChat extends StatelessWidget {
-  const BodyChat(this.ref, {super.key, required this.watchChat, required this.activePage});
+  const BodyChat(this.ref, {super.key, required this.watchChat});
 
   final WidgetRef ref;
   final AsyncValue<List<ChatData>> watchChat;
-  final StateProvider<bool> activePage;
 
   @override
   Widget build(BuildContext context) {
-    final active = ref.read(activePage.notifier);
-
     return TabBarView(
       children: <Widget>[
         /// tap 1 ///
         RefreshIndicator(
-          onRefresh: () async => {
-            active.update((state) => false),
-            await futureAwait(() { active.update((state) => true); }),
-          },
+          onRefresh: () async => {  },
           notificationPredicate: (val) => !watchChat.isLoading,
           child: CustomScrollView(
             slivers: [
@@ -154,11 +149,11 @@ class BodyChat extends StatelessWidget {
                                   ),
 
                                   Expanded(flex: 0,
-                                    child: labels.label('${stringWithNow(date: '${val.updated_date}', format: 'dd MMM yyyy')}', fontSize: 13, color: Colors.black45),
+                                    child: labels.label('${stringWithNow(date: '${val.updated_date}', format: 'dd MMM yyyy')}', fontSize: 11, color: Colors.black45),
                                   ),
                                 ],
                               ),
-                              subtitle: labels.label(val.last_message?.message ?? '', fontSize: 13, color: Colors.black45),
+                              subtitle: labels.label(val.last_message?.message ?? '', fontSize: 13, color: Colors.black45, maxLines: 2),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                               shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50, width: 1)),
                               onTap: () {
@@ -170,8 +165,10 @@ class BodyChat extends StatelessWidget {
                       );
                     },
                   ),
+
+                  const SizedBox(height: 58),
                 ]),
-              )
+              ),
             ],
           ),
         ),

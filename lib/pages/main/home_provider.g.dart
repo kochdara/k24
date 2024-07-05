@@ -172,20 +172,147 @@ class _GetMainCategoryProviderElement
   String get parent => (origin as GetMainCategoryProvider).parent;
 }
 
-String _$homeListsHash() => r'2dccc626c4be2dfffb3ed8cf294858faa23f3845';
+String _$homeListsHash() => r'bfb137267c7dd82044d2f392d5034791b02abfc5';
+
+abstract class _$HomeLists
+    extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {
+  late final WidgetRef context;
+
+  FutureOr<List<GridCard>> build(
+    WidgetRef context,
+  );
+}
 
 /// See also [HomeLists].
 @ProviderFor(HomeLists)
-final homeListsProvider =
-    AutoDisposeAsyncNotifierProvider<HomeLists, List<GridCard>>.internal(
-  HomeLists.new,
-  name: r'homeListsProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$homeListsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+const homeListsProvider = HomeListsFamily();
 
-typedef _$HomeLists = AutoDisposeAsyncNotifier<List<GridCard>>;
+/// See also [HomeLists].
+class HomeListsFamily extends Family<AsyncValue<List<GridCard>>> {
+  /// See also [HomeLists].
+  const HomeListsFamily();
+
+  /// See also [HomeLists].
+  HomeListsProvider call(
+    WidgetRef context,
+  ) {
+    return HomeListsProvider(
+      context,
+    );
+  }
+
+  @override
+  HomeListsProvider getProviderOverride(
+    covariant HomeListsProvider provider,
+  ) {
+    return call(
+      provider.context,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'homeListsProvider';
+}
+
+/// See also [HomeLists].
+class HomeListsProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<HomeLists, List<GridCard>> {
+  /// See also [HomeLists].
+  HomeListsProvider(
+    WidgetRef context,
+  ) : this._internal(
+          () => HomeLists()..context = context,
+          from: homeListsProvider,
+          name: r'homeListsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$homeListsHash,
+          dependencies: HomeListsFamily._dependencies,
+          allTransitiveDependencies: HomeListsFamily._allTransitiveDependencies,
+          context: context,
+        );
+
+  HomeListsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.context,
+  }) : super.internal();
+
+  final WidgetRef context;
+
+  @override
+  FutureOr<List<GridCard>> runNotifierBuild(
+    covariant HomeLists notifier,
+  ) {
+    return notifier.build(
+      context,
+    );
+  }
+
+  @override
+  Override overrideWith(HomeLists Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: HomeListsProvider._internal(
+        () => create()..context = context,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        context: context,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeAsyncNotifierProviderElement<HomeLists, List<GridCard>>
+      createElement() {
+    return _HomeListsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is HomeListsProvider && other.context == context;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin HomeListsRef on AutoDisposeAsyncNotifierProviderRef<List<GridCard>> {
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
+}
+
+class _HomeListsProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<HomeLists, List<GridCard>>
+    with HomeListsRef {
+  _HomeListsProviderElement(super.provider);
+
+  @override
+  WidgetRef get context => (origin as HomeListsProvider).context;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
