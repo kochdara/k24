@@ -1,7 +1,9 @@
+// ignore_for_file: unused_result
 
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k24/helpers/helper.dart';
 import 'package:k24/serialization/users/user_serial.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -12,102 +14,131 @@ import '../../serialization/grid_card/grid_card.dart';
 
 part 'home_provider.g.dart';
 
-Config config = Config();
+final config = Config();
 
-StateProvider<ViewPage> viewPage = StateProvider<ViewPage>((ref) { return ViewPage.grid;});
-StateProvider<DataUser> usersProvider = StateProvider<DataUser>((ref) { return DataUser();});
+final viewPageProvider = StateProvider<ViewPage>((ref) => ViewPage.grid);
+final usersProvider = StateProvider<DataUser>((ref) => DataUser());
 
 @riverpod
 class GetMainCategory extends _$GetMainCategory {
   final Dio dio = Dio();
 
   @override
-  Future<List<MainCategory>> build(String parent) async => fetchData();
+  Future<List<MainCategory>> build(String parent) async {
+    return fetchData(parent);
+  }
 
-  Future<List<MainCategory>> fetchData() async {
-    final getUsers = await getSecure('user', type: Map);
-    ref.read(usersProvider.notifier).update((state) => DataUser.fromJson(getUsers ?? {}));
+  Future<List<MainCategory>> fetchData(String parent) async {
+    try {
+      final getUsers = await getSecure('user', type: Map);
+      ref.read(usersProvider.notifier).update((state) => DataUser.fromJson(getUsers ?? {}));
 
-    String url = 'categories?parent=$parent&lang=$lang&v=1';
-    final res = await dio.get('$baseUrl/$url');
+      final url = 'categories?parent=$parent&lang=$lang&v=1';
+      final res = await dio.get('$baseUrl/$url');
 
-    final resp = res.data;
-    List<MainCategory> list = [];
-
-    if(res.statusCode == 200 && resp != null) {
-      final data = resp['data'];
-      for (final val in data) {
-        list.add(MainCategory.fromJson(val));
+      if (res.statusCode == 200 && res.data != null) {
+        final List data = res.data['data'];
+        return data.map((val) => MainCategory.fromJson(val)).toList();
       }
-    }
 
-    return list;
+      return [];
+    } catch (e) {
+      print('Error fetching main categories: $e');
+      return [];
+    }
   }
 }
 
 @riverpod
 class HomeLists extends _$HomeLists {
-  late List<GridCard> list = [];
-  String fields = 'thumbnail,photos,location,user,store,renew_date,link,category,is_saved,is_like,total_like,total_comment,condition,highlight_specs';
-  String fun = 'save,chat,like,comment,apply_job,shipping';
-
   final Dio dio = Dio();
+  final String fields = 'thumbnail,photos,location,user,store,renew_date,link,category,is_saved,is_like,total_like,total_comment,condition,highlight_specs';
+  final String fun = 'save,chat,like,comment,apply_job,shipping';
 
+  List<GridCard> _list = [];
   int limit = 0;
-  int current_result = 0;
+  int currentResult = 0;
   int offset = 0;
 
   @override
-  Future<List<GridCard>> build(WidgetRef context) async => fetchHome();
+  Future<List<GridCard>> build(String accessTokens) async {
+    return fetchHome();
+  }
 
   Future<List<GridCard>> fetchHome() async {
-    if(current_result < limit) return [];
-    await urlAPI();
-    return list;
+    if (currentResult < limit) return _list;
+    await _fetchData();
+    return _list;
   }
 
   Future<void> refresh() async {
     limit = 0;
-    current_result = 0;
+    currentResult = 0;
     offset = 0;
-    list = [];
+    _list = [];
     state = const AsyncLoading();
 
-    await urlAPI();
-    state = AsyncData(list);
+    await _fetchData();
+    state = AsyncData(_list);
   }
 
-  Future<void> urlAPI() async {
-    final accessToken = await checkTokens(context);
-
+  Future<void> _fetchData() async {
     try {
-      final tokens = ref.watch(usersProvider);
       final subs = 'feed?lang=en&offset=${offset + limit}&fields=$fields&functions=$fun';
       final res = await dio.get('$postUrl/$subs', options: Options(headers: {
-        'Access-Token': '${accessToken ?? tokens.tokens?.access_token}'}
-      ));
+        'Access-Token': accessTokens
+      }));
 
-      final resp = HomeSerial.fromJson(res.data ?? {});
-
-      if(res.statusCode == 200) {
-        final data = resp.data;
+      if (res.statusCode == 200 && res.data != null) {
+        final resp = HomeSerial.fromJson(res.data);
         limit = resp.limit ?? 0;
         offset = resp.offset ?? 0;
-        current_result = resp.current_result ?? 0;
+        currentResult = resp.current_result ?? 0;
 
+        final data = resp.data;
         for (final val in data!) {
-          final index = list.indexWhere((element) => element.data?.id == val?.data?.id);
-
+          final index = _list.indexWhere((element) => element.data?.id == val?.data?.id);
           if (index != -1) {
-            list[index] = val!;
+            _list[index] = val!;
           } else {
-            list.add(val!);
+            _list.add(val!);
           }
         }
       }
     } catch (e, stacktrace) {
-      print('Error in : $e');
+      print('Error in _fetchData: $e');
       print(stacktrace);
     }
   }
+}
+
+void loadMore(WidgetRef ref,
+    StateProvider<bool> fetchingProvider,
+    StateProvider<bool> downProvider,
+    ScrollController scrollController,
+  ) async {
+  final homeListsNotifier = ref.watch(homeListsProvider('${ref.watch(usersProvider).tokens?.access_token}').notifier);
+  final limit = homeListsNotifier.limit;
+  final current = homeListsNotifier.currentResult;
+  final fetchingNotifier = ref.read(fetchingProvider.notifier);
+  final scroll = scrollController.position;
+
+  if (scroll.pixels > 1500 && scroll.pixels >= (scroll.maxScrollExtent - 750) && (current >= limit) && !fetchingNotifier.state) {
+    fetchingNotifier.state = true;
+    await homeListsNotifier.fetchHome();
+    fetchingNotifier.state = false;
+  }
+
+  final scrollDirectionNotifier = ref.read(downProvider.notifier);
+  final isScrollingDown = ref.watch(downProvider);
+  if (scroll.userScrollDirection == ScrollDirection.reverse && !isScrollingDown) {
+    scrollDirectionNotifier.state = true;
+  } else if (scroll.userScrollDirection == ScrollDirection.forward && isScrollingDown) {
+    scrollDirectionNotifier.state = false;
+  }
+}
+
+Future<void> handleRefresh(WidgetRef ref) async {
+  ref.refresh(getMainCategoryProvider('0').future);
+  await ref.read(homeListsProvider('${ref.watch(usersProvider).tokens?.access_token}').notifier).refresh();
 }

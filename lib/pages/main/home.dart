@@ -3,12 +3,8 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
-import 'package:k24/helpers/helper.dart';
-import 'package:k24/pages/accounts/profile_public/another_profile.dart';
-import 'package:k24/pages/details/details_post.dart';
 import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
 
@@ -35,13 +31,13 @@ class _HomePageState extends ConsumerState<HomePage> {
   final scrollController = ScrollController();
   StateProvider<bool> fetchingProvider = StateProvider<bool>((ref) => false);
   StateProvider<bool> loadingProvider = StateProvider<bool>((ref) => false);
-  StateProvider<bool> down = StateProvider<bool>((ref) => false);
+  StateProvider<bool> downProvider = StateProvider<bool>((ref) => false);
   StateProvider<int> selectedIndex = StateProvider<int>((ref) => 0);
 
   @override
   void initState() {
     super.initState();
-    scrollController.addListener(loadMore);
+    scrollController.addListener(() => loadMore(ref, fetchingProvider, downProvider, scrollController));
   }
 
   @override
@@ -49,39 +45,15 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.dispose();
   }
 
-  void loadMore() async {
-    final limit = ref.watch(homeListsProvider(ref).notifier).limit;
-    final current = ref.watch(homeListsProvider(ref).notifier).current_result;
-    final fet = ref.read(fetchingProvider.notifier);
-    ScrollPosition scroll = scrollController.position;
-
-    if (scroll.pixels > 1500 && scroll.pixels >= (scroll.maxScrollExtent - 750)
-        && (current >= limit) && !fet.state) {
-      fet.state = true;
-      ref.read(homeListsProvider(ref).notifier).fetchHome();
-      await futureAwait(() { fet.state = false; });
-    }
-
-    final r = ref.read(down.notifier);
-    final w = ref.watch(down);
-    if (scroll.userScrollDirection == ScrollDirection.reverse && !w) {r.state = true;}
-    else if (scroll.userScrollDirection == ScrollDirection.forward && w) {r.state = false;}
-  }
-
-  Future<void> _handleRefresh() async {
-    ref.refresh(getMainCategoryProvider('0').future);
-    await ref.read(homeListsProvider(ref).notifier).refresh();
-  }
-
   @override
   Widget build(BuildContext context) {
     final mainCate = ref.watch(getMainCategoryProvider('0'));
-    final homeList = ref.watch(homeListsProvider(ref));
+    final homeList = ref.watch(homeListsProvider('${ref.watch(usersProvider).tokens?.access_token}'));
 
     return Scaffold(
       backgroundColor: config.backgroundColor,
       body: RefreshIndicator(
-        onRefresh: _handleRefresh,
+        onRefresh: () => handleRefresh(ref),
         notificationPredicate: (notification) => !homeList.isLoading,
         child: CustomScrollView(
           physics: const ClampingScrollPhysics(),
@@ -116,12 +88,12 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                         /// home list ///
                         homeList.when(
-                          error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: _handleRefresh),
-                          loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPage)),
+                          error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () => handleRefresh(ref)),
+                          loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPageProvider)),
                           data: (data) => myCards.cardHome(
                             data,
                             fetching: ref.watch(fetchingProvider),
-                            viewPage: ref.watch(viewPage),
+                            viewPage: ref.watch(viewPageProvider),
                           ),
                         ),
 
@@ -135,7 +107,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           ],
         ),
       ),
-      bottomNavigationBar: !ref.watch(down) ? myWidgets.bottomBarPage(
+      bottomNavigationBar: !ref.watch(downProvider) ? myWidgets.bottomBarPage(
         context, ref, selectedIndex,
         scrollController
       ) : null,

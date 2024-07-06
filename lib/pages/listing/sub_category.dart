@@ -48,16 +48,19 @@ class SubCategory extends ConsumerStatefulWidget {
 class _SubCategoryState extends ConsumerState<SubCategory> {
   final scrollController = ScrollController();
   StateProvider<bool> fetchingProvider = StateProvider<bool>((ref) => false);
-  StateProvider<int> indX = StateProvider((ref) => 0);
+  StateProvider<int> indProvider = StateProvider((ref) => 0);
   StateProvider<Map> newData = StateProvider((ref) => {});
   StateProvider<String?> displayTitle = StateProvider<String?>((ref) => null);
-  StateProvider<bool> down = StateProvider<bool>((ref) => false);
+  StateProvider<bool> downProvider = StateProvider<bool>((ref) => false);
   StateProvider<int> selectedIndex = StateProvider<int>((ref) => 0);
 
   @override
   void initState() {
     super.initState();
-    scrollController.addListener(loadMore);
+    scrollController.addListener(() => subLoadMore(
+      ref, widget.data, fetchingProvider, scrollController,
+      newData, downProvider
+    ));
     setupPage();
   }
 
@@ -67,53 +70,18 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     scrollController.dispose();
   }
 
-  void loadMore() async {
-    final dataCate = widget.data;
-    final cate = dataCate['slug'];
-    final limit = ref.watch(subListsProvider(ref, '$cate').notifier).limit;
-    final current = ref.watch(subListsProvider(ref, '$cate').notifier).current_result;
-    final fet = ref.read(fetchingProvider.notifier);
-    ScrollPosition scroll = scrollController.position;
-
-    if (scroll.pixels > 1500 && scroll.pixels >= (scroll.maxScrollExtent - 750)
-        && (current >= limit) && !fet.state) {
-      fet.state = true;
-      ref.read(subListsProvider(ref, '$cate', newFilter: ref.watch(newData) as Map?).notifier).subFetch();
-      await futureAwait(() { fet.state = false; });
-    }
-
-    final r = ref.read(down.notifier);
-    final w = ref.watch(down);
-    if (scroll.userScrollDirection == ScrollDirection.reverse && !w) {r.state = true;}
-    else if (scroll.userScrollDirection == ScrollDirection.forward && w) {r.state = false;}
-  }
-
-  Future<void> handleRefresh() async {
-    final dataCate = widget.data;
-    final cate = dataCate['slug'];
-    final Map? filter = ref.watch(newData) as Map?;
-
-    ref.read(indX.notifier).state = 0;
-    filter?.forEach((key, value) {
-      if(value != null) ref.read(indX.notifier).state++;
-    });
-
-    ref.refresh(getMainCategoryProvider('$cate').future);
-    await ref.read(subListsProvider(ref, '$cate', newFilter: filter).notifier).refresh();
-  }
-
   @override
   Widget build(BuildContext context) {
     final dataCate = widget.data;
     final watchCate = ref.watch(getMainCategoryProvider('${dataCate['id']}'));
-    final watchLists = ref.watch(subListsProvider(ref, '${dataCate['slug']}', newFilter: ref.watch(newData) as Map?));
+    final watchLists = ref.watch(subListsProvider('${dataCate['slug']}', '${ref.watch(usersProvider).tokens?.access_token}', newFilter: ref.watch(newData) as Map?));
 
     final title = ref.watch(newData)['keyword'];
 
     return Scaffold(
       backgroundColor: config.backgroundColor,
       body: RefreshIndicator(
-        onRefresh: handleRefresh,
+        onRefresh: () => subHandleRefresh(ref, widget.data, newData, indProvider),
         notificationPredicate: (notification) => !watchLists.isLoading,
         child: CustomScrollView(
           physics: const ClampingScrollPhysics(),
@@ -130,7 +98,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
                     newData: newData,
                     selectedIndex: selectedIndex,
                   ));
-                  if(result != null) await handleRefresh();
+                  if(result != null) await subHandleRefresh(ref, widget.data, newData, indProvider);
 
                 },
                 closeButton: (title != null) ? const Icon(Icons.close, size: 20) : null,
@@ -140,7 +108,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
                     newMap.remove('keyword');
                     return newMap;
                   });
-                  await handleRefresh();
+                  await subHandleRefresh(ref, widget.data, newData, indProvider);
 
                 },
                 bgColor: config.infoColor.shade300,
@@ -157,8 +125,8 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
                 IconButton(
                   padding: const EdgeInsets.all(12),
                   onPressed: onClickMoreFilter,
-                  icon: (ref.watch(indX) > 0) ? badges.Badge(
-                    badgeContent:  Text('${ref.watch(indX)}', style: const TextStyle(color: Colors.white, fontSize: 11)),
+                  icon: (ref.watch(indProvider) > 0) ? badges.Badge(
+                    badgeContent:  Text('${ref.watch(indProvider)}', style: const TextStyle(color: Colors.white, fontSize: 11)),
                     badgeAnimation: const badges.BadgeAnimation.fade(),
                     badgeStyle: badges.BadgeStyle(
                       shape: badges.BadgeShape.circle,
@@ -200,12 +168,12 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
 
                               /// grid view ///
                               watchLists.when(
-                                error: (e, st) => myCards.notFound(context, id: '${dataCate['id']}', message: '$e', onPressed: handleRefresh),
-                                loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPage)),
+                                error: (e, st) => myCards.notFound(context, id: '${dataCate['id']}', message: '$e', onPressed: () => subHandleRefresh(ref, widget.data, newData, indProvider)),
+                                loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPageProvider)),
                                 data: (data) => myCards.cardHome(
                                   data,
                                   fetching: ref.watch(fetchingProvider),
-                                  viewPage: ref.watch(viewPage),
+                                  viewPage: ref.watch(viewPageProvider),
                                 ),
                               ),
 
@@ -222,7 +190,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
           ],
         ),
       ),
-      bottomNavigationBar: !ref.watch(down) ? myWidgets.bottomBarPage(
+      bottomNavigationBar: !ref.watch(downProvider) ? myWidgets.bottomBarPage(
           context, ref, selectedIndex,
         null,
       ) : null,
@@ -231,7 +199,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
 
   void setupPage() {
     newData = StateProvider((ref) => jsonDecode(widget.setFilters));
-    indX = StateProvider((ref) => 0);
+    indProvider = StateProvider((ref) => 0);
   }
 
   Widget titleFilter() {
@@ -253,15 +221,15 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
 
               InkWell(
                 onTap: () {
-                  if(ref.watch(viewPage) == ViewPage.grid) {ref.read(viewPage.notifier).state = ViewPage.list;}
-                  else if(ref.watch(viewPage) == ViewPage.list) {ref.read(viewPage.notifier).state = ViewPage.view;}
-                  else {ref.read(viewPage.notifier).state = ViewPage.grid;}
+                  if(ref.watch(viewPageProvider) == ViewPage.grid) {ref.read(viewPageProvider.notifier).state = ViewPage.list;}
+                  else if(ref.watch(viewPageProvider) == ViewPage.list) {ref.read(viewPageProvider.notifier).state = ViewPage.view;}
+                  else {ref.read(viewPageProvider.notifier).state = ViewPage.grid;}
 
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(right: 8),
-                  child: (ref.watch(viewPage) == ViewPage.list) ? const Icon(CupertinoIcons.list_bullet) :
-                  (ref.watch(viewPage) == ViewPage.view) ? const Icon(CupertinoIcons.list_bullet_below_rectangle) :
+                  child: (ref.watch(viewPageProvider) == ViewPage.list) ? const Icon(CupertinoIcons.list_bullet) :
+                  (ref.watch(viewPageProvider) == ViewPage.view) ? const Icon(CupertinoIcons.list_bullet_below_rectangle) :
                   const Icon(CupertinoIcons.square_grid_2x2),
                 ),
               ),
@@ -358,7 +326,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
         );
 
         /// submit ///
-        if(result != null) handleRefresh();
+        if(result != null) subHandleRefresh(ref, widget.data, newData, indProvider);
       },
       textColor: ref.watch(displayTitle)!=null ? config.primaryAppColor.shade600 : Colors.black,
       child: ref.watch(displayTitle)!=null ? InkWell(
@@ -372,7 +340,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
           ref.read(displayTitle.notifier).update((state) => null);
 
           /// submit ///
-          await handleRefresh();
+          await subHandleRefresh(ref, widget.data, newData, indProvider);
           ref.read(displayTitle.notifier).update((state) => null);
         },
         child: const Icon(Icons.close, size: 18),
@@ -397,7 +365,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
           );
 
           /// submit ///
-          if(result != null) handleRefresh();
+          if(result != null) subHandleRefresh(ref, widget.data, newData, indProvider);
         },
         textColor: fieldName.fieldtitle != null ? config.primaryAppColor.shade600 : Colors.black,
         child: fieldName.fieldtitle != null ? InkWell(
@@ -409,7 +377,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
             });
 
             /// submit ///
-            handleRefresh();
+            subHandleRefresh(ref, widget.data, newData, indProvider);
           },
           child: const Icon(Icons.close, size: 18),
         ) : null,
@@ -426,7 +394,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
         );
 
         /// submit ///
-        if(result != null) handleRefresh();
+        if(result != null) subHandleRefresh(ref, widget.data, newData, indProvider);
       },
       textColor: fieldName.fieldtitle != null ? config.primaryAppColor.shade600 : Colors.black,
       child: fieldName.fieldtitle != null ? InkWell(
@@ -438,7 +406,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
           });
 
           /// submit ///
-          handleRefresh();
+          subHandleRefresh(ref, widget.data, newData, indProvider);
         },
         child: const Icon(Icons.close, size: 18),
       ) : null,
@@ -481,7 +449,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
             }
 
             /// submit ///
-            handleRefresh();
+            subHandleRefresh(ref, widget.data, newData, indProvider);
           }
 
         },
@@ -494,7 +462,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
             }
 
             /// submit ///
-            handleRefresh();
+            subHandleRefresh(ref, widget.data, newData, indProvider);
           },
           child: const Icon(Icons.close, size: 18),
         ) : null,
@@ -511,7 +479,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
         );
 
         /// submit ///
-        if(result != null) handleRefresh();
+        if(result != null) subHandleRefresh(ref, widget.data, newData, indProvider);
       },
       textColor: fieldName.fieldtitle != null ? config.primaryAppColor.shade600 : Colors.black,
       child: fieldName.fieldtitle != null ? InkWell(
@@ -523,7 +491,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
           });
 
           /// submit ///
-          handleRefresh();
+          subHandleRefresh(ref, widget.data, newData, indProvider);
         },
         child: const Icon(Icons.close, size: 18),
       ) : null,
@@ -533,9 +501,9 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   Widget _fieldMore() {
     return buttons.textButtons(
       title: 'More',
-      prefixChild: (ref.watch(indX) > 0) ? badges.Badge(
+      prefixChild: (ref.watch(indProvider) > 0) ? badges.Badge(
         position: badges.BadgePosition.topEnd(top: -8, end: -6),
-        badgeContent:  Text('${ref.watch(indX)}', style: const TextStyle(color: Colors.white, fontSize: 8)),
+        badgeContent:  Text('${ref.watch(indProvider)}', style: const TextStyle(color: Colors.white, fontSize: 8)),
         badgeAnimation: const badges.BadgeAnimation.fade(),
         badgeStyle: badges.BadgeStyle(
           shape: badges.BadgeShape.circle,
@@ -558,7 +526,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
     if(result != null) {
       ref.read(displayTitle.notifier).update((state) => null);
       ref.read(newData.notifier).state = result ?? {};
-      await handleRefresh();
+      await subHandleRefresh(ref, widget.data, newData, indProvider);
     }
   }
 

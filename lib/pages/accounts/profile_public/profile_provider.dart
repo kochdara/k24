@@ -1,13 +1,10 @@
 
 import 'package:dio/dio.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/serialization/profiles/profile_serial.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../helpers/config.dart';
-import '../../../helpers/helper.dart';
 import '../../../serialization/grid_card/grid_card.dart';
-import '../../main/home_provider.dart';
 
 part 'profile_provider.g.dart';
 
@@ -20,14 +17,12 @@ class ProfilePublic extends _$ProfilePublic {
   Dio dio = Dio();
 
   @override
-  FutureOr<ProfileSerial?> build(WidgetRef context, String username) async {
-    final accessToken = await checkTokens(context);
+  FutureOr<ProfileSerial?> build(String username, String accessTokens) async {
     try {
-      final tokens = ref.watch(usersProvider);
       String subs = 'profiles/$username?lang=$lang&fields=$fields&meta=$meta&functions=$functions';
       final res = await dio.get('$baseUrl/$subs', options: Options(headers: {
-        'Access-Token': '${accessToken ?? tokens.tokens?.access_token}'}
-      ));
+        'Access-Token': accessTokens
+      }));
 
       final resp = ProfileSerial.fromJson(res.data ?? {});
 
@@ -54,7 +49,7 @@ class ProfileList extends _$ProfileList {
   int offset = 0;
 
   @override
-  Future<List<GridCard>> build(WidgetRef context, String username) async => fetchHome();
+  Future<List<GridCard>> build(String username, String accessTokens) async => fetchHome();
 
   Future<List<GridCard>> fetchHome() async {
     if(current_result < limit) return [];
@@ -74,14 +69,11 @@ class ProfileList extends _$ProfileList {
   }
 
   Future<void> urlAPI() async {
-    final accessToken = await checkTokens(context);
-
     try {
-      final tokens = ref.watch(usersProvider);
       final subs = '$username/feed?lang=en&offset=${offset + limit}&fields=$fields&functions=$fun';
       final res = await dio.get('$postUrl/$subs', options: Options(headers: {
-        'Access-Token': '${accessToken ?? tokens.tokens?.access_token}'}
-      ));
+        'Access-Token': accessTokens
+      }));
 
       final resp = HomeSerial.fromJson(res.data ?? {});
 

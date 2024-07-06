@@ -100,7 +100,8 @@ ContactProfile _$ContactProfileFromJson(Map json) => ContactProfile(
       address: json['address'],
       phone: const ToString().fromJson(json['phone']),
       phone_white_operator: (json['phone_white_operator'] as List<dynamic>?)
-          ?.map((e) => e as String)
+          ?.map(
+              (e) => e == null ? null : PhoneWhiteOperator.fromJson(e as Map?))
           .toList(),
     );
 
@@ -111,7 +112,8 @@ Map<String, dynamic> _$ContactProfileToJson(ContactProfile instance) =>
       'map': instance.map,
       'address': instance.address,
       'phone': const ToString().toJson(instance.phone),
-      'phone_white_operator': instance.phone_white_operator,
+      'phone_white_operator':
+          instance.phone_white_operator?.map((e) => e?.toJson()).toList(),
     };
 
 SettingProfile _$SettingProfileFromJson(Map json) => SettingProfile(

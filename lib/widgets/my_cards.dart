@@ -1,10 +1,14 @@
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:k24/helpers/storage.dart';
 import 'package:k24/serialization/category/main_category.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/buttons.dart';
@@ -14,6 +18,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 import '../helpers/config.dart';
 import '../helpers/helper.dart';
+import '../pages/accounts/likes/my_like_provider.dart';
 import '../pages/details/details_post.dart';
 import '../pages/listing/sub_category.dart';
 
@@ -450,6 +455,8 @@ class MyCards {
     );
   }
 
+  StateProvider<bool> isLikes = StateProvider((ref) => false);
+
   Widget gridCard(double width, GridCard v, { required BuildContext context }) {
     List listImg = [];
     final data = v.data;
@@ -616,11 +623,7 @@ class MyCards {
                 Positioned(
                   right: 6,
                   bottom: 6,
-                  child: InkWell(
-                    onTap: () { },
-                    child: (data?.is_like == true) ? Icon(CupertinoIcons.heart_fill, color: config.primaryAppColor.shade600, size: 22) :
-                    Icon(CupertinoIcons.heart, color: config.secondaryColor.shade200, size: 22),
-                  ),
+                  child: MyWidgetLikes(data: data),
                 )
               ],
             ),
@@ -1006,4 +1009,46 @@ class MyCards {
     );
   }
 
+}
+
+final likeProvider = StateProvider.family<bool, String?>((ref, id) => false);
+
+class MyWidgetLikes extends ConsumerWidget {
+  final Data_? data;
+
+  const MyWidgetLikes({super.key, required this.data});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final config = Config();
+    final isLiked = data?.is_like ?? false;
+    final likeNotifier = ref.read(likeProvider(data?.id).notifier);
+    final likerNotifier = ref.watch(likeProvider(data?.id));
+
+    return InkWell(
+      onTap: () async {
+        final getTokens = await getSecure('user', type: Map);
+        if (getTokens != null) {
+          final submit = MyAccountApiService();
+          if (isLiked) {
+            data?.is_like = false;
+            likeNotifier.state = false;
+            final result = await submit.submitRemove(context: context, id: '${data?.id}');
+            print(result.toJson());
+          } else {
+            data?.is_like = true;
+            likeNotifier.state = true;
+            final dataSend = {'id': '${data?.id}', 'type': 'post'};
+            final result = await submit.submitAdd(dataSend, context: context);
+            print(result.toJson());
+          }
+        }
+      },
+      child: Icon(
+        likerNotifier ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+        color: likerNotifier ? config.primaryAppColor.shade600 : config.secondaryColor.shade200,
+        size: 22,
+      ),
+    );
+  }
 }

@@ -292,6 +292,7 @@ Map<String, dynamic> _$SettingUserToJson(SettingUser instance) =>
 
 MessageLogin _$MessageLoginFromJson(Map json) => MessageLogin(
       message: const ToString().fromJson(json['message']),
+      status: const ToString().fromJson(json['status']),
       type: const ToString().fromJson(json['type']),
       code: const ToString().fromJson(json['code']),
       errors: json['errors'] == null
@@ -304,6 +305,7 @@ MessageLogin _$MessageLoginFromJson(Map json) => MessageLogin(
 Map<String, dynamic> _$MessageLoginToJson(MessageLogin instance) =>
     <String, dynamic>{
       'message': const ToString().toJson(instance.message),
+      'status': const ToString().toJson(instance.status),
       'type': const ToString().toJson(instance.type),
       'code': const ToString().toJson(instance.code),
       'errors': instance.errors?.toJson(),

@@ -8,6 +8,7 @@ import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/accounts/profile_public/another_profile.dart';
 import 'package:k24/pages/chats/conversations/chat_conversation_provider.dart';
 import 'package:k24/pages/details/details_provider.dart';
+import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/serialization/chats/chat_serial.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/buttons.dart';
@@ -67,7 +68,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     final id = dataDetails.data?.id;
 
     ref.refresh(getDetailPostProvider('$id').future);
-    await ref.read(relateDetailPostProvider(ref, '$id').notifier).refresh();
+    await ref.read(relateDetailPostProvider('$id', '${ref.watch(usersProvider).tokens?.access_token}').notifier).refresh();
   }
 
   void scrollListener() {
@@ -79,8 +80,9 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
   Widget build(BuildContext context) {
     final dataDetails = widget.data;
     final adid = dataDetails.data?.id;
+    final userTokens = ref.watch(usersProvider);
     final watchDetails = ref.watch(getDetailPostProvider('$adid'));
-    final watchRelates = ref.watch(relateDetailPostProvider(ref, '$adid'));
+    final watchRelates = ref.watch(relateDetailPostProvider('$adid', '${userTokens.tokens?.access_token}'));
     final watchChat = ref.watch(getTopByUidProvider(ref, adid: '$adid'));
 
     if(dataDetails.data != null) {
@@ -174,7 +176,8 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
           ],
         ),
       ),
-      bottomNavigationBar: (watchDetails.hasValue) ? bottomNav(watchChat.valueOrNull, total_like: ref.watch(total_like)) : null,
+      bottomNavigationBar: (watchDetails.hasValue && dataDetails.data?.user?.id != userTokens.user?.id) ?
+      bottomNav(watchChat.valueOrNull, total_like: ref.watch(total_like)) : null,
     );
   }
 
@@ -255,9 +258,9 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                   width: width2,
                   child: buttons.textButtons(
                     title: 'Chat',
-                    onPressed: () {
+                    onPressed: (chatData?.user?.id != '') ? () {
                       routeAnimation(context, pageBuilder: ChatConversations(chatData: chatData ?? ChatData()));
-                    },
+                    } : null,
                     padSize: 10,
                     textSize: 18,
                     textWeight: FontWeight.w500,

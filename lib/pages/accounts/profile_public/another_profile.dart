@@ -48,9 +48,9 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
   }
 
   void updateShowBarState(double scrollPosition, bool currentShowBarState) {
-    if (scrollPosition >= 420.0 && !currentShowBarState) {
+    if (scrollPosition >= 450.0 && !currentShowBarState) {
       ref.read(showBar.notifier).update((state) => true);
-    } else if (scrollPosition < 420.0 && currentShowBarState) {
+    } else if (scrollPosition < 450.0 && currentShowBarState) {
       ref.read(showBar.notifier).update((state) => false);
     }
   }
@@ -58,8 +58,8 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
   @override
   Widget build(BuildContext context) {
     final userDatum = widget.userData;
-    final profilePro = ref.watch(profilePublicProvider(ref, '${userDatum?.username}'));
-    final profileList = ref.watch(profileListProvider(ref, '${userDatum?.username}'));
+    final profilePro = ref.watch(profilePublicProvider('${userDatum?.username}', '${ref.watch(usersProvider).tokens?.access_token}'));
+    final profileList = ref.watch(profileListProvider('${userDatum?.username}', '${ref.watch(usersProvider).tokens?.access_token}'));
 
     return DefaultTabController(
       length: 2,
@@ -315,11 +315,11 @@ class BodyProfile extends StatelessWidget {
                                 /// listing page ///
                                 profileList.when(
                                   error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () {}),
-                                  loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPage)),
+                                  loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPageProvider)),
                                   data: (data) => myCards.cardHome(
                                     data,
                                     fetching: false,
-                                    viewPage: ref.watch(viewPage),
+                                    viewPage: ref.watch(viewPageProvider),
                                     notRelates: false,
                                   ),
                                 ),

@@ -171,16 +171,16 @@ class _GetDetailPostProviderElement
   String get id => (origin as GetDetailPostProvider).id;
 }
 
-String _$relateDetailPostHash() => r'fab7ab433691a601d7f6ac7cac386a0491c56b15';
+String _$relateDetailPostHash() => r'0aa62f48eac6c93be5fd5e172b16733a8f3c3d93';
 
 abstract class _$RelateDetailPost
     extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {
-  late final WidgetRef context;
   late final String id;
+  late final String accessTokens;
 
   FutureOr<List<GridCard>> build(
-    WidgetRef context,
     String id,
+    String accessTokens,
   );
 }
 
@@ -195,12 +195,12 @@ class RelateDetailPostFamily extends Family<AsyncValue<List<GridCard>>> {
 
   /// See also [RelateDetailPost].
   RelateDetailPostProvider call(
-    WidgetRef context,
     String id,
+    String accessTokens,
   ) {
     return RelateDetailPostProvider(
-      context,
       id,
+      accessTokens,
     );
   }
 
@@ -209,8 +209,8 @@ class RelateDetailPostFamily extends Family<AsyncValue<List<GridCard>>> {
     covariant RelateDetailPostProvider provider,
   ) {
     return call(
-      provider.context,
       provider.id,
+      provider.accessTokens,
     );
   }
 
@@ -234,12 +234,12 @@ class RelateDetailPostProvider extends AutoDisposeAsyncNotifierProviderImpl<
     RelateDetailPost, List<GridCard>> {
   /// See also [RelateDetailPost].
   RelateDetailPostProvider(
-    WidgetRef context,
     String id,
+    String accessTokens,
   ) : this._internal(
           () => RelateDetailPost()
-            ..context = context
-            ..id = id,
+            ..id = id
+            ..accessTokens = accessTokens,
           from: relateDetailPostProvider,
           name: r'relateDetailPostProvider',
           debugGetCreateSourceHash:
@@ -249,8 +249,8 @@ class RelateDetailPostProvider extends AutoDisposeAsyncNotifierProviderImpl<
           dependencies: RelateDetailPostFamily._dependencies,
           allTransitiveDependencies:
               RelateDetailPostFamily._allTransitiveDependencies,
-          context: context,
           id: id,
+          accessTokens: accessTokens,
         );
 
   RelateDetailPostProvider._internal(
@@ -260,20 +260,20 @@ class RelateDetailPostProvider extends AutoDisposeAsyncNotifierProviderImpl<
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.context,
     required this.id,
+    required this.accessTokens,
   }) : super.internal();
 
-  final WidgetRef context;
   final String id;
+  final String accessTokens;
 
   @override
   FutureOr<List<GridCard>> runNotifierBuild(
     covariant RelateDetailPost notifier,
   ) {
     return notifier.build(
-      context,
       id,
+      accessTokens,
     );
   }
 
@@ -283,15 +283,15 @@ class RelateDetailPostProvider extends AutoDisposeAsyncNotifierProviderImpl<
       origin: this,
       override: RelateDetailPostProvider._internal(
         () => create()
-          ..context = context
-          ..id = id,
+          ..id = id
+          ..accessTokens = accessTokens,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        context: context,
         id: id,
+        accessTokens: accessTokens,
       ),
     );
   }
@@ -305,15 +305,15 @@ class RelateDetailPostProvider extends AutoDisposeAsyncNotifierProviderImpl<
   @override
   bool operator ==(Object other) {
     return other is RelateDetailPostProvider &&
-        other.context == context &&
-        other.id == id;
+        other.id == id &&
+        other.accessTokens == accessTokens;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, context.hashCode);
     hash = _SystemHash.combine(hash, id.hashCode);
+    hash = _SystemHash.combine(hash, accessTokens.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -321,11 +321,11 @@ class RelateDetailPostProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
 mixin RelateDetailPostRef
     on AutoDisposeAsyncNotifierProviderRef<List<GridCard>> {
-  /// The parameter `context` of this provider.
-  WidgetRef get context;
-
   /// The parameter `id` of this provider.
   String get id;
+
+  /// The parameter `accessTokens` of this provider.
+  String get accessTokens;
 }
 
 class _RelateDetailPostProviderElement
@@ -334,9 +334,9 @@ class _RelateDetailPostProviderElement
   _RelateDetailPostProviderElement(super.provider);
 
   @override
-  WidgetRef get context => (origin as RelateDetailPostProvider).context;
-  @override
   String get id => (origin as RelateDetailPostProvider).id;
+  @override
+  String get accessTokens => (origin as RelateDetailPostProvider).accessTokens;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

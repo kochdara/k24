@@ -6,7 +6,7 @@ part of 'home_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getMainCategoryHash() => r'b8cb653c2b822601963061cff32de3a29a5381c9';
+String _$getMainCategoryHash() => r'98391328796c61da0e2d0b79268b3b34bae0f35f';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -172,14 +172,14 @@ class _GetMainCategoryProviderElement
   String get parent => (origin as GetMainCategoryProvider).parent;
 }
 
-String _$homeListsHash() => r'bfb137267c7dd82044d2f392d5034791b02abfc5';
+String _$homeListsHash() => r'9b5f83ade7379b5369c0d015aa3360dd86c19183';
 
 abstract class _$HomeLists
     extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {
-  late final WidgetRef context;
+  late final String accessTokens;
 
   FutureOr<List<GridCard>> build(
-    WidgetRef context,
+    String accessTokens,
   );
 }
 
@@ -194,10 +194,10 @@ class HomeListsFamily extends Family<AsyncValue<List<GridCard>>> {
 
   /// See also [HomeLists].
   HomeListsProvider call(
-    WidgetRef context,
+    String accessTokens,
   ) {
     return HomeListsProvider(
-      context,
+      accessTokens,
     );
   }
 
@@ -206,7 +206,7 @@ class HomeListsFamily extends Family<AsyncValue<List<GridCard>>> {
     covariant HomeListsProvider provider,
   ) {
     return call(
-      provider.context,
+      provider.accessTokens,
     );
   }
 
@@ -230,9 +230,9 @@ class HomeListsProvider
     extends AutoDisposeAsyncNotifierProviderImpl<HomeLists, List<GridCard>> {
   /// See also [HomeLists].
   HomeListsProvider(
-    WidgetRef context,
+    String accessTokens,
   ) : this._internal(
-          () => HomeLists()..context = context,
+          () => HomeLists()..accessTokens = accessTokens,
           from: homeListsProvider,
           name: r'homeListsProvider',
           debugGetCreateSourceHash:
@@ -241,7 +241,7 @@ class HomeListsProvider
                   : _$homeListsHash,
           dependencies: HomeListsFamily._dependencies,
           allTransitiveDependencies: HomeListsFamily._allTransitiveDependencies,
-          context: context,
+          accessTokens: accessTokens,
         );
 
   HomeListsProvider._internal(
@@ -251,17 +251,17 @@ class HomeListsProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.context,
+    required this.accessTokens,
   }) : super.internal();
 
-  final WidgetRef context;
+  final String accessTokens;
 
   @override
   FutureOr<List<GridCard>> runNotifierBuild(
     covariant HomeLists notifier,
   ) {
     return notifier.build(
-      context,
+      accessTokens,
     );
   }
 
@@ -270,13 +270,13 @@ class HomeListsProvider
     return ProviderOverride(
       origin: this,
       override: HomeListsProvider._internal(
-        () => create()..context = context,
+        () => create()..accessTokens = accessTokens,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        context: context,
+        accessTokens: accessTokens,
       ),
     );
   }
@@ -289,21 +289,21 @@ class HomeListsProvider
 
   @override
   bool operator ==(Object other) {
-    return other is HomeListsProvider && other.context == context;
+    return other is HomeListsProvider && other.accessTokens == accessTokens;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, context.hashCode);
+    hash = _SystemHash.combine(hash, accessTokens.hashCode);
 
     return _SystemHash.finish(hash);
   }
 }
 
 mixin HomeListsRef on AutoDisposeAsyncNotifierProviderRef<List<GridCard>> {
-  /// The parameter `context` of this provider.
-  WidgetRef get context;
+  /// The parameter `accessTokens` of this provider.
+  String get accessTokens;
 }
 
 class _HomeListsProviderElement
@@ -312,7 +312,7 @@ class _HomeListsProviderElement
   _HomeListsProviderElement(super.provider);
 
   @override
-  WidgetRef get context => (origin as HomeListsProvider).context;
+  String get accessTokens => (origin as HomeListsProvider).accessTokens;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

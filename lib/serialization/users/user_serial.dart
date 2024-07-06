@@ -258,12 +258,14 @@ class SettingUser {
 @JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
 class MessageLogin {
   String? message;
+  String? status;
   String? type;
   String? code;
   KeyErrors? errors;
 
   MessageLogin({
     this.message,
+    this.status,
     this.type,
     this.code,
     this.errors,

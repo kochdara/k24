@@ -4,9 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../helpers/config.dart';
-import '../../helpers/helper.dart';
 import '../../serialization/grid_card/grid_card.dart';
-import '../main/home_provider.dart';
 
 part 'details_provider.g.dart';
 
@@ -45,7 +43,7 @@ class RelateDetailPost extends _$RelateDetailPost {
   int offset = 0;
 
   @override
-  Future<List<GridCard>> build(WidgetRef context, String id) async => fetch();
+  Future<List<GridCard>> build(String id, String accessTokens) async => fetch();
 
   Future<List<GridCard>> fetch() async {
     await urlAPI();
@@ -63,14 +61,11 @@ class RelateDetailPost extends _$RelateDetailPost {
   }
 
   Future<void> urlAPI() async {
-    final accessToken = await checkTokens(context);
-
     try {
-      final tokens = ref.watch(usersProvider);
       final subs = 'feed/$id/relates?lang=$lang&offset=${offset + limit}&fields=$fields&functions=$fun';
       final res = await dio.get('$postUrl/$subs', options: Options(headers: {
-        'Access-Token': '${accessToken ?? tokens.tokens?.access_token}'}
-      ));
+        'Access-Token': accessTokens
+      }));
 
       final resp = HomeSerial.fromJson(res.data ?? {});
 

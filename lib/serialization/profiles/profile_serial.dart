@@ -65,14 +65,14 @@ class DataProfile {
 
 }
 
-@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString(), ToLists()])
 class ContactProfile {
   String? name;
   dynamic email;
   dynamic map;
   dynamic address;
   String? phone;
-  List<String>? phone_white_operator;
+  List<PhoneWhiteOperator?>? phone_white_operator;
 
   ContactProfile({
     this.name,

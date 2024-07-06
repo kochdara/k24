@@ -279,23 +279,23 @@ class MyWidgets {
               child: Row(
                 children: [
                   buttons.buttonTap(
-                    onTap: () {ref.read(viewPage.notifier).state = ViewPage.view;},
+                    onTap: () {ref.read(viewPageProvider.notifier).state = ViewPage.view;},
                     icon: CupertinoIcons.list_bullet_below_rectangle,
-                    color: ref.watch(viewPage) == ViewPage.view ? config.secondaryColor.shade700 : null,
+                    color: ref.watch(viewPageProvider) == ViewPage.view ? config.secondaryColor.shade700 : null,
                     size: 23,
                   ),
 
                   buttons.buttonTap(
-                    onTap: () {ref.read(viewPage.notifier).state = ViewPage.list;},
+                    onTap: () {ref.read(viewPageProvider.notifier).state = ViewPage.list;},
                     icon: CupertinoIcons.list_bullet,
-                    color: ref.watch(viewPage) == ViewPage.list ? config.secondaryColor.shade700 : null,
+                    color: ref.watch(viewPageProvider) == ViewPage.list ? config.secondaryColor.shade700 : null,
                     size: 23,
                   ),
 
                   buttons.buttonTap(
-                    onTap: () {ref.read(viewPage.notifier).state = ViewPage.grid;},
+                    onTap: () {ref.read(viewPageProvider.notifier).state = ViewPage.grid;},
                     icon: CupertinoIcons.square_grid_2x2,
-                    color: ref.watch(viewPage) == ViewPage.grid ? config.secondaryColor.shade700 : null,
+                    color: ref.watch(viewPageProvider) == ViewPage.grid ? config.secondaryColor.shade700 : null,
                     size: 23,
                   ),
                 ],

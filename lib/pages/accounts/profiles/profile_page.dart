@@ -41,9 +41,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final userPro = ref.watch(usersProvider);
-    final profilePro = ref.watch(profilePublicProvider(ref, '${userPro.user?.username}'));
-
-    print('object: ${profilePro.valueOrNull?.toJson()}');
+    final profilePro = ref.watch(profilePublicProvider('${userPro.user?.username}', '${ref.watch(usersProvider).tokens?.access_token}'));
 
     return Scaffold(
       appBar: AppBar(
