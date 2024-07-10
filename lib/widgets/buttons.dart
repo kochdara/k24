@@ -11,16 +11,19 @@ final Labels labels = Labels();
 
 class Buttons {
 
-  Widget invButton({ void Function()? onTap, IconData? icon, String? text, Color? color }) {
+  Widget invButton({ void Function()? onTap, IconData? icon, String? text,
+    Color? color,
+    Widget? prefixIcons
+  }) {
     return InkWell(
       onTap: onTap,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-
+          if(prefixIcons != null) prefixIcons,
+          if(prefixIcons != null) const SizedBox(width: 6),
           if(icon != null) Icon(icon, color: color ?? config.secondaryColor.shade400, size: 24),
           if(icon != null) const SizedBox(width: 6),
-
           if(text != null) labels.label(text, color: config.secondaryColor.shade400, fontSize: 15),
         ],
       ),
@@ -136,7 +139,7 @@ class Buttons {
               side: BorderSide(color: (borderColor ?? Colors.transparent)),
               borderRadius: BorderRadius.circular(radius),
             ),
-            padding: (padding != null) ? padding : EdgeInsets.all(padSize),
+            padding: padding ?? EdgeInsets.all(padSize),
           ),
           child: LayoutBuilder(
             builder: (context, constraint) {
@@ -155,7 +158,7 @@ class Buttons {
 
                   Container(
                     constraints: BoxConstraints(
-                      maxWidth: constraint.maxWidth - 50,
+                      maxWidth: constraint.maxWidth - 25,
                     ),
                     child: Text(
                       title,

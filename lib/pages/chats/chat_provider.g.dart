@@ -170,7 +170,7 @@ class _ChatPageProviderElement
   WidgetRef get context => (origin as ChatPageProvider).context;
 }
 
-String _$conversationPageHash() => r'804fa0ef60b9f17386a8bb4ff9619873774019a2';
+String _$conversationPageHash() => r'd684bf07e0681e8b451e321b966279aeec621875';
 
 abstract class _$ConversationPage
     extends BuildlessAutoDisposeStreamNotifier<List<ConData>> {

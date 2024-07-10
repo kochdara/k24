@@ -6,7 +6,7 @@ part of 'details_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getDetailPostHash() => r'099b22e112ff46399fc9f677739e42697db0aa03';
+String _$getDetailPostHash() => r'4f5140b17c6aac769aaeecf0d76a3ea951507117';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -32,9 +32,11 @@ class _SystemHash {
 abstract class _$GetDetailPost
     extends BuildlessAutoDisposeAsyncNotifier<GridCard> {
   late final String id;
+  late final String accessTokens;
 
   FutureOr<GridCard> build(
     String id,
+    String accessTokens,
   );
 }
 
@@ -50,9 +52,11 @@ class GetDetailPostFamily extends Family<AsyncValue<GridCard>> {
   /// See also [GetDetailPost].
   GetDetailPostProvider call(
     String id,
+    String accessTokens,
   ) {
     return GetDetailPostProvider(
       id,
+      accessTokens,
     );
   }
 
@@ -62,6 +66,7 @@ class GetDetailPostFamily extends Family<AsyncValue<GridCard>> {
   ) {
     return call(
       provider.id,
+      provider.accessTokens,
     );
   }
 
@@ -86,8 +91,11 @@ class GetDetailPostProvider
   /// See also [GetDetailPost].
   GetDetailPostProvider(
     String id,
+    String accessTokens,
   ) : this._internal(
-          () => GetDetailPost()..id = id,
+          () => GetDetailPost()
+            ..id = id
+            ..accessTokens = accessTokens,
           from: getDetailPostProvider,
           name: r'getDetailPostProvider',
           debugGetCreateSourceHash:
@@ -98,6 +106,7 @@ class GetDetailPostProvider
           allTransitiveDependencies:
               GetDetailPostFamily._allTransitiveDependencies,
           id: id,
+          accessTokens: accessTokens,
         );
 
   GetDetailPostProvider._internal(
@@ -108,9 +117,11 @@ class GetDetailPostProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.id,
+    required this.accessTokens,
   }) : super.internal();
 
   final String id;
+  final String accessTokens;
 
   @override
   FutureOr<GridCard> runNotifierBuild(
@@ -118,6 +129,7 @@ class GetDetailPostProvider
   ) {
     return notifier.build(
       id,
+      accessTokens,
     );
   }
 
@@ -126,13 +138,16 @@ class GetDetailPostProvider
     return ProviderOverride(
       origin: this,
       override: GetDetailPostProvider._internal(
-        () => create()..id = id,
+        () => create()
+          ..id = id
+          ..accessTokens = accessTokens,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         id: id,
+        accessTokens: accessTokens,
       ),
     );
   }
@@ -145,13 +160,16 @@ class GetDetailPostProvider
 
   @override
   bool operator ==(Object other) {
-    return other is GetDetailPostProvider && other.id == id;
+    return other is GetDetailPostProvider &&
+        other.id == id &&
+        other.accessTokens == accessTokens;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, id.hashCode);
+    hash = _SystemHash.combine(hash, accessTokens.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -160,6 +178,9 @@ class GetDetailPostProvider
 mixin GetDetailPostRef on AutoDisposeAsyncNotifierProviderRef<GridCard> {
   /// The parameter `id` of this provider.
   String get id;
+
+  /// The parameter `accessTokens` of this provider.
+  String get accessTokens;
 }
 
 class _GetDetailPostProviderElement
@@ -169,6 +190,8 @@ class _GetDetailPostProviderElement
 
   @override
   String get id => (origin as GetDetailPostProvider).id;
+  @override
+  String get accessTokens => (origin as GetDetailPostProvider).accessTokens;
 }
 
 String _$relateDetailPostHash() => r'0aa62f48eac6c93be5fd5e172b16733a8f3c3d93';

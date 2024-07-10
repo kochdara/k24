@@ -2,6 +2,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/helper.dart';
@@ -46,7 +47,6 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
   StateProvider<String> location2 = StateProvider<String>((ref) => '');
   StateProvider<bool> hidden = StateProvider<bool>((ref) => true);
   StateProvider<double> heightScrollProvider = StateProvider<double>((ref) => 0.0);
-  StateProvider<int?> total_like = StateProvider((ref) => 0);
 
   List listImg = [];
   double space = 10;
@@ -67,7 +67,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     final dataDetails = widget.data;
     final id = dataDetails.data?.id;
 
-    ref.refresh(getDetailPostProvider('$id').future);
+    ref.refresh(getDetailPostProvider('$id', '${ref.watch(usersProvider).tokens?.access_token}').future);
     await ref.read(relateDetailPostProvider('$id', '${ref.watch(usersProvider).tokens?.access_token}').notifier).refresh();
   }
 
@@ -81,7 +81,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     final dataDetails = widget.data;
     final adid = dataDetails.data?.id;
     final userTokens = ref.watch(usersProvider);
-    final watchDetails = ref.watch(getDetailPostProvider('$adid'));
+    final watchDetails = ref.watch(getDetailPostProvider('$adid', '${ref.watch(usersProvider).tokens?.access_token}'));
     final watchRelates = ref.watch(relateDetailPostProvider('$adid', '${userTokens.tokens?.access_token}'));
     final watchChat = ref.watch(getTopByUidProvider(ref, adid: '$adid'));
 
@@ -140,7 +140,6 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                       watchRelates: watchRelates,
                       location: location,
                       location2: location2,
-                      total_like: total_like,
                       onPressed: _handleRefresh,
                     ),
                   ),
@@ -177,7 +176,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
         ),
       ),
       bottomNavigationBar: (watchDetails.hasValue && dataDetails.data?.user?.id != userTokens.user?.id) ?
-      bottomNav(watchChat.valueOrNull, total_like: ref.watch(total_like)) : null,
+      bottomNav(watchChat.valueOrNull, watchDetails.valueOrNull) : null,
     );
   }
 
@@ -202,7 +201,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     );
   }
 
-  Widget bottomNav(ChatData? chatData, {int? total_like = 0, }) {
+  Widget bottomNav(ChatData? chatData, GridCard? dataDetails) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
       decoration: BoxDecoration(
@@ -218,28 +217,30 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
       ),
       child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-            double width = ((constraints.maxWidth) * 0.30) - 6;
-            double width2 = ((constraints.maxWidth) * 0.35) - 6;
+            double width = (constraints.maxWidth) * 0.32;
+            final isLiked = dataDetails?.data?.is_like ?? false;
+            final likeNotifier = ref.read(likeProvider(dataDetails?.data?.id));
 
             return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SizedBox(
-                  width: width,
+                Expanded(
                   child: buttons.textButtons(
-                    title: '$total_like',
+                    title: '${dataDetails?.data?.total_like ?? 0}',
                     onPressed: () { },
                     padSize: 10,
                     textSize: 14,
                     textWeight: FontWeight.w500,
                     bgColor: Colors.transparent,
-                    prefixIcon: CupertinoIcons.heart,
-                    prefixSize: 26,
+                    prefixIcon: (likeNotifier || isLiked) ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+                    prefixSize: 24,
+                    prefColor: (likeNotifier || isLiked) ? config.primaryAppColor.shade600 : Colors.black,
                   ),
                 ),
 
+                const SizedBox(width: 6),
+
                 SizedBox(
-                  width: width2,
+                  width: width,
                   child: buttons.textButtons(
                     title: 'Call',
                     onPressed: () { },
@@ -254,8 +255,10 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                   ),
                 ),
 
+                const SizedBox(width: 6),
+
                 SizedBox(
-                  width: width2,
+                  width: width,
                   child: buttons.textButtons(
                     title: 'Chat',
                     onPressed: (chatData?.user?.id != '') ? () {
@@ -296,7 +299,6 @@ class BodyWidget extends ConsumerWidget {
     required this.watchRelates,
     required this.location,
     required this.location2,
-    required this.total_like,
     this.onPressed,
   });
 
@@ -310,7 +312,6 @@ class BodyWidget extends ConsumerWidget {
   final AsyncValue<List<GridCard>> watchRelates;
   final StateProvider<String> location;
   final StateProvider<String> location2;
-  final StateProvider<int?> total_like;
   final VoidCallback? onPressed;
 
   @override
@@ -364,9 +365,6 @@ class BodyWidget extends ConsumerWidget {
 
                       ref.read(location2.notifier).state = datum?.location?.address??'';
                       if(datum?.location?.long_location != null) {ref.read(location2.notifier).state += ', ${datum?.location?.long_location ?? ''}';}
-
-                      // update total like //
-                      ref.read(total_like.notifier).state = datum?.total_like ?? 0;
                     });
                   }
 

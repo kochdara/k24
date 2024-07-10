@@ -1,6 +1,6 @@
 
 import 'package:dio/dio.dart';
-import 'package:k24/serialization/profiles/profile_serial.dart';
+import 'package:k24/serialization/accounts/profiles_public/profile_serial.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../helpers/config.dart';

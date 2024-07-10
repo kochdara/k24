@@ -147,7 +147,7 @@ class ConversationPage extends _$ConversationPage {
           }
         }
       }
-
+      list.sort((a, b) => a.id!.compareTo(b.id.toString()));
       return length;
     } catch (e, stacktrace) {
       print('Error in : $e');

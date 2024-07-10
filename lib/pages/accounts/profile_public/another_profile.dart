@@ -13,7 +13,7 @@ import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
 
 import '../../../serialization/grid_card/grid_card.dart';
-import '../../../serialization/profiles/profile_serial.dart';
+import '../../../serialization/accounts/profiles_public/profile_serial.dart';
 
 final Labels labels = Labels();
 final Buttons buttons = Buttons();
@@ -58,8 +58,9 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
   @override
   Widget build(BuildContext context) {
     final userDatum = widget.userData;
+    final profileListPub = profileListProvider('${userDatum?.username}', '${ref.watch(usersProvider).tokens?.access_token}');
     final profilePro = ref.watch(profilePublicProvider('${userDatum?.username}', '${ref.watch(usersProvider).tokens?.access_token}'));
-    final profileList = ref.watch(profileListProvider('${userDatum?.username}', '${ref.watch(usersProvider).tokens?.access_token}'));
+    final profileList = ref.watch(profileListPub);
 
     return DefaultTabController(
       length: 2,
@@ -75,13 +76,16 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
           ],
         ),
         backgroundColor: config.backgroundColor,
-        body: BodyProfile(
-          ref,
-          profilePro: profilePro,
-          profileList: profileList,
-          scrollController: scrollController,
-          showBar: showBar,
-          changePage: changePage,
+        body: RefreshIndicator(
+          onRefresh: () => ref.read(profileListPub.notifier).refresh(),
+          child: BodyProfile(
+            ref,
+            profilePro: profilePro,
+            profileList: profileList,
+            scrollController: scrollController,
+            showBar: showBar,
+            changePage: changePage,
+          ),
         ),
         bottomNavigationBar: myWidgets.bottomBarPage(
             context, ref, widget.selectedIndex,

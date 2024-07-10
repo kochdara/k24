@@ -809,11 +809,7 @@ class MyCards {
                   Positioned(
                     right: 6,
                     bottom: 6,
-                    child: InkWell(
-                      onTap: () { },
-                      child: (data?.is_like == true) ? Icon(CupertinoIcons.heart_fill, color: config.primaryAppColor.shade600, size: 22) :
-                      Icon(CupertinoIcons.heart, color: config.secondaryColor.shade200, size: 22),
-                    ),
+                    child: MyWidgetLikes(data: data),
                   ),
 
                 ],
@@ -977,7 +973,8 @@ class MyCards {
                         children: [
 
                           buttons.invButton(
-                            icon: (data?.is_like == true) ? CupertinoIcons.heart_fill : CupertinoIcons.heart, text: 'Like',
+                            prefixIcons: MyWidgetLikes(data: data),
+                            text: 'Like',
                             onTap: () { },
                             color: (data?.is_like == true) ? config.primaryAppColor.shade600 : null
                           ),
@@ -1030,7 +1027,7 @@ class MyWidgetLikes extends ConsumerWidget {
         final getTokens = await getSecure('user', type: Map);
         if (getTokens != null) {
           final submit = MyAccountApiService();
-          if (isLiked) {
+          if (likerNotifier || isLiked) {
             data?.is_like = false;
             likeNotifier.state = false;
             final result = await submit.submitRemove(context: context, id: '${data?.id}');
@@ -1045,9 +1042,9 @@ class MyWidgetLikes extends ConsumerWidget {
         }
       },
       child: Icon(
-        likerNotifier ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
-        color: likerNotifier ? config.primaryAppColor.shade600 : config.secondaryColor.shade200,
-        size: 22,
+        (likerNotifier || isLiked) ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+        color: (likerNotifier || isLiked) ? config.primaryAppColor.shade600 : config.secondaryColor.shade200,
+        size: 24,
       ),
     );
   }

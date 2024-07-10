@@ -1,6 +1,5 @@
 
 import 'package:dio/dio.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../helpers/config.dart';
@@ -10,23 +9,29 @@ part 'details_provider.g.dart';
 
 @riverpod
 class GetDetailPost extends _$GetDetailPost {
-  String fields = 'photo,photos,thumbnails,thumbnail,renew_date,posted_date,link,highlight_specs,specs,description,category,views,total_like,total_comment,location,user,store,phone';
+  String fields = 'photo,photos,thumbnails,thumbnail,renew_date,posted_date,link,highlight_specs,specs,description,category,views,total_like,is_like,total_comment,is_saved,location,user,store,email,phone,status,is_job_applied';
   String fun = 'save,chat,like,comment,apply_job,shipping';
 
   final Dio dio = Dio();
 
   @override
-  Future<GridCard> build(String id) async => fetch();
+  Future<GridCard> build(String id, String accessTokens) async => fetch();
 
   Future<GridCard> fetch() async {
-    state = const AsyncLoading();
-    final subs = 'feed/$id?lang=$lang&fields=$fields&functions=$fun&filter_version=$filterVersion';
-    final res = await dio.get('$postUrl/$subs');
+    try {
+      state = const AsyncLoading();
+      final subs = 'feed/$id?lang=$lang&fields=$fields&functions=$fun&filter_version=$filterVersion';
+      final res = await dio.get('$postUrl/$subs', options: Options(headers: {
+        'Access-Token': accessTokens
+      }));
 
-    final resp = GridCard.fromJson(res.data ?? {});
+      final resp = GridCard.fromJson(res.data ?? {});
 
-    if(res.statusCode == 200) return resp;
-
+      if(res.statusCode == 200) return resp;
+    } catch (e, stacktrace) {
+      print('Error in : $e');
+      print(stacktrace);
+    }
     return GridCard();
   }
 }

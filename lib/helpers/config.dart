@@ -202,11 +202,12 @@ class Config {
 // more config //
 // ########### //
 double bottomSheet = 18;
-double lineHeight = 1.4;
+double lineHeight = 1.35;
 double spaceGrid = 12;
 double spaceMenu = 14;
 String lang = 'en';
 String filterVersion = '3';
+String placeholder = 'assets/img/load.jpg';
 
 double responsive(double width) {
   switch (width) {

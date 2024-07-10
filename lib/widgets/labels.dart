@@ -41,6 +41,7 @@ class Labels {
     TextDecoration? decoration,
     TextDecorationStyle? decorationStyle,
     int? maxLines,
+    double lineHeight = 1.35
   }) {
     return SelectableText(data,
       style: TextStyle(
