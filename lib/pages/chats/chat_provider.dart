@@ -28,7 +28,7 @@ class ChatPage extends _$ChatPage {
   int currentPage = 0;
 
   @override
-  FutureOr<List<ChatData>> build(WidgetRef context) async {
+  FutureOr<List<ChatData>> build(WidgetRef context, String type) async {
     await urlAPI();
     return list;
   }
@@ -46,8 +46,8 @@ class ChatPage extends _$ChatPage {
   Future<void> urlAPI() async {
     final accessToken = await checkTokens(context);
     try {
-      final tokens = ref.watch(usersProvider);
-      final subs = 'topics?lang=en&offset=${currentPage * limit}&fields=$fields';
+      final tokens = context.watch(usersProvider);
+      final subs = 'topics?type=$type&lang=en&offset=${currentPage * limit}&fields=$fields';
       final res = await dio.get('$chatUrl/$subs', options: Options(headers: {
         'Access-Token': '${accessToken ?? tokens.tokens?.access_token}',
       }));
@@ -115,7 +115,7 @@ class ConversationPage extends _$ConversationPage {
     final accessToken = await checkTokens(context);
     try {
       if(first_message_id.isNotEmpty) message_id = first_message_id;
-      final tokens = ref.watch(usersProvider);
+      final tokens = context.watch(usersProvider);
       String subs = 'messages?lang=$lang&'
           'first_message_id=${(addNew)?'':message_id}&limit=$limited';
       if(topic_id != null && topic_id!.isNotEmpty && topic_id != '0') {

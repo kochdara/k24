@@ -4,6 +4,41 @@ import '../../try_convert.dart';
 
 part 'profiles_own.g.dart';
 
+@JsonSerializable(anyMap: true, explicitToJson: true)
+class OwnTotalPost {
+  OwnDataTotalPost data;
+
+  OwnTotalPost({
+    required this.data,
+  });
+
+  factory OwnTotalPost.fromJson(Map<String, dynamic> json) => _$OwnTotalPostFromJson(json);
+  Map toJson() => _$OwnTotalPostToJson(this);
+
+}
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+class OwnDataTotalPost {
+  String? paid;
+  String? active;
+  String? expired;
+  String? total;
+  String? saved;
+
+  OwnDataTotalPost({
+    this.paid,
+    this.active,
+    this.expired,
+    this.total,
+    this.saved,
+  });
+
+  factory OwnDataTotalPost.fromJson(Map<String, dynamic> json) => _$OwnDataTotalPostFromJson(json);
+  Map toJson() => _$OwnDataTotalPostToJson(this);
+
+}
+
+
 @JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToLists(), ToInt()])
 class OwnProfileSerial {
   List<DatumProfile?>? data;

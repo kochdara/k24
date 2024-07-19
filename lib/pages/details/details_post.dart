@@ -21,8 +21,11 @@ import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../helpers/converts.dart';
+import '../../serialization/chats/comments/comments_serial.dart';
 import '../../serialization/helper.dart';
+import '../chats/comments/conversation_comment.dart';
 import '../chats/conversations/chat_conversation.dart';
+import '../more_provider.dart';
 
 final Config config = Config();
 final Labels label = Labels();
@@ -48,7 +51,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
   StateProvider<bool> hidden = StateProvider<bool>((ref) => true);
   StateProvider<double> heightScrollProvider = StateProvider<double>((ref) => 0.0);
 
-  List listImg = [];
+  List<String?>? listImg = [];
   double space = 10;
   double heightImg = 300.0;
 
@@ -68,7 +71,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     final id = dataDetails.data?.id;
 
     ref.refresh(getDetailPostProvider('$id', '${ref.watch(usersProvider).tokens?.access_token}').future);
-    await ref.read(relateDetailPostProvider('$id', '${ref.watch(usersProvider).tokens?.access_token}').notifier).refresh();
+    await ref.read(relateDetailPostProvider('$id').notifier).refresh();
   }
 
   void scrollListener() {
@@ -82,18 +85,20 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     final adid = dataDetails.data?.id;
     final userTokens = ref.watch(usersProvider);
     final watchDetails = ref.watch(getDetailPostProvider('$adid', '${ref.watch(usersProvider).tokens?.access_token}'));
-    final watchRelates = ref.watch(relateDetailPostProvider('$adid', '${userTokens.tokens?.access_token}'));
+    final watchRelates = ref.watch(relateDetailPostProvider('$adid'));
     final watchChat = ref.watch(getTopByUidProvider(ref, adid: '$adid'));
 
+    final dataRes = watchDetails.valueOrNull ?? GridCard();
+
     if(dataDetails.data != null) {
-      listImg = dataDetails.data?.photos ?? [];
+      listImg = (dataDetails.data?.photos ?? dataRes.data?.photos) ?? [];
 
       // check location //
       if (dataDetails.data?.location != null) {
         futureAwait(duration: 10, () {
           ref.read(location.notifier).state = dataDetails.data?.location?.en_name ?? '';
 
-          String? date = stringToString(date: '${dataDetails.data?.renew_date}', format: 'dd, MMM yyyy');
+          String? date = stringToTimeAgoDay(date: '${dataDetails.data?.renew_date}', format: 'dd, MMM yyyy');
           if(date != null) ref.read(location.notifier).state += ' • $date';
         });
       }
@@ -102,7 +107,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      appBar: (listImg.isEmpty) ? appBar() : null,
+      appBar: (listImg!.isEmpty) ? appBar() : null,
       backgroundColor: config.backgroundColor,
       body: SafeArea(
         top: false,
@@ -115,7 +120,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                 constraints: const BoxConstraints(maxWidth: maxWidth),
                 child: Opacity(
                   opacity: 1,
-                  child: myWidgets.imageList(context, ref, dataDetails.data?.thumbnail ?? '', listImg, widget.title, heightImg: heightImg),
+                  child: myWidgets.imageList(context, ref, dataDetails.data?.thumbnail ?? '', listImg!, widget.title, heightImg: heightImg),
                 ),
               ),
             ),
@@ -132,7 +137,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                     child: BodyWidget(
                       title: widget.title,
                       dataDetails: dataDetails,
-                      listImg: listImg,
+                      listImg: listImg!,
                       space: space,
                       heightImg: heightImg,
                       hidden: hidden,
@@ -148,7 +153,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
             ),
 
             /// app bar ///
-            if(listImg.isNotEmpty) ...[
+            if(listImg!.isNotEmpty) ...[
               Positioned(
                 top: 0,
                 left: 0,
@@ -175,7 +180,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
           ],
         ),
       ),
-      bottomNavigationBar: (watchDetails.hasValue && dataDetails.data?.user?.id != userTokens.user?.id) ?
+      bottomNavigationBar: (watchDetails.hasValue && dataRes.data?.user?.id != userTokens.user?.id) ?
       bottomNav(watchChat.valueOrNull, watchDetails.valueOrNull) : null,
     );
   }
@@ -316,6 +321,8 @@ class BodyWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bannerAds = ref.watch(getBannerAdsProvider('app', 'image'));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -360,7 +367,7 @@ class BodyWidget extends ConsumerWidget {
                     futureAwait(duration: 1, () {
                       ref.read(location.notifier).state = datum?.location?.en_name ?? '';
 
-                      String? date = stringToString(date: '${datum?.renew_date}', format: 'dd, MMM yyyy');
+                      String? date = stringToTimeAgoDay(date: '${datum?.renew_date}', format: 'dd, MMM yyyy');
                       if(date != null) ref.read(location.notifier).state += ' • $date';
 
                       ref.read(location2.notifier).state = datum?.location?.address??'';
@@ -371,9 +378,15 @@ class BodyWidget extends ConsumerWidget {
                   return Column(
                     children: [
                       /// top ads ///
-                      myCards.ads(url: 'https://www.khmer24.ws/www/delivery/ai.php?filename=08232023_bannercarsale_(640x290)-2.jpg%20(3)&contenttype=jpeg', loading: watchDetails.isLoading),
-
-                      SizedBox(height: space / 2),
+                      if(bannerAds.hasValue && (bannerAds.value?.data?.detail?.a?.data?.first?.image != null ||
+                          bannerAds.value?.data?.detail?.b?.data?.first?.image != null)) ...[
+                        myCards.ads(
+                          url: '${bannerAds.value?.data?.detail?.a?.data?.first?.image ?? bannerAds.value?.data?.detail?.b?.data?.first?.image}',
+                          loading: bannerAds.isLoading,
+                          links: bannerAds.value?.data?.detail?.a?.data?.first?.link ?? bannerAds.value?.data?.detail?.b?.data?.first?.link,
+                        ),
+                        SizedBox(height: space / 2),
+                      ],
 
                       /// description ///
                       Container(
@@ -544,9 +557,15 @@ class BodyWidget extends ConsumerWidget {
                       SizedBox(height: space / 2),
 
                       /// top ads ///
-                      myCards.ads(url: 'https://www.khmer24.ws/www/delivery/ai.php?filename=08232023_bannercarsale_(640x290)-2.jpg%20(3)&contenttype=jpeg', loading: watchDetails.isLoading),
-
-                      SizedBox(height: space / 2),
+                      if(bannerAds.hasValue && (bannerAds.value?.data?.detail?.a?.data?.first?.image != null ||
+                          bannerAds.value?.data?.detail?.b?.data?.first?.image != null)) ...[
+                        myCards.ads(
+                          url: '${bannerAds.value?.data?.detail?.a?.data?.first?.image ?? bannerAds.value?.data?.detail?.b?.data?.first?.image}',
+                          loading: bannerAds.isLoading,
+                          links: bannerAds.value?.data?.detail?.a?.data?.first?.link ?? bannerAds.value?.data?.detail?.b?.data?.first?.link,
+                        ),
+                        SizedBox(height: space / 2),
+                      ],
 
                       /// user card ///
                       InkWell(
@@ -560,9 +579,9 @@ class BodyWidget extends ConsumerWidget {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  (datum?.user?.photo?.small != null) ? SizedBox(width: 60, height: 60,
-                                      child: Image.network('${datum?.user?.photo?.small?.url}', fit: BoxFit.cover)
-                                  ) : Container(width: 60, height: 60,
+                                  if (datum?.user?.photo?.small != null) SizedBox(width: 60, height: 60,
+                                      child: ClipOval(child: FadeInImage.assetNetwork(image: '${datum?.user?.photo?.small?.url}', fit: BoxFit.cover, placeholder: placeholder))
+                                  ) else Container(width: 60, height: 60,
                                     decoration: BoxDecoration(
                                       color: Colors.black12,
                                       borderRadius: BorderRadius.circular(32),
@@ -625,11 +644,11 @@ class BodyWidget extends ConsumerWidget {
                         ),
                       ),
 
-                      SizedBox(height: space),
+                      SizedBox(height: space / 2),
 
                       /// comment card ///
                       InkWell(
-                        onTap: () { },
+                        onTap: () => commentClick(context, datum),
                         child: Container(
                           padding: const EdgeInsets.only(bottom: 12, left: 12, right: 12),
                           width: double.infinity,
@@ -640,11 +659,11 @@ class BodyWidget extends ConsumerWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  label.label('Comment', fontWeight: FontWeight.w500, color: Colors.black, fontSize: 16),
+                                  label.label('Comment (${data.data?.total_comment ?? 0})', fontWeight: FontWeight.w500, color: Colors.black, fontSize: 16),
 
                                   buttons.textButtons(
                                     title: 'View All',
-                                    onPressed: () {},
+                                    onPressed: () => commentClick(context, datum),
                                     padSize: 9,
                                     textSize: 13,
                                     textWeight: FontWeight.w500,
@@ -697,9 +716,15 @@ class BodyWidget extends ConsumerWidget {
                       ),
 
                       /// top ads ///
-                      myCards.ads(url: 'https://www.khmer24.ws/www/delivery/ai.php?filename=08232023_bannercarsale_(640x290)-2.jpg%20(3)&contenttype=jpeg', loading: watchDetails.isLoading),
-
-                      SizedBox(height: space / 2),
+                      if(bannerAds.hasValue && (bannerAds.value?.data?.detail?.a?.data?.first?.image != null ||
+                          bannerAds.value?.data?.detail?.b?.data?.first?.image != null)) ...[
+                        myCards.ads(
+                          url: '${bannerAds.value?.data?.detail?.a?.data?.first?.image ?? bannerAds.value?.data?.detail?.b?.data?.first?.image}',
+                          loading: bannerAds.isLoading,
+                          links: bannerAds.value?.data?.detail?.a?.data?.first?.link ?? bannerAds.value?.data?.detail?.b?.data?.first?.link,
+                        ),
+                        SizedBox(height: space / 2),
+                      ],
 
                     ],
                   );
@@ -712,6 +737,13 @@ class BodyWidget extends ConsumerWidget {
 
       ],
     );
+  }
+
+  void commentClick(BuildContext context, Data_? datum) {
+    routeAnimation(context, pageBuilder: ConversationCommentPage(
+      commentData: CommentDatum(),
+      comObject: CommentObject(data: ObjectData.fromJson((datum?.toJson() ?? {}) as Map<String, dynamic>)),
+    ));
   }
 
   Widget contactCard(WidgetRef ref, {String tell = '', String url = '', }) {
@@ -730,7 +762,7 @@ class BodyWidget extends ConsumerWidget {
             width: 16,
             height: 16,
             margin: const EdgeInsets.only(right: 10),
-            child: Image.network(url),
+            child: FadeInImage.assetNetwork(placeholder: placeholder, image: url),
           ),
 
         Expanded(
@@ -982,7 +1014,7 @@ class PhotoHero extends StatelessWidget {
             child: InkWell(
               onTap: onTap,
               child: FadeInImage.assetNetwork(
-                placeholder: 'assets/img/load.jpg',
+                placeholder: placeholder,
                 image: photo,
                 fit: BoxFit.contain,
               ),

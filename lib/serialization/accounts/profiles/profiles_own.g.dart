@@ -6,6 +6,33 @@ part of 'profiles_own.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+OwnTotalPost _$OwnTotalPostFromJson(Map json) => OwnTotalPost(
+      data: OwnDataTotalPost.fromJson(
+          Map<String, dynamic>.from(json['data'] as Map)),
+    );
+
+Map<String, dynamic> _$OwnTotalPostToJson(OwnTotalPost instance) =>
+    <String, dynamic>{
+      'data': instance.data.toJson(),
+    };
+
+OwnDataTotalPost _$OwnDataTotalPostFromJson(Map json) => OwnDataTotalPost(
+      paid: const ToString().fromJson(json['paid']),
+      active: const ToString().fromJson(json['active']),
+      expired: const ToString().fromJson(json['expired']),
+      total: const ToString().fromJson(json['total']),
+      saved: const ToString().fromJson(json['saved']),
+    );
+
+Map<String, dynamic> _$OwnDataTotalPostToJson(OwnDataTotalPost instance) =>
+    <String, dynamic>{
+      'paid': const ToString().toJson(instance.paid),
+      'active': const ToString().toJson(instance.active),
+      'expired': const ToString().toJson(instance.expired),
+      'total': const ToString().toJson(instance.total),
+      'saved': const ToString().toJson(instance.saved),
+    };
+
 OwnProfileSerial _$OwnProfileSerialFromJson(Map json) => OwnProfileSerial(
       data: (json['data'] as List<dynamic>?)
           ?.map((e) => e == null

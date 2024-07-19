@@ -1,9 +1,11 @@
 
 import 'package:dio/dio.dart';
+import 'package:k24/pages/main/home_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../helpers/config.dart';
 import '../../serialization/grid_card/grid_card.dart';
+import '../../serialization/users/user_serial.dart';
 
 part 'details_provider.g.dart';
 
@@ -13,6 +15,7 @@ class GetDetailPost extends _$GetDetailPost {
   String fun = 'save,chat,like,comment,apply_job,shipping';
 
   final Dio dio = Dio();
+  final apiService = ViewApiService();
 
   @override
   Future<GridCard> build(String id, String accessTokens) async => fetch();
@@ -25,9 +28,11 @@ class GetDetailPost extends _$GetDetailPost {
         'Access-Token': accessTokens
       }));
 
-      final resp = GridCard.fromJson(res.data ?? {});
-
-      if(res.statusCode == 200) return resp;
+      if(res.statusCode == 200) {
+        final resp = GridCard.fromJson(res.data ?? {});
+        await apiService.submitIncreaseViews({'id': id});
+        return resp;
+      }
     } catch (e, stacktrace) {
       print('Error in : $e');
       print(stacktrace);
@@ -48,7 +53,7 @@ class RelateDetailPost extends _$RelateDetailPost {
   int offset = 0;
 
   @override
-  Future<List<GridCard>> build(String id, String accessTokens) async => fetch();
+  Future<List<GridCard>> build(String id) async => fetch();
 
   Future<List<GridCard>> fetch() async {
     await urlAPI();
@@ -67,10 +72,11 @@ class RelateDetailPost extends _$RelateDetailPost {
 
   Future<void> urlAPI() async {
     try {
+      final accessTokens = ref.watch(usersProvider).tokens?.access_token;
       final subs = 'feed/$id/relates?lang=$lang&offset=${offset + limit}&fields=$fields&functions=$fun';
-      final res = await dio.get('$postUrl/$subs', options: Options(headers: {
+      final res = await dio.get('$postUrl/$subs', options: Options(headers: (accessTokens != null) ? {
         'Access-Token': accessTokens
-      }));
+      } : null));
 
       final resp = HomeSerial.fromJson(res.data ?? {});
 
@@ -92,6 +98,24 @@ class RelateDetailPost extends _$RelateDetailPost {
     } catch (e, stacktrace) {
       print('Error in : $e');
       print(stacktrace);
+    }
+  }
+}
+
+class ViewApiService {
+  final Dio dio = Dio();
+
+  Future<MessageLogin> submitIncreaseViews(Map<String, dynamic> data) async {
+    const subs = 'views';
+    try {
+      final res = await dio.post(
+        '$postUrl/$subs', data: data,
+        options: Options(contentType: Headers.jsonContentType),
+      );
+      print('object: IncreaseViews');
+      return MessageLogin.fromJson(res.data ?? {});
+    } on DioException catch (e) {
+      return MessageLogin.fromJson(e.response?.data ?? {});
     }
   }
 }

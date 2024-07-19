@@ -11,6 +11,7 @@ import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../serialization/grid_card/grid_card.dart';
 import '../../../serialization/accounts/profiles_public/profile_serial.dart';
@@ -22,9 +23,8 @@ final MyCards myCards = MyCards();
 final Config config = Config();
 
 class AnotherProfilePage extends ConsumerStatefulWidget {
-  AnotherProfilePage({super.key, required this.userData});
+  const AnotherProfilePage({super.key, required this.userData});
 
-  final StateProvider<int> selectedIndex = StateProvider((ref) => 0);
   final User_? userData;
 
   @override
@@ -58,8 +58,9 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
   @override
   Widget build(BuildContext context) {
     final userDatum = widget.userData;
-    final profileListPub = profileListProvider('${userDatum?.username}', '${ref.watch(usersProvider).tokens?.access_token}');
-    final profilePro = ref.watch(profilePublicProvider('${userDatum?.username}', '${ref.watch(usersProvider).tokens?.access_token}'));
+    final username = '${userDatum?.username}';
+    final profileListPub = profileListProvider(username);
+    final profilePro = ref.watch(profilePublicProvider(username));
     final profileList = ref.watch(profileListPub);
 
     return DefaultTabController(
@@ -68,6 +69,8 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
         appBar: AppBar(
           title: labels.label('${userDatum?.name}', fontSize: 20, fontWeight: FontWeight.w500),
           titleSpacing: 6,
+          elevation: 0.0,
+          shadowColor: Colors.transparent,
           actions: [
             IconButton(
               onPressed: () { },
@@ -77,7 +80,7 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
         ),
         backgroundColor: config.backgroundColor,
         body: RefreshIndicator(
-          onRefresh: () => ref.read(profileListPub.notifier).refresh(),
+          onRefresh: () => ref.read(profileListPub.notifier).refresh(username),
           child: BodyProfile(
             ref,
             profilePro: profilePro,
@@ -88,7 +91,7 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
           ),
         ),
         bottomNavigationBar: myWidgets.bottomBarPage(
-            context, ref, widget.selectedIndex,
+            context, ref, 0,
             null
         ),
       ),
@@ -184,14 +187,14 @@ class BodyProfile extends StatelessWidget {
                                               border: Border.all(color: Colors.white, width: 4)
                                           ),
                                           alignment: Alignment.center,
-                                          width: 110,
-                                          height: 110,
+                                          width: 94,
+                                          height: 94,
                                           child: (datum?.photo?.url != null) ? ClipOval(
                                             child: FadeInImage.assetNetwork(
                                               placeholder: 'assets/img/load.jpg',
                                               image: '${datum?.photo?.url}',
-                                              width: 110,
-                                              height: 110,
+                                              width: 94,
+                                              height: 94,
                                               fit: BoxFit.cover,
                                             ),
                                           ) : const Icon(Icons.person, size: 64, color: Colors.white),
@@ -357,6 +360,25 @@ class BodyProfile extends StatelessWidget {
                                     title: '${meta?.url}',
                                     icon: CupertinoIcons.globe,
                                     color: config.primaryAppColor.shade600,
+
+                                    onTap: () async {
+                                      // Replace "https://" and split by "/"
+                                      String? modifiedUrl = meta?.url.toString().replaceFirst('https://', '');
+                                      final List<String>? urlParts = modifiedUrl?.split('/');
+
+                                      // You can reassemble or manipulate the parts if needed
+                                      const String scheme = 'https';
+                                      final String host = urlParts![0];
+                                      final String path = urlParts.sublist(1).join('/');
+
+                                      final Uri smsLaunchUri = Uri(
+                                        scheme: scheme,
+                                        host: host,
+                                        path: path,
+                                      );
+
+                                      await launchUrl(smsLaunchUri);
+                                    },
                                   ),
 
                                   if(datum?.contact?.address != null) AboutUI(
@@ -482,7 +504,7 @@ class AboutUI extends StatelessWidget {
       dense: true,
       contentPadding: EdgeInsets.zero,
       leading: Icon(icon, size: 26, color: config.secondaryColor.shade400,),
-      title: labels.label(title, fontSize: 15, color: color ?? Colors.black87),
+      title: InkWell(onTap: onTap,child: labels.label(title, fontSize: 15, color: color ?? Colors.black87)),
       subtitle: (isThreeLine == true) ? Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

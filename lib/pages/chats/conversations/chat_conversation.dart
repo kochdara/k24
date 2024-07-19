@@ -14,6 +14,7 @@ import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/chats/chat_provider.dart';
 import 'package:k24/pages/chats/conversations/chat_conversation_provider.dart';
+import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/forms.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
@@ -21,6 +22,7 @@ import 'package:k24/widgets/my_cards.dart';
 import '../../../serialization/chats/chat_serial.dart';
 import '../../../serialization/chats/conversation/conversation_serial.dart';
 import '../../../widgets/buttons.dart';
+import '../../accounts/profile_public/another_profile.dart';
 
 final Labels labels = Labels();
 final Config config = Config();
@@ -122,6 +124,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
     return Scaffold(
       appBar: AppBar(
         title: ListTile(
+          onTap: () => routeAnimation(context, pageBuilder: AnotherProfilePage(userData: User_.fromJson((widget.chatData.user?.toJson() ?? {}) as Map<String, dynamic>))),
           leading: SizedBox(
             width: 40,
             child: (widget.chatData.user?.photo != null) ? CircleAvatar(
@@ -393,7 +396,7 @@ class BodyChatDetails extends StatelessWidget {
                                     const SizedBox(height: 6),
 
                                     labels.labelIcon(
-                                        rightTitle: '${stringWithNow(date: '${val.send_date}', format: 'dd, MMM yyyy HH:mm')}',
+                                        rightTitle: '${stringToTimeAgoDay(date: '${val.send_date}', format: 'dd, MMM yyyy HH:mm')}',
                                         rightIcon: (val.is_read == true) ? Padding(
                                           padding: const EdgeInsets.only(left: 4.0),
                                           child: Icon(Icons.check, size: 12, color: config.secondaryColor.shade200),

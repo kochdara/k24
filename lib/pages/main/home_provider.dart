@@ -61,7 +61,7 @@ class HomeLists extends _$HomeLists {
   int offset = 0;
 
   @override
-  Future<List<GridCard>> build(String accessTokens) async {
+  Future<List<GridCard>> build(String accessTokens, Map? newData) async {
     return fetchHome();
   }
 
@@ -84,7 +84,12 @@ class HomeLists extends _$HomeLists {
 
   Future<void> _fetchData() async {
     try {
-      final subs = 'feed?lang=en&offset=${offset + limit}&fields=$fields&functions=$fun';
+      String subs = 'feed?lang=en&offset=${offset + limit}&fields=$fields&functions=$fun';
+      final newDatum = newData;
+      if(newDatum != null) {
+        newDatum.forEach((key, value) { subs += '&$key=$value'; });
+      }
+      print(subs);
       final res = await dio.get('$postUrl/$subs', options: Options(headers: {
         'Access-Token': accessTokens
       }));
@@ -116,8 +121,9 @@ void loadMore(WidgetRef ref,
     StateProvider<bool> fetchingProvider,
     StateProvider<bool> downProvider,
     ScrollController scrollController,
+    Map newData
   ) async {
-  final homeListsNotifier = ref.watch(homeListsProvider('${ref.watch(usersProvider).tokens?.access_token}').notifier);
+  final homeListsNotifier = ref.watch(homeListsProvider('${ref.watch(usersProvider).tokens?.access_token}', newData).notifier);
   final limit = homeListsNotifier.limit;
   final current = homeListsNotifier.currentResult;
   final fetchingNotifier = ref.read(fetchingProvider.notifier);
@@ -138,7 +144,8 @@ void loadMore(WidgetRef ref,
   }
 }
 
-Future<void> handleRefresh(WidgetRef ref) async {
+Future<void> handleRefresh(WidgetRef ref, StateProvider<Map> newData) async {
+  ref.read(newData.notifier).update((state) => {});
   ref.refresh(getMainCategoryProvider('0').future);
-  await ref.read(homeListsProvider('${ref.watch(usersProvider).tokens?.access_token}').notifier).refresh();
+  await ref.read(homeListsProvider('${ref.watch(usersProvider).tokens?.access_token}', ref.watch(newData)).notifier).refresh();
 }

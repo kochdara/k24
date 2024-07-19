@@ -28,7 +28,10 @@ class Forms {
     TextInputAction? textInputAction,
     bool obscureText = false,
     String? Function(String?)? validator,
-    InputBorder? enabledBorder
+    InputBorder? enabledBorder,
+    EdgeInsetsGeometry? contentPadding,
+    int? maxLines = 1,
+    int? maxLength,
   }) {
     return TextFormField(
       autofocus: autofocus,
@@ -59,6 +62,7 @@ class Forms {
         fillColor: enabled ? fillColor : config.secondaryColor.shade50,
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
+        contentPadding: contentPadding,
       ),
       validator: validator,
       obscureText: obscureText,
@@ -67,6 +71,8 @@ class Forms {
       inputFormatters: inputFormatters,
       onChanged: onChanged,
       textInputAction: textInputAction,
+      maxLines: maxLines,
+      maxLength: maxLength,
     );
   }
 

@@ -300,6 +300,7 @@ MessageLogin _$MessageLoginFromJson(Map json) => MessageLogin(
           : KeyErrors.fromJson((json['errors'] as Map?)?.map(
               (k, e) => MapEntry(k as String, e),
             )),
+      data: json['data'],
     );
 
 Map<String, dynamic> _$MessageLoginToJson(MessageLogin instance) =>
@@ -309,6 +310,7 @@ Map<String, dynamic> _$MessageLoginToJson(MessageLogin instance) =>
       'type': const ToString().toJson(instance.type),
       'code': const ToString().toJson(instance.code),
       'errors': instance.errors?.toJson(),
+      'data': instance.data,
     };
 
 KeyErrors _$KeyErrorsFromJson(Map json) => KeyErrors(

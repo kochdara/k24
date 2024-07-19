@@ -6,7 +6,7 @@ part of 'chat_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$chatPageHash() => r'f0a3ede6be71df27b336d39978892fbc126f5478';
+String _$chatPageHash() => r'72cffc7eb0044ea19d5704111c33087a524f9ca0';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -32,9 +32,11 @@ class _SystemHash {
 abstract class _$ChatPage
     extends BuildlessAutoDisposeAsyncNotifier<List<ChatData>> {
   late final WidgetRef context;
+  late final String type;
 
   FutureOr<List<ChatData>> build(
     WidgetRef context,
+    String type,
   );
 }
 
@@ -50,9 +52,11 @@ class ChatPageFamily extends Family<AsyncValue<List<ChatData>>> {
   /// See also [ChatPage].
   ChatPageProvider call(
     WidgetRef context,
+    String type,
   ) {
     return ChatPageProvider(
       context,
+      type,
     );
   }
 
@@ -62,6 +66,7 @@ class ChatPageFamily extends Family<AsyncValue<List<ChatData>>> {
   ) {
     return call(
       provider.context,
+      provider.type,
     );
   }
 
@@ -86,8 +91,11 @@ class ChatPageProvider
   /// See also [ChatPage].
   ChatPageProvider(
     WidgetRef context,
+    String type,
   ) : this._internal(
-          () => ChatPage()..context = context,
+          () => ChatPage()
+            ..context = context
+            ..type = type,
           from: chatPageProvider,
           name: r'chatPageProvider',
           debugGetCreateSourceHash:
@@ -97,6 +105,7 @@ class ChatPageProvider
           dependencies: ChatPageFamily._dependencies,
           allTransitiveDependencies: ChatPageFamily._allTransitiveDependencies,
           context: context,
+          type: type,
         );
 
   ChatPageProvider._internal(
@@ -107,9 +116,11 @@ class ChatPageProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.context,
+    required this.type,
   }) : super.internal();
 
   final WidgetRef context;
+  final String type;
 
   @override
   FutureOr<List<ChatData>> runNotifierBuild(
@@ -117,6 +128,7 @@ class ChatPageProvider
   ) {
     return notifier.build(
       context,
+      type,
     );
   }
 
@@ -125,13 +137,16 @@ class ChatPageProvider
     return ProviderOverride(
       origin: this,
       override: ChatPageProvider._internal(
-        () => create()..context = context,
+        () => create()
+          ..context = context
+          ..type = type,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         context: context,
+        type: type,
       ),
     );
   }
@@ -144,13 +159,16 @@ class ChatPageProvider
 
   @override
   bool operator ==(Object other) {
-    return other is ChatPageProvider && other.context == context;
+    return other is ChatPageProvider &&
+        other.context == context &&
+        other.type == type;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, context.hashCode);
+    hash = _SystemHash.combine(hash, type.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -159,6 +177,9 @@ class ChatPageProvider
 mixin ChatPageRef on AutoDisposeAsyncNotifierProviderRef<List<ChatData>> {
   /// The parameter `context` of this provider.
   WidgetRef get context;
+
+  /// The parameter `type` of this provider.
+  String get type;
 }
 
 class _ChatPageProviderElement
@@ -168,9 +189,11 @@ class _ChatPageProviderElement
 
   @override
   WidgetRef get context => (origin as ChatPageProvider).context;
+  @override
+  String get type => (origin as ChatPageProvider).type;
 }
 
-String _$conversationPageHash() => r'd684bf07e0681e8b451e321b966279aeec621875';
+String _$conversationPageHash() => r'9f59bec55b4250c472c3ad709f4987c3afa0a17d';
 
 abstract class _$ConversationPage
     extends BuildlessAutoDisposeStreamNotifier<List<ConData>> {

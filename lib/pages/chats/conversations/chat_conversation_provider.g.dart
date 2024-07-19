@@ -6,7 +6,7 @@ part of 'chat_conversation_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getTopByUidHash() => r'c7cad26e3f89b19fc1be2ba1f31669fd8b981732';
+String _$getTopByUidHash() => r'41503cd0e431da3c202d68cdd43a41f0def48785';
 
 /// Copied from Dart SDK
 class _SystemHash {

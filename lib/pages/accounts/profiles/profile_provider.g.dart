@@ -6,7 +6,7 @@ part of 'profile_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$ownProfileListHash() => r'631ac78995b727676272be14e19a61344be5c3a6';
+String _$ownProfileListHash() => r'40ae440825daf3490d1223f9ae5c7bd6d2b2a5c1';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -32,11 +32,9 @@ class _SystemHash {
 abstract class _$OwnProfileList
     extends BuildlessAutoDisposeAsyncNotifier<List<DatumProfile>> {
   late final WidgetRef context;
-  late final String accessTokens;
 
   FutureOr<List<DatumProfile>> build(
     WidgetRef context,
-    String accessTokens,
   );
 }
 
@@ -52,11 +50,9 @@ class OwnProfileListFamily extends Family<AsyncValue<List<DatumProfile>>> {
   /// See also [OwnProfileList].
   OwnProfileListProvider call(
     WidgetRef context,
-    String accessTokens,
   ) {
     return OwnProfileListProvider(
       context,
-      accessTokens,
     );
   }
 
@@ -66,7 +62,6 @@ class OwnProfileListFamily extends Family<AsyncValue<List<DatumProfile>>> {
   ) {
     return call(
       provider.context,
-      provider.accessTokens,
     );
   }
 
@@ -91,11 +86,8 @@ class OwnProfileListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   /// See also [OwnProfileList].
   OwnProfileListProvider(
     WidgetRef context,
-    String accessTokens,
   ) : this._internal(
-          () => OwnProfileList()
-            ..context = context
-            ..accessTokens = accessTokens,
+          () => OwnProfileList()..context = context,
           from: ownProfileListProvider,
           name: r'ownProfileListProvider',
           debugGetCreateSourceHash:
@@ -106,7 +98,6 @@ class OwnProfileListProvider extends AutoDisposeAsyncNotifierProviderImpl<
           allTransitiveDependencies:
               OwnProfileListFamily._allTransitiveDependencies,
           context: context,
-          accessTokens: accessTokens,
         );
 
   OwnProfileListProvider._internal(
@@ -117,11 +108,9 @@ class OwnProfileListProvider extends AutoDisposeAsyncNotifierProviderImpl<
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.context,
-    required this.accessTokens,
   }) : super.internal();
 
   final WidgetRef context;
-  final String accessTokens;
 
   @override
   FutureOr<List<DatumProfile>> runNotifierBuild(
@@ -129,7 +118,6 @@ class OwnProfileListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   ) {
     return notifier.build(
       context,
-      accessTokens,
     );
   }
 
@@ -138,16 +126,13 @@ class OwnProfileListProvider extends AutoDisposeAsyncNotifierProviderImpl<
     return ProviderOverride(
       origin: this,
       override: OwnProfileListProvider._internal(
-        () => create()
-          ..context = context
-          ..accessTokens = accessTokens,
+        () => create()..context = context,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         context: context,
-        accessTokens: accessTokens,
       ),
     );
   }
@@ -160,16 +145,13 @@ class OwnProfileListProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   bool operator ==(Object other) {
-    return other is OwnProfileListProvider &&
-        other.context == context &&
-        other.accessTokens == accessTokens;
+    return other is OwnProfileListProvider && other.context == context;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, context.hashCode);
-    hash = _SystemHash.combine(hash, accessTokens.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -179,9 +161,6 @@ mixin OwnProfileListRef
     on AutoDisposeAsyncNotifierProviderRef<List<DatumProfile>> {
   /// The parameter `context` of this provider.
   WidgetRef get context;
-
-  /// The parameter `accessTokens` of this provider.
-  String get accessTokens;
 }
 
 class _OwnProfileListProviderElement
@@ -191,8 +170,22 @@ class _OwnProfileListProviderElement
 
   @override
   WidgetRef get context => (origin as OwnProfileListProvider).context;
-  @override
-  String get accessTokens => (origin as OwnProfileListProvider).accessTokens;
 }
+
+String _$getTotalPostHash() => r'58a308f9902838d1150353a01a454a78c8f3934f';
+
+/// See also [GetTotalPost].
+@ProviderFor(GetTotalPost)
+final getTotalPostProvider =
+    AutoDisposeAsyncNotifierProvider<GetTotalPost, OwnDataTotalPost?>.internal(
+  GetTotalPost.new,
+  name: r'getTotalPostProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$getTotalPostHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$GetTotalPost = AutoDisposeAsyncNotifier<OwnDataTotalPost?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

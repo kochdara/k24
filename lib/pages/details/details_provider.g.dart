@@ -6,7 +6,7 @@ part of 'details_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getDetailPostHash() => r'4f5140b17c6aac769aaeecf0d76a3ea951507117';
+String _$getDetailPostHash() => r'c5e02c9240ae8b490595add7e37251aab34bce49';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -194,16 +194,14 @@ class _GetDetailPostProviderElement
   String get accessTokens => (origin as GetDetailPostProvider).accessTokens;
 }
 
-String _$relateDetailPostHash() => r'0aa62f48eac6c93be5fd5e172b16733a8f3c3d93';
+String _$relateDetailPostHash() => r'9f56bad31aee40af9c4f5223735f6ea978f0cf99';
 
 abstract class _$RelateDetailPost
     extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {
   late final String id;
-  late final String accessTokens;
 
   FutureOr<List<GridCard>> build(
     String id,
-    String accessTokens,
   );
 }
 
@@ -219,11 +217,9 @@ class RelateDetailPostFamily extends Family<AsyncValue<List<GridCard>>> {
   /// See also [RelateDetailPost].
   RelateDetailPostProvider call(
     String id,
-    String accessTokens,
   ) {
     return RelateDetailPostProvider(
       id,
-      accessTokens,
     );
   }
 
@@ -233,7 +229,6 @@ class RelateDetailPostFamily extends Family<AsyncValue<List<GridCard>>> {
   ) {
     return call(
       provider.id,
-      provider.accessTokens,
     );
   }
 
@@ -258,11 +253,8 @@ class RelateDetailPostProvider extends AutoDisposeAsyncNotifierProviderImpl<
   /// See also [RelateDetailPost].
   RelateDetailPostProvider(
     String id,
-    String accessTokens,
   ) : this._internal(
-          () => RelateDetailPost()
-            ..id = id
-            ..accessTokens = accessTokens,
+          () => RelateDetailPost()..id = id,
           from: relateDetailPostProvider,
           name: r'relateDetailPostProvider',
           debugGetCreateSourceHash:
@@ -273,7 +265,6 @@ class RelateDetailPostProvider extends AutoDisposeAsyncNotifierProviderImpl<
           allTransitiveDependencies:
               RelateDetailPostFamily._allTransitiveDependencies,
           id: id,
-          accessTokens: accessTokens,
         );
 
   RelateDetailPostProvider._internal(
@@ -284,11 +275,9 @@ class RelateDetailPostProvider extends AutoDisposeAsyncNotifierProviderImpl<
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.id,
-    required this.accessTokens,
   }) : super.internal();
 
   final String id;
-  final String accessTokens;
 
   @override
   FutureOr<List<GridCard>> runNotifierBuild(
@@ -296,7 +285,6 @@ class RelateDetailPostProvider extends AutoDisposeAsyncNotifierProviderImpl<
   ) {
     return notifier.build(
       id,
-      accessTokens,
     );
   }
 
@@ -305,16 +293,13 @@ class RelateDetailPostProvider extends AutoDisposeAsyncNotifierProviderImpl<
     return ProviderOverride(
       origin: this,
       override: RelateDetailPostProvider._internal(
-        () => create()
-          ..id = id
-          ..accessTokens = accessTokens,
+        () => create()..id = id,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         id: id,
-        accessTokens: accessTokens,
       ),
     );
   }
@@ -327,16 +312,13 @@ class RelateDetailPostProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   bool operator ==(Object other) {
-    return other is RelateDetailPostProvider &&
-        other.id == id &&
-        other.accessTokens == accessTokens;
+    return other is RelateDetailPostProvider && other.id == id;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, id.hashCode);
-    hash = _SystemHash.combine(hash, accessTokens.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -346,9 +328,6 @@ mixin RelateDetailPostRef
     on AutoDisposeAsyncNotifierProviderRef<List<GridCard>> {
   /// The parameter `id` of this provider.
   String get id;
-
-  /// The parameter `accessTokens` of this provider.
-  String get accessTokens;
 }
 
 class _RelateDetailPostProviderElement
@@ -358,8 +337,6 @@ class _RelateDetailPostProviderElement
 
   @override
   String get id => (origin as RelateDetailPostProvider).id;
-  @override
-  String get accessTokens => (origin as RelateDetailPostProvider).accessTokens;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

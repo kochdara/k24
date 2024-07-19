@@ -11,6 +11,7 @@ import 'package:k24/pages/accounts/login/login_provider.dart';
 import 'package:k24/pages/accounts/profiles/profile_page.dart';
 import 'package:k24/pages/chats/chat_page.dart';
 import 'package:k24/pages/main/home_provider.dart';
+import 'package:k24/pages/posts/post_page.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -26,7 +27,7 @@ class MyWidgets {
   final myService = MyApiService();
   final Buttons buttons = Buttons();
 
-  Widget bottomBarPage(BuildContext context, WidgetRef ref, StateProvider<int> selectedIndex,
+  Widget bottomBarPage(BuildContext context, WidgetRef ref, int selectedIndex,
       ScrollController? scrollController) {
     return BottomNavigationBar(
       items: const <BottomNavigationBarItem>[
@@ -43,38 +44,37 @@ class MyWidgets {
       unselectedFontSize: 12,
       showUnselectedLabels: true,
       unselectedItemColor: config.secondaryColor.shade200,
-      currentIndex: ref.watch(selectedIndex),
+      currentIndex: selectedIndex,
       type: BottomNavigationBarType.fixed,
       onTap: (value) async {
         DateTime expDate = DateTime.now();
         final tokens = ref.watch(usersProvider);
+        String? accessToken = tokens.tokens?.access_token;
 
         try {
-          expDate = JwtDecoder.getExpirationDate('${tokens.tokens?.access_token}');
-
+          expDate = JwtDecoder.getExpirationDate(accessToken!);
           /// exchange token ///
-          if(expDate.compareTo(DateTime.now()) <= 0) {
+          if(expDate.isBefore(DateTime.now())) {
             final newToken = await myService.getNewToken(ref);
-            expDate = JwtDecoder.getExpirationDate('${newToken.access_token}');
+            accessToken = newToken.access_token;
+            expDate = JwtDecoder.getExpirationDate(accessToken!);
           }
-
         } catch(e) {
           print('@# $e');
         }
-
-        if(value != 0 && expDate.compareTo(DateTime.now()) <= 0) {
+        if(value != 0 && expDate.isBefore(DateTime.now())) {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckLoginPage()));
-
         } else {
           switch (value) {
+            case 2:
+              routeNoAnimation(context, pageBuilder: const PostProductPage());
+              break;
             case 3:
-              routeNoAnimation(context, pageBuilder: ChatPageView(selectedIndex: selectedIndex));
+              routeNoAnimation(context, pageBuilder: const ChatPageView(selectedIndex: 3));
               break;
-
             case 4:
-              routeNoAnimation(context, pageBuilder: ProfilePage(selectedIndex: selectedIndex,));
+              routeNoAnimation(context, pageBuilder: const ProfilePage(selectedIndex: 4));
               break;
-
             default:
               Navigator.of(context).popUntil((route) => route.isFirst);
               if(scrollController != null) {
@@ -86,7 +86,6 @@ class MyWidgets {
               }
           }
         }
-        ref.read(selectedIndex.notifier).state = value;
       },
     );
   }
@@ -199,11 +198,11 @@ class MyWidgets {
               SizedBox(
                 height: heightImg,
                 width: double.infinity,
-                child: Image.network(thumbnail, fit: BoxFit.cover),
+                child: FadeInImage.assetNetwork(placeholder: placeholder, image: thumbnail, fit: BoxFit.cover),
               ),
             ],
 
-            if(listImg.isNotEmpty) ...[
+            if(listImg.isNotEmpty && listImg.length > 1) ...[
               const SizedBox(height: 4),
 
               LayoutBuilder(
@@ -217,7 +216,7 @@ class MyWidgets {
                       spacing: 4,
                       runSpacing: 4,
                       children: [
-                        for(int v=0; v<length; v++) ... [
+                        for(int v=1; v<=length; v++) ... [
                           if(listImg.asMap().containsKey(v))
                             Stack(
                               children: [
@@ -225,17 +224,17 @@ class MyWidgets {
                                   height: width ?? 120,
                                   width: width ?? 120,
                                   color: config.secondaryColor.shade50,
-                                  child: Image.network(listImg[v], fit: BoxFit.cover),
+                                  child: FadeInImage.assetNetwork(placeholder: placeholder, image: listImg[v], fit: BoxFit.cover),
                                 ),
 
-                                if((listImg.length - length) > 0 && v == (length - 1))
+                                if((listImg.length - (length + 1)) > 0 && v == length)
                                   Positioned(
                                     height: width ?? 120,
                                     width: width ?? 120,
                                     child: Container(
                                       alignment: Alignment.center,
                                       color: Colors.black.withOpacity(0.45),
-                                      child: labels.label('+${(listImg.length - length)}', fontSize: 18, color: Colors.white,fontWeight: FontWeight.w500),
+                                      child: labels.label('+${(listImg.length - (length + 1))}', fontSize: 18, color: Colors.white,fontWeight: FontWeight.w500),
                                     ),
                                   )
                               ],

@@ -21,7 +21,7 @@ class GetTopByUid extends _$GetTopByUid {
   FutureOr<ChatData?> build(WidgetRef context, { String topic_id = '0', String? to_id, String? adid, }) async {
     final accessToken = await checkTokens(context);
     try {
-      final tokens = ref.watch(usersProvider);
+      final tokens = context.watch(usersProvider);
       String subs = 'topics/$topic_id?lang=en&fields=$fields';
       if(to_id != null) {subs += '&to_id=$to_id';}
       else if(adid != null) {subs += '&adid=$adid';}

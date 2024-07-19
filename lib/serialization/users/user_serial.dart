@@ -262,6 +262,7 @@ class MessageLogin {
   String? type;
   String? code;
   KeyErrors? errors;
+  dynamic data;
 
   MessageLogin({
     this.message,
@@ -269,6 +270,7 @@ class MessageLogin {
     this.type,
     this.code,
     this.errors,
+    this.data,
   });
 
   factory MessageLogin.fromJson(Map<String, dynamic>? json) => _$MessageLoginFromJson(json!);

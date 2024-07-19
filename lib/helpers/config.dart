@@ -202,7 +202,7 @@ class Config {
 // more config //
 // ########### //
 double bottomSheet = 18;
-double lineHeight = 1.35;
+double lineHeight = 1.45;
 double spaceGrid = 12;
 double spaceMenu = 14;
 String lang = 'en';

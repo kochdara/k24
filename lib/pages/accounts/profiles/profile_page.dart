@@ -9,13 +9,15 @@ import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/accounts/profiles/profile_provider.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/pages/settings/settings_page.dart';
+import 'package:k24/serialization/accounts/profiles/profiles_own.dart';
+import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
 
-import '../../../serialization/accounts/profiles/profiles_own.dart';
 import '../../../serialization/accounts/profiles_public/profile_serial.dart';
+import '../../details/details_post.dart';
 import '../profile_public/profile_provider.dart';
 
 final Labels labels = Labels();
@@ -23,11 +25,12 @@ final Buttons buttons = Buttons();
 final MyWidgets myWidgets = MyWidgets();
 final MyCards myCards = MyCards();
 final Config config = Config();
+final myAPIService = Provider((ref) => MyAccountApiService());
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key, required this.selectedIndex});
 
-  final StateProvider<int> selectedIndex;
+  final int selectedIndex;
 
   @override
   ConsumerState<ProfilePage> createState() => _ProfilePageState();
@@ -44,27 +47,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final userPro = ref.watch(usersProvider);
-    final profilePro = ref.watch(profilePublicProvider('${userPro.user?.username}', '${ref.watch(usersProvider).tokens?.access_token}'));
+    final profilePro = ref.watch(profilePublicProvider('${userPro.user?.username}'));
 
     return Scaffold(
-      appBar: AppBar(
-        leading: Icon(CupertinoIcons.person_circle_fill, color: config.secondaryColor.shade50, size: 42),
-        title: labels.label('${userPro.user?.name}', fontSize: 20, fontWeight: FontWeight.w500),
-        titleSpacing: 6,
-        actions: [
-          IconButton(
-            onPressed: () { },
-            icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_fill, color: Colors.white),
-          ),
-
-          IconButton(
-            onPressed: () {
-              routeAnimation(context, pageBuilder: const SettingPage());
-            },
-            icon: const Icon(Icons.settings, color: Colors.white),
-          ),
-        ],
-      ),
       backgroundColor: config.backgroundColor,
       body: BodyProfile(
         ref,
@@ -96,10 +81,30 @@ class BodyProfile extends StatelessWidget {
 
     return RefreshIndicator(
       onRefresh: () {
-        return ref.read(ownProfileListProvider(ref, '${ref.watch(usersProvider).tokens?.access_token}').notifier).refresh();
+        return ref.read(ownProfileListProvider(ref).notifier).refresh();
       },
       child: CustomScrollView(
         slivers: [
+          SliverAppBar(
+            floating: true,
+            leading: Icon(CupertinoIcons.person_circle_fill, color: config.secondaryColor.shade50, size: 42),
+            title: labels.label('${userKey.user?.name}', fontSize: 20, fontWeight: FontWeight.w500),
+            titleSpacing: 6,
+            actions: [
+              IconButton(
+                onPressed: () { },
+                icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_fill, color: Colors.white),
+              ),
+
+              IconButton(
+                onPressed: () {
+                  routeNoAnimation(context, pageBuilder: const SettingPage());
+                },
+                icon: const Icon(Icons.settings, color: Colors.white),
+              ),
+            ],
+          ),
+
           /// body //
           SliverList(
             delegate: SliverChildListDelegate([
@@ -153,29 +158,29 @@ class BodyProfile extends StatelessWidget {
                                         border: Border.all(color: Colors.white, width: 4)
                                     ),
                                     alignment: Alignment.center,
-                                    width: 110,
-                                    height: 110,
+                                    width: 94,
+                                    height: 94,
                                     child: (datum?.photo?.url != null) ? ClipOval(
                                       child: FadeInImage.assetNetwork(
                                         placeholder: placeholder,
                                         image: '${datum?.photo?.url}',
-                                        width: 110,
-                                        height: 110,
+                                        width: 94,
+                                        height: 94,
                                         fit: BoxFit.cover,
                                       ),
                                     ) : const Icon(Icons.person, size: 64, color: Colors.white),
                                   ),
 
                                   Positioned(
-                                    bottom: 6,
-                                    right: 6,
+                                    bottom: 4,
+                                    right: 4,
                                     child: Container(
                                       padding: const EdgeInsets.all(4),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(50),
                                         color: config.secondaryColor.shade50,
                                       ),
-                                      child: Icon(Icons.camera_alt, size: 18, color: config.secondaryColor.shade400),
+                                      child: Icon(Icons.camera_alt, size: 14, color: config.secondaryColor.shade400),
                                     ),
                                   )
                                 ],
@@ -190,15 +195,19 @@ class BodyProfile extends StatelessWidget {
                                 children: [
                                   IconButton(
                                     onPressed: () => { },
-                                    icon: const Icon(CupertinoIcons.qrcode, size: 35, color: Colors.black87),
+                                    icon: const Icon(CupertinoIcons.qrcode, size: 30, color: Colors.black87),
                                   ),
-                                  buttons.textButtons(
-                                    title: 'Edit Profile',
-                                    onPressed: () { },
-                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                                    textColor: Colors.black87,
-                                    bgColor: Colors.transparent,
-                                    borderColor: Colors.black54,
+                                  SizedBox(
+                                    height: 36.0,
+                                    child: buttons.textButtons(
+                                      title: 'Edit Profile',
+                                      onPressed: () { },
+                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                                      textColor: Colors.black87,
+                                      bgColor: Colors.transparent,
+                                      borderColor: Colors.black54,
+                                      padSize: 0
+                                    ),
                                   ),
                                 ],
                               )
@@ -300,7 +309,11 @@ class SegmentedControlExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ownProfilePro = ref.watch(ownProfileListProvider(ref, '${ref.watch(usersProvider).tokens?.access_token}'));
+    final submitApi = ref.watch(myAPIService);
+    final ownProfilePro = ref.watch(ownProfileListProvider(ref));
+    final getTotalPostPro = ref.watch(getTotalPostProvider);
+
+    final dataTotal = getTotalPostPro.valueOrNull ?? OwnDataTotalPost();
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
@@ -334,15 +347,15 @@ class SegmentedControlExample extends StatelessWidget {
                       children: <TypeSelect, Widget>{
                         TypeSelect.active: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: labels.label('Active (0)', fontSize: 13, color: Colors.black87, textAlign: TextAlign.center),
+                          child: labels.label('Active (${dataTotal.active ?? 0})', fontSize: 13, color: Colors.black87, textAlign: TextAlign.center),
                         ),
                         TypeSelect.premiere: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: labels.label('Premiere (0)', fontSize: 13, color: Colors.black87, textAlign: TextAlign.center),
+                          child: labels.label('Premiere (${dataTotal.paid ?? 0})', fontSize: 13, color: Colors.black87, textAlign: TextAlign.center),
                         ),
                         TypeSelect.expired: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: labels.label('Expired (0)', fontSize: 13, color: Colors.black87, textAlign: TextAlign.center),
+                          child: labels.label('Expired (${dataTotal.expired ?? 0})', fontSize: 13, color: Colors.black87, textAlign: TextAlign.center),
                         ),
                       },
                     ),
@@ -368,67 +381,85 @@ class SegmentedControlExample extends StatelessWidget {
                       child: Flex(
                         direction: Axis.vertical,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if(datum.thumbnail != null) Container(
-                                  width: 125,
-                                  height: 125,
-                                  margin: const EdgeInsets.only(right: 10.0),
-                                  child: FadeInImage.assetNetwork(
-                                    placeholder: placeholder,
-                                    image: '${datum.thumbnail}',
-                                    fit: BoxFit.cover,
+                          InkWell(
+                            onTap: () => handleEdit(context, datum),
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if(datum.thumbnail != null) Container(
+                                    width: 125,
+                                    height: 125,
+                                    margin: const EdgeInsets.only(right: 10.0),
+                                    child: FadeInImage.assetNetwork(
+                                      placeholder: placeholder,
+                                      image: '${datum.thumbnail}',
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
-                                ),
 
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      labels.selectLabel('${datum.title}', fontSize: 14, color: Colors.black87),
-                                      labels.selectLabel('\$${datum.price}', fontSize: 15, color: Colors.red, fontWeight: FontWeight.w500, lineHeight: 1.65),
-                                      Flex(
-                                        direction: Axis.horizontal,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Expanded(
-                                            child: labels.selectLabel('ID: ${datum.id}', color: Colors.black54, fontSize: 12),
-                                          ),
-                                          Expanded(
-                                            child: labels.selectLabel('View: ${datum.views}', color: Colors.black54, fontSize: 12),
-                                          ),
-                                        ],
-                                      ),
-                                      labels.selectLabel('Post Date: ${stringToString(date: '${datum.posted_date}', format: 'dd, MMM yyyy')}', color: Colors.black54, fontSize: 12),
-                                      labels.selectLabel('Renew Date: ${stringWithNow(date: '${datum.renew_date}', format: 'dd, MMM yyyy')}', color: Colors.black54, fontSize: 12),
-                                    ],
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        labels.selectLabel(datum.title ?? 'N/A', fontSize: 15, color: Colors.black87),
+                                        labels.label('\$${datum.price ?? 0.0}', fontSize: 15, color: Colors.red, fontWeight: FontWeight.w500),
+                                        Flex(
+                                          direction: Axis.horizontal,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: labels.label('ID: ${datum.id}', color: Colors.black54, fontSize: 12),
+                                            ),
+                                            Expanded(
+                                              child: labels.label('View: ${datum.views ?? 0}', color: Colors.black54, fontSize: 12),
+                                            ),
+                                          ],
+                                        ),
+                                        labels.label('Post Date: ${stringToString(date: '${datum.posted_date}', format: 'dd, MMM yyyy')}', color: Colors.black54, fontSize: 12),
+                                        labels.label('Renew Date: ${stringToTimeAgoDay(date: '${datum.renew_date}', format: 'dd, MMM yyyy')}', color: Colors.black54, fontSize: 12),
+                                        Flex(
+                                          direction: Axis.horizontal,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: labels.label('Impression: ${datum.insights?.impression ?? 0}', color: Colors.black54, fontSize: 12),
+                                            ),
+                                            Expanded(
+                                              child: labels.label('Engagement: ${datum.insights?.engagement ?? 0}', color: Colors.black54, fontSize: 12),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                          const Divider(color: Colors.black12, height: 0),
+                          Divider(color: config.secondaryColor.shade50, height: 0),
 
                           Row(
                             children: [
                               Expanded(
                                 child: buttons.textButtons(
                                   title: 'Renew',
-                                  onPressed: () { },
-                                  padSize: 8,
+                                  onPressed: !checkDate('${datum.renew_date}') ? () => submitApi.submitRenew(
+                                      '${datum.id}', context: context, ref: ref)
+                                  : null,
+                                  padSize: 0,
                                   textSize: 14,
+                                  textColor: checkDate('${datum.renew_date}') ? Colors.black54 : Colors.black87,
                                   bgColor: Colors.transparent,
                                 ),
                               ),
 
                               Expanded(
                                 child: buttons.textButtons(
-                                  title: 'Edit',
-                                  onPressed: () { },
-                                  padSize: 8,
+                                  title: 'Promote',
+                                  onPressed: () => { },
+                                  padSize: 0,
                                   textSize: 14,
                                   bgColor: Colors.transparent,
                                 ),
@@ -438,7 +469,7 @@ class SegmentedControlExample extends StatelessWidget {
                                 child: buttons.textButtons(
                                   title: 'Delete',
                                   onPressed: () { },
-                                  padSize: 8,
+                                  padSize: 0,
                                   textSize: 14,
                                   bgColor: Colors.transparent,
                                 ),
@@ -447,20 +478,52 @@ class SegmentedControlExample extends StatelessWidget {
                               PopupMenuButton(
                                 padding: EdgeInsets.zero,
                                 surfaceTintColor: Colors.white,
-                                initialValue: 0,
                                 onSelected: (item) {},
                                 itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-                                  const PopupMenuItem(
+                                  PopupMenuItem(
+                                    height: 42,
                                     value: 0,
-                                    child: Text('Item 1'),
+                                    onTap: () => handleEdit(context, datum),
+                                    child: ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      dense: true,
+                                      horizontalTitleGap: 8,
+                                      leading: const Icon(Icons.edit, size: 18),
+                                      title: labels.label('Edit', fontSize: 13, color: Colors.black87),
+                                    ),
                                   ),
-                                  const PopupMenuItem(
+                                  PopupMenuItem(
+                                    height: 42,
                                     value: 1,
-                                    child: Text('Item 2'),
+                                    child: ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      dense: true,
+                                      horizontalTitleGap: 8,
+                                      leading: const Icon(CupertinoIcons.globe, size: 18),
+                                      title: labels.label('View Insights', fontSize: 13, color: Colors.black87),
+                                    ),
                                   ),
-                                  const PopupMenuItem(
+                                  PopupMenuItem(
+                                    height: 42,
+                                    value: 3,
+                                    child: ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      dense: true,
+                                      horizontalTitleGap: 8,
+                                      leading: const Icon(CupertinoIcons.arrow_counterclockwise, size: 18),
+                                      title: labels.label('Auto Renew', fontSize: 13, color: Colors.black87),
+                                    ),
+                                  ),
+                                  PopupMenuItem(
+                                    height: 42,
                                     value: 2,
-                                    child: Text('Item 3'),
+                                    child: ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      dense: true,
+                                      horizontalTitleGap: 8,
+                                      leading: const Icon(CupertinoIcons.arrowshape_turn_up_right, size: 18),
+                                      title: labels.label('Share', fontSize: 13, color: Colors.black87),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -478,6 +541,21 @@ class SegmentedControlExample extends StatelessWidget {
         );
       },
     );
+  }
+
+  void handleEdit(BuildContext context, DatumProfile datum) {
+    final result = GridCard(type: 'post', data: Data_.fromJson(datum.toJson()), actions: datum.actions ?? []);
+    routeAnimation(
+      context,
+      pageBuilder: DetailsPost(title: datum.title ?? 'N/A', data: result),
+    );
+  }
+
+  bool checkDate(String date) {
+    DateTime? dateTime = DateTime.tryParse(date);
+    final now = DateTime.now();
+    final difference = now.difference(dateTime!);
+    return difference.inHours < 12;
   }
 }
 

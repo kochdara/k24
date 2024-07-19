@@ -60,6 +60,8 @@ dependencies:
   modal_bottom_sheet: ^3.0.0
   form_validator: ^2.1.1
   jwt_decoder: ^2.0.1
+  package_info_plus: ^8.0.0
+  device_info_plus: ^10.1.0
 
 dev_dependencies:
   flutter_test:

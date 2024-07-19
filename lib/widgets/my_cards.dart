@@ -7,7 +7,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jiffy/jiffy.dart';
+import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/storage.dart';
 import 'package:k24/serialization/category/main_category.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
@@ -15,6 +15,7 @@ import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../helpers/config.dart';
 import '../helpers/helper.dart';
@@ -27,15 +28,35 @@ class MyCards {
   final Buttons buttons = Buttons();
   final Config config = Config();
 
-  Widget ads({ required String url, required bool loading }) {
-    return Container(
-      alignment: Alignment.center,
-      child: Skeletonizer(
-        enabled: loading,
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 150),
-          child: Image.network(url),
-        )
+  Widget ads({ required String url, required bool loading, String? links }) {
+    return InkWell(
+      onTap: links != null ? () async {
+        // Replace "https://" and split by "/"
+        final String modifiedUrl = links.replaceFirst('https://', '');
+        final List<String> urlParts = modifiedUrl.split('/');
+
+        // You can reassemble or manipulate the parts if needed
+        const String scheme = 'https';
+        final String host = urlParts[0];
+        final String path = urlParts.sublist(1).join('/');
+
+        final Uri smsLaunchUri = Uri(
+          scheme: scheme,
+          host: host,
+          path: path,
+        );
+
+        await launchUrl(smsLaunchUri);
+      } : null,
+      child: Container(
+        alignment: Alignment.center,
+        child: Skeletonizer(
+          enabled: loading,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 150),
+            child: Image.network(url),
+          )
+        ),
       ),
     );
   }
@@ -462,15 +483,11 @@ class MyCards {
     final data = v.data;
     String thumbnail = '';
 
-    String times = '';
     String location = '';
     String type = '';
     if(data != null) {
       listImg = v.data?.photos ?? [];
       thumbnail = v.data?.thumbnail ?? '';
-
-      // check data //
-      if(data.renew_date != null) times = Jiffy.parse('${data.renew_date}').fromNow(withPrefixAndSuffix: false);
 
       if(v.data?.location != null) {
         if (v.data?.location?.en_name3 != null) {location += ' • ${v.data?.location?.en_name3 ?? ''}';}
@@ -536,7 +553,7 @@ class MyCards {
                     child: (thumbnail.isNotEmpty) ? SizedBox(
                       height: 150,
                       width: double.infinity,
-                      child: Image.network(
+                      child: FadeInImage.assetNetwork(placeholder: placeholder, image:
                         thumbnail,
                         fit: BoxFit.cover,
                       ),
@@ -607,7 +624,7 @@ class MyCards {
 
                       labels.labelIcon(
                         leftIcon: Icon(Icons.access_time, size: 12, color: config.secondaryColor.shade200),
-                        leftTitle: ' $times',
+                        leftTitle: ' ${stringToTimeAgoDay(date: '${data?.renew_date ?? data?.posted_date}', format: 'MMM, yy')}',
                         rightTitle: location,
                         style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'en', height: lineHeight),
                       ),
@@ -640,15 +657,11 @@ class MyCards {
     // var setting = v['setting'] ?? {};
     String thumbnail = '';
 
-    String times = '';
     String location = '';
     String type = '';
     if(data != null) {
       listImg = v.data?.photos ?? [];
       thumbnail = v.data?.thumbnail ?? '';
-
-      // check data //
-      if(data.renew_date != null) times = Jiffy.parse('${data.renew_date}').fromNow(withPrefixAndSuffix: false);
 
       if(v.data?.location != null) {
         if (v.data?.location?.en_name3 != null) {location += ' • ${v.data?.location?.en_name3 ?? ''}';}
@@ -715,7 +728,7 @@ class MyCards {
                     child: ClipRRect(
                       borderRadius: const BorderRadius.horizontal(left: Radius.circular(5)),
                       child: thumbnail.isNotEmpty ?
-                      Image.network(thumbnail, fit: BoxFit.cover)
+                      FadeInImage.assetNetwork(placeholder: placeholder, image: thumbnail, fit: BoxFit.cover)
                           : Container(
                         padding: const EdgeInsets.all(5),
                         alignment: Alignment.center,
@@ -786,7 +799,7 @@ class MyCards {
 
                             labels.labelIcon(
                               leftIcon: Icon(Icons.access_time, size: 12, color: config.secondaryColor.shade200),
-                              leftTitle: ' $times',
+                              leftTitle: ' ${stringToTimeAgoDay(date: '${data?.renew_date ?? data?.posted_date}', format: 'MMM, yy')}',
                               rightTitle: location,
                               style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'en', height: lineHeight),
                             ),
@@ -827,13 +840,10 @@ class MyCards {
     String thumbnail = '';
     List listImg = [];
 
-    String times = '';
     String location = '';
     if(data != null) {
       thumbnail = v.data?.thumbnail ?? '';
       listImg = data.photos ?? [];
-      // check data //
-      if(data.renew_date != null) times = Jiffy.parse('${data.renew_date}').fromNow(withPrefixAndSuffix: false);
 
       if(v.data?.location != null) {
         if (v.data?.location?.en_name3 != null) {location += ' • ${v.data?.location?.en_name3 ?? ''}';}
@@ -887,7 +897,7 @@ class MyCards {
                     width: double.infinity,
                     child: (thumbnail.isNotEmpty) ? ClipRRect(
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
-                      child: Image.network(thumbnail, fit: BoxFit.cover),
+                      child: FadeInImage.assetNetwork(placeholder: placeholder, image: thumbnail, fit: BoxFit.cover),
                     ) : Container(
                       alignment: Alignment.center,
                       color: config.infoColor.shade50,
@@ -896,7 +906,7 @@ class MyCards {
                   ),
                   const SizedBox(height: 3),
 
-                  if(listImg.isNotEmpty) ...[
+                  if(listImg.isNotEmpty && listImg.length > 1) ...[
                     LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
                       final conf = responsiveImage(constraints.maxWidth);
                       final width = conf['width'];
@@ -907,7 +917,7 @@ class MyCards {
                         spacing: 4,
                         runSpacing: 4,
                         children: [
-                          for(int v=0; v<length; v++) ... [
+                          for(int v=1; v<=length; v++) ... [
                             if(listImg.asMap().containsKey(v)) Stack(
                               children: [
 
@@ -915,16 +925,16 @@ class MyCards {
                                   height: width ?? 120,
                                   width: width ?? 120,
                                   color: config.secondaryColor.shade50,
-                                  child: Image.network('${listImg[v]}', fit: BoxFit.cover),
+                                  child: FadeInImage.assetNetwork(placeholder: placeholder, image: '${listImg[v]}', fit: BoxFit.cover),
                                 ),
 
-                                if((listImg.length - length) > 0 && v == (length - 1)) Positioned(
+                                if((listImg.length - (length + 1)) > 0 && v == length) Positioned(
                                   height: width ?? 120,
                                   width: width ?? 120,
                                   child: Container(
                                     alignment: Alignment.center,
                                     color: Colors.black.withOpacity(0.45),
-                                    child: labels.label('+${listImg.length - length}', fontSize: 18, color: Colors.white,fontWeight: FontWeight.w500),
+                                    child: labels.label('+${listImg.length - (length + 1)}', fontSize: 18, color: Colors.white,fontWeight: FontWeight.w500),
                                   ),
                                 ),
 
@@ -954,7 +964,7 @@ class MyCards {
 
                   labels.labelIcon(
                     leftIcon: Icon(Icons.access_time, size: 12, color: config.secondaryColor.shade200),
-                    leftTitle: ' $times',
+                    leftTitle: ' ${stringToTimeAgoDay(date: '${data?.renew_date ?? data?.posted_date}', format: 'MMM, yy')}',
                     rightTitle: location,
                     style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'en', height: lineHeight),
                   ),

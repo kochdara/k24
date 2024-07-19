@@ -5,11 +5,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
+import 'package:k24/pages/more_provider.dart';
 import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
 
+import '../../helpers/helper.dart';
 import '../../widgets/buttons.dart';
 import '../../widgets/labels.dart';
+import '../listing/search/search_page.dart';
 import 'home_provider.dart';
 
 final Buttons buttons = Buttons();
@@ -32,12 +35,12 @@ class _HomePageState extends ConsumerState<HomePage> {
   StateProvider<bool> fetchingProvider = StateProvider<bool>((ref) => false);
   StateProvider<bool> loadingProvider = StateProvider<bool>((ref) => false);
   StateProvider<bool> downProvider = StateProvider<bool>((ref) => false);
-  StateProvider<int> selectedIndex = StateProvider<int>((ref) => 0);
+  StateProvider<Map> newData = StateProvider((ref) => {});
 
   @override
   void initState() {
     super.initState();
-    scrollController.addListener(() => loadMore(ref, fetchingProvider, downProvider, scrollController));
+    scrollController.addListener(() => loadMore(ref, fetchingProvider, downProvider, scrollController, ref.watch(newData)));
   }
 
   @override
@@ -48,19 +51,23 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     final mainCate = ref.watch(getMainCategoryProvider('0'));
-    final homeList = ref.watch(homeListsProvider('${ref.watch(usersProvider).tokens?.access_token}'));
+    final homeList = ref.watch(homeListsProvider('${ref.watch(usersProvider).tokens?.access_token}', ref.watch(newData)));
+    final bannerAds = ref.watch(getBannerAdsProvider('app', 'image'));
 
     return Scaffold(
       backgroundColor: config.backgroundColor,
       body: RefreshIndicator(
-        onRefresh: () => handleRefresh(ref),
+        onRefresh: () => handleRefresh(ref, newData),
         notificationPredicate: (notification) => !homeList.isLoading,
         child: CustomScrollView(
           physics: const ClampingScrollPhysics(),
           controller: scrollController,
           slivers: <Widget>[
             /// app bar ///
-            SliverAppBar(title: appBar(), floating: true),
+            SliverAppBar(
+              title: appBar(),
+              floating: true,
+            ),
 
             /// body //
             SliverList(
@@ -74,7 +81,13 @@ class _HomePageState extends ConsumerState<HomePage> {
                       children: [
 
                         /// top ads ///
-                        myCards.ads(url: 'https://images.khmer24.co/banners/2022-10/ABA-1664951593.jpg', loading: mainCate.isLoading),
+                        if(bannerAds.hasValue && (bannerAds.value?.data?.listing?.a?.data?.first?.image != null ||
+                            bannerAds.value?.data?.listing?.b?.data?.first?.image != null))
+                          myCards.ads(
+                            url: '${bannerAds.value?.data?.listing?.a?.data?.first?.image ?? bannerAds.value?.data?.listing?.b?.data?.first?.image}',
+                            loading: bannerAds.isLoading,
+                            links: bannerAds.value?.data?.listing?.a?.data?.first?.link ?? bannerAds.value?.data?.listing?.b?.data?.first?.link,
+                          ),
 
                         /// main category ///
                         mainCate.when(
@@ -88,7 +101,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                         /// home list ///
                         homeList.when(
-                          error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () => handleRefresh(ref)),
+                          error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () => handleRefresh(ref, newData)),
                           loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPageProvider)),
                           data: (data) => myCards.cardHome(
                             data,
@@ -108,8 +121,8 @@ class _HomePageState extends ConsumerState<HomePage> {
         ),
       ),
       bottomNavigationBar: !ref.watch(downProvider) ? myWidgets.bottomBarPage(
-        context, ref, selectedIndex,
-        scrollController
+          context, ref, 0,
+          scrollController
       ) : null,
     );
   }
@@ -129,7 +142,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         ),
 
         Positioned(
-            right: 0,
+            right: - 10,
             child: Container(
               decoration: BoxDecoration(
                 color: config.primaryAppColor.shade600,
@@ -142,11 +155,31 @@ class _HomePageState extends ConsumerState<HomePage> {
                   ),
                 ],
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(CupertinoIcons.qrcode, color: Colors.white),
-                  SizedBox(width: 15),
-                  Icon(Icons.search, color: Colors.white)
+                  IconButton(
+                    onPressed: () => {},
+                    icon: const Icon(CupertinoIcons.qrcode, color: Colors.white),
+                  ),
+
+                  IconButton(
+                    onPressed: () async {
+                      final result = await routeNoAnimation(context, pageBuilder: SearchPage(
+                        title: 'Search',
+                        newData: newData,
+                      ));
+                      if(result != null) {
+                        final homeList = homeListsProvider(
+                          '${ref.watch(usersProvider).tokens?.access_token}',
+                          ref.watch(newData),
+                        );
+                        await ref.read(homeList.notifier).refresh();
+                        print(ref.watch(newData));
+                        print('object: $result');
+                      }
+                    },
+                    icon: const Icon(Icons.search, color: Colors.white),
+                  ),
                 ],
               ),
             )

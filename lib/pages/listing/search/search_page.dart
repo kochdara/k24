@@ -19,11 +19,10 @@ final MyWidgets myWidgets = MyWidgets();
 final Config config = Config();
 
 class SearchPage extends ConsumerStatefulWidget {
-  const SearchPage({super.key, required this.title, required this.newData, required this.selectedIndex});
+  const SearchPage({super.key, required this.title, required this.newData});
 
   final String title;
   final StateProvider<Map> newData;
-  final StateProvider<int> selectedIndex;
 
   @override
   ConsumerState<SearchPage> createState() => _SearchPageState();
@@ -53,7 +52,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     });
   }
 
-  void onFieldSubmitted(String val) {
+  void onFieldSubmitted(String val, { bool save = false }) {
     final newDa = widget.newData;
     final watch = ref.watch(keyVal);
 
@@ -63,7 +62,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       return newMap;
     });
 
-    saveSecure('keyword', [...watch, val]);
+    List uniqueNumbers = {...watch, val}.toList();
+    saveSecure('keyword', uniqueNumbers);
     Navigator.pop(context, 'success');
   }
 
@@ -73,7 +73,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       backgroundColor: config.backgroundColor,
       body: bodySearch(),
       bottomNavigationBar: myWidgets.bottomBarPage(
-        context, ref, widget.selectedIndex,
+        context, ref, 0,
           null
       ),
     );
@@ -88,6 +88,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
         SliverAppBar(
           iconTheme: const IconThemeData(color: Colors.black),
           backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
           pinned: true,
           titleSpacing: 0,
           title: forms.labelFormFields(

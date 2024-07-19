@@ -25,6 +25,7 @@ import '../../widgets/my_cards.dart';
 import '../../widgets/my_widgets.dart';
 import '../filters_pro/my_filters.dart';
 import '../../widgets/modals.dart';
+import '../more_provider.dart';
 
 final Buttons buttons = Buttons();
 final Labels labels = Labels();
@@ -52,7 +53,6 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   StateProvider<Map> newData = StateProvider((ref) => {});
   StateProvider<String?> displayTitle = StateProvider<String?>((ref) => null);
   StateProvider<bool> downProvider = StateProvider<bool>((ref) => false);
-  StateProvider<int> selectedIndex = StateProvider<int>((ref) => 0);
 
   @override
   void initState() {
@@ -78,6 +78,8 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
 
     final title = ref.watch(newData)['keyword'];
 
+    final bannerAds = ref.watch(getBannerAdsProvider('app', 'image'));
+
     return Scaffold(
       backgroundColor: config.backgroundColor,
       body: RefreshIndicator(
@@ -95,8 +97,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
                 onPressed: () async {
                   final result = await routeNoAnimation(context, pageBuilder: SearchPage(
                     title: '${widget.data['title']??'Title of Category'}',
-                    newData: newData,
-                    selectedIndex: selectedIndex,
+                    newData: newData
                   ));
                   if(result != null) await subHandleRefresh(ref, widget.data, newData, indProvider);
 
@@ -154,7 +155,13 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               /// top ads ///
-                              myCards.ads(url: 'https://www.khmer24.ws/www/delivery/ai.php?filename=08232023_bannercarsale_(640x290)-2.jpg%20(3)&contenttype=jpeg', loading: false),
+                              if(bannerAds.hasValue && (bannerAds.value?.data?.listing?.a?.data?.first?.image != null ||
+                                  bannerAds.value?.data?.listing?.b?.data?.first?.image != null))
+                                myCards.ads(
+                                  url: '${bannerAds.value?.data?.listing?.a?.data?.first?.image ?? bannerAds.value?.data?.listing?.b?.data?.first?.image}',
+                                  loading: bannerAds.isLoading,
+                                  links: bannerAds.value?.data?.listing?.a?.data?.first?.link ?? bannerAds.value?.data?.listing?.b?.data?.first?.link,
+                                ),
 
                               /// title & filters ///
                               titleFilter(),
@@ -191,7 +198,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
         ),
       ),
       bottomNavigationBar: !ref.watch(downProvider) ? myWidgets.bottomBarPage(
-          context, ref, selectedIndex,
+          context, ref, 0,
         null,
       ) : null,
     );
