@@ -1,8 +1,6 @@
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:k24/serialization/helper.dart';
-import 'package:k24/serialization/helper.dart';
-import 'package:k24/serialization/helper.dart';
 import 'package:k24/serialization/try_convert.dart';
 
 part 'main_category.g.dart';

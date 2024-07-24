@@ -12,6 +12,9 @@ UploadTMPSerial _$UploadTMPSerialFromJson(Map<String, dynamic> json) =>
       message: const ToString().fromJson(json['message']),
       file: const ToString().fromJson(json['file']),
       type: const ToString().fromJson(json['type']),
+      file_type: const ToString().fromJson(json['file_type']),
+      size: (json['size'] as num?)?.toDouble(),
+      thumbnail: const ToString().fromJson(json['thumbnail']),
     );
 
 Map<String, dynamic> _$UploadTMPSerialToJson(UploadTMPSerial instance) =>
@@ -19,7 +22,10 @@ Map<String, dynamic> _$UploadTMPSerialToJson(UploadTMPSerial instance) =>
       'status': const ToString().toJson(instance.status),
       'message': const ToString().toJson(instance.message),
       'file': const ToString().toJson(instance.file),
+      'file_type': const ToString().toJson(instance.file_type),
       'type': const ToString().toJson(instance.type),
+      'size': instance.size,
+      'thumbnail': const ToString().toJson(instance.thumbnail),
     };
 
 ConSerial _$ConSerialFromJson(Map json) => ConSerial(
@@ -121,19 +127,16 @@ ConImage _$ConImageFromJson(Map json) => ConImage(
       name: const ToString().fromJson(json['name']),
       small: json['small'] == null
           ? null
-          : SizeOfImage.fromJson((json['small'] as Map?)?.map(
-              (k, e) => MapEntry(k as String, e),
-            )),
+          : SizeOfImage.fromJson(
+              Map<String, dynamic>.from(json['small'] as Map)),
       medium: json['medium'] == null
           ? null
-          : SizeOfImage.fromJson((json['medium'] as Map?)?.map(
-              (k, e) => MapEntry(k as String, e),
-            )),
+          : SizeOfImage.fromJson(
+              Map<String, dynamic>.from(json['medium'] as Map)),
       large: json['large'] == null
           ? null
-          : SizeOfImage.fromJson((json['large'] as Map?)?.map(
-              (k, e) => MapEntry(k as String, e),
-            )),
+          : SizeOfImage.fromJson(
+              Map<String, dynamic>.from(json['large'] as Map)),
     );
 
 Map<String, dynamic> _$ConImageToJson(ConImage instance) => <String, dynamic>{

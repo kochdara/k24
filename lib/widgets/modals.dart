@@ -319,16 +319,32 @@ class GroupFieldView extends ConsumerWidget {
 
 /// select type model ///
 class SelectTypePageView extends ConsumerWidget {
-  const SelectTypePageView({super.key, required this.data, required this.selected, required this.newData, required this.expand});
+  SelectTypePageView({super.key, required this.data, required this.selected, required this.newData, required this.expand});
 
   final Map<String, dynamic> data;
   final StateProvider<Map> newData;
+  final StateProvider<List<ValueSelect?>?> listOptions = StateProvider((ref) => null);
   final bool selected;
   final bool expand;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sortData = RadioSelect.fromJson(data);
+
+    if(sortData.fieldname == 'ad_model' && ref.watch(newData)['ad_field'] != null) {
+      final val = ref.watch(newData)['ad_field'];
+      final v = sortData.options?.where((option) => option != null && option.fieldparentvalue == val['fieldvalue']);
+
+      futureAwait(duration: 10, () {
+        ref.read(listOptions.notifier).update((state) {
+          List<ValueSelect?>? newList = state;
+          newList = {...?v}.toSet().toList();
+          return newList;
+        });
+      });
+    }
+
+    final optionWatch = ref.watch(listOptions);
 
     return Material(
       child: SafeArea(
@@ -351,6 +367,7 @@ class SelectTypePageView extends ConsumerWidget {
                   onPressed: () {
                     ref.read(newData.notifier).update((state) {
                       final newMap = {...state};
+                      if(sortData.fieldname == 'ad_field') newMap['ad_model'] = null;
                       newMap[sortData.fieldname] = null;
                       return newMap;
                     });
@@ -366,12 +383,12 @@ class SelectTypePageView extends ConsumerWidget {
             Expanded(
               flex: (expand || sortData.options!.length >= 8) ? 1 : 0,
               child: ListView.builder(
-                itemCount: sortData.options?.length ?? 0,
+                itemCount: optionWatch?.length ?? (sortData.options?.length ?? 0),
                 shrinkWrap: true,
                 controller: ModalScrollController.of(context),
                 itemBuilder: (context, index) {
                   final check = ValueSelect.fromJson(ref.watch(newData)[sortData.fieldname] ?? {});
-                  final options = sortData.options?[index];
+                  final options = optionWatch != null ? optionWatch[index] : sortData.options?[index];
               
                   return ListTile(
                     leading: (options?.icon != null) ? SizedBox(
@@ -396,6 +413,7 @@ class SelectTypePageView extends ConsumerWidget {
                       ref.read(newData.notifier).update((state) {
                         final newMap = {...state};
                         newMap[sortData.fieldname] = options?.toJson();
+                        if(sortData.fieldname == 'ad_field') newMap['ad_model'] = null;
                         return newMap;
                       });
                       Navigator.pop(context, 'success');

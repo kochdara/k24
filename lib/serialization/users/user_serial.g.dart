@@ -202,19 +202,16 @@ CoverProfile _$CoverProfileFromJson(Map json) => CoverProfile(
       height: const ToString().fromJson(json['height']),
       small: json['small'] == null
           ? null
-          : SizeOfImage.fromJson((json['small'] as Map?)?.map(
-              (k, e) => MapEntry(k as String, e),
-            )),
+          : SizeOfImage.fromJson(
+              Map<String, dynamic>.from(json['small'] as Map)),
       medium: json['medium'] == null
           ? null
-          : SizeOfImage.fromJson((json['medium'] as Map?)?.map(
-              (k, e) => MapEntry(k as String, e),
-            )),
+          : SizeOfImage.fromJson(
+              Map<String, dynamic>.from(json['medium'] as Map)),
       large: json['large'] == null
           ? null
-          : SizeOfImage.fromJson((json['large'] as Map?)?.map(
-              (k, e) => MapEntry(k as String, e),
-            )),
+          : SizeOfImage.fromJson(
+              Map<String, dynamic>.from(json['large'] as Map)),
       align: const ToString().fromJson(json['align']),
       offset: json['offset'],
     );

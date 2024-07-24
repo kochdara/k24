@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/pages/filters_pro/filters_provider.dart';
@@ -450,7 +451,12 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
         suffixIcon: const Icon(Icons.arrow_drop_down),
         onTap: () async {
           await showBarModalBottomSheet(context: context,
-            builder: (context) => SelectTypePageView(data: field as Map<String, dynamic>, selected: true, newData: newDataFil, expand: false),
+            builder: (context) => SelectTypePageView(
+              data: field as Map<String, dynamic>,
+              selected: true,
+              newData: newDataFil,
+              expand: false,
+            ),
           );
 
           /// submit ///
@@ -472,11 +478,11 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
     else { app = switchField.value; }
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(6),
         border: Border.all(color: config.secondaryColor.shade100),
         color: Colors.white,
       ),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -488,18 +494,21 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
             ],
           ),
 
-          CupertinoSwitch(
-            activeColor: config.primaryAppColor.shade300,
-            thumbColor: Colors.white,
-            trackColor: Colors.black12,
-            value: ref.watch(newDataFil)[switchField.fieldname] == 'true' ? true : false,
-            onChanged: (value) {
-              ref.read(newDataFil.notifier).update((state) {
-                final newMap = {...state};
-                newMap[switchField.fieldname] = '$value';
-                return newMap;
-              });
-            },
+          Transform.scale(
+            scale: 0.9,
+            child: CupertinoSwitch(
+              activeColor: config.primaryAppColor.shade300,
+              thumbColor: Colors.white,
+              trackColor: Colors.black12,
+              value: ref.watch(newDataFil)[switchField.fieldname] == 'true' ? true : false,
+              onChanged: (value) {
+                ref.read(newDataFil.notifier).update((state) {
+                  final newMap = {...state};
+                  newMap[switchField.fieldname] = '$value';
+                  return newMap;
+                });
+              },
+            ),
           ),
         ],
       ),

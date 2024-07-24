@@ -16,8 +16,8 @@ class SizeOfImage {
     this.height,
   });
 
-  factory SizeOfImage.fromJson(Map<String, dynamic>? json) => _$SizeOfImageFromJson(json!);
-  Map<String, dynamic>? toJson() => _$SizeOfImageToJson(this);
+  factory SizeOfImage.fromJson(Map<String, dynamic> json) => _$SizeOfImageFromJson(json);
+  Map? toJson() => _$SizeOfImageToJson(this);
 
 }
 
@@ -91,7 +91,7 @@ class Location_ {
 
 }
 
-@JsonSerializable(anyMap: true, converters: [ToString()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
 class IconSerial {
   String? url;
   String? width;
@@ -109,7 +109,7 @@ class IconSerial {
     this.large,
   });
 
-  factory IconSerial.fromJson(Map json) => _$IconSerialFromJson(json);
+  factory IconSerial.fromJson(Map<String, dynamic> json) => _$IconSerialFromJson(json);
   Map toJson() => _$IconSerialToJson(this);
 
 }

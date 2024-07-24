@@ -230,9 +230,7 @@ PostDataField _$PostDataFieldFromJson(Map json) => PostDataField(
       options: (json['options'] as List<dynamic>?)
           ?.map((e) => e == null ? null : PostFluffyOption.fromJson(e as Map))
           .toList(),
-      value: json['value'] == null
-          ? null
-          : PostValueElement.fromJson(json['value'] as Map),
+      value: json['value'],
     );
 
 Map<String, dynamic> _$PostDataFieldToJson(PostDataField instance) =>
@@ -249,7 +247,7 @@ Map<String, dynamic> _$PostDataFieldToJson(PostDataField instance) =>
       'fieldname': const ToString().toJson(instance.fieldname),
       'chained_field': const ToString().toJson(instance.chained_field),
       'options': instance.options?.map((e) => e?.toJson()).toList(),
-      'value': instance.value?.toJson(),
+      'value': instance.value,
     };
 
 PostFieldField _$PostFieldFieldFromJson(Map json) => PostFieldField(
@@ -297,7 +295,7 @@ PostPurpleOption _$PostPurpleOptionFromJson(Map json) => PostPurpleOption(
       popular: const ToBool().fromJson(json['popular']),
       icon: json['icon'] == null
           ? null
-          : IconSerial.fromJson(json['icon'] as Map),
+          : IconSerial.fromJson(Map<String, dynamic>.from(json['icon'] as Map)),
     );
 
 Map<String, dynamic> _$PostPurpleOptionToJson(PostPurpleOption instance) =>
@@ -337,7 +335,7 @@ PostFluffyOption _$PostFluffyOptionFromJson(Map json) => PostFluffyOption(
       popular: const ToBool().fromJson(json['popular']),
       icon: json['icon'] == null
           ? null
-          : IconSerial.fromJson(json['icon'] as Map),
+          : IconSerial.fromJson(Map<String, dynamic>.from(json['icon'] as Map)),
       value: const ToString().fromJson(json['value']),
       title: const ToString().fromJson(json['title']),
     );
@@ -515,4 +513,63 @@ Map<String, dynamic> _$PostSubFixToJson(PostSubFix instance) =>
       'validation': instance.validation?.toJson(),
       'value': instance.value?.toJson(),
       'options': instance.options?.map((e) => e?.toJson()).toList(),
+    };
+
+ResponseMessagePost _$ResponseMessagePostFromJson(Map json) =>
+    ResponseMessagePost(
+      status: const ToString().fromJson(json['status']),
+      message: const ToString().fromJson(json['message']),
+      data: json['data'] == null
+          ? null
+          : MessageResData.fromJson(json['data'] as Map),
+    );
+
+Map<String, dynamic> _$ResponseMessagePostToJson(
+        ResponseMessagePost instance) =>
+    <String, dynamic>{
+      'status': const ToString().toJson(instance.status),
+      'message': const ToString().toJson(instance.message),
+      'data': instance.data?.toJson(),
+    };
+
+MessageResData _$MessageResDataFromJson(Map json) => MessageResData(
+      id: const ToInt().fromJson(json['id']),
+      title: const ToString().fromJson(json['title']),
+      price: const ToInt().fromJson(json['price']),
+      thumbnail: const ToString().fromJson(json['thumbnail']),
+      photo: (json['photo'] as List<dynamic>?)
+          ?.map((e) => e == null ? null : MessageResPhoto.fromJson(e as Map))
+          .toList(),
+      link: const ToString().fromJson(json['link']),
+      short_link: const ToString().fromJson(json['short_link']),
+      storeid: json['storeid'],
+      actions: (json['actions'] as List<dynamic>?)
+          ?.map(const ToString().fromJson)
+          .toList(),
+    );
+
+Map<String, dynamic> _$MessageResDataToJson(MessageResData instance) =>
+    <String, dynamic>{
+      'id': _$JsonConverterToJson<Object?, int>(
+          instance.id, const ToInt().toJson),
+      'title': const ToString().toJson(instance.title),
+      'price': _$JsonConverterToJson<Object?, int>(
+          instance.price, const ToInt().toJson),
+      'thumbnail': const ToString().toJson(instance.thumbnail),
+      'photo': instance.photo?.map((e) => e?.toJson()).toList(),
+      'link': const ToString().toJson(instance.link),
+      'short_link': const ToString().toJson(instance.short_link),
+      'storeid': instance.storeid,
+      'actions': instance.actions?.map(const ToString().toJson).toList(),
+    };
+
+MessageResPhoto _$MessageResPhotoFromJson(Map json) => MessageResPhoto(
+      image_url: const ToString().fromJson(json['image_url']),
+      image_name: const ToString().fromJson(json['image_name']),
+    );
+
+Map<String, dynamic> _$MessageResPhotoToJson(MessageResPhoto instance) =>
+    <String, dynamic>{
+      'image_url': const ToString().toJson(instance.image_url),
+      'image_name': const ToString().toJson(instance.image_name),
     };

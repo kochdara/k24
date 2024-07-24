@@ -206,7 +206,7 @@ double lineHeight = 1.45;
 double spaceGrid = 12;
 double spaceMenu = 14;
 String lang = 'en';
-String filterVersion = '3';
+String filterVersion = '4';
 String placeholder = 'assets/img/load.jpg';
 
 double responsive(double width) {

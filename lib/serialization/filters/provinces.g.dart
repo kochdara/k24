@@ -16,7 +16,7 @@ Province _$ProvinceFromJson(Map json) => Province(
       popular: const ToBool().fromJson(json['popular']),
       icon: json['icon'] == null
           ? null
-          : IconSerial.fromJson(json['icon'] as Map),
+          : IconSerial.fromJson(Map<String, dynamic>.from(json['icon'] as Map)),
       map: json['map'] == null
           ? null
           : MapClass.fromJson(Map<String, dynamic>.from(json['map'] as Map)),

@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/pages/accounts/login/login_provider.dart';
-import 'package:k24/pages/details/details_post.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/forms.dart';
 import 'package:k24/widgets/labels.dart';
@@ -12,7 +11,6 @@ import 'package:form_validator/form_validator.dart';
 
 import '../../../helpers/config.dart';
 import '../../../serialization/users/user_serial.dart';
-import '../../main/home_provider.dart';
 
 final Labels labels = Labels();
 final Forms forms = Forms();

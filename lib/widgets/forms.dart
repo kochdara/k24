@@ -16,7 +16,7 @@ class Forms {
     Widget? prefixIcon,
     Widget? suffixIcon,
     void Function()? onTap,
-    double radius = 4,
+    double radius = 6,
     TextInputType? keyboardType,
     bool enabled = true,
     void Function(String)? onChanged,
@@ -41,15 +41,15 @@ class Forms {
       focusNode: focusNode,
       keyboardType: keyboardType,
       decoration: InputDecoration(
-        border: enabledBorder ?? UnderlineInputBorder(
+        border: enabledBorder ?? OutlineInputBorder(
           borderSide: BorderSide(color: config.secondaryColor.shade100),
           borderRadius: BorderRadius.circular(radius),
         ),
-        enabledBorder: enabledBorder ?? UnderlineInputBorder(
+        enabledBorder: enabledBorder ?? OutlineInputBorder(
           borderSide: BorderSide(color: config.secondaryColor.shade100),
           borderRadius: BorderRadius.circular(radius),
         ),
-        focusedBorder: enabledBorder ?? UnderlineInputBorder(
+        focusedBorder: enabledBorder ?? OutlineInputBorder(
           borderSide: BorderSide(color: config.secondaryColor.shade100),
           borderRadius: BorderRadius.circular(radius),
         ),
@@ -62,7 +62,7 @@ class Forms {
         fillColor: enabled ? fillColor : config.secondaryColor.shade50,
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
-        contentPadding: contentPadding,
+        contentPadding: contentPadding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       ),
       validator: validator,
       obscureText: obscureText,

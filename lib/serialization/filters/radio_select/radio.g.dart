@@ -23,9 +23,7 @@ RadioSelect _$RadioSelectFromJson(Map<String, dynamic> json) => RadioSelect(
               ? null
               : ValueSelect.fromJson(e as Map<String, dynamic>))
           .toList(),
-      value: json['value'] == null
-          ? null
-          : ValueSelect.fromJson(json['value'] as Map<String, dynamic>),
+      value: json['value'],
       controller: json['controller'],
       fields: (json['fields'] as List<dynamic>?)
           ?.map((e) => RadioSelect.fromJson(e as Map<String, dynamic>))
@@ -47,7 +45,7 @@ Map<String, dynamic> _$RadioSelectToJson(RadioSelect instance) =>
       'popular': _$JsonConverterToJson<Object?, bool>(
           instance.popular, const ToBool().toJson),
       'options': instance.options?.map((e) => e?.toJson()).toList(),
-      'value': instance.value?.toJson(),
+      'value': instance.value,
       'controller': instance.controller,
       'fields': instance.fields?.map((e) => e.toJson()).toList(),
     };

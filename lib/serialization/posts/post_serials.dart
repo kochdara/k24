@@ -209,7 +209,7 @@ class PostDataField {
   String? fieldname;
   String? chained_field;
   List<PostFluffyOption?>? options;
-  PostValueElement? value;
+  dynamic value;
 
   PostDataField({
     this.fieldid,
@@ -499,4 +499,70 @@ class PostSubFix {
   Map toJson() => _$PostSubFixToJson(this);
 
 }
+
+
+
+
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ ToString()])
+class ResponseMessagePost {
+  String? status;
+  String? message;
+  MessageResData? data;
+
+  ResponseMessagePost({
+    this.status,
+    this.message,
+    this.data,
+  });
+
+  factory ResponseMessagePost.fromJson(Map json) => _$ResponseMessagePostFromJson(json);
+  Map toJson() => _$ResponseMessagePostToJson(this);
+
+}
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ ToString(), ToInt(), ToLists()])
+class MessageResData {
+  int? id;
+  String? title;
+  int? price;
+  String? thumbnail;
+  List<MessageResPhoto?>? photo;
+  String? link;
+  String? short_link;
+  dynamic storeid;
+  List<String?>? actions;
+
+  MessageResData({
+    this.id,
+    this.title,
+    this.price,
+    this.thumbnail,
+    this.photo,
+    this.link,
+    this.short_link,
+    this.storeid,
+    this.actions,
+  });
+
+  factory MessageResData.fromJson(Map json) => _$MessageResDataFromJson(json);
+  Map toJson() => _$MessageResDataToJson(this);
+
+}
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ ToString()])
+class MessageResPhoto {
+  String? image_url;
+  String? image_name;
+
+  MessageResPhoto({
+    this.image_url,
+    this.image_name,
+  });
+
+  factory MessageResPhoto.fromJson(Map json) => _$MessageResPhotoFromJson(json);
+  Map toJson() => _$MessageResPhotoToJson(this);
+
+}
+
 

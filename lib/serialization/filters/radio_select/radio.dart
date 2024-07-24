@@ -2,6 +2,8 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:k24/serialization/helper.dart';
 import 'package:k24/serialization/try_convert.dart';
+
+import '../../posts/post_serials.dart';
 part 'radio.g.dart';
 
 @JsonSerializable(explicitToJson: true, converters: [ToString(), ToBool()])
@@ -18,7 +20,7 @@ class RadioSelect {
   dynamic display_icon_type;
   bool? popular;
   List<ValueSelect?>? options;
-  ValueSelect? value;
+  dynamic value;
   dynamic controller;
   List<RadioSelect>? fields;
 

@@ -11,13 +11,19 @@ class UploadTMPSerial {
   String? status;
   String? message;
   String? file;
+  String? file_type;
   String? type;
+  double? size;
+  String? thumbnail;
 
   UploadTMPSerial({
     this.status,
     this.message,
     this.file,
     this.type,
+    this.file_type,
+    this.size,
+    this.thumbnail,
   });
 
   factory UploadTMPSerial.fromJson(Map<String, dynamic> json) => _$UploadTMPSerialFromJson(json);

@@ -91,19 +91,16 @@ IconSerial _$IconSerialFromJson(Map json) => IconSerial(
       height: const ToString().fromJson(json['height']),
       small: json['small'] == null
           ? null
-          : SizeOfImage.fromJson((json['small'] as Map?)?.map(
-              (k, e) => MapEntry(k as String, e),
-            )),
+          : SizeOfImage.fromJson(
+              Map<String, dynamic>.from(json['small'] as Map)),
       medium: json['medium'] == null
           ? null
-          : SizeOfImage.fromJson((json['medium'] as Map?)?.map(
-              (k, e) => MapEntry(k as String, e),
-            )),
+          : SizeOfImage.fromJson(
+              Map<String, dynamic>.from(json['medium'] as Map)),
       large: json['large'] == null
           ? null
-          : SizeOfImage.fromJson((json['large'] as Map?)?.map(
-              (k, e) => MapEntry(k as String, e),
-            )),
+          : SizeOfImage.fromJson(
+              Map<String, dynamic>.from(json['large'] as Map)),
     );
 
 Map<String, dynamic> _$IconSerialToJson(IconSerial instance) =>
@@ -111,9 +108,9 @@ Map<String, dynamic> _$IconSerialToJson(IconSerial instance) =>
       'url': const ToString().toJson(instance.url),
       'width': const ToString().toJson(instance.width),
       'height': const ToString().toJson(instance.height),
-      'small': instance.small,
-      'medium': instance.medium,
-      'large': instance.large,
+      'small': instance.small?.toJson(),
+      'medium': instance.medium?.toJson(),
+      'large': instance.large?.toJson(),
     };
 
 MapClass _$MapClassFromJson(Map json) => MapClass(
