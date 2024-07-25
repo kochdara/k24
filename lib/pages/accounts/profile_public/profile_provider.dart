@@ -1,9 +1,11 @@
 
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/serialization/accounts/profiles_public/profile_serial.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../helpers/config.dart';
+import '../../../helpers/helper.dart';
 import '../../../serialization/grid_card/grid_card.dart';
 import '../../main/home_provider.dart';
 
@@ -16,13 +18,15 @@ class ProfilePublic extends _$ProfilePublic {
   final String functions = 'chat,save,follow';
 
   final Dio dio = Dio();
+  String? usernames;
 
   @override
-  Future<ProfileSerial?> build(String username) async {
+  Future<ProfileSerial?> build(WidgetRef context, String? username) async {
+    usernames = username;
     try {
-      final String? accessToken = ref.watch(usersProvider).tokens?.access_token;
+      final String? accessToken = context.watch(usersProvider).tokens?.access_token;
 
-      final String subs = 'profiles/$username?lang=$lang&fields=$fields&meta=$meta&functions=$functions';
+      final String subs = 'profiles/$usernames?lang=$lang&fields=$fields&meta=$meta&functions=$functions';
       final Response res = await dio.get('$baseUrl/$subs', options: Options(headers: (accessToken != null) ? {
         'Access-Token': accessToken,
       } : null));
@@ -32,13 +36,20 @@ class ProfilePublic extends _$ProfilePublic {
       } else {
         print('Error: Received non-200 status code: ${res.statusCode}');
       }
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        await build(context, usernames); // Retry the request after refreshing the token
+      }
+      print('Dio error: ${e.message}');
     } catch (e, stacktrace) {
       print('Error: $e');
       print('Stacktrace: $stacktrace');
-      return ProfileSerial(data: DataProfile());
     }
-
-    return null;
+    return ProfileSerial(data: DataProfile());
   }
 }
 
@@ -49,17 +60,21 @@ class ProfileList extends _$ProfileList {
   final String fun = 'save,chat,like,comment,apply_job,shipping';
 
   final Dio dio = Dio();
+  String? usernames;
 
   int limit = 0;
   int current_result = 0;
   int offset = 0;
 
   @override
-  Future<List<GridCard>> build(String username) async => fetchHome();
+  Future<List<GridCard>> build(WidgetRef context, String username) {
+    usernames = username;
+    return fetchHome();
+  }
 
   Future<List<GridCard>> fetchHome() async {
     if (current_result >= limit) {
-      await fetchProfiles(username);
+      await fetchProfiles(usernames!);
     }
     return list;
   }
@@ -79,7 +94,7 @@ class ProfileList extends _$ProfileList {
     try {
       final String? accessToken = ref.watch(usersProvider).tokens?.access_token;
 
-      final String subs = '$username/feed?lang=en&offset=${offset + limit}&fields=$fields&functions=$fun';
+      final String subs = '$usernames/feed?lang=en&offset=${offset + limit}&fields=$fields&functions=$fun';
       final Response res = await dio.get('$postUrl/$subs', options: Options(headers: (accessToken != null) ? {
         'Access-Token': accessToken,
       } : null));
@@ -103,6 +118,15 @@ class ProfileList extends _$ProfileList {
       } else {
         print('Error: Received non-200 status code: ${res.statusCode}');
       }
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        await fetchHome(); // Retry the request after refreshing the token
+      }
+      throw Exception('Dio error: ${e.message}');
     } catch (e, stacktrace) {
       print('Error: $e');
       print('Stacktrace: $stacktrace');

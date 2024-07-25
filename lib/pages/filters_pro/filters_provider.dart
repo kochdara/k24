@@ -11,12 +11,14 @@ class GetFilterPro extends _$GetFilterPro {
   List filters = [];
 
   final Dio dio = Dio();
+  String? slugs;
 
   @override
   FutureOr<List> build(String slug) async {
     filters = [];
+    slugs = slug;
 
-    String url = 'filters/$slug?lang=$lang&group=true&return_key=true&filter_version=$filterVersion&has_post=true';
+    String url = 'filters/$slugs?lang=$lang&group=true&return_key=true&filter_version=$filterVersion&has_post=true';
     final res = await dio.get('$baseUrl/$url');
     final resp = res.data;
 

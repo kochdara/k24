@@ -1,9 +1,11 @@
 
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../helpers/config.dart';
+import '../../helpers/helper.dart';
 import '../../serialization/grid_card/grid_card.dart';
 import '../../serialization/users/user_serial.dart';
 
@@ -16,23 +18,37 @@ class GetDetailPost extends _$GetDetailPost {
 
   final Dio dio = Dio();
   final apiService = ViewApiService();
+  String? ids;
 
   @override
-  Future<GridCard> build(String id, String accessTokens) async => fetch();
+  Future<GridCard> build(WidgetRef context, String id) {
+    ids = id;
+    return fetch();
+  }
 
   Future<GridCard> fetch() async {
     try {
       state = const AsyncLoading();
-      final subs = 'feed/$id?lang=$lang&fields=$fields&functions=$fun&filter_version=$filterVersion';
+      final tokens = ref.watch(usersProvider);
+      final subs = 'feed/$ids?lang=$lang&fields=$fields&functions=$fun&filter_version=$filterVersion';
       final res = await dio.get('$postUrl/$subs', options: Options(headers: {
-        'Access-Token': accessTokens
+        'Access-Token': tokens.tokens?.access_token,
       }));
 
       if(res.statusCode == 200) {
         final resp = GridCard.fromJson(res.data ?? {});
-        await apiService.submitIncreaseViews({'id': id});
+        await apiService.submitIncreaseViews({'id': ids});
         return resp;
       }
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        await fetch(); // Retry the request after refreshing the token
+      }
+      print('Dio error: ${e.response}');
     } catch (e, stacktrace) {
       print('Error in : $e');
       print(stacktrace);
@@ -51,9 +67,13 @@ class RelateDetailPost extends _$RelateDetailPost {
 
   int limit = 0;
   int offset = 0;
+  String? ids;
 
   @override
-  Future<List<GridCard>> build(String id) async => fetch();
+  Future<List<GridCard>> build(WidgetRef context, String id) {
+    ids = id;
+    return fetch();
+  }
 
   Future<List<GridCard>> fetch() async {
     await urlAPI();
@@ -73,7 +93,7 @@ class RelateDetailPost extends _$RelateDetailPost {
   Future<void> urlAPI() async {
     try {
       final accessTokens = ref.watch(usersProvider).tokens?.access_token;
-      final subs = 'feed/$id/relates?lang=$lang&offset=${offset + limit}&fields=$fields&functions=$fun';
+      final subs = 'feed/$ids/relates?lang=$lang&offset=${offset + limit}&fields=$fields&functions=$fun';
       final res = await dio.get('$postUrl/$subs', options: Options(headers: (accessTokens != null) ? {
         'Access-Token': accessTokens
       } : null));
@@ -95,6 +115,15 @@ class RelateDetailPost extends _$RelateDetailPost {
           }
         }
       }
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        await fetch(); // Retry the request after refreshing the token
+      }
+      throw Exception('Dio error: ${e.response}');
     } catch (e, stacktrace) {
       print('Error in : $e');
       print(stacktrace);

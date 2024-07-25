@@ -2,14 +2,12 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_validator/form_validator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -18,6 +16,7 @@ import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/more_provider.dart';
 import 'package:k24/pages/posts/post_provider.dart';
+import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/serialization/helper.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/forms.dart';
@@ -31,6 +30,7 @@ import '../../serialization/category/main_category.dart';
 import '../../serialization/filters/radio_select/radio.dart';
 import '../../serialization/posts/post_serials.dart';
 import '../../widgets/modals.dart';
+import '../details/details_post.dart';
 import '../main/home_provider.dart';
 
 final config = Config();
@@ -249,6 +249,7 @@ class _NewAdPageState extends ConsumerState<NewAdPage> {
       updateNewData(ref, 'name', datum.data.contact?.name ?? '', newData);
       updateNewData(ref, 'email', datum.data.contact?.email ?? '', newData);
       updateNewData(ref, 'available', 'true', newData);
+      updateNewData(ref, 'discount_type', 'percent', newData);
 
       List<PostLocation?> list = [];
       for(final val in datum.data.locations ?? list) {
@@ -384,17 +385,21 @@ class _NewAdPageState extends ConsumerState<NewAdPage> {
                 return MapEntry(key, value);
               }
             });
-
-            // print(valData);
-            // myWidgets.showAlert(context, '$valData', title: 'Alert');
             // Alert message show for you.
-            await sendPost.createPosts(context, valData, ref);
-
+            final rest = await sendPost.createPosts(context, valData, ref);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Processing Data')),
             );
-
-            // Navigator.of(context).popUntil((route) => route.isFirst);
+            final returnMessage = ResponseMessagePost.fromJson(rest ?? {});
+            if(returnMessage.data?.id != null) {
+              final data = returnMessage.data;
+              futureAwait(() {
+                routeAnimation(
+                  context,
+                  pageBuilder: DetailsPost(title: data?.title ?? 'N/A', data: GridCard(data: Data_.fromJson(data?.toJson() ?? {}))),
+                );
+              });
+            }
           }
         },
         padSize: 12,
@@ -676,308 +681,6 @@ class PhotosPage extends ConsumerWidget {
       final xFiles = result.files;
       for(int i=0; i<limit; i++) {
         if(i < xFiles.length) await uploadIMG(ref, xFiles[i].xFile, i);
-      }
-    }
-  }
-
-  Future<void> uploadIMG(WidgetRef ref, XFile? image, int index) async {
-    final multipartImage = MultipartFile.fromFileSync(image!.path, filename: image.name);
-    final filePath = await ref.read(apiServiceProvider).uploadData({
-      "file": multipartImage,
-    }, ref);
-
-    updateNewData(ref, 'item_image[$index]', filePath.file, newData);
-  }
-}
-
-class PhotosPage2 extends ConsumerWidget {
-  PhotosPage2({super.key, required this.newData,
-    required this.listIMG,
-  });
-
-  final StateProvider<Map> newData;
-  final StateProvider<List<XFile>> listIMG;
-  final StateProvider<int> limitPro = StateProvider((ref) => 8);
-  final apiServiceProvider = Provider((ref) => UploadApiService());
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final img = ref.watch(listIMG);
-    final limit = ref.watch(limitPro);
-    final resultSet = ref.watch(newData);
-
-    return Container(
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(6)
-      ),
-      margin: const EdgeInsets.only(left: 10, right: 10, top: 10),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(14.0),
-            child: Flex(direction: Axis.horizontal,
-              children: [
-                Expanded(
-                  child: labels.label('Photos', fontSize: 17, fontWeight: FontWeight.w500, color: Colors.black87),
-                ),
-                Expanded(
-                  child: labels.label('${img.length}/$limit', fontSize: 14, color: Colors.black54, textAlign: TextAlign.end),
-                )
-              ],
-            ),
-          ),
-          Divider(color: config.secondaryColor.shade50, height: 0),
-
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: config.secondaryColor.shade50),
-                  ),
-                  child: (img.isNotEmpty) ? InkWell(
-                    onTap: () => imagePicker1(ref, 0),
-                    child: Stack(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: Image.memory(File(img.first.path).readAsBytesSync(), height: 140, fit: BoxFit.cover, width: double.maxFinite),
-                        ),
-
-                        Positioned(
-                          top: -4,
-                          right: -4,
-                          child: PopupMenuButton(
-                            padding: EdgeInsets.zero,
-                            surfaceTintColor: Colors.white,
-                            onSelected: (item) {},
-                            icon: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(50),
-                                  border: Border.all(color: Colors.black12)
-                              ),
-                              padding: const EdgeInsets.all(3),
-                              child: const Icon(Icons.more_vert_rounded, size: 18, color: Colors.black54),
-                            ),
-                            itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-                              PopupMenuItem(
-                                height: 42,
-                                value: 0,
-                                onTap: () => { },
-                                child: ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  dense: true,
-                                  horizontalTitleGap: 8,
-                                  leading: const Icon(Icons.remove_red_eye, size: 18),
-                                  title: labels.label('View', fontSize: 13, color: Colors.black87),
-                                ),
-                              ),
-                              PopupMenuItem(
-                                height: 42,
-                                value: 1,
-                                onTap: () => deleteImagePicker1(ref, 0),
-                                child: ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  dense: true,
-                                  horizontalTitleGap: 8,
-                                  leading: const Icon(CupertinoIcons.trash, size: 18),
-                                  title: labels.label('Delete', fontSize: 13, color: Colors.black87),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ) : InkWell(
-                    onTap: () => imagePicker8(ref),
-                    child: Container(
-                      height: 140,
-                      alignment: Alignment.center,
-                      child: Flex(
-                        direction: Axis.horizontal,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.photo_camera_back, color: Colors.black54),
-                          const SizedBox(width: 10),
-                          labels.label('Upload Photo', fontSize: 14, color: Colors.black54, fontWeight: FontWeight.w500),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-
-                if(img.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: [
-                        for(int i=1; i<limit; i++)
-                          InkWell(
-                            onTap: () => imagePicker1(ref, i),
-                            child: Container(
-                              width: 85,
-                              height: 85,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(color: config.secondaryColor.shade50),
-                              ),
-                              alignment: Alignment.center,
-                              child: Stack(
-                                children: [
-                                  if(img.length <= i) const Icon(Icons.add, color: Colors.black54)
-                                  else ...[
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(4),
-                                      child: Image.memory(File(img[i].path).readAsBytesSync(), height: 85, fit: BoxFit.cover, width: double.maxFinite),
-                                    ),
-
-                                    Positioned(
-                                      top: -9,
-                                      right: -9,
-                                      child: PopupMenuButton(
-                                        padding: EdgeInsets.zero,
-                                        surfaceTintColor: Colors.white,
-                                        onSelected: (item) {},
-                                        icon: Container(
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(50),
-                                              border: Border.all(color: Colors.black12)
-                                          ),
-                                          padding: const EdgeInsets.all(3),
-                                          child: const Icon(Icons.more_vert_rounded, size: 15, color: Colors.black54),
-                                        ),
-                                        itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-                                          PopupMenuItem(
-                                            height: 42,
-                                            value: 0,
-                                            onTap: () => { },
-                                            child: ListTile(
-                                              contentPadding: EdgeInsets.zero,
-                                              dense: true,
-                                              horizontalTitleGap: 8,
-                                              leading: const Icon(Icons.remove_red_eye, size: 18),
-                                              title: labels.label('View', fontSize: 13, color: Colors.black87),
-                                            ),
-                                          ),
-                                          PopupMenuItem(
-                                            height: 42,
-                                            value: 1,
-                                            onTap: () => deleteImagePicker1(ref, i),
-                                            child: ListTile(
-                                              contentPadding: EdgeInsets.zero,
-                                              dense: true,
-                                              horizontalTitleGap: 8,
-                                              leading: const Icon(CupertinoIcons.trash, size: 18),
-                                              title: labels.label('Delete', fontSize: 13, color: Colors.black87),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  buttons.textButtons(
-                      title: 'Upload Photo',
-                      onPressed: () => imagePicker8(ref, offset: img.length),
-                      padSize: 8,
-                      textColor: config.primaryAppColor.shade600,
-                      prefixIcon: Icons.photo_camera_back,
-                      prefColor: config.primaryAppColor.shade600,
-                      borderColor: config.primaryAppColor.shade100,
-                      bgColor: config.primaryAppColor.shade50.withOpacity(0.75)
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> deleteImagePicker1(WidgetRef ref, int index) async {
-    updateNewData(ref, 'item_image[$index]', null, newData);
-    ref.read(listIMG.notifier).update((state) {
-      // Create a copy of the current list
-      List<XFile> newMap = List.from(state);
-
-      // Replace or add the image at the specified index
-      if (index < newMap.length) {
-        newMap.removeAt(index);
-      }
-      return newMap;
-    });
-  }
-
-  Future<void> imagePicker1(WidgetRef ref, int index) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowMultiple: false,
-      allowedExtensions: ['jpg', 'jpeg', 'png'],
-    );
-
-    if (result != null) {
-      final xFiles = result.files.first.xFile;
-
-      ref.read(listIMG.notifier).update((state) {
-        // Create a copy of the current list
-        List<XFile> newMap = List.from(state);
-
-        // Replace or add the image at the specified index
-        if (index < newMap.length) {
-          newMap[index] = xFiles;
-        } else {
-          newMap.add(xFiles);
-        }
-
-        return newMap;
-      });
-
-      await uploadIMG(ref, xFiles, index);
-    }
-  }
-
-  Future<void> imagePicker8(WidgetRef ref, { int offset = 0 }) async {
-    final limit = ref.watch(limitPro) - offset;
-    if(limit > 0) {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowMultiple: true,
-        allowedExtensions: ['jpg', 'jpeg', 'png'],
-      );
-
-      if(result != null) {
-        final xFiles = result.files;
-        for(int i=0; i<limit; i++) {
-          if(i < xFiles.length) {
-            ref.read(listIMG.notifier).update((state) {
-              List<XFile> newMap = state;
-              newMap = { ...newMap, ...{xFiles[i].xFile} }.toList();
-              return newMap;
-            });
-          }
-        }
-
-        final lImg = ref.watch(listIMG);
-        for (int index=0; index<lImg.length; index++) {
-          await uploadIMG(ref, lImg[index], index);
-        }
       }
     }
   }

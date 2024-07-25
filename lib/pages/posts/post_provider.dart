@@ -1,4 +1,6 @@
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +10,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../helpers/config.dart';
 import '../../helpers/helper.dart';
+import '../../widgets/dialog_builder.dart';
 import '../main/home_provider.dart';
 
 part 'post_provider.g.dart';
@@ -17,17 +20,21 @@ final myWidgets = MyWidgets();
 
 @riverpod
 class GetPostFilter extends _$GetPostFilter {
+
   final Dio dio = Dio();
+  String? slugs;
+  String? storeids;
 
   @override
   FutureOr<PostSerial?> build(WidgetRef context, String slug, String? storeid) async {
-    final res = await fetchData(slug, storeid);
+    slugs = slug;
+    storeids = storeid;
+    final res = await fetchData(slugs!, storeids);
     return res;
   }
 
   Future<PostSerial?> fetchData(String slug, String? storeid) async {
     try {
-      final accessToken = await checkTokens(context);
       final tokens = context.watch(usersProvider);
 
       Uri uri = Uri.parse('$baseUrl/me/posts/filter/$slug').replace(queryParameters: {
@@ -39,22 +46,27 @@ class GetPostFilter extends _$GetPostFilter {
       });
 
       final res = await dio.get(uri.toString(), options: Options(headers: {
-        'Access-Token': accessToken ?? tokens.tokens?.access_token,
+        'Access-Token': tokens.tokens?.access_token,
       }));
 
       if (res.statusCode == 200 && res.data != null) {
         final data = res.data;
         return PostSerial.fromJson(data);
-      } else {
-        throw Exception('Failed to load data');
       }
     } on DioException catch (e) {
+      final response = e.response;
       // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        await fetchData(slug, storeid); // Retry the request after refreshing the token
+      }
       throw Exception('Dio error: ${e.message}');
     } catch (e) {
       // Handle other exceptions
       throw Exception('Error fetching data: $e');
     }
+    return null;
   }
 }
 
@@ -62,31 +74,45 @@ class MyPostApi {
   final dio = Dio();
 
   Future createPosts(BuildContext context, Map<String, dynamic> data, WidgetRef ref) async {
-    try {
-      final accessToken = await checkTokens(ref);
-      final tokens = ref.watch(usersProvider);
+    dialogBuilder(context);
 
+    try {
+      final tokens = ref.watch(usersProvider);
       final formData = FormData.fromMap(data);
       final subs = 'me/posts?lang=$lang';
       final res = await dio.post(
         '$baseUrl/$subs',
         data: formData,
         options: Options(headers: {
-          'Access-Token': accessToken ?? tokens.tokens?.access_token,
+          'Access-Token': tokens.tokens?.access_token,
         }, contentType: Headers.formUrlEncodedContentType),
       );
       final datum = res.data ?? {};
+      /// close dialog ///
+      Navigator.pop(context);
 
-      print(datum);
-
-      // return datum;
+      return datum;
     } on DioException catch (e) {
-      print(e.response);
-      myWidgets.showAlert(context, '${e.response}', title: 'Alert');
-      _handleError('DioException: ', e, '');
+      /// close dialog ///
+      Navigator.pop(context);
+
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(ref);
+        await createPosts(context, data, ref); // Retry the request after refreshing the token
+      } else {
+        myWidgets.showAlert(context, '$response', title: 'Alert');
+      }
+      _handleError('DioException: ', response, '');
     } catch (e, stacktrace) {
+      /// close dialog ///
+      Navigator.pop(context);
+
       _handleError('uploadData', e, stacktrace);
     }
+    return null;
   }
 
   void _handleError(String methodName, dynamic error, dynamic stacktrace) {

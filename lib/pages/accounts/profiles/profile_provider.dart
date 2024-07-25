@@ -47,12 +47,11 @@ class OwnProfileList extends _$OwnProfileList {
   // Makes an API call to fetch profiles
   Future<void> urlAPI() async {
     try {
-      final accessToken = await checkTokens(context);
       final accessTokens = context.watch(usersProvider).tokens?.access_token;
       final subs = 'me/posts?lang=en&fields=$fields&functions=$fun';
       final res = await dio.get(
         '$baseUrl/$subs',
-        options: Options(headers: {'Access-Token': accessToken ?? accessTokens}),
+        options: Options(headers: {'Access-Token':  accessTokens}),
       );
 
       if (res.statusCode == 200) {
@@ -74,6 +73,15 @@ class OwnProfileList extends _$OwnProfileList {
 
         list.addAll(updatedList);
       }
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        await fetchHome(); // Retry the request after refreshing the token
+      }
+      throw Exception('Dio error: ${e.message}');
     } catch (e, stacktrace) {
       // Handle exceptions and log the error
       print('Error: $e');
@@ -87,7 +95,7 @@ class GetTotalPost extends _$GetTotalPost {
   final Dio dio = Dio();
 
   @override
-  Future<OwnDataTotalPost?> build() async {
+  Future<OwnDataTotalPost?> build(WidgetRef context) async {
     final String? accessTokens = ref.watch(usersProvider).tokens?.access_token;
 
     try {
@@ -102,6 +110,15 @@ class GetTotalPost extends _$GetTotalPost {
       } else {
         print('Failed to fetch data: ${res.statusCode}');
       }
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        await build(context); // Retry the request after refreshing the token
+      }
+      print('Dio error: ${e.message}');
     } catch (e, stacktrace) {
       print('Error: $e');
       print(stacktrace);
@@ -145,12 +162,20 @@ class MyAccountApiService {
       } else {
         alertSnack(context, 'Failed to renew post');
       }
-    } on DioException catch (e) {
 
+    } on DioException catch (e) {
       if (e.response != null) {
+        final response = e.response;
         // Handle DioError with response
-        final resp = MessageLogin.fromJson(e.response?.data ?? {});
+        final resp = MessageLogin.fromJson(response?.data ?? {});
         alertSnack(context, resp.message ?? 'Error occurred');
+        // Handle Dio-specific errors
+        if (response?.statusCode == 401) {
+          // Token might have expired, try to refresh the token
+          await checkTokens(ref);
+          await submitRenew(id, context: context, ref: ref); // Retry the request after refreshing the token
+        }
+        throw Exception('Dio error: ${e.message}');
       } else {
         // Handle DioError without response
         myWidgets.showAlert(context, 'Error: $e');

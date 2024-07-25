@@ -6,7 +6,7 @@ part of 'post_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getPostFilterHash() => r'9497dd88f590cb768701f4a4ee21f7e404a34fdd';
+String _$getPostFilterHash() => r'26ae4cd795bb9eae0600d7c56ef1414e727b506e';
 
 /// Copied from Dart SDK
 class _SystemHash {

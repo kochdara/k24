@@ -6,7 +6,7 @@ part of 'chat_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$chatPageHash() => r'72cffc7eb0044ea19d5704111c33087a524f9ca0';
+String _$chatPageHash() => r'cc04b75c5c8aa140eb413a03599fa4a08b1b1338';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -193,7 +193,7 @@ class _ChatPageProviderElement
   String get type => (origin as ChatPageProvider).type;
 }
 
-String _$conversationPageHash() => r'9f59bec55b4250c472c3ad709f4987c3afa0a17d';
+String _$conversationPageHash() => r'b7e6f3b9c711d19f69b3ba1d31375efed3a1eacc';
 
 abstract class _$ConversationPage
     extends BuildlessAutoDisposeStreamNotifier<List<ConData>> {

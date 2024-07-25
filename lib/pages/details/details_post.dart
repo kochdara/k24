@@ -2,7 +2,6 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/helper.dart';
@@ -70,8 +69,8 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     final dataDetails = widget.data;
     final id = dataDetails.data?.id;
 
-    ref.refresh(getDetailPostProvider('$id', '${ref.watch(usersProvider).tokens?.access_token}').future);
-    await ref.read(relateDetailPostProvider('$id').notifier).refresh();
+    ref.refresh(getDetailPostProvider(ref, '$id').future);
+    await ref.read(relateDetailPostProvider(ref, '$id').notifier).refresh();
   }
 
   void scrollListener() {
@@ -84,8 +83,8 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     final dataDetails = widget.data;
     final adid = dataDetails.data?.id;
     final userTokens = ref.watch(usersProvider);
-    final watchDetails = ref.watch(getDetailPostProvider('$adid', '${ref.watch(usersProvider).tokens?.access_token}'));
-    final watchRelates = ref.watch(relateDetailPostProvider('$adid'));
+    final watchDetails = ref.watch(getDetailPostProvider(ref, '$adid'));
+    final watchRelates = ref.watch(relateDetailPostProvider(ref, '$adid'));
     final watchChat = ref.watch(getTopByUidProvider(ref, adid: '$adid'));
 
     final dataRes = watchDetails.valueOrNull ?? GridCard();

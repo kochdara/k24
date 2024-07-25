@@ -56,6 +56,7 @@ class Data_ {
   String? title;
   bool? is_premium;
   String? description;
+  GridDiscount? discount;
   String? photo;
   List<String?>? photos;
   String? thumbnail;
@@ -87,6 +88,7 @@ class Data_ {
     this.title,
     this.is_premium,
     this.description,
+    this.discount,
     this.photo,
     this.photos,
     this.thumbnail,
@@ -116,6 +118,27 @@ class Data_ {
 
   factory Data_.fromJson(Map json) => _$Data_FromJson(json);
   Map toJson() => _$Data_ToJson(this);
+
+}
+
+@JsonSerializable(explicitToJson: true, converters: [ToString()])
+class GridDiscount {
+  String? sale_price;
+  String? original_price;
+  String? amount_saved;
+  String? type;
+  String? discount;
+
+  GridDiscount({
+    this.sale_price,
+    this.original_price,
+    this.amount_saved,
+    this.type,
+    this.discount,
+  });
+
+  factory GridDiscount.fromJson(Map<String, dynamic> json) => _$GridDiscountFromJson(json);
+  Map toJson() => _$GridDiscountToJson(this);
 
 }
 

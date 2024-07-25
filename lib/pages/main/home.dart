@@ -51,7 +51,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     final mainCate = ref.watch(getMainCategoryProvider('0'));
-    final homeList = ref.watch(homeListsProvider('${ref.watch(usersProvider).tokens?.access_token}', ref.watch(newData)));
+    final homeList = ref.watch(homeListsProvider(ref, ref.watch(newData)));
     final bannerAds = ref.watch(getBannerAdsProvider('app', 'image'));
 
     return Scaffold(
@@ -170,7 +170,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ));
                       if(result != null) {
                         final homeList = homeListsProvider(
-                          '${ref.watch(usersProvider).tokens?.access_token}',
+                          ref,
                           ref.watch(newData),
                         );
                         await ref.read(homeList.notifier).refresh();

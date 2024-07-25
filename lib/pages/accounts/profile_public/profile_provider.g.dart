@@ -6,7 +6,7 @@ part of 'profile_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$profilePublicHash() => r'4219e089de8d1edf982a9f14a4892a5f23e55eec';
+String _$profilePublicHash() => r'96f602d067ad9d212990496fa15bf0c06d2fd14d';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -31,10 +31,12 @@ class _SystemHash {
 
 abstract class _$ProfilePublic
     extends BuildlessAutoDisposeAsyncNotifier<ProfileSerial?> {
-  late final String username;
+  late final WidgetRef context;
+  late final String? username;
 
   FutureOr<ProfileSerial?> build(
-    String username,
+    WidgetRef context,
+    String? username,
   );
 }
 
@@ -49,9 +51,11 @@ class ProfilePublicFamily extends Family<AsyncValue<ProfileSerial?>> {
 
   /// See also [ProfilePublic].
   ProfilePublicProvider call(
-    String username,
+    WidgetRef context,
+    String? username,
   ) {
     return ProfilePublicProvider(
+      context,
       username,
     );
   }
@@ -61,6 +65,7 @@ class ProfilePublicFamily extends Family<AsyncValue<ProfileSerial?>> {
     covariant ProfilePublicProvider provider,
   ) {
     return call(
+      provider.context,
       provider.username,
     );
   }
@@ -85,9 +90,12 @@ class ProfilePublicProvider extends AutoDisposeAsyncNotifierProviderImpl<
     ProfilePublic, ProfileSerial?> {
   /// See also [ProfilePublic].
   ProfilePublicProvider(
-    String username,
+    WidgetRef context,
+    String? username,
   ) : this._internal(
-          () => ProfilePublic()..username = username,
+          () => ProfilePublic()
+            ..context = context
+            ..username = username,
           from: profilePublicProvider,
           name: r'profilePublicProvider',
           debugGetCreateSourceHash:
@@ -97,6 +105,7 @@ class ProfilePublicProvider extends AutoDisposeAsyncNotifierProviderImpl<
           dependencies: ProfilePublicFamily._dependencies,
           allTransitiveDependencies:
               ProfilePublicFamily._allTransitiveDependencies,
+          context: context,
           username: username,
         );
 
@@ -107,16 +116,19 @@ class ProfilePublicProvider extends AutoDisposeAsyncNotifierProviderImpl<
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
+    required this.context,
     required this.username,
   }) : super.internal();
 
-  final String username;
+  final WidgetRef context;
+  final String? username;
 
   @override
   FutureOr<ProfileSerial?> runNotifierBuild(
     covariant ProfilePublic notifier,
   ) {
     return notifier.build(
+      context,
       username,
     );
   }
@@ -126,12 +138,15 @@ class ProfilePublicProvider extends AutoDisposeAsyncNotifierProviderImpl<
     return ProviderOverride(
       origin: this,
       override: ProfilePublicProvider._internal(
-        () => create()..username = username,
+        () => create()
+          ..context = context
+          ..username = username,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
+        context: context,
         username: username,
       ),
     );
@@ -145,12 +160,15 @@ class ProfilePublicProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   bool operator ==(Object other) {
-    return other is ProfilePublicProvider && other.username == username;
+    return other is ProfilePublicProvider &&
+        other.context == context &&
+        other.username == username;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
     hash = _SystemHash.combine(hash, username.hashCode);
 
     return _SystemHash.finish(hash);
@@ -158,8 +176,11 @@ class ProfilePublicProvider extends AutoDisposeAsyncNotifierProviderImpl<
 }
 
 mixin ProfilePublicRef on AutoDisposeAsyncNotifierProviderRef<ProfileSerial?> {
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
+
   /// The parameter `username` of this provider.
-  String get username;
+  String? get username;
 }
 
 class _ProfilePublicProviderElement
@@ -168,16 +189,20 @@ class _ProfilePublicProviderElement
   _ProfilePublicProviderElement(super.provider);
 
   @override
-  String get username => (origin as ProfilePublicProvider).username;
+  WidgetRef get context => (origin as ProfilePublicProvider).context;
+  @override
+  String? get username => (origin as ProfilePublicProvider).username;
 }
 
-String _$profileListHash() => r'4befb03f2b0b40ae704af748c50508e0ef52be32';
+String _$profileListHash() => r'5bd10b71303de9225f04138bceec9c3868612c8e';
 
 abstract class _$ProfileList
     extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {
+  late final WidgetRef context;
   late final String username;
 
   FutureOr<List<GridCard>> build(
+    WidgetRef context,
     String username,
   );
 }
@@ -193,9 +218,11 @@ class ProfileListFamily extends Family<AsyncValue<List<GridCard>>> {
 
   /// See also [ProfileList].
   ProfileListProvider call(
+    WidgetRef context,
     String username,
   ) {
     return ProfileListProvider(
+      context,
       username,
     );
   }
@@ -205,6 +232,7 @@ class ProfileListFamily extends Family<AsyncValue<List<GridCard>>> {
     covariant ProfileListProvider provider,
   ) {
     return call(
+      provider.context,
       provider.username,
     );
   }
@@ -229,9 +257,12 @@ class ProfileListProvider
     extends AutoDisposeAsyncNotifierProviderImpl<ProfileList, List<GridCard>> {
   /// See also [ProfileList].
   ProfileListProvider(
+    WidgetRef context,
     String username,
   ) : this._internal(
-          () => ProfileList()..username = username,
+          () => ProfileList()
+            ..context = context
+            ..username = username,
           from: profileListProvider,
           name: r'profileListProvider',
           debugGetCreateSourceHash:
@@ -241,6 +272,7 @@ class ProfileListProvider
           dependencies: ProfileListFamily._dependencies,
           allTransitiveDependencies:
               ProfileListFamily._allTransitiveDependencies,
+          context: context,
           username: username,
         );
 
@@ -251,9 +283,11 @@ class ProfileListProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
+    required this.context,
     required this.username,
   }) : super.internal();
 
+  final WidgetRef context;
   final String username;
 
   @override
@@ -261,6 +295,7 @@ class ProfileListProvider
     covariant ProfileList notifier,
   ) {
     return notifier.build(
+      context,
       username,
     );
   }
@@ -270,12 +305,15 @@ class ProfileListProvider
     return ProviderOverride(
       origin: this,
       override: ProfileListProvider._internal(
-        () => create()..username = username,
+        () => create()
+          ..context = context
+          ..username = username,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
+        context: context,
         username: username,
       ),
     );
@@ -289,12 +327,15 @@ class ProfileListProvider
 
   @override
   bool operator ==(Object other) {
-    return other is ProfileListProvider && other.username == username;
+    return other is ProfileListProvider &&
+        other.context == context &&
+        other.username == username;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
     hash = _SystemHash.combine(hash, username.hashCode);
 
     return _SystemHash.finish(hash);
@@ -302,6 +343,9 @@ class ProfileListProvider
 }
 
 mixin ProfileListRef on AutoDisposeAsyncNotifierProviderRef<List<GridCard>> {
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
+
   /// The parameter `username` of this provider.
   String get username;
 }
@@ -311,6 +355,8 @@ class _ProfileListProviderElement
     with ProfileListRef {
   _ProfileListProviderElement(super.provider);
 
+  @override
+  WidgetRef get context => (origin as ProfileListProvider).context;
   @override
   String get username => (origin as ProfileListProvider).username;
 }

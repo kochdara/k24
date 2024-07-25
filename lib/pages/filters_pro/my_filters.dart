@@ -51,7 +51,7 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
   StateProvider<Map> parent = StateProvider((ref) => {});
   StateProvider<bool> checkVal = StateProvider((ref) => false);
 
-  double space = 10;
+  double space = 12;
 
   @override
   void initState() {
@@ -211,11 +211,11 @@ class _MyFiltersState extends ConsumerState<MyFilters> {
               /// view button ///
               if(watchFilter.hasValue) Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(6),
                   border: Border.all(color: config.secondaryColor.shade100),
                   color: Colors.white,
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

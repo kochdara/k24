@@ -59,6 +59,10 @@ Data_ _$Data_FromJson(Map json) => Data_(
       title: const ToString().fromJson(json['title']),
       is_premium: const ToBool().fromJson(json['is_premium']),
       description: const ToString().fromJson(json['description']),
+      discount: json['discount'] == null
+          ? null
+          : GridDiscount.fromJson(
+              Map<String, dynamic>.from(json['discount'] as Map)),
       photo: const ToString().fromJson(json['photo']),
       photos: (json['photos'] as List<dynamic>?)
           ?.map(const ToString().fromJson)
@@ -122,6 +126,7 @@ Map<String, dynamic> _$Data_ToJson(Data_ instance) => <String, dynamic>{
       'is_premium': _$JsonConverterToJson<Object?, bool>(
           instance.is_premium, const ToBool().toJson),
       'description': const ToString().toJson(instance.description),
+      'discount': instance.discount?.toJson(),
       'photo': const ToString().toJson(instance.photo),
       'photos': instance.photos?.map(const ToString().toJson).toList(),
       'thumbnail': const ToString().toJson(instance.thumbnail),
@@ -154,6 +159,23 @@ Map<String, dynamic> _$Data_ToJson(Data_ instance) => <String, dynamic>{
           instance.is_saved, const ToBool().toJson),
       'is_like': _$JsonConverterToJson<Object?, bool>(
           instance.is_like, const ToBool().toJson),
+    };
+
+GridDiscount _$GridDiscountFromJson(Map<String, dynamic> json) => GridDiscount(
+      sale_price: const ToString().fromJson(json['sale_price']),
+      original_price: const ToString().fromJson(json['original_price']),
+      amount_saved: const ToString().fromJson(json['amount_saved']),
+      type: const ToString().fromJson(json['type']),
+      discount: const ToString().fromJson(json['discount']),
+    );
+
+Map<String, dynamic> _$GridDiscountToJson(GridDiscount instance) =>
+    <String, dynamic>{
+      'sale_price': const ToString().toJson(instance.sale_price),
+      'original_price': const ToString().toJson(instance.original_price),
+      'amount_saved': const ToString().toJson(instance.amount_saved),
+      'type': const ToString().toJson(instance.type),
+      'discount': const ToString().toJson(instance.discount),
     };
 
 Spec_ _$Spec_FromJson(Map<String, dynamic> json) => Spec_(

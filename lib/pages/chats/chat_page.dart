@@ -118,7 +118,7 @@ class _ChatPageBuilderState extends ConsumerState<ChatPageBuilder> {
   trigger() {
     if(mounted) {
       print("@# 1");
-      ref.refresh(chatPageProvider(ref, '${moreTypeInfo[ref.watch(moreTypeProvider)]?.name}').notifier).refresh(load: false);
+      ref.refresh(chatPageProvider(ref, '${moreTypeInfo[ref.watch(moreTypeProvider)]?.name}'));
       Future.delayed(Duration(seconds: ref.read(delayed)), () => trigger());
     }
   }

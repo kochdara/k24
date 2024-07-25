@@ -14,13 +14,14 @@ class Labels {
     TextDecoration? decoration,
     TextDecorationStyle? decorationStyle,
     int? maxLines,
+    double? lineHeight2,
   }) {
     return Text(data,
       style: TextStyle(
         fontSize: fontSize,
         fontWeight: fontWeight,
         color: color,
-        height: lineHeight,
+        height: lineHeight2 ?? lineHeight,
         fontStyle: fontStyle,
         decoration: decoration,
         decorationStyle: decorationStyle,

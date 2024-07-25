@@ -59,8 +59,8 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
   Widget build(BuildContext context) {
     final userDatum = widget.userData;
     final username = '${userDatum?.username}';
-    final profileListPub = profileListProvider(username);
-    final profilePro = ref.watch(profilePublicProvider(username));
+    final profileListPub = profileListProvider(ref, username);
+    final profilePro = ref.watch(profilePublicProvider(ref, username));
     final profileList = ref.watch(profileListPub);
 
     return DefaultTabController(

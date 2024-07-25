@@ -47,7 +47,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final userPro = ref.watch(usersProvider);
-    final profilePro = ref.watch(profilePublicProvider('${userPro.user?.username}'));
+    final profilePro = ref.watch(profilePublicProvider(ref, '${userPro.user?.username}'));
 
     return Scaffold(
       backgroundColor: config.backgroundColor,
@@ -311,7 +311,7 @@ class SegmentedControlExample extends StatelessWidget {
   Widget build(BuildContext context) {
     final submitApi = ref.watch(myAPIService);
     final ownProfilePro = ref.watch(ownProfileListProvider(ref));
-    final getTotalPostPro = ref.watch(getTotalPostProvider);
+    final getTotalPostPro = ref.watch(getTotalPostProvider(ref));
 
     final dataTotal = getTotalPostPro.valueOrNull ?? OwnDataTotalPost();
 

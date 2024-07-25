@@ -568,7 +568,7 @@ class MyCards {
                     ),
                   ),
 
-                  // more //
+                  /// more ///
                   Positioned(
                     top: 6,
                     right: 6,
@@ -581,6 +581,32 @@ class MyCards {
                             borderRadius: BorderRadius.circular(16)
                         ),
                         child: const Icon(Icons.more_vert_rounded, size: 15,  color: Colors.white),
+                      ),
+                    ),
+                  ),
+
+                  /// discount ///
+                  if(data?.discount != null) Positioned(
+                    top: 0,
+                    left: 0,
+                    child: InkWell(
+                      onTap: () { },
+                      child: Container(
+                        padding: const EdgeInsets.only(left: 4, top: 4, bottom: 6, right: 6),
+                        decoration: BoxDecoration(
+                            color: config.warningColor.shade400,
+                            borderRadius: const BorderRadius.only(
+                              bottomRight: Radius.circular(20),
+                            ),
+                        ),
+                        child: Column(
+                          children: [
+                            labels.label(data?.discount?.type == 'amount' ?
+                            '${data?.discount?.amount_saved ?? 0}\$'
+                            : '${((double.tryParse(data?.discount?.amount_saved ?? '') ?? 0) * 100) / (double.tryParse(data?.discount?.original_price ?? '') ?? 0)}%', fontSize: 12, lineHeight2: 1.10),
+                            labels.label('OFF', fontSize: 9),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -1040,13 +1066,13 @@ class MyWidgetLikes extends ConsumerWidget {
           if (likerNotifier || isLiked) {
             data?.is_like = false;
             likeNotifier.state = false;
-            final result = await submit.submitRemove(context: context, id: '${data?.id}');
+            final result = await submit.submitRemove(context: context, id: '${data?.id}', ref: ref);
             print(result.toJson());
           } else {
             data?.is_like = true;
             likeNotifier.state = true;
             final dataSend = {'id': '${data?.id}', 'type': 'post'};
-            final result = await submit.submitAdd(dataSend, context: context);
+            final result = await submit.submitAdd(dataSend, context: context, ref: ref);
             print(result.toJson());
           }
         }

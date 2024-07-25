@@ -6,7 +6,7 @@ part of 'profile_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$ownProfileListHash() => r'40ae440825daf3490d1223f9ae5c7bd6d2b2a5c1';
+String _$ownProfileListHash() => r'2c453bb2f321677404fcd38d66e29fca4c4f6f42';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -172,20 +172,149 @@ class _OwnProfileListProviderElement
   WidgetRef get context => (origin as OwnProfileListProvider).context;
 }
 
-String _$getTotalPostHash() => r'58a308f9902838d1150353a01a454a78c8f3934f';
+String _$getTotalPostHash() => r'99d7f7e23f7bf38c2703987743d6763eb1a2d415';
+
+abstract class _$GetTotalPost
+    extends BuildlessAutoDisposeAsyncNotifier<OwnDataTotalPost?> {
+  late final WidgetRef context;
+
+  FutureOr<OwnDataTotalPost?> build(
+    WidgetRef context,
+  );
+}
 
 /// See also [GetTotalPost].
 @ProviderFor(GetTotalPost)
-final getTotalPostProvider =
-    AutoDisposeAsyncNotifierProvider<GetTotalPost, OwnDataTotalPost?>.internal(
-  GetTotalPost.new,
-  name: r'getTotalPostProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$getTotalPostHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+const getTotalPostProvider = GetTotalPostFamily();
 
-typedef _$GetTotalPost = AutoDisposeAsyncNotifier<OwnDataTotalPost?>;
+/// See also [GetTotalPost].
+class GetTotalPostFamily extends Family<AsyncValue<OwnDataTotalPost?>> {
+  /// See also [GetTotalPost].
+  const GetTotalPostFamily();
+
+  /// See also [GetTotalPost].
+  GetTotalPostProvider call(
+    WidgetRef context,
+  ) {
+    return GetTotalPostProvider(
+      context,
+    );
+  }
+
+  @override
+  GetTotalPostProvider getProviderOverride(
+    covariant GetTotalPostProvider provider,
+  ) {
+    return call(
+      provider.context,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'getTotalPostProvider';
+}
+
+/// See also [GetTotalPost].
+class GetTotalPostProvider extends AutoDisposeAsyncNotifierProviderImpl<
+    GetTotalPost, OwnDataTotalPost?> {
+  /// See also [GetTotalPost].
+  GetTotalPostProvider(
+    WidgetRef context,
+  ) : this._internal(
+          () => GetTotalPost()..context = context,
+          from: getTotalPostProvider,
+          name: r'getTotalPostProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$getTotalPostHash,
+          dependencies: GetTotalPostFamily._dependencies,
+          allTransitiveDependencies:
+              GetTotalPostFamily._allTransitiveDependencies,
+          context: context,
+        );
+
+  GetTotalPostProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.context,
+  }) : super.internal();
+
+  final WidgetRef context;
+
+  @override
+  FutureOr<OwnDataTotalPost?> runNotifierBuild(
+    covariant GetTotalPost notifier,
+  ) {
+    return notifier.build(
+      context,
+    );
+  }
+
+  @override
+  Override overrideWith(GetTotalPost Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: GetTotalPostProvider._internal(
+        () => create()..context = context,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        context: context,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeAsyncNotifierProviderElement<GetTotalPost, OwnDataTotalPost?>
+      createElement() {
+    return _GetTotalPostProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetTotalPostProvider && other.context == context;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin GetTotalPostRef
+    on AutoDisposeAsyncNotifierProviderRef<OwnDataTotalPost?> {
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
+}
+
+class _GetTotalPostProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<GetTotalPost,
+        OwnDataTotalPost?> with GetTotalPostRef {
+  _GetTotalPostProviderElement(super.provider);
+
+  @override
+  WidgetRef get context => (origin as GetTotalPostProvider).context;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

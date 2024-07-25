@@ -6,7 +6,7 @@ part of 'home_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getMainCategoryHash() => r'98391328796c61da0e2d0b79268b3b34bae0f35f';
+String _$getMainCategoryHash() => r'b203432e9d49069cfbeedd26f9e76f9afd3708c5';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -172,15 +172,15 @@ class _GetMainCategoryProviderElement
   String get parent => (origin as GetMainCategoryProvider).parent;
 }
 
-String _$homeListsHash() => r'884de78a9f5e40d2579c1fe6a6798fc9d7725d03';
+String _$homeListsHash() => r'e5418c5121d8012ab4696b96a1a6c131e95ea028';
 
 abstract class _$HomeLists
     extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {
-  late final String accessTokens;
+  late final WidgetRef context;
   late final Map<dynamic, dynamic>? newData;
 
   FutureOr<List<GridCard>> build(
-    String accessTokens,
+    WidgetRef context,
     Map<dynamic, dynamic>? newData,
   );
 }
@@ -196,11 +196,11 @@ class HomeListsFamily extends Family<AsyncValue<List<GridCard>>> {
 
   /// See also [HomeLists].
   HomeListsProvider call(
-    String accessTokens,
+    WidgetRef context,
     Map<dynamic, dynamic>? newData,
   ) {
     return HomeListsProvider(
-      accessTokens,
+      context,
       newData,
     );
   }
@@ -210,7 +210,7 @@ class HomeListsFamily extends Family<AsyncValue<List<GridCard>>> {
     covariant HomeListsProvider provider,
   ) {
     return call(
-      provider.accessTokens,
+      provider.context,
       provider.newData,
     );
   }
@@ -235,11 +235,11 @@ class HomeListsProvider
     extends AutoDisposeAsyncNotifierProviderImpl<HomeLists, List<GridCard>> {
   /// See also [HomeLists].
   HomeListsProvider(
-    String accessTokens,
+    WidgetRef context,
     Map<dynamic, dynamic>? newData,
   ) : this._internal(
           () => HomeLists()
-            ..accessTokens = accessTokens
+            ..context = context
             ..newData = newData,
           from: homeListsProvider,
           name: r'homeListsProvider',
@@ -249,7 +249,7 @@ class HomeListsProvider
                   : _$homeListsHash,
           dependencies: HomeListsFamily._dependencies,
           allTransitiveDependencies: HomeListsFamily._allTransitiveDependencies,
-          accessTokens: accessTokens,
+          context: context,
           newData: newData,
         );
 
@@ -260,11 +260,11 @@ class HomeListsProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.accessTokens,
+    required this.context,
     required this.newData,
   }) : super.internal();
 
-  final String accessTokens;
+  final WidgetRef context;
   final Map<dynamic, dynamic>? newData;
 
   @override
@@ -272,7 +272,7 @@ class HomeListsProvider
     covariant HomeLists notifier,
   ) {
     return notifier.build(
-      accessTokens,
+      context,
       newData,
     );
   }
@@ -283,14 +283,14 @@ class HomeListsProvider
       origin: this,
       override: HomeListsProvider._internal(
         () => create()
-          ..accessTokens = accessTokens
+          ..context = context
           ..newData = newData,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        accessTokens: accessTokens,
+        context: context,
         newData: newData,
       ),
     );
@@ -305,14 +305,14 @@ class HomeListsProvider
   @override
   bool operator ==(Object other) {
     return other is HomeListsProvider &&
-        other.accessTokens == accessTokens &&
+        other.context == context &&
         other.newData == newData;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, accessTokens.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
     hash = _SystemHash.combine(hash, newData.hashCode);
 
     return _SystemHash.finish(hash);
@@ -320,8 +320,8 @@ class HomeListsProvider
 }
 
 mixin HomeListsRef on AutoDisposeAsyncNotifierProviderRef<List<GridCard>> {
-  /// The parameter `accessTokens` of this provider.
-  String get accessTokens;
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
 
   /// The parameter `newData` of this provider.
   Map<dynamic, dynamic>? get newData;
@@ -333,7 +333,7 @@ class _HomeListsProviderElement
   _HomeListsProviderElement(super.provider);
 
   @override
-  String get accessTokens => (origin as HomeListsProvider).accessTokens;
+  WidgetRef get context => (origin as HomeListsProvider).context;
   @override
   Map<dynamic, dynamic>? get newData => (origin as HomeListsProvider).newData;
 }

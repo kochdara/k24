@@ -5,9 +5,7 @@ import 'package:k24/serialization/banners/banner_serial.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../helpers/config.dart';
-import '../helpers/helper.dart';
 import '../serialization/chats/conversation/conversation_serial.dart';
-import 'main/home_provider.dart';
 
 part 'more_provider.g.dart';
 
@@ -17,9 +15,16 @@ final config = Config();
 class GetBannerAds extends _$GetBannerAds {
   final Dio dio = Dio();
 
+  String? dTypes;
+  String? types;
+  String? pages;
+
   @override
   Future<BannerSerial> build(String dType, String type, {String? page}) async {
-    final res = await fetchData(dType, type, page);
+    dTypes = dType;
+    types = type;
+    pages = page;
+    final res = await fetchData(dTypes!, types!, pages);
     return BannerSerial.fromJson((res ?? {}) as Map<String, dynamic>);
   }
 
@@ -33,8 +38,6 @@ class GetBannerAds extends _$GetBannerAds {
         final data = res.data;
         final resp = BannerSerial.fromJson(data);
         return resp.toJson();
-      } else {
-        throw Exception('Failed to load data');
       }
     } on DioException catch (e) {
       // Handle Dio-specific errors

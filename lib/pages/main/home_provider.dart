@@ -8,6 +8,7 @@ import 'package:k24/serialization/users/user_serial.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../helpers/config.dart';
+import '../../helpers/helper.dart';
 import '../../helpers/storage.dart';
 import '../../serialization/category/main_category.dart';
 import '../../serialization/grid_card/grid_card.dart';
@@ -23,8 +24,11 @@ final usersProvider = StateProvider<DataUser>((ref) => DataUser());
 class GetMainCategory extends _$GetMainCategory {
   final Dio dio = Dio();
 
+  String? parents;
+
   @override
   Future<List<MainCategory>> build(String parent) async {
+    parents = parent;
     return fetchData(parent);
   }
 
@@ -53,15 +57,17 @@ class GetMainCategory extends _$GetMainCategory {
 class HomeLists extends _$HomeLists {
   final Dio dio = Dio();
   final String fields = 'thumbnail,photos,location,user,store,renew_date,link,category,is_saved,is_like,total_like,total_comment,condition,highlight_specs';
-  final String fun = 'save,chat,like,comment,apply_job,shipping';
+  final String fun = 'banner,save,chat,like,comment,apply_job,shipping';
 
   List<GridCard> _list = [];
   int limit = 0;
   int currentResult = 0;
   int offset = 0;
+  Map? newDatum;
 
   @override
-  Future<List<GridCard>> build(String accessTokens, Map? newData) async {
+  Future<List<GridCard>> build(WidgetRef context, Map? newData) async {
+    newDatum = newData;
     return fetchHome();
   }
 
@@ -84,14 +90,15 @@ class HomeLists extends _$HomeLists {
 
   Future<void> _fetchData() async {
     try {
+      final tokens = ref.watch(usersProvider);
       String subs = 'feed?lang=en&offset=${offset + limit}&fields=$fields&functions=$fun';
-      final newDatum = newData;
+      final newDatum = this.newDatum;
       if(newDatum != null) {
         newDatum.forEach((key, value) { subs += '&$key=$value'; });
       }
-      print(subs);
+      // print(subs);
       final res = await dio.get('$postUrl/$subs', options: Options(headers: {
-        'Access-Token': accessTokens
+        'Access-Token': tokens.tokens?.access_token,
       }));
 
       if (res.statusCode == 200 && res.data != null) {
@@ -110,6 +117,15 @@ class HomeLists extends _$HomeLists {
           }
         }
       }
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        await fetchHome(); // Retry the request after refreshing the token
+      }
+      throw Exception('Dio error: ${e.response}');
     } catch (e, stacktrace) {
       print('Error in _fetchData: $e');
       print(stacktrace);
@@ -123,7 +139,7 @@ void loadMore(WidgetRef ref,
     ScrollController scrollController,
     Map newData
   ) async {
-  final homeListsNotifier = ref.watch(homeListsProvider('${ref.watch(usersProvider).tokens?.access_token}', newData).notifier);
+  final homeListsNotifier = ref.watch(homeListsProvider(ref, newData).notifier);
   final limit = homeListsNotifier.limit;
   final current = homeListsNotifier.currentResult;
   final fetchingNotifier = ref.read(fetchingProvider.notifier);
@@ -147,5 +163,5 @@ void loadMore(WidgetRef ref,
 Future<void> handleRefresh(WidgetRef ref, StateProvider<Map> newData) async {
   ref.read(newData.notifier).update((state) => {});
   ref.refresh(getMainCategoryProvider('0').future);
-  await ref.read(homeListsProvider('${ref.watch(usersProvider).tokens?.access_token}', ref.watch(newData)).notifier).refresh();
+  await ref.read(homeListsProvider(ref, ref.watch(newData)).notifier).refresh();
 }

@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../helpers/helper.dart';
 import '../../serialization/grid_card/grid_card.dart';
 import '../main/home_provider.dart';
 
@@ -24,12 +25,19 @@ class SubLists extends _$SubLists {
   int offset = 0;
 
   final Dio dio = Dio();
+  String? categories;
+  Map? newFilters;
 
   @override
-  Future<List<GridCard>> build(String category, String accessTokens, {Map? newFilter}) async => subFetch();
+  Future<List<GridCard>> build(WidgetRef context, String category, {Map? newFilter}) async {
+    categories = category;
+    newFilters = newFilter;
+    return subFetch();
+  }
 
   Future<List<GridCard>> subFetch() async {
-    if(current_result < limit) return [];
+    // Return existing data if the current result is less than the limit
+    if (current_result < limit && list.isNotEmpty) return list;
     await urlAPI();
     return list;
   }
@@ -47,44 +55,59 @@ class SubLists extends _$SubLists {
 
   Future<void> urlAPI() async {
     try {
+      final tokens = ref.watch(usersProvider);
       String subs = 'feed?lang=en&offset=${offset + limit}&fields=$fields&functions=$fun';
-      subs += '&category=$category';
+      subs += '&category=$categories';
 
-      /// check loop filter ///
-      if(newFilter != null && newFilter!.isNotEmpty) {
-        newFilter!.forEach((key, value) {
-          if(value is Map) {
-            if(value['fieldvalue'] != null) subs += '&$key=${value['fieldvalue']}';
-            if(value['slug'] != null) subs += '&$key=${value['slug']}';
-
-          } else {subs += '&$key=${value ?? ''}';}
+      /// Check loop filter ///
+      if (newFilters != null && newFilters!.isNotEmpty) {
+        newFilters!.forEach((key, value) {
+          if (value is Map) {
+            if (value['fieldvalue'] != null) subs += '&$key=${value['fieldvalue']}';
+            if (value['slug'] != null) subs += '&$key=${value['slug']}';
+          } else {
+            subs += '&$key=${value ?? ''}';
+          }
         });
       }
 
       final res = await dio.get('$postUrl/$subs', options: Options(headers: {
-        'Access-Token': accessTokens
+        'Access-Token': tokens.tokens?.access_token,
       }));
 
-      final resp = HomeSerial.fromJson(res.data ?? {});
+      if (res.statusCode == 200) {
+        final resp = HomeSerial.fromJson(res.data ?? {});
+        if (resp.data != null && resp.data!.isNotEmpty) {
+          final data = resp.data!;
+          limit = resp.limit ?? 0;
+          offset = resp.offset ?? 0;
+          current_result = resp.current_result ?? 0;
 
-      if(res.statusCode == 200) {
-        final data = resp.data;
-        limit = resp.limit ?? 0;
-        offset = resp.offset ?? 0;
-        current_result = resp.current_result ?? 0;
-
-        for (final val in data!) {
-          final index = list.indexWhere((element) => element.data?.id == val?.data?.id);
-
-          if (index != -1) {
-            list[index] = val!;
-          } else {
-            list.add(val!);
+          for (final val in data) {
+            final index = list.indexWhere((element) => element.data?.id == val?.data?.id);
+            if (index != -1) {
+              list[index] = val!;
+            } else {
+              list.add(val!);
+            }
           }
         }
+      } else {
+        print('Response status code: ${res.statusCode}');
       }
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        await subFetch(); // Retry the request after refreshing the token
+      } else {
+        print('Dio error: ${e.response}');
+      }
+      throw Exception('Dio error: ${e.response}');
     } catch (e, stacktrace) {
-      print('Error in : $e');
+      print('Error: $e');
       print(stacktrace);
     }
   }
@@ -96,14 +119,16 @@ class GetFilters extends _$GetFilters {
   List filters = [];
 
   final Dio dio = Dio();
+  String? slugs;
 
   @override
   Future<List> build(String slug) async => fetchData();
 
   Future<List> fetchData() async {
     filters = [];
+    slugs = slug;
 
-    String url = 'filters/$slug?lang=$lang&group=true&return_key=true&filter_version=$filterVersion&has_post=true';
+    String url = 'filters/$slugs?lang=$lang&group=true&return_key=true&filter_version=$filterVersion&has_post=true';
     final res = await dio.get('$baseUrl/$url');
     final resp = res.data;
 
@@ -133,14 +158,20 @@ class GetFilters extends _$GetFilters {
 class GetLocation extends _$GetLocation {
 
   final Dio dio = Dio();
+  String? types;
+  String? parents;
 
   @override
-  Future<List> build(String type, String parent) async => fetchData();
+  Future<List> build(String type, String parent) {
+    types = type;
+    parents = parent;
+    return fetchData();
+  }
 
   Future<List> fetchData() async {
     String url = 'locations?lang=$lang';
-    if(type.isNotEmpty) url += '&type=$type';
-    if(parent.isNotEmpty) url += '&parent=$parent';
+    if(types!.isNotEmpty) url += '&type=$types';
+    if(parents!.isNotEmpty) url += '&parent=$parents';
     final res = await dio.get('$baseUrl/$url');
     final resp = res.data;
     return resp['data'];
@@ -155,7 +186,7 @@ void subLoadMore(WidgetRef ref, Map data,
   ) async {
   final dataCate = data;
   final cate = dataCate['slug'];
-  final subListsNotifier = ref.watch(subListsProvider(cate, '${ref.watch(usersProvider).tokens?.access_token}' , newFilter: ref.watch(newData) as Map?).notifier);
+  final subListsNotifier = ref.watch(subListsProvider(ref, cate, newFilter: ref.watch(newData) as Map?).notifier);
   final limit = subListsNotifier.limit;
   final current = subListsNotifier.current_result;
   final fetchingNotifier = ref.read(fetchingProvider.notifier);
@@ -189,6 +220,6 @@ Future<void> subHandleRefresh(WidgetRef ref, Map data, StateProvider<Map> newDat
   });
 
   ref.refresh(getMainCategoryProvider(cate).future);
-  await ref.read(subListsProvider(cate, '${ref.watch(usersProvider).tokens?.access_token}', newFilter: filter).notifier).refresh();
+  await ref.read(subListsProvider(ref, cate, newFilter: filter).notifier).refresh();
 }
 

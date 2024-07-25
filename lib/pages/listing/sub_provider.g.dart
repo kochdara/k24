@@ -6,7 +6,7 @@ part of 'sub_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$subListsHash() => r'372418942a2bfce7afd5e448d7c57f0c75aafeef';
+String _$subListsHash() => r'3de041a087c78a5befcecfaf75593ba04bf5a68e';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -31,13 +31,13 @@ class _SystemHash {
 
 abstract class _$SubLists
     extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {
+  late final WidgetRef context;
   late final String category;
-  late final String accessTokens;
   late final Map<dynamic, dynamic>? newFilter;
 
   FutureOr<List<GridCard>> build(
-    String category,
-    String accessTokens, {
+    WidgetRef context,
+    String category, {
     Map<dynamic, dynamic>? newFilter,
   });
 }
@@ -53,13 +53,13 @@ class SubListsFamily extends Family<AsyncValue<List<GridCard>>> {
 
   /// See also [SubLists].
   SubListsProvider call(
-    String category,
-    String accessTokens, {
+    WidgetRef context,
+    String category, {
     Map<dynamic, dynamic>? newFilter,
   }) {
     return SubListsProvider(
+      context,
       category,
-      accessTokens,
       newFilter: newFilter,
     );
   }
@@ -69,8 +69,8 @@ class SubListsFamily extends Family<AsyncValue<List<GridCard>>> {
     covariant SubListsProvider provider,
   ) {
     return call(
+      provider.context,
       provider.category,
-      provider.accessTokens,
       newFilter: provider.newFilter,
     );
   }
@@ -95,13 +95,13 @@ class SubListsProvider
     extends AutoDisposeAsyncNotifierProviderImpl<SubLists, List<GridCard>> {
   /// See also [SubLists].
   SubListsProvider(
-    String category,
-    String accessTokens, {
+    WidgetRef context,
+    String category, {
     Map<dynamic, dynamic>? newFilter,
   }) : this._internal(
           () => SubLists()
+            ..context = context
             ..category = category
-            ..accessTokens = accessTokens
             ..newFilter = newFilter,
           from: subListsProvider,
           name: r'subListsProvider',
@@ -111,8 +111,8 @@ class SubListsProvider
                   : _$subListsHash,
           dependencies: SubListsFamily._dependencies,
           allTransitiveDependencies: SubListsFamily._allTransitiveDependencies,
+          context: context,
           category: category,
-          accessTokens: accessTokens,
           newFilter: newFilter,
         );
 
@@ -123,13 +123,13 @@ class SubListsProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
+    required this.context,
     required this.category,
-    required this.accessTokens,
     required this.newFilter,
   }) : super.internal();
 
+  final WidgetRef context;
   final String category;
-  final String accessTokens;
   final Map<dynamic, dynamic>? newFilter;
 
   @override
@@ -137,8 +137,8 @@ class SubListsProvider
     covariant SubLists notifier,
   ) {
     return notifier.build(
+      context,
       category,
-      accessTokens,
       newFilter: newFilter,
     );
   }
@@ -149,16 +149,16 @@ class SubListsProvider
       origin: this,
       override: SubListsProvider._internal(
         () => create()
+          ..context = context
           ..category = category
-          ..accessTokens = accessTokens
           ..newFilter = newFilter,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
+        context: context,
         category: category,
-        accessTokens: accessTokens,
         newFilter: newFilter,
       ),
     );
@@ -173,16 +173,16 @@ class SubListsProvider
   @override
   bool operator ==(Object other) {
     return other is SubListsProvider &&
+        other.context == context &&
         other.category == category &&
-        other.accessTokens == accessTokens &&
         other.newFilter == newFilter;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
     hash = _SystemHash.combine(hash, category.hashCode);
-    hash = _SystemHash.combine(hash, accessTokens.hashCode);
     hash = _SystemHash.combine(hash, newFilter.hashCode);
 
     return _SystemHash.finish(hash);
@@ -190,11 +190,11 @@ class SubListsProvider
 }
 
 mixin SubListsRef on AutoDisposeAsyncNotifierProviderRef<List<GridCard>> {
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
+
   /// The parameter `category` of this provider.
   String get category;
-
-  /// The parameter `accessTokens` of this provider.
-  String get accessTokens;
 
   /// The parameter `newFilter` of this provider.
   Map<dynamic, dynamic>? get newFilter;
@@ -206,15 +206,15 @@ class _SubListsProviderElement
   _SubListsProviderElement(super.provider);
 
   @override
-  String get category => (origin as SubListsProvider).category;
+  WidgetRef get context => (origin as SubListsProvider).context;
   @override
-  String get accessTokens => (origin as SubListsProvider).accessTokens;
+  String get category => (origin as SubListsProvider).category;
   @override
   Map<dynamic, dynamic>? get newFilter =>
       (origin as SubListsProvider).newFilter;
 }
 
-String _$getFiltersHash() => r'385eda51585ca279b743e08412100c4f1547ae33';
+String _$getFiltersHash() => r'e596f41695bbcb1b31903ea00917b6871e396507';
 
 abstract class _$GetFilters extends BuildlessAutoDisposeAsyncNotifier<List> {
   late final String slug;
@@ -356,7 +356,7 @@ class _GetFiltersProviderElement
   String get slug => (origin as GetFiltersProvider).slug;
 }
 
-String _$getLocationHash() => r'87e2a529a3a3fdcaf7c6590fe676923b76b113db';
+String _$getLocationHash() => r'025fc3073c8ee5f55bdf52d7db0b95287afa528d';
 
 abstract class _$GetLocation extends BuildlessAutoDisposeAsyncNotifier<List> {
   late final String type;

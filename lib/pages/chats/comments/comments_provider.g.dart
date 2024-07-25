@@ -6,7 +6,7 @@ part of 'comments_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$commentsPagesHash() => r'cb8fba2d25b3f7c4bdcc5acf0d21bfbcbc9ccc1d';
+String _$commentsPagesHash() => r'f9bf5eda2dd591cf58fed0df24f7e8ee836f1f67';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -173,7 +173,7 @@ class _CommentsPagesProviderElement
 }
 
 String _$conversationCommentsHash() =>
-    r'5b23330a4955d2a8d9078ab249a8bbcc91873dd0';
+    r'98ae8d44e5a03e30f731f40a08f88d30c94fba41';
 
 abstract class _$ConversationComments
     extends BuildlessAutoDisposeAsyncNotifier<List<CommentDatum>> {
@@ -383,7 +383,7 @@ class _ConversationCommentsProviderElement
   String? get reply_id => (origin as ConversationCommentsProvider).reply_id;
 }
 
-String _$replyCommentsHash() => r'09694b706e9222a5056e732f4587d641f3f07fce';
+String _$replyCommentsHash() => r'9297d74516186338f73c7a30d6e0c62a42718810';
 
 abstract class _$ReplyComments
     extends BuildlessAutoDisposeAsyncNotifier<CommentDatum?> {

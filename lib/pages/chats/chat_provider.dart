@@ -24,50 +24,68 @@ class ChatPage extends _$ChatPage {
 
   Dio dio = Dio();
 
-  int limit = 0;
+  int limit = 20; // Default limit for pagination
   int currentPage = 0;
+  late String type;
 
   @override
   FutureOr<List<ChatData>> build(WidgetRef context, String type) async {
-    await urlAPI();
+    this.type = type;
+    await fetchData();
     return list;
   }
 
-  Future<void> refresh({ bool load = true }) async {
-    limit = 0;
+  Future<void> refresh({bool load = true}) async {
     currentPage = 0;
     list = [];
-    if(load) state = const AsyncLoading();
-    await urlAPI();
+    if (load) state = const AsyncLoading();
+    await fetchData();
     state = AsyncData(list);
-    print(list.length);
+    print('Data length after refresh: ${list.length}');
   }
 
-  Future<void> urlAPI() async {
-    final accessToken = await checkTokens(context);
+  Future<void> fetchData() async {
     try {
-      final tokens = context.watch(usersProvider);
-      final subs = 'topics?type=$type&lang=en&offset=${currentPage * limit}&fields=$fields';
-      final res = await dio.get('$chatUrl/$subs', options: Options(headers: {
-        'Access-Token': '${accessToken ?? tokens.tokens?.access_token}',
-      }));
+      final tokens = ref.read(usersProvider);
+      final subs =
+          'topics?type=$type&lang=en&offset=${currentPage * limit}&fields=$fields';
+      final response = await dio.get('$chatUrl/$subs',
+          options: Options(headers: {
+            'Access-Token': tokens.tokens?.access_token,
+          }));
 
-      final resp = ChatSerial.fromJson(res.data ?? {});
+      if (response.statusCode == 200) {
+        final resp = ChatSerial.fromJson(response.data ?? {});
+        if (resp.data != null && resp.data!.isNotEmpty) {
+          final data = resp.data!;
+          limit = resp.limit;
+          currentPage++;
 
-      if (res.statusCode == 200 && resp.data!.isNotEmpty) {
-        final data = resp.data;
-        limit = resp.limit;
-        currentPage++;
+          for (final val in data) {
+            // Find the index of the element with the same id as val
+            final index = list.indexWhere((element) => element.id == val?.id);
 
-        for (final val in data!) {
-          final contain = list.any((element) => element.id == val?.id);
-          if(!contain) list.add(val!);
+            if (index != -1) {
+              list[index] = val!;
+            } else {
+              list.add(val!);
+            }
+          }
         }
       }
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        await fetchData(); // Retry the request after refreshing the token
+      } else {
+        throw Exception('Dio error: ${e.response}');
+      }
     } catch (e, stacktrace) {
-      print('Error in : $e');
+      print('Error: $e');
       print(stacktrace);
-      return;
     }
   }
 }
@@ -79,10 +97,17 @@ class ConversationPage extends _$ConversationPage {
   int length = 0;
 
   Dio dio = Dio();
+  String? topic_ids;
+  String? first_messages;
+  String? to_ids;
 
   @override
   Stream<List<ConData>> build(WidgetRef context, String? topic_id, String first_message, String? to_id) async* {
-    final decode = ConData.fromJson(jsonDecode(first_message));
+    topic_ids = topic_id;
+    first_messages = first_message;
+    to_ids = to_id;
+
+    final decode = ConData.fromJson(jsonDecode(first_messages!));
     if(decode.id != null) list.insert(0, decode);
     await urlAPI(first_message_id: '${decode.id}');
     yield list;
@@ -112,20 +137,19 @@ class ConversationPage extends _$ConversationPage {
     String first_message_id = '',
   }) async {
     length = 0;
-    final accessToken = await checkTokens(context);
     try {
       if(first_message_id.isNotEmpty) message_id = first_message_id;
       final tokens = context.watch(usersProvider);
       String subs = 'messages?lang=$lang&'
           'first_message_id=${(addNew)?'':message_id}&limit=$limited';
-      if(topic_id != null && topic_id!.isNotEmpty && topic_id != '0') {
-        subs += '&topic_id=$topic_id';
+      if(topic_ids != null && topic_ids!.isNotEmpty && topic_ids != '0') {
+        subs += '&topic_id=$topic_ids';
       } else {
-        subs += '&to_id=$to_id';
+        subs += '&to_id=$to_ids';
       }
       final res = await dio.get('$chatUrl/$subs', options: Options(headers: {
-        'Access-Token': '${accessToken ?? tokens.tokens?.access_token}'}
-      ));
+        'Access-Token': tokens.tokens?.access_token,
+      }));
 
       final resp = ConSerial.fromJson(res.data ?? {});
 
@@ -149,11 +173,20 @@ class ConversationPage extends _$ConversationPage {
       }
       list.sort((a, b) => a.id!.compareTo(b.id.toString()));
       return length;
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        await getNew(); // Retry the request after refreshing the token
+      }
+      print('Dio error: ${e.response}');
     } catch (e, stacktrace) {
       print('Error in : $e');
       print(stacktrace);
-      return 0;
     }
+    return 0;
   }
 }
 

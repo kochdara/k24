@@ -30,14 +30,13 @@ class CommentsPages extends _$CommentsPages {
   }
 
   Future<void> fetchComments(WidgetRef context) async {
-    final accessToken = await checkTokens(context);
     try {
       final tokens = context.watch(usersProvider);
       const subs = 'me?lang=en';
       final response = await dio.get(
         '$commentUrl/$subs',
         options: Options(headers: {
-          'Access-Token': accessToken ?? tokens.tokens?.access_token,
+          'Access-Token': tokens.tokens?.access_token,
         }),
       );
 
@@ -49,6 +48,15 @@ class CommentsPages extends _$CommentsPages {
           list = mergeComments(list, newData);
         }
       }
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        await fetchComments(context); // Retry the request after refreshing the token
+      }
+      throw Exception('Dio error: ${e.message}');
     } catch (e, stacktrace) {
       print('Error fetching comments: $e');
       print(stacktrace);
@@ -69,9 +77,17 @@ class ConversationComments extends _$ConversationComments {
   late List<CommentDatum> list = [];
 
   final Dio dio = Dio();
+  String? postIDs;
+  String? offset_comment_ids;
+  String? sorts;
+  String? reply_ids;
 
   @override
   Future<List<CommentDatum>> build(String postID, String? offset_comment_id, String? sort, String? reply_id) async {
+    postIDs = postID;
+    offset_comment_ids = offset_comment_id;
+    sorts = sort;
+    reply_ids = reply_id;
     await fetchComments();
     return list;
   }
@@ -85,10 +101,10 @@ class ConversationComments extends _$ConversationComments {
 
   Future<void> fetchComments() async {
     try {
-      String subs = '$postID?lang=en';
-      if(offset_comment_id != null) subs += '&offset_comment_id=$offset_comment_id';
-      if(sort != null) subs += '&sort=$sort';
-      if(reply_id != null) subs += '&reply_id=$reply_id';
+      String subs = '$postIDs?lang=en';
+      if(offset_comment_ids != null) subs += '&offset_comment_id=$offset_comment_ids';
+      if(sorts != null) subs += '&sort=$sorts';
+      if(reply_ids != null) subs += '&reply_id=$reply_ids';
       final response = await dio.get('$commentUrl/$subs');
 
       if (response.statusCode == 200 && response.data != null) {
@@ -119,19 +135,27 @@ class ReplyComments extends _$ReplyComments {
   late CommentDatum? mapData;
 
   final Dio dio = Dio();
+  String? postIDs;
+  String? offset_comment_ids;
+  String? sorts;
+  String? reply_ids;
 
   @override
   FutureOr<CommentDatum?> build(String postID, String? offset_comment_id, String? sort, String? reply_id) async {
+    postIDs = postID;
+    offset_comment_ids = offset_comment_id;
+    sorts = sort;
+    reply_ids = reply_id;
     await fetchComments();
     return mapData;
   }
 
   Future<void> fetchComments() async {
     try {
-      String subs = '$postID?lang=en';
-      if(offset_comment_id != null) subs += '&offset_comment_id=$offset_comment_id';
-      if(sort != null) subs += '&sort=$sort';
-      if(reply_id != null) subs += '&reply_id=$reply_id';
+      String subs = '$postIDs?lang=en';
+      if(offset_comment_ids != null) subs += '&offset_comment_id=$offset_comment_ids';
+      if(sorts != null) subs += '&sort=$sorts';
+      if(reply_ids != null) subs += '&reply_id=$reply_ids';
       final response = await dio.get('$commentUrl/$subs');
 
       if (response.statusCode == 200 && response.data != null) {
@@ -155,6 +179,15 @@ Future<dynamic> submitMarkReadComment(String id, WidgetRef ref) async {
       'Access-Token': '${tokens.tokens?.access_token}',
     }));
     return res.data;
+  } on DioException catch (e) {
+    final response = e.response;
+    // Handle Dio-specific errors
+    if (response?.statusCode == 401) {
+      // Token might have expired, try to refresh the token
+      await checkTokens(ref);
+      await submitMarkReadComment(id, ref); // Retry the request after refreshing the token
+    }
+    print('Dio error: ${e.message}');
   } catch (e, stacktrace) {
     _handleError('submitData', e, stacktrace);
   }

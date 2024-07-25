@@ -74,7 +74,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   Widget build(BuildContext context) {
     final dataCate = widget.data;
     final watchCate = ref.watch(getMainCategoryProvider('${dataCate['id']}'));
-    final watchLists = ref.watch(subListsProvider('${dataCate['slug']}', '${ref.watch(usersProvider).tokens?.access_token}', newFilter: ref.watch(newData) as Map?));
+    final watchLists = ref.watch(subListsProvider(ref, '${dataCate['slug']}', newFilter: ref.watch(newData) as Map?));
 
     final title = ref.watch(newData)['keyword'];
 
