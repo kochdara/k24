@@ -213,5 +213,148 @@ class _GetBannerAdsProviderElement
   @override
   String? get page => (origin as GetBannerAdsProvider).page;
 }
+
+String _$getBadgesHash() => r'02e2468153ae6464d011ca93642501486ecdd45b';
+
+abstract class _$GetBadges
+    extends BuildlessAutoDisposeAsyncNotifier<NotifyBadges?> {
+  late final WidgetRef context;
+
+  FutureOr<NotifyBadges?> build(
+    WidgetRef context,
+  );
+}
+
+/// See also [GetBadges].
+@ProviderFor(GetBadges)
+const getBadgesProvider = GetBadgesFamily();
+
+/// See also [GetBadges].
+class GetBadgesFamily extends Family<AsyncValue<NotifyBadges?>> {
+  /// See also [GetBadges].
+  const GetBadgesFamily();
+
+  /// See also [GetBadges].
+  GetBadgesProvider call(
+    WidgetRef context,
+  ) {
+    return GetBadgesProvider(
+      context,
+    );
+  }
+
+  @override
+  GetBadgesProvider getProviderOverride(
+    covariant GetBadgesProvider provider,
+  ) {
+    return call(
+      provider.context,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'getBadgesProvider';
+}
+
+/// See also [GetBadges].
+class GetBadgesProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<GetBadges, NotifyBadges?> {
+  /// See also [GetBadges].
+  GetBadgesProvider(
+    WidgetRef context,
+  ) : this._internal(
+          () => GetBadges()..context = context,
+          from: getBadgesProvider,
+          name: r'getBadgesProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$getBadgesHash,
+          dependencies: GetBadgesFamily._dependencies,
+          allTransitiveDependencies: GetBadgesFamily._allTransitiveDependencies,
+          context: context,
+        );
+
+  GetBadgesProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.context,
+  }) : super.internal();
+
+  final WidgetRef context;
+
+  @override
+  FutureOr<NotifyBadges?> runNotifierBuild(
+    covariant GetBadges notifier,
+  ) {
+    return notifier.build(
+      context,
+    );
+  }
+
+  @override
+  Override overrideWith(GetBadges Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: GetBadgesProvider._internal(
+        () => create()..context = context,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        context: context,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeAsyncNotifierProviderElement<GetBadges, NotifyBadges?>
+      createElement() {
+    return _GetBadgesProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetBadgesProvider && other.context == context;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin GetBadgesRef on AutoDisposeAsyncNotifierProviderRef<NotifyBadges?> {
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
+}
+
+class _GetBadgesProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<GetBadges, NotifyBadges?>
+    with GetBadgesRef {
+  _GetBadgesProviderElement(super.provider);
+
+  @override
+  WidgetRef get context => (origin as GetBadgesProvider).context;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

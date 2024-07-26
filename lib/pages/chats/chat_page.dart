@@ -117,15 +117,17 @@ class _ChatPageBuilderState extends ConsumerState<ChatPageBuilder> {
 
   trigger() {
     if(mounted) {
+      final chatPro = chatPageProvider(ref, '${moreTypeInfo[ref.watch(moreTypeProvider)]?.name}');
       print("@# 1");
-      ref.refresh(chatPageProvider(ref, '${moreTypeInfo[ref.watch(moreTypeProvider)]?.name}'));
+      ref.read(chatPro.notifier).refresh(load: false);
       Future.delayed(Duration(seconds: ref.read(delayed)), () => trigger());
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final watchChat = ref.watch(chatPageProvider(ref, '${moreTypeInfo[ref.watch(moreTypeProvider)]?.name}'));
+    final chatPro = chatPageProvider(ref, '${moreTypeInfo[ref.watch(moreTypeProvider)]?.name}');
+    final watchChat = ref.watch(chatPro);
 
     return RefreshIndicator(
       onRefresh: () async => {  },

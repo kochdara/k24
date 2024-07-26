@@ -118,7 +118,10 @@ Data_ _$Data_FromJson(Map json) => Data_(
       total_like: const ToInt().fromJson(json['total_like']),
       is_saved: const ToBool().fromJson(json['is_saved']),
       is_like: const ToBool().fromJson(json['is_like']),
-    );
+    )..shipping = json['shipping'] == null
+        ? null
+        : GridShipping.fromJson(
+            Map<String, dynamic>.from(json['shipping'] as Map));
 
 Map<String, dynamic> _$Data_ToJson(Data_ instance) => <String, dynamic>{
       'id': const ToString().toJson(instance.id),
@@ -159,6 +162,7 @@ Map<String, dynamic> _$Data_ToJson(Data_ instance) => <String, dynamic>{
           instance.is_saved, const ToBool().toJson),
       'is_like': _$JsonConverterToJson<Object?, bool>(
           instance.is_like, const ToBool().toJson),
+      'shipping': instance.shipping?.toJson(),
     };
 
 GridDiscount _$GridDiscountFromJson(Map<String, dynamic> json) => GridDiscount(
@@ -176,6 +180,17 @@ Map<String, dynamic> _$GridDiscountToJson(GridDiscount instance) =>
       'amount_saved': const ToString().toJson(instance.amount_saved),
       'type': const ToString().toJson(instance.type),
       'discount': const ToString().toJson(instance.discount),
+    };
+
+GridShipping _$GridShippingFromJson(Map<String, dynamic> json) => GridShipping(
+      type: const ToString().fromJson(json['type']),
+      title: const ToString().fromJson(json['title']),
+    );
+
+Map<String, dynamic> _$GridShippingToJson(GridShipping instance) =>
+    <String, dynamic>{
+      'type': const ToString().toJson(instance.type),
+      'title': const ToString().toJson(instance.title),
     };
 
 Spec_ _$Spec_FromJson(Map<String, dynamic> json) => Spec_(

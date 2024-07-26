@@ -82,6 +82,7 @@ class Data_ {
   int? total_like;
   bool? is_saved;
   bool? is_like;
+  GridShipping? shipping;
 
   Data_({
     this.id,
@@ -139,6 +140,21 @@ class GridDiscount {
 
   factory GridDiscount.fromJson(Map<String, dynamic> json) => _$GridDiscountFromJson(json);
   Map toJson() => _$GridDiscountToJson(this);
+
+}
+
+@JsonSerializable(explicitToJson: true, converters: [ToString()])
+class GridShipping {
+  String? type;
+  String? title;
+
+  GridShipping({
+    this.type,
+    this.title,
+  });
+
+  factory GridShipping.fromJson(Map<String, dynamic> json) => _$GridShippingFromJson(json);
+  Map toJson() => _$GridShippingToJson(this);
 
 }
 

@@ -1,10 +1,14 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/serialization/banners/banner_serial.dart';
+import 'package:k24/serialization/notify/nortify_serial.dart';
+import 'package:provider/provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../helpers/config.dart';
+import '../helpers/helper.dart';
 import '../serialization/chats/conversation/conversation_serial.dart';
 
 part 'more_provider.g.dart';
@@ -71,6 +75,48 @@ class UploadApiService {
   void _handleError(String methodName, dynamic error, StackTrace stacktrace) {
     print('Error in $methodName: $error');
     print(stacktrace);
+  }
+}
+
+@riverpod
+class GetBadges extends _$GetBadges {
+  final Dio dio = Dio();
+
+  String? fields = 'chat,comment';
+
+  @override
+  FutureOr<NotifyBadges?> build(WidgetRef context) async {
+    final res = await fetchData();
+    return res;
+  }
+
+  Future<NotifyBadges> fetchData() async {
+    try {
+      final tokens = context.watch(usersProvider);
+      String url = 'badges?fields=$fields&lang=$lang';
+      final res = await dio.get('$notificationUrl/$url', options: Options(headers: {
+        'Access-Token': tokens.tokens?.access_token,
+      }));
+
+      if (res.statusCode == 200 && res.data != null) {
+        final data = res.data;
+        final resp = NotifyBadges.fromJson(data);
+        return resp;
+      }
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        await fetchData(); // Retry the request after refreshing the token
+      }
+      throw Exception('throw exception: $response');
+    } catch (e) {
+      // Handle other exceptions
+      print('Error fetching banner ads: $e');
+    }
+    return NotifyBadges();
   }
 }
 

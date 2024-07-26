@@ -208,6 +208,7 @@ double spaceMenu = 14;
 String lang = 'en';
 String filterVersion = '4';
 String placeholder = 'assets/img/load.jpg';
+String noMore = 'assets/img/no_more.png';
 
 double responsive(double width) {
   switch (width) {

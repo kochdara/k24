@@ -1,6 +1,36 @@
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 
+String formatNumber(String num) {
+  int number = int.tryParse(num) ?? 0;
+  if (number >= 1000000) {
+    // Format the number to "1M" if it's a million or more
+    return '${(number / 1000000).toStringAsFixed(1)}M';
+  } else if (number >= 1000) {
+    // Format the number to "1K" if it's a thousand or more
+    return '${(number / 1000).toStringAsFixed(1)}K';
+  } else {
+    // Return the number as is if it's less than 1000
+    return number.toString();
+  }
+}
+
+String discountString(String? type, String? amountSaved, String? originalPrice) {
+  if (type == 'amount') {
+    return '${amountSaved ?? '0'}\$';
+  } else {
+    final double amount = double.tryParse(amountSaved ?? '') ?? 0;
+    final double original = double.tryParse(originalPrice ?? '') ?? 0;
+
+    if (original == 0) {
+      return '0%';
+    }
+
+    final double percentage = (amount * 100) / original;
+    return '${percentage.toStringAsFixed(1)}%';
+  }
+}
+
 String? stringToString({ String date = '2024-01-01', String format = 'dd-MM-yyyy', }) {
   try {
     DateTime dateTime = DateTime.parse(date);

@@ -36,6 +36,7 @@ class CommentDatum {
   TComment? last_comment;
   List<TComment?>? recent_comments;
   String? comment;
+  String? comment_status;
   String? type;
   String? status;
   String? total_reply;
@@ -53,6 +54,7 @@ class CommentDatum {
     this.last_comment,
     this.recent_comments,
     this.comment,
+    this.comment_status,
     this.type,
     this.status,
     this.total_reply,

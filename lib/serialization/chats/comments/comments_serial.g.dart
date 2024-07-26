@@ -52,6 +52,7 @@ CommentDatum _$CommentDatumFromJson(Map json) => CommentDatum(
               : TComment.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
       comment: const ToString().fromJson(json['comment']),
+      comment_status: const ToString().fromJson(json['comment_status']),
       type: const ToString().fromJson(json['type']),
       status: const ToString().fromJson(json['status']),
       total_reply: const ToString().fromJson(json['total_reply']),
@@ -80,6 +81,7 @@ Map<String, dynamic> _$CommentDatumToJson(CommentDatum instance) =>
       'recent_comments':
           instance.recent_comments?.map((e) => e?.toJson()).toList(),
       'comment': const ToString().toJson(instance.comment),
+      'comment_status': const ToString().toJson(instance.comment_status),
       'type': const ToString().toJson(instance.type),
       'status': const ToString().toJson(instance.status),
       'total_reply': const ToString().toJson(instance.total_reply),

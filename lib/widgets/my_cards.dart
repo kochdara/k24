@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/storage.dart';
@@ -23,10 +24,11 @@ import '../pages/accounts/likes/my_like_provider.dart';
 import '../pages/details/details_post.dart';
 import '../pages/listing/sub_category.dart';
 
+final Labels labels = Labels();
+final Buttons buttons = Buttons();
+final Config config = Config();
+
 class MyCards {
-  final Labels labels = Labels();
-  final Buttons buttons = Buttons();
-  final Config config = Config();
 
   Widget ads({ required String url, required bool loading, String? links }) {
     return InkWell(
@@ -591,44 +593,35 @@ class MyCards {
                     left: 0,
                     child: InkWell(
                       onTap: () { },
-                      child: Container(
-                        padding: const EdgeInsets.only(left: 4, top: 4, bottom: 6, right: 6),
-                        decoration: BoxDecoration(
-                            color: config.warningColor.shade400,
-                            borderRadius: const BorderRadius.only(
-                              bottomRight: Radius.circular(20),
-                            ),
-                        ),
-                        child: Column(
-                          children: [
-                            labels.label(data?.discount?.type == 'amount' ?
-                            '${data?.discount?.amount_saved ?? 0}\$'
-                            : '${((double.tryParse(data?.discount?.amount_saved ?? '') ?? 0) * 100) / (double.tryParse(data?.discount?.original_price ?? '') ?? 0)}%', fontSize: 12, lineHeight2: 1.10),
-                            labels.label('OFF', fontSize: 9),
-                          ],
-                        ),
-                      ),
+                      child: DiscountPage(discount: discountString(data?.discount?.type, data?.discount?.amount_saved, data?.discount?.original_price),),
                     ),
                   ),
 
                   // more image //
-                  if(listImg.isNotEmpty && listImg.length > 1) Positioned(
+                  Positioned(
                     bottom: 6,
                     right: 6,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.4),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 5),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.camera_alt_rounded, size: 14, color: Colors.white),
+                    child: Row(
+                      children: [
+                        if(data?.shipping?.title != null) FreeDeliveryPage(title: data?.shipping?.title ?? 'N/A',),
+                        if(listImg.isNotEmpty && listImg.length > 1) ...[
                           const SizedBox(width: 6),
-
-                          labels.label('${listImg.length}', fontWeight: FontWeight.normal),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.4),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 5),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.camera_alt_rounded, size: 14, color: Colors.white),
+                                const SizedBox(width: 6),
+                                labels.label('${listImg.length}', fontWeight: FontWeight.normal),
+                              ],
+                            ),
+                          ),
                         ],
-                      ),
+                      ],
                     ),
                   ),
 
@@ -658,7 +651,19 @@ class MyCards {
                       labels.label(type, color: config.secondaryColor.shade200, overflow: TextOverflow.ellipsis),
 
                       const SizedBox(height: 4),
-                      labels.label('\$${data?.price??'0.00'}', color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold),
+                      Wrap(
+                        spacing: 12,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          labels.label('\$${data?.price??'0.0'}', color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold),
+                          if(data?.discount?.original_price != null) labels.label(
+                            '\$${data?.discount?.original_price ?? '0.0'}',
+                            color: Colors.black54,
+                            fontSize: 12,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -764,6 +769,16 @@ class MyCards {
                     ),
                   ),
 
+                  /// discount ///
+                  if(data?.discount != null) Positioned(
+                    top: 0,
+                    left: 0,
+                    child: InkWell(
+                      onTap: () { },
+                      child: DiscountPage(discount: discountString(data?.discount?.type, data?.discount?.amount_saved, data?.discount?.original_price),),
+                    ),
+                  ),
+
                   // more //
                   Positioned(
                     top: 6,
@@ -834,6 +849,7 @@ class MyCards {
 
                             const SizedBox(height: 4),
 
+                            if(data?.shipping?.title != null) FreeDeliveryPage(title: data?.shipping?.title ?? 'N/A',)
                           ],
                         ),
 
@@ -905,76 +921,90 @@ class MyCards {
           children: [
 
             // list images //
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Stack(
               children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-                if(thumbnail == '###') ...[
-                  Container(
-                    height: height,
-                    width: double.infinity,
-                    color: config.secondaryColor.shade50,
-                  ),
-                  const SizedBox(height: 3),
+                    if(thumbnail == '###') ...[
+                      Container(
+                        height: height,
+                        width: double.infinity,
+                        color: config.secondaryColor.shade50,
+                      ),
+                      const SizedBox(height: 3),
 
-                ] else ...[
-                  SizedBox(
-                    height: height,
-                    width: double.infinity,
-                    child: (thumbnail.isNotEmpty) ? ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
-                      child: FadeInImage.assetNetwork(placeholder: placeholder, image: thumbnail, fit: BoxFit.cover),
-                    ) : Container(
-                      alignment: Alignment.center,
-                      color: config.infoColor.shade50,
-                      child: labels.label(data?.title??'N/A', color: config.infoColor.shade600, fontSize: 14, textAlign: TextAlign.center, maxLines: 3),
-                    ),
-                  ),
-                  const SizedBox(height: 3),
+                    ] else ...[
+                      SizedBox(
+                        height: height,
+                        width: double.infinity,
+                        child: (thumbnail.isNotEmpty) ? ClipRRect(
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                          child: FadeInImage.assetNetwork(placeholder: placeholder, image: thumbnail, fit: BoxFit.cover),
+                        ) : Container(
+                          alignment: Alignment.center,
+                          color: config.infoColor.shade50,
+                          child: labels.label(data?.title??'N/A', color: config.infoColor.shade600, fontSize: 14, textAlign: TextAlign.center, maxLines: 3),
+                        ),
+                      ),
+                      const SizedBox(height: 3),
 
-                  if(listImg.isNotEmpty && listImg.length > 1) ...[
-                    LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-                      final conf = responsiveImage(constraints.maxWidth);
-                      final width = conf['width'];
-                      final length = conf['length'] ?? 0;
+                      if(listImg.isNotEmpty && listImg.length > 1) ...[
+                        LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+                          final conf = responsiveImage(constraints.maxWidth);
+                          final width = conf['width'];
+                          final length = conf['length'] ?? 0;
 
-                      return Wrap(
-                        direction: Axis.horizontal,
-                        spacing: 4,
-                        runSpacing: 4,
-                        children: [
-                          for(int v=1; v<=length; v++) ... [
-                            if(listImg.asMap().containsKey(v)) Stack(
-                              children: [
+                          return Wrap(
+                            direction: Axis.horizontal,
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: [
+                              for(int v=1; v<=length; v++) ... [
+                                if(listImg.asMap().containsKey(v)) Stack(
+                                  children: [
 
-                                Container(
-                                  height: width ?? 120,
-                                  width: width ?? 120,
-                                  color: config.secondaryColor.shade50,
-                                  child: FadeInImage.assetNetwork(placeholder: placeholder, image: '${listImg[v]}', fit: BoxFit.cover),
+                                    Container(
+                                      height: width ?? 120,
+                                      width: width ?? 120,
+                                      color: config.secondaryColor.shade50,
+                                      child: FadeInImage.assetNetwork(placeholder: placeholder, image: '${listImg[v]}', fit: BoxFit.cover),
+                                    ),
+
+                                    if((listImg.length - (length + 1)) > 0 && v == length) Positioned(
+                                      height: width ?? 120,
+                                      width: width ?? 120,
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        color: Colors.black.withOpacity(0.45),
+                                        child: labels.label('+${listImg.length - (length + 1)}', fontSize: 18, color: Colors.white,fontWeight: FontWeight.w500),
+                                      ),
+                                    ),
+
+                                  ],
                                 ),
-
-                                if((listImg.length - (length + 1)) > 0 && v == length) Positioned(
-                                  height: width ?? 120,
-                                  width: width ?? 120,
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    color: Colors.black.withOpacity(0.45),
-                                    child: labels.label('+${listImg.length - (length + 1)}', fontSize: 18, color: Colors.white,fontWeight: FontWeight.w500),
-                                  ),
-                                ),
-
                               ],
-                            ),
-                          ],
-                        ],
-                      );
-                    }
-                    ),
+                            ],
+                          );
+                        }
+                        ),
+                      ],
+
+                    ],
+
                   ],
+                ),
 
-                ],
-
+                /// discount ///
+                if(data?.discount != null) Positioned(
+                  top: 0,
+                  left: 0,
+                  child: InkWell(
+                    onTap: () { },
+                    child: DiscountPage(discount: discountString(data?.discount?.type, data?.discount?.amount_saved, data?.discount?.original_price),),
+                  ),
+                ),
               ],
             ),
 
@@ -996,7 +1026,14 @@ class MyCards {
                   ),
                   const SizedBox(height: 4),
 
-                  labels.label('\$${data?.price??'0.00'}', color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold),
+                  Wrap(
+                    spacing: 12,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      labels.label('\$${data?.price??'0.00'}', color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold),
+                      if(data?.shipping?.title != null) FreeDeliveryPage(title: data?.shipping?.title ?? 'N/A',)
+                    ],
+                  ),
 
                   const SizedBox(height: 8),
 
@@ -1085,3 +1122,54 @@ class MyWidgetLikes extends ConsumerWidget {
     );
   }
 }
+
+class FreeDeliveryPage extends StatelessWidget {
+  const FreeDeliveryPage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 5),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.delivery_dining_sharp, size: 14, color: Colors.white),
+          const SizedBox(width: 6),
+          labels.label(title, fontWeight: FontWeight.normal, maxLines: 1, fontSize: 10),
+        ],
+      ),
+    );
+  }
+}
+
+class DiscountPage extends StatelessWidget {
+  const DiscountPage({super.key, required this.discount});
+
+  final String discount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(left: 4, top: 4, bottom: 6, right: 6),
+      decoration: BoxDecoration(
+        color: config.warningColor.shade400,
+        borderRadius: const BorderRadius.only(
+          bottomRight: Radius.circular(20),
+        ),
+      ),
+      child: Column(
+        children: [
+          labels.label(discount, fontSize: 12, lineHeight2: 1.10),
+          labels.label('OFF', fontSize: 9),
+        ],
+      ),
+    );
+  }
+}
+

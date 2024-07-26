@@ -2,6 +2,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/helper.dart';
@@ -229,7 +230,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
               children: [
                 Expanded(
                   child: buttons.textButtons(
-                    title: '${dataDetails?.data?.total_like ?? 0}',
+                    title: formatNumber('${dataDetails?.data?.total_like ?? 0}'),
                     onPressed: () { },
                     padSize: 10,
                     textSize: 14,
@@ -349,7 +350,24 @@ class BodyWidget extends ConsumerWidget {
                   children: [
                     label.label(dataDetails.data?.title ?? '', fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black),
                     label.label(ref.watch(location)??'N/A', fontSize: 13, color: config.secondaryColor.shade400),
-                    label.label('\$${dataDetails.data?.price ?? '0.00'}', fontSize: 20, fontWeight: FontWeight.w500, color: Colors.red),
+                    Wrap(
+                      spacing: 12,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        label.label('\$${dataDetails.data?.price ?? '0.00'}', fontSize: 20, fontWeight: FontWeight.w500, color: Colors.red),
+                        if(dataDetails.data?.discount?.original_price != null) label.label(
+                          '\$${dataDetails.data?.discount?.original_price ?? '0.0'}',
+                          color: Colors.black54,
+                          fontSize: 14,
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                        if(dataDetails.data?.discount?.original_price != null) label.label(
+                          '${discountString(dataDetails. data?.discount?.type, dataDetails.data?.discount?.amount_saved, dataDetails.data?.discount?.original_price)} OFF',
+                          color: config.warningColor.shade500,
+                          fontSize: 14,
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -404,11 +422,17 @@ class BodyWidget extends ConsumerWidget {
                                 label.label('Description', fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
 
                                 label.label('ID: ${datum?.id??''}', fontSize: 15, color: Colors.black),
-                                label.labelRich('${datum?.total_like??''}', title2: 'Like: ', fontSize: 15, color: config.primaryAppColor.shade400, color2: Colors.black, fontWeight2: FontWeight.normal),
+                                label.labelRich(formatNumber('${datum?.total_like??''}'), title2: 'Like: ', fontSize: 15, color: config.primaryAppColor.shade400, color2: Colors.black, fontWeight2: FontWeight.normal),
 
                                 if(datum?.specs != null && datum?.specs is List)
                                   for(final v in datum?.specs as List<Spec_?>) ...[
-                                    label.label('${v?.title}: ${v?.value}', fontSize: 15, color: Colors.black),
+                                    label.labelRich(
+                                      '${v?.value}', title2: '${v?.field}: ',
+                                      fontSize: 15,
+                                      color: (v!.field.toString().contains('category')) ? config.primaryAppColor.shade400 : Colors.black,
+                                      color2: Colors.black,
+                                      fontWeight2: FontWeight.normal,
+                                    ),
                                   ],
                               ],
                             ),

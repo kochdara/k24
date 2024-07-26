@@ -4,38 +4,44 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/accounts/login/login_provider.dart';
 import 'package:k24/pages/accounts/profiles/profile_page.dart';
 import 'package:k24/pages/chats/chat_page.dart';
 import 'package:k24/pages/main/home_provider.dart';
+import 'package:k24/pages/more_provider.dart';
+import 'package:k24/pages/notifys/notify_page.dart';
 import 'package:k24/pages/posts/post_page.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:badges/badges.dart' as badges;
 
 import '../helpers/config.dart';
 import '../pages/accounts/check_login.dart';
 import '../pages/details/details_post.dart';
+import '../serialization/notify/nortify_serial.dart';
+
+final Config config = Config();
+final Labels labels = Labels();
+final myService = MyApiService();
+final Buttons buttons = Buttons();
 
 class MyWidgets {
 
-  final Config config = Config();
-  final Labels labels = Labels();
-  final myService = MyApiService();
-  final Buttons buttons = Buttons();
-
   Widget bottomBarPage(BuildContext context, WidgetRef ref, int selectedIndex,
       ScrollController? scrollController) {
+    final badgesPro = ref.watch(getBadgesProvider(ref));
+    final datum = badgesPro.valueOrNull ?? NotifyBadges();
+
     return BottomNavigationBar(
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notify'),
-        BottomNavigationBarItem(icon: Icon(CupertinoIcons.camera_fill), label: ''),
-        BottomNavigationBarItem(icon: Icon(CupertinoIcons.chat_bubble_text_fill), label: 'Chat'),
-        BottomNavigationBarItem(icon: Icon(CupertinoIcons.person_crop_circle_fill), label: 'Account'),
+      items: <BottomNavigationBarItem>[
+        const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        BottomNavigationBarItem(icon: BadgesPage(index: datum.notification ?? '', icon: Icons.notifications,), label: 'Notify'),
+        const BottomNavigationBarItem(icon: Icon(CupertinoIcons.camera_fill), label: ''),
+        BottomNavigationBarItem(icon: BadgesPage(index: datum.chat ?? '', icon: CupertinoIcons.chat_bubble_text_fill), label: 'Chat'),
+        const BottomNavigationBarItem(icon: Icon(CupertinoIcons.person_crop_circle_fill), label: 'Account'),
       ],
       iconSize: 32,
       selectedFontSize: 12,
@@ -66,6 +72,9 @@ class MyWidgets {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckLoginPage()));
         } else {
           switch (value) {
+            case 1:
+              routeNoAnimation(context, pageBuilder: const NotifyPage());
+              break;
             case 2:
               routeNoAnimation(context, pageBuilder: const PostProductPage());
               break;
@@ -308,3 +317,30 @@ class MyWidgets {
   }
 
 }
+
+class BadgesPage extends StatelessWidget {
+  const BadgesPage({super.key,
+    required this.index,
+    required this.icon,
+  });
+
+  final String index;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return (index.isNotEmpty && index != '0') ? badges.Badge(
+      position: badges.BadgePosition.topEnd(top: -3, end: -3),
+      badgeContent: Text(index, style: const TextStyle(color: Colors.white, fontSize: 8)),
+      badgeAnimation: const badges.BadgeAnimation.fade(),
+      badgeStyle: badges.BadgeStyle(
+        shape: badges.BadgeShape.circle,
+        badgeColor: config.warningColor.shade400,
+        padding: const EdgeInsets.all(4),
+        elevation: 0,
+      ),
+      child: Icon(icon),
+    ) : Icon(icon);
+  }
+}
+

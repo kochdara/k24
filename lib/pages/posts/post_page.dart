@@ -392,13 +392,14 @@ class _NewAdPageState extends ConsumerState<NewAdPage> {
             );
             final returnMessage = ResponseMessagePost.fromJson(rest ?? {});
             if(returnMessage.data?.id != null) {
-              final data = returnMessage.data;
-              futureAwait(() {
-                routeAnimation(
-                  context,
-                  pageBuilder: DetailsPost(title: data?.title ?? 'N/A', data: GridCard(data: Data_.fromJson(data?.toJson() ?? {}))),
-                );
-              });
+              Navigator.of(context).popUntil((route) => route.isFirst);
+              // final data = returnMessage.data;
+              // futureAwait(() {
+              //   routeAnimation(
+              //     context,
+              //     pageBuilder: DetailsPost(title: data?.title ?? 'N/A', data: GridCard(data: Data_.fromJson(data?.toJson() ?? {}))),
+              //   );
+              // });
             }
           }
         },
