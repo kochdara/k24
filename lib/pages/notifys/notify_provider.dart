@@ -81,3 +81,51 @@ class NotifyList extends _$NotifyList {
     }
   }
 }
+
+
+
+
+@riverpod
+class NotifyGetDetailsResume extends _$NotifyGetDetailsResume {
+  final fields = 'post[location],application[location]';
+  final Dio dio = Dio();
+  String? idJobs;
+
+  @override
+  FutureOr<NotifyResumeData?> build(WidgetRef context, String idJob) async {
+    idJobs = idJob;
+    return fetchHome(idJobs);
+  }
+
+  FutureOr<NotifyResumeData?> fetchHome(String? idJob) async {
+    try {
+      final tokens = ref.watch(usersProvider);
+      String subs = 'me/job_applications/$idJob?lang=$lang&fields=$fields';
+      // print(subs);
+      final res = await dio.get('$jobUrl/$subs', options: Options(headers: {
+        'Access-Token': tokens.tokens?.access_token,
+      }));
+
+      if (res.statusCode == 200 && res.data != null) {
+        final resp = NotifyResume.fromJson(res.data);
+        final data = resp.data;
+        return data;
+      }
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        await fetchHome(idJob); // Retry the request after refreshing the token
+      }
+
+      throw Exception('Dio error: ${e.response}');
+    } catch (e, stacktrace) {
+      print('Error in _fetchData: $e');
+      print(stacktrace);
+    }
+    return null;
+  }
+}
+

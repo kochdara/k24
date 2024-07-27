@@ -61,6 +61,7 @@ Map<String, dynamic> _$PhoneWhiteOperatorToJson(PhoneWhiteOperator instance) =>
 
 Location_ _$Location_FromJson(Map<String, dynamic> json) => Location_(
       id: const ToString().fromJson(json['id']),
+      type: const ToString().fromJson(json['type']),
       en_name: const ToString().fromJson(json['en_name']),
       km_name: const ToString().fromJson(json['km_name']),
       en_name2: const ToString().fromJson(json['en_name2']),
@@ -70,10 +71,17 @@ Location_ _$Location_FromJson(Map<String, dynamic> json) => Location_(
       slug: const ToString().fromJson(json['slug']),
       address: const ToString().fromJson(json['address']),
       long_location: const ToString().fromJson(json['long_location']),
+      province: json['province'] == null
+          ? null
+          : Location_.fromJson(json['province'] as Map<String, dynamic>),
+      district: json['district'] == null
+          ? null
+          : Location_.fromJson(json['district'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$Location_ToJson(Location_ instance) => <String, dynamic>{
       'id': const ToString().toJson(instance.id),
+      'type': const ToString().toJson(instance.type),
       'en_name': const ToString().toJson(instance.en_name),
       'km_name': const ToString().toJson(instance.km_name),
       'en_name2': const ToString().toJson(instance.en_name2),
@@ -83,6 +91,8 @@ Map<String, dynamic> _$Location_ToJson(Location_ instance) => <String, dynamic>{
       'slug': const ToString().toJson(instance.slug),
       'address': const ToString().toJson(instance.address),
       'long_location': const ToString().toJson(instance.long_location),
+      'province': instance.province,
+      'district': instance.district,
     };
 
 IconSerial _$IconSerialFromJson(Map json) => IconSerial(
@@ -93,6 +103,7 @@ IconSerial _$IconSerialFromJson(Map json) => IconSerial(
           ? null
           : SizeOfImage.fromJson(
               Map<String, dynamic>.from(json['small'] as Map)),
+      file: const ToString().fromJson(json['file']),
       medium: json['medium'] == null
           ? null
           : SizeOfImage.fromJson(
@@ -108,6 +119,7 @@ Map<String, dynamic> _$IconSerialToJson(IconSerial instance) =>
       'url': const ToString().toJson(instance.url),
       'width': const ToString().toJson(instance.width),
       'height': const ToString().toJson(instance.height),
+      'file': const ToString().toJson(instance.file),
       'small': instance.small?.toJson(),
       'medium': instance.medium?.toJson(),
       'large': instance.large?.toJson(),

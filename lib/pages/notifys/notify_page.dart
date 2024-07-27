@@ -1,4 +1,5 @@
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
@@ -82,6 +83,7 @@ class _NotifyPageState extends ConsumerState<NotifyPage> {
           ),
         ],
       ),
+      backgroundColor: config.backgroundColor,
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(notifyListProvider(ref).notifier).refresh(),
         child: BodyNotify(
@@ -130,13 +132,26 @@ class BodyNotify extends ConsumerWidget {
                 children: [
                   for(final datum in data) ListTile(
                     onTap: () {
-                      routeAnimation(
-                        context,
-                        pageBuilder: DetailsPost(title: datum.data?.post?.title ?? 'N/A', data: GridCard(data: datum.data?.post)),
-                      );
+                      switch(datum.type) {
+                        case 'apply_job':
+                          routeAnimation(
+                            context,
+                            pageBuilder: ReviewResumePage(
+                              datum: datum,
+                            ),
+                          );
+                          break;
+                        default:
+                          routeAnimation(
+                            context,
+                            pageBuilder: DetailsPost(title: datum.data?.post?.title ?? 'N/A', data: GridCard(data: datum.data?.post)),
+                          );
+                          break;
+                      }
                     },
                     dense: true,
                     isThreeLine: true,
+                    tileColor: (datum.is_open == false) ? config.primaryAppColor.shade50 : Colors.white,
                     leading: (datum.data?.user?.photo?.url != null) ? SizedBox(
                       width: 50,
                       height: 50,
@@ -152,7 +167,9 @@ class BodyNotify extends ConsumerWidget {
                         color: config.secondaryColor.shade50,
                         borderRadius: BorderRadius.circular(40),
                       ),
-                      child: const Icon(Icons.notifications, size: 24, color: Colors.black38,),
+                      child: Icon(
+                        datum.type == 'comment' ? Icons.person : Icons.notifications,
+                        size: 24, color: Colors.black38,),
                     ),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                     horizontalTitleGap: 10,
@@ -201,4 +218,170 @@ class BodyNotify extends ConsumerWidget {
     );
   }
 }
+
+
+class ReviewResumePage extends ConsumerWidget {
+  const ReviewResumePage({super.key,
+    required this.datum,
+  });
+
+  final NotifyDatum datum;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final getResume = ref.watch(notifyGetDetailsResumeProvider(ref, datum.data?.cv?.id ?? 'N/A'));
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: labels.label('Resume (CV)', fontSize: 20, fontWeight: FontWeight.w500),
+        ),
+        titleSpacing: 0,
+      ),
+      backgroundColor: config.backgroundColor,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: getResume.when(
+            error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () => { }),
+            loading: () => Container(
+              height: 250,
+              alignment: Alignment.center,
+              child: const CircularProgressIndicator(),
+            ),
+            data: (data) {
+              final post = data?.post;
+              final application = data?.application;
+              final personalDetails = application?.personal_details;
+
+              return Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 14, top: 8,),
+                          child: labels.label('Apply for', fontSize: 17, fontWeight: FontWeight.w500, color: Colors.black87,),
+                        ),
+                        ListTile(
+                          onTap: () { },
+                          dense: true,
+                          leading: post?.logo != null ? ClipRRect(
+                            borderRadius: BorderRadius.circular(6),
+                            child: FadeInImage.assetNetwork(placeholder: placeholder, image: '${post?.logo}'),
+                          ) : Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.black12,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Icon(Icons.photo_camera_back, color: Colors.black45,),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+                          title: labels.label(datum.data?.post?.title ?? 'N/A', fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87,),
+                          horizontalTitleGap: 8,
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              labels.label('Apply Date: ${stringToTimeAgoDay(date: '${datum.send_date}', format: 'dd, MMM yyyy') ?? 'N/A'}', fontSize: 13, color: Colors.black54,),
+                              labels.labelRich('\$${datum.data?.post?.price ?? '0.0'}+', title2: '${datum.data?.post?.ad_field ?? ''} • ',
+                                  fontSize: 13,
+                                  color: Colors.red,
+                                  color2: Colors.black54,
+                                  fontWeight2: FontWeight.normal,
+                                  fontWeight: FontWeight.w500
+                              ),
+                            ],
+                          ),
+                          trailing: const Icon(Icons.arrow_forward_ios_outlined, color: Colors.black54, size: 18,),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12,),
+
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10,),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                labels.label(personalDetails?.name ?? 'N/A', fontSize: 17, fontWeight: FontWeight.w500, color: Colors.black87,),
+                                const SizedBox(height: 8,),
+
+                                LabelIcons(title: 'Gender', subTitle: personalDetails?.gender?.title ?? 'N/A', icon: Icons.transgender,),
+                                const SizedBox(height: 6,),
+                                LabelIcons(title: 'Date Of Birth', subTitle: stringToString(date: '${personalDetails?.dob}', format: 'dd, MMM yyyy') ?? 'N/A', icon: Icons.calendar_month_sharp,),
+                                const SizedBox(height: 6,),
+                                LabelIcons(title: 'Nationality', subTitle: personalDetails?.nationality ?? 'N/A', icon: CupertinoIcons.globe,),
+                                const SizedBox(height: 6,),
+                                LabelIcons(title: 'Phone', subTitle: (personalDetails?.phone ?? []).join(', '), icon: Icons.call,),
+                                const SizedBox(height: 6,),
+                                LabelIcons(title: 'Email', subTitle: personalDetails?.email ?? 'N/A', icon: Icons.email,),
+                                const SizedBox(height: 6,),
+                                LabelIcons(title: 'Education Level', subTitle: personalDetails?.education_level?.title ?? 'N/A', icon: Icons.school,),
+                                const SizedBox(height: 6,),
+                                LabelIcons(title: 'Marital Status', subTitle: personalDetails?.marital_status?.title ?? 'N/A', icon: CupertinoIcons.link,),
+                                const SizedBox(height: 6,),
+                                LabelIcons(title: 'Locations', subTitle: '${personalDetails?.location?.long_location ?? ''} '
+                                '${personalDetails?.address ?? 'N/A'}', icon: Icons.location_on,),
+                              ],
+                            ),
+                          ),
+
+                          // image //
+
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LabelIcons extends StatelessWidget {
+  const LabelIcons({super.key,
+    required this.title,
+    required this.subTitle,
+    required this.icon,
+  });
+
+  final String title;
+  final String? subTitle;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.black54,),
+        const SizedBox(width: 8,),
+        Expanded(
+          child: labels.label(subTitle != null ? '$title: $subTitle' : title, fontSize: 14, color: Colors.black54,),
+        ),
+      ],
+    );
+  }
+}
+
 

@@ -83,6 +83,11 @@ class Data_ {
   bool? is_saved;
   bool? is_like;
   GridShipping? shipping;
+  String? ad_field;
+  String? company;
+  String? logo;
+  String? salary;
+  String? status_message;
 
   Data_({
     this.id,
@@ -115,6 +120,11 @@ class Data_ {
     this.total_like,
     this.is_saved,
     this.is_like,
+    this.ad_field,
+    this.company,
+    this.logo,
+    this.salary,
+    this.status_message,
   });
 
   factory Data_.fromJson(Map json) => _$Data_FromJson(json);

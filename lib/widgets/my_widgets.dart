@@ -21,7 +21,6 @@ import 'package:badges/badges.dart' as badges;
 import '../helpers/config.dart';
 import '../pages/accounts/check_login.dart';
 import '../pages/details/details_post.dart';
-import '../serialization/notify/nortify_serial.dart';
 
 final Config config = Config();
 final Labels labels = Labels();
@@ -31,71 +30,79 @@ final Buttons buttons = Buttons();
 class MyWidgets {
 
   Widget bottomBarPage(BuildContext context, WidgetRef ref, int selectedIndex,
-      ScrollController? scrollController) {
+      ScrollController? scrollController, { bool visible = true, }) {
     final badgesPro = ref.watch(getBadgesProvider(ref));
-    final datum = badgesPro.valueOrNull ?? NotifyBadges();
+    final badge = ref.watch(dataBadgeProvider);
+    final datum = badgesPro.valueOrNull ?? badge;
 
-    return BottomNavigationBar(
-      items: <BottomNavigationBarItem>[
-        const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(icon: BadgesPage(index: datum.notification ?? '', icon: Icons.notifications,), label: 'Notify'),
-        const BottomNavigationBarItem(icon: Icon(CupertinoIcons.camera_fill), label: ''),
-        BottomNavigationBarItem(icon: BadgesPage(index: datum.chat ?? '', icon: CupertinoIcons.chat_bubble_text_fill), label: 'Chat'),
-        const BottomNavigationBarItem(icon: Icon(CupertinoIcons.person_crop_circle_fill), label: 'Account'),
-      ],
-      iconSize: 32,
-      selectedFontSize: 12,
-      showSelectedLabels: true,
-      selectedItemColor: config.primaryAppColor.shade600,
-      unselectedFontSize: 12,
-      showUnselectedLabels: true,
-      unselectedItemColor: config.secondaryColor.shade200,
-      currentIndex: selectedIndex,
-      type: BottomNavigationBarType.fixed,
-      onTap: (value) async {
-        DateTime expDate = DateTime.now();
-        final tokens = ref.watch(usersProvider);
-        String? accessToken = tokens.tokens?.access_token;
+    return AnimatedOpacity(
+      opacity: visible ? 1.0 : 0.0,
+      duration: const Duration(milliseconds: 500),
+      child: SizedBox(
+        height: !visible ? 0 : null,
+        child: BottomNavigationBar(
+          items: <BottomNavigationBarItem>[
+            const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(icon: BadgesPage(index: datum.notification ?? '', icon: Icons.notifications,), label: 'Notify'),
+            const BottomNavigationBarItem(icon: Icon(CupertinoIcons.camera_fill), label: ''),
+            BottomNavigationBarItem(icon: BadgesPage(index: datum.chat ?? '', icon: CupertinoIcons.chat_bubble_text_fill), label: 'Chat'),
+            const BottomNavigationBarItem(icon: Icon(CupertinoIcons.person_crop_circle_fill), label: 'Account'),
+          ],
+          iconSize: 32,
+          selectedFontSize: 12,
+          showSelectedLabels: true,
+          selectedItemColor: config.primaryAppColor.shade600,
+          unselectedFontSize: 12,
+          showUnselectedLabels: true,
+          unselectedItemColor: config.secondaryColor.shade200,
+          currentIndex: selectedIndex,
+          type: BottomNavigationBarType.fixed,
+          onTap: (value) async {
+            DateTime expDate = DateTime.now();
+            final tokens = ref.watch(usersProvider);
+            String? accessToken = tokens.tokens?.access_token;
 
-        try {
-          expDate = JwtDecoder.getExpirationDate(accessToken!);
-          /// exchange token ///
-          if(expDate.isBefore(DateTime.now())) {
-            final newToken = await myService.getNewToken(ref);
-            accessToken = newToken.access_token;
-            expDate = JwtDecoder.getExpirationDate(accessToken!);
-          }
-        } catch(e) {
-          print('@# $e');
-        }
-        if(value != 0 && expDate.isBefore(DateTime.now())) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckLoginPage()));
-        } else {
-          switch (value) {
-            case 1:
-              routeNoAnimation(context, pageBuilder: const NotifyPage());
-              break;
-            case 2:
-              routeNoAnimation(context, pageBuilder: const PostProductPage());
-              break;
-            case 3:
-              routeNoAnimation(context, pageBuilder: const ChatPageView(selectedIndex: 3));
-              break;
-            case 4:
-              routeNoAnimation(context, pageBuilder: const ProfilePage(selectedIndex: 4));
-              break;
-            default:
-              Navigator.of(context).popUntil((route) => route.isFirst);
-              if(scrollController != null) {
-                scrollController.animateTo(
-                  0.0,
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOut,
-                );
+            try {
+              expDate = JwtDecoder.getExpirationDate(accessToken!);
+              /// exchange token ///
+              if(expDate.isBefore(DateTime.now())) {
+                final newToken = await myService.getNewToken(ref);
+                accessToken = newToken.access_token;
+                expDate = JwtDecoder.getExpirationDate(accessToken!);
               }
-          }
-        }
-      },
+            } catch(e) {
+              print('@# $e');
+            }
+            if(value != 0 && expDate.isBefore(DateTime.now())) {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckLoginPage()));
+            } else {
+              switch (value) {
+                case 1:
+                  routeNoAnimation(context, pageBuilder: const NotifyPage());
+                  break;
+                case 2:
+                  routeNoAnimation(context, pageBuilder: const PostProductPage());
+                  break;
+                case 3:
+                  routeNoAnimation(context, pageBuilder: const ChatPageView(selectedIndex: 3));
+                  break;
+                case 4:
+                  routeNoAnimation(context, pageBuilder: const ProfilePage(selectedIndex: 4));
+                  break;
+                default:
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  if(scrollController != null) {
+                    scrollController.animateTo(
+                      0.0,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOut,
+                    );
+                  }
+              }
+            }
+          },
+        ),
+      ),
     );
   }
 
@@ -329,9 +336,10 @@ class BadgesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentIndex = (int.tryParse(index) ?? 0) > 99 ? '99+' : index;
     return (index.isNotEmpty && index != '0') ? badges.Badge(
       position: badges.BadgePosition.topEnd(top: -3, end: -3),
-      badgeContent: Text(index, style: const TextStyle(color: Colors.white, fontSize: 8)),
+      badgeContent: Text(currentIndex, style: const TextStyle(color: Colors.white, fontSize: 9)),
       badgeAnimation: const badges.BadgeAnimation.fade(),
       badgeStyle: badges.BadgeStyle(
         shape: badges.BadgeShape.circle,

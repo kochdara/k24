@@ -63,6 +63,7 @@ class PhoneWhiteOperator {
 @JsonSerializable(converters: [ToString()])
 class Location_ {
   String? id;
+  String? type;
   String? en_name;
   String? km_name;
   String? en_name2;
@@ -72,9 +73,12 @@ class Location_ {
   String? slug;
   String? address;
   String? long_location;
+  Location_? province;
+  Location_? district;
 
   Location_({
     this.id,
+    this.type,
     this.en_name,
     this.km_name,
     this.en_name2,
@@ -84,6 +88,8 @@ class Location_ {
     this.slug,
     this.address,
     this.long_location,
+    this.province,
+    this.district,
   });
 
   factory Location_.fromJson(Map<String, dynamic> json) => _$Location_FromJson(json);
@@ -96,6 +102,7 @@ class IconSerial {
   String? url;
   String? width;
   String? height;
+  String? file;
   SizeOfImage? small;
   SizeOfImage? medium;
   SizeOfImage? large;
@@ -105,6 +112,7 @@ class IconSerial {
     this.width,
     this.height,
     this.small,
+    this.file,
     this.medium,
     this.large,
   });

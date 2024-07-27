@@ -351,7 +351,7 @@ class BodyWidget extends ConsumerWidget {
                     label.label(dataDetails.data?.title ?? '', fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black),
                     label.label(ref.watch(location)??'N/A', fontSize: 13, color: config.secondaryColor.shade400),
                     Wrap(
-                      spacing: 12,
+                      spacing: 6,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         label.label('\$${dataDetails.data?.price ?? '0.00'}', fontSize: 20, fontWeight: FontWeight.w500, color: Colors.red),
@@ -364,7 +364,7 @@ class BodyWidget extends ConsumerWidget {
                         if(dataDetails.data?.discount?.original_price != null) label.label(
                           '${discountString(dataDetails. data?.discount?.type, dataDetails.data?.discount?.amount_saved, dataDetails.data?.discount?.original_price)} OFF',
                           color: config.warningColor.shade500,
-                          fontSize: 14,
+                          fontSize: 16,
                         ),
                       ],
                     ),

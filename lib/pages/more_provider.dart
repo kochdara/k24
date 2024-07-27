@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/serialization/banners/banner_serial.dart';
 import 'package:k24/serialization/notify/nortify_serial.dart';
-import 'package:provider/provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../helpers/config.dart';
@@ -14,6 +13,8 @@ import '../serialization/chats/conversation/conversation_serial.dart';
 part 'more_provider.g.dart';
 
 final config = Config();
+
+StateProvider<NotifyBadges> dataBadgeProvider = StateProvider((ref) => NotifyBadges());
 
 @riverpod
 class GetBannerAds extends _$GetBannerAds {
@@ -92,6 +93,7 @@ class GetBadges extends _$GetBadges {
 
   Future<NotifyBadges> fetchData() async {
     try {
+      final badges = ref.read(dataBadgeProvider.notifier);
       final tokens = context.watch(usersProvider);
       String url = 'badges?fields=$fields&lang=$lang';
       final res = await dio.get('$notificationUrl/$url', options: Options(headers: {
@@ -101,6 +103,7 @@ class GetBadges extends _$GetBadges {
       if (res.statusCode == 200 && res.data != null) {
         final data = res.data;
         final resp = NotifyBadges.fromJson(data);
+        badges.state = resp;
         return resp;
       }
     } on DioException catch (e) {

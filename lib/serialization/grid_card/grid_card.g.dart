@@ -118,6 +118,11 @@ Data_ _$Data_FromJson(Map json) => Data_(
       total_like: const ToInt().fromJson(json['total_like']),
       is_saved: const ToBool().fromJson(json['is_saved']),
       is_like: const ToBool().fromJson(json['is_like']),
+      ad_field: const ToString().fromJson(json['ad_field']),
+      company: const ToString().fromJson(json['company']),
+      logo: const ToString().fromJson(json['logo']),
+      salary: const ToString().fromJson(json['salary']),
+      status_message: const ToString().fromJson(json['status_message']),
     )..shipping = json['shipping'] == null
         ? null
         : GridShipping.fromJson(
@@ -163,6 +168,11 @@ Map<String, dynamic> _$Data_ToJson(Data_ instance) => <String, dynamic>{
       'is_like': _$JsonConverterToJson<Object?, bool>(
           instance.is_like, const ToBool().toJson),
       'shipping': instance.shipping?.toJson(),
+      'ad_field': const ToString().toJson(instance.ad_field),
+      'company': const ToString().toJson(instance.company),
+      'logo': const ToString().toJson(instance.logo),
+      'salary': const ToString().toJson(instance.salary),
+      'status_message': const ToString().toJson(instance.status_message),
     };
 
 GridDiscount _$GridDiscountFromJson(Map<String, dynamic> json) => GridDiscount(

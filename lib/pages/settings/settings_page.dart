@@ -8,6 +8,7 @@ import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/helpers/storage.dart';
 import 'package:k24/pages/main/home_provider.dart';
+import 'package:k24/pages/more_provider.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/serialization/users/user_serial.dart';
 import 'package:k24/widgets/buttons.dart';
@@ -16,6 +17,7 @@ import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_widgets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../../serialization/notify/nortify_serial.dart';
 import '../accounts/profile_public/another_profile.dart';
 
 final Labels labels = Labels();
@@ -213,6 +215,7 @@ class BodyProfile extends ConsumerWidget {
 
                   futureAwait(duration: 500, () {
                     ref.read(usersProvider.notifier).update((state) => DataUser());
+                    ref.read(dataBadgeProvider.notifier).update((state) => NotifyBadges());
                     deleteSecure('user');
                     Navigator.pop(context);
                     Navigator.of(context).popUntil((route) => route.isFirst);

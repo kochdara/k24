@@ -652,7 +652,7 @@ class MyCards {
 
                       const SizedBox(height: 4),
                       Wrap(
-                        spacing: 12,
+                        spacing: 6,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           labels.label('\$${data?.price??'0.0'}', color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold),
@@ -854,7 +854,19 @@ class MyCards {
                         ),
 
 
-                        labels.label('\$${data?.price??'0.00'}', color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold),
+                        Wrap(
+                          spacing: 6,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            labels.label('\$${data?.price??'0.00'}', color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold),
+                            if(data?.discount?.original_price != null) label.label(
+                              '\$${data?.discount?.original_price ?? '0.0'}',
+                              color: Colors.black54,
+                              fontSize: 12,
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ],
+                        ),
 
                       ],
                     ),
@@ -1027,10 +1039,16 @@ class MyCards {
                   const SizedBox(height: 4),
 
                   Wrap(
-                    spacing: 12,
+                    spacing: 6,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      labels.label('\$${data?.price??'0.00'}', color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold),
+                      labels.label('\$${data?.price??'0.00'}', color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold),
+                      if(data?.discount?.original_price != null) label.label(
+                        '\$${data?.discount?.original_price ?? '0.0'}',
+                        color: Colors.black54,
+                        fontSize: 12,
+                        decoration: TextDecoration.lineThrough,
+                      ),
                       if(data?.shipping?.title != null) FreeDeliveryPage(title: data?.shipping?.title ?? 'N/A',)
                     ],
                   ),

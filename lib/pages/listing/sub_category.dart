@@ -197,10 +197,10 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
           ],
         ),
       ),
-      bottomNavigationBar: !ref.watch(downProvider) ? myWidgets.bottomBarPage(
-          context, ref, 0,
-        null,
-      ) : null,
+      bottomNavigationBar: myWidgets.bottomBarPage(
+        context, ref, 0,
+        null, visible: !ref.watch(downProvider),
+      ),
     );
   }
 

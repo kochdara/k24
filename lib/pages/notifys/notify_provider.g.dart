@@ -6,7 +6,7 @@ part of 'notify_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$notifyListHash() => r'22d2125aa37fa286fa5339be3c6d47c7f3e0fd9f';
+String _$notifyListHash() => r'af8b1d212d4d092561c800a9dfc5bf0335b073d4';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -169,6 +169,177 @@ class _NotifyListProviderElement
 
   @override
   WidgetRef get context => (origin as NotifyListProvider).context;
+}
+
+String _$notifyGetDetailsResumeHash() =>
+    r'109ed9c8e5b987e652f4214ad258ff962f92a0aa';
+
+abstract class _$NotifyGetDetailsResume
+    extends BuildlessAutoDisposeAsyncNotifier<NotifyResumeData?> {
+  late final WidgetRef context;
+  late final String idJob;
+
+  FutureOr<NotifyResumeData?> build(
+    WidgetRef context,
+    String idJob,
+  );
+}
+
+/// See also [NotifyGetDetailsResume].
+@ProviderFor(NotifyGetDetailsResume)
+const notifyGetDetailsResumeProvider = NotifyGetDetailsResumeFamily();
+
+/// See also [NotifyGetDetailsResume].
+class NotifyGetDetailsResumeFamily
+    extends Family<AsyncValue<NotifyResumeData?>> {
+  /// See also [NotifyGetDetailsResume].
+  const NotifyGetDetailsResumeFamily();
+
+  /// See also [NotifyGetDetailsResume].
+  NotifyGetDetailsResumeProvider call(
+    WidgetRef context,
+    String idJob,
+  ) {
+    return NotifyGetDetailsResumeProvider(
+      context,
+      idJob,
+    );
+  }
+
+  @override
+  NotifyGetDetailsResumeProvider getProviderOverride(
+    covariant NotifyGetDetailsResumeProvider provider,
+  ) {
+    return call(
+      provider.context,
+      provider.idJob,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'notifyGetDetailsResumeProvider';
+}
+
+/// See also [NotifyGetDetailsResume].
+class NotifyGetDetailsResumeProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<NotifyGetDetailsResume,
+        NotifyResumeData?> {
+  /// See also [NotifyGetDetailsResume].
+  NotifyGetDetailsResumeProvider(
+    WidgetRef context,
+    String idJob,
+  ) : this._internal(
+          () => NotifyGetDetailsResume()
+            ..context = context
+            ..idJob = idJob,
+          from: notifyGetDetailsResumeProvider,
+          name: r'notifyGetDetailsResumeProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$notifyGetDetailsResumeHash,
+          dependencies: NotifyGetDetailsResumeFamily._dependencies,
+          allTransitiveDependencies:
+              NotifyGetDetailsResumeFamily._allTransitiveDependencies,
+          context: context,
+          idJob: idJob,
+        );
+
+  NotifyGetDetailsResumeProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.context,
+    required this.idJob,
+  }) : super.internal();
+
+  final WidgetRef context;
+  final String idJob;
+
+  @override
+  FutureOr<NotifyResumeData?> runNotifierBuild(
+    covariant NotifyGetDetailsResume notifier,
+  ) {
+    return notifier.build(
+      context,
+      idJob,
+    );
+  }
+
+  @override
+  Override overrideWith(NotifyGetDetailsResume Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: NotifyGetDetailsResumeProvider._internal(
+        () => create()
+          ..context = context
+          ..idJob = idJob,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        context: context,
+        idJob: idJob,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeAsyncNotifierProviderElement<NotifyGetDetailsResume,
+      NotifyResumeData?> createElement() {
+    return _NotifyGetDetailsResumeProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is NotifyGetDetailsResumeProvider &&
+        other.context == context &&
+        other.idJob == idJob;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
+    hash = _SystemHash.combine(hash, idJob.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin NotifyGetDetailsResumeRef
+    on AutoDisposeAsyncNotifierProviderRef<NotifyResumeData?> {
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
+
+  /// The parameter `idJob` of this provider.
+  String get idJob;
+}
+
+class _NotifyGetDetailsResumeProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<NotifyGetDetailsResume,
+        NotifyResumeData?> with NotifyGetDetailsResumeRef {
+  _NotifyGetDetailsResumeProviderElement(super.provider);
+
+  @override
+  WidgetRef get context => (origin as NotifyGetDetailsResumeProvider).context;
+  @override
+  String get idJob => (origin as NotifyGetDetailsResumeProvider).idJob;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

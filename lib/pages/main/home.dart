@@ -120,10 +120,10 @@ class _HomePageState extends ConsumerState<HomePage> {
           ],
         ),
       ),
-      bottomNavigationBar: !ref.watch(downProvider) ? myWidgets.bottomBarPage(
-          context, ref, 0,
-          scrollController
-      ) : null,
+      bottomNavigationBar: myWidgets.bottomBarPage(
+        context, ref, 0,
+        scrollController, visible: !ref.watch(downProvider),
+      ),
     );
   }
 
