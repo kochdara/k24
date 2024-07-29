@@ -199,7 +199,11 @@ NotifyResumeApplication _$NotifyResumeApplicationFromJson(Map json) =>
           ? null
           : ResumePreference.fromJson(json['preference'] as Map?),
       saved: const ToBool().fromJson(json['saved']),
-    );
+    )..references = (json['references'] as List<dynamic>?)
+        ?.map((e) => e == null
+            ? null
+            : ResumeReferences.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList();
 
 Map<String, dynamic> _$NotifyResumeApplicationToJson(
         NotifyResumeApplication instance) =>
@@ -221,6 +225,28 @@ Map<String, dynamic> _$NotifyResumeApplicationToJson(
       'hobbies': const ToString().toJson(instance.hobbies),
       'summary': const ToString().toJson(instance.summary),
       'preference': instance.preference?.toJson(),
+      'references': instance.references?.map((e) => e?.toJson()).toList(),
       'saved': _$JsonConverterToJson<Object?, bool>(
           instance.saved, const ToBool().toJson),
+    };
+
+ResumeReferences _$ResumeReferencesFromJson(Map json) => ResumeReferences(
+      id: const ToString().fromJson(json['id']),
+      company: const ToString().fromJson(json['company']),
+      name: const ToString().fromJson(json['name']),
+      position: const ToString().fromJson(json['position']),
+      phone: (json['phone'] as List<dynamic>?)
+          ?.map(const ToString().fromJson)
+          .toList(),
+      email: const ToString().fromJson(json['email']),
+    );
+
+Map<String, dynamic> _$ResumeReferencesToJson(ResumeReferences instance) =>
+    <String, dynamic>{
+      'id': const ToString().toJson(instance.id),
+      'company': const ToString().toJson(instance.company),
+      'name': const ToString().toJson(instance.name),
+      'position': const ToString().toJson(instance.position),
+      'phone': instance.phone?.map(const ToString().toJson).toList(),
+      'email': const ToString().toJson(instance.email),
     };

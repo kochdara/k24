@@ -2,6 +2,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../helper.dart';
+import '../../notify/nortify_serial.dart';
 import '../../try_convert.dart';
 
 part 'details_serial.g.dart';
@@ -31,6 +32,7 @@ class ResumeData {
   String? hobbies;
   String? summary;
   ResumePreference? preference;
+  List<ResumeReferences?>? references;
   bool? saved;
 
   ResumeData({

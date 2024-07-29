@@ -39,7 +39,11 @@ ResumeData _$ResumeDataFromJson(Map json) => ResumeData(
           ? null
           : ResumePreference.fromJson(json['preference'] as Map?),
       saved: const ToBool().fromJson(json['saved']),
-    );
+    )..references = (json['references'] as List<dynamic>?)
+        ?.map((e) => e == null
+            ? null
+            : ResumeReferences.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList();
 
 Map<String, dynamic> _$ResumeDataToJson(ResumeData instance) =>
     <String, dynamic>{
@@ -53,6 +57,7 @@ Map<String, dynamic> _$ResumeDataToJson(ResumeData instance) =>
       'hobbies': const ToString().toJson(instance.hobbies),
       'summary': const ToString().toJson(instance.summary),
       'preference': instance.preference?.toJson(),
+      'references': instance.references?.map((e) => e?.toJson()).toList(),
       'saved': _$JsonConverterToJson<Object?, bool>(
           instance.saved, const ToBool().toJson),
     };

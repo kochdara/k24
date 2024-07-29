@@ -187,6 +187,7 @@ class NotifyResumeApplication {
   String? hobbies;
   String? summary;
   ResumePreference? preference;
+  List<ResumeReferences?>? references;
   bool? saved;
 
   NotifyResumeApplication({
@@ -214,7 +215,28 @@ class NotifyResumeApplication {
 
 }
 
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString(), ToLists(), ToBool()])
+class ResumeReferences {
+  String? id;
+  String? company;
+  String? name;
+  String? position;
+  List<String?>? phone;
+  String? email;
 
+  ResumeReferences({
+    this.id,
+    this.company,
+    this.name,
+    this.position,
+    this.phone,
+    this.email,
+  });
+
+  factory ResumeReferences.fromJson(Map<String, dynamic> json) => _$ResumeReferencesFromJson(json);
+  Map? toJson() => _$ResumeReferencesToJson(this);
+
+}
 
 
 
