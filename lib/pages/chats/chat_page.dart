@@ -22,11 +22,11 @@ final MyCards myCards = MyCards();
 enum MoreType { all, buy, sell, unread, block_user }
 
 final Map<MoreType, MoreTypeInfo> moreTypeInfo = {
-  MoreType.all: const MoreTypeInfo('all', 'All', CupertinoIcons.chat_bubble_2),
-  MoreType.buy: const MoreTypeInfo('buy', 'Buy', CupertinoIcons.shopping_cart),
-  MoreType.sell: const MoreTypeInfo('sell', 'Sell', CupertinoIcons.money_dollar_circle),
-  MoreType.unread: const MoreTypeInfo('unread', 'Unread', CupertinoIcons.eye_slash),
-  MoreType.block_user: const MoreTypeInfo('block_user', 'Block User', Icons.block),
+  MoreType.all: MoreTypeInfo('all', 'All', CupertinoIcons.chat_bubble_2, () { }),
+  MoreType.buy: MoreTypeInfo('buy', 'Buy', CupertinoIcons.shopping_cart, () { }),
+  MoreType.sell: MoreTypeInfo('sell', 'Sell', CupertinoIcons.money_dollar_circle, () { }),
+  MoreType.unread: MoreTypeInfo('unread', 'Unread', CupertinoIcons.eye_slash, () { }),
+  MoreType.block_user: MoreTypeInfo('block_user', 'Block User', Icons.block, () { }),
 };
 StateProvider<MoreType> moreTypeProvider = StateProvider<MoreType>((ref) => MoreType.all);
 
@@ -57,7 +57,7 @@ class _ChatPageViewState extends ConsumerState<ChatPageView> {
       child: Scaffold(
         appBar: AppBar(
           leading: Icon(CupertinoIcons.person_circle_fill, color: config.secondaryColor.shade50, size: 42),
-          title: labels.label('${username.user?.name}', fontSize: 20, fontWeight: FontWeight.w500),
+          title: labels.label('${username.user?.name}', fontSize: 20, fontWeight: FontWeight.w500, maxLines: 1, overflow: TextOverflow.ellipsis),
           titleSpacing: 6,
           actions: [
             MoreButtonUI(ref: ref, moreTypeProvider: moreTypeProvider),
@@ -217,26 +217,35 @@ class MoreButtonUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton(
-      padding: EdgeInsets.zero,
-      surfaceTintColor: Colors.white,
-      onSelected: (item) { },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-        for (final type in MoreType.values) PopupMenuItem(
-          height: 42,
-          value: 0,
-          onTap: () {
-            ref.read(moreTypeProvider.notifier).update((state) => type);
-          },
-          child: ListTile(
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-            horizontalTitleGap: 8,
-            leading: Icon(moreTypeInfo[type]?.icon, size: 20, color: Colors.black87),
-            title: labels.label('${moreTypeInfo[type]?.description}', fontSize: 14, color: Colors.black87),
+    return IconButton(
+      onPressed: () => _showActionSheet(context),
+      padding: const EdgeInsets.all(10.0),
+      icon: const Icon(Icons.more_vert_rounded, color: Colors.white,),
+    );
+  }
+
+  // This shows a CupertinoModalPopup which hosts a CupertinoActionSheet.
+  void _showActionSheet(BuildContext context) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        actions: <CupertinoActionSheetAction>[
+          for (final type in MoreType.values) CupertinoActionSheetAction(
+            onPressed: () {
+              ref.read(moreTypeProvider.notifier).update((state) => type);
+              Navigator.pop(context);
+            },
+            child: Text(moreTypeInfo[type]?.description ?? 'N/A'),
           ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          isDestructiveAction: true,
+          child: const Text('Cancel', ),
         ),
-      ],
+      ),
     );
   }
 }
@@ -245,6 +254,7 @@ class MoreTypeInfo {
   final String name;
   final String description;
   final IconData? icon;
+  final void Function()? onTap;
 
-  const MoreTypeInfo(this.name, this.description, this.icon);
+  MoreTypeInfo(this.name, this.description, this.icon, this.onTap);
 }

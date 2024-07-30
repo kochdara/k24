@@ -278,11 +278,13 @@ class ListTileUI extends StatelessWidget {
             flex: 0,
             child: labels.label(title, fontSize: 14, color: Colors.black54),
           ),
+          const SizedBox(width: 12,),
+
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                if(subTitle != null && subTitle != '') Expanded(child: labels.label(subTitle!, fontSize: 14, color: Colors.black87, textAlign: TextAlign.end))
+                if(subTitle != null && subTitle != '') Expanded(child: labels.label(subTitle!, fontSize: 14, color: Colors.black87, textAlign: TextAlign.end, maxLines: 1, overflow: TextOverflow.ellipsis,),)
                 else if(child != null) child!,
               ],
             ),

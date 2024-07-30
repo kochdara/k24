@@ -88,7 +88,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     final watchRelates = ref.watch(relateDetailPostProvider(ref, '$adid'));
     final watchChat = ref.watch(getTopByUidProvider(ref, adid: '$adid'));
 
-    final dataRes = watchDetails.valueOrNull ?? GridCard();
+    final dataRes = watchDetails.valueOrNull ?? dataDetails;
 
     if(dataDetails.data != null) {
       listImg = (dataDetails.data?.photos ?? dataRes.data?.photos) ?? [];
@@ -180,7 +180,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
           ],
         ),
       ),
-      bottomNavigationBar: (watchDetails.hasValue && dataRes.data?.user?.id != userTokens.user?.id) ?
+      bottomNavigationBar: (watchChat.valueOrNull != null && dataRes.data?.user?.id != userTokens.user?.id) ?
       bottomNav(watchChat.valueOrNull, watchDetails.valueOrNull) : null,
     );
   }
@@ -378,7 +378,7 @@ class BodyWidget extends ConsumerWidget {
                 error: (e, st) => myCards.notFound(context, id: '${dataDetails.data?.id}', message: '$e', onPressed: onPressed),
                 loading: () => shimmerDetails(),
                 data: (data) {
-                  final datum = data.data;
+                  final datum = data.data ?? dataDetails.data;
 
                   if (datum?.location != null) {
                     futureAwait(duration: 1, () {

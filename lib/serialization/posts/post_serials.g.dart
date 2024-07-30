@@ -95,6 +95,7 @@ PostCommune _$PostCommuneFromJson(Map json) => PostCommune(
       slug: const ToString().fromJson(json['slug']),
       en_name: const ToString().fromJson(json['en_name']),
       km_name: const ToString().fromJson(json['km_name']),
+      parent: const ToString().fromJson(json['parent']),
     );
 
 Map<String, dynamic> _$PostCommuneToJson(PostCommune instance) =>
@@ -103,6 +104,7 @@ Map<String, dynamic> _$PostCommuneToJson(PostCommune instance) =>
       'slug': const ToString().toJson(instance.slug),
       'en_name': const ToString().toJson(instance.en_name),
       'km_name': const ToString().toJson(instance.km_name),
+      'parent': const ToString().toJson(instance.parent),
     };
 
 PostDelivery _$PostDeliveryFromJson(Map json) => PostDelivery(
@@ -231,6 +233,9 @@ PostDataField _$PostDataFieldFromJson(Map json) => PostDataField(
           ?.map((e) => e == null ? null : PostFluffyOption.fromJson(e as Map))
           .toList(),
       value: json['value'],
+      popular_options: (json['popular_options'] as List<dynamic>?)
+          ?.map((e) => e == null ? null : PostFluffyOption.fromJson(e as Map))
+          .toList(),
     );
 
 Map<String, dynamic> _$PostDataFieldToJson(PostDataField instance) =>
@@ -247,6 +252,8 @@ Map<String, dynamic> _$PostDataFieldToJson(PostDataField instance) =>
       'fieldname': const ToString().toJson(instance.fieldname),
       'chained_field': const ToString().toJson(instance.chained_field),
       'options': instance.options?.map((e) => e?.toJson()).toList(),
+      'popular_options':
+          instance.popular_options?.map((e) => e?.toJson()).toList(),
       'value': instance.value,
     };
 

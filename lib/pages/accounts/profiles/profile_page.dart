@@ -1,5 +1,8 @@
 
 
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,17 +10,23 @@ import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/accounts/profiles/profile_provider.dart';
+import 'package:k24/pages/chats/chat_page.dart';
 import 'package:k24/pages/main/home_provider.dart';
+import 'package:k24/pages/posts/post_provider.dart';
 import 'package:k24/pages/settings/settings_page.dart';
 import 'package:k24/serialization/accounts/profiles/profiles_own.dart';
+import 'package:k24/serialization/category/main_category.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
+import 'package:k24/serialization/posts/edit_post/edit_post.dart';
 import 'package:k24/widgets/buttons.dart';
+import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
 
 import '../../../serialization/accounts/profiles_public/profile_serial.dart';
 import '../../details/details_post.dart';
+import '../../posts/post_page.dart';
 import '../profile_public/profile_provider.dart';
 
 final Labels labels = Labels();
@@ -277,7 +286,7 @@ class BodyProfile extends StatelessWidget {
                       myCards.ads(url: 'https://www.khmer24.ws/www/delivery/ai.php?filename=08232023_bannercarsale_(640x290)-2.jpg%20(3)&contenttype=jpeg', loading: false),
                       const SizedBox(height: 8),
                       // manage my ads
-                      SegmentedControlExample(ref),
+                      SegmentedControlExample(),
 
                     ],
                   );
@@ -296,10 +305,8 @@ class BodyProfile extends StatelessWidget {
 enum TypeSelect { active, premiere, expired }
 final StateProvider<TypeSelect> selectedSegment = StateProvider((ref) => TypeSelect.active);
 
-class SegmentedControlExample extends StatelessWidget {
-  SegmentedControlExample(this.ref, {super.key});
-
-  final WidgetRef ref;
+class SegmentedControlExample extends ConsumerWidget {
+  SegmentedControlExample({super.key});
 
   final Map<TypeSelect, int> skyColors = <TypeSelect, int>{
     TypeSelect.active: 0,
@@ -308,7 +315,7 @@ class SegmentedControlExample extends StatelessWidget {
   };
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final submitApi = ref.watch(myAPIService);
     final ownProfilePro = ref.watch(ownProfileListProvider(ref));
     final getTotalPostPro = ref.watch(getTotalPostProvider(ref));
@@ -382,7 +389,7 @@ class SegmentedControlExample extends StatelessWidget {
                         direction: Axis.vertical,
                         children: [
                           InkWell(
-                            onTap: () => handleEdit(context, datum),
+                            onTap: () => handleView(context, datum),
                             child: Padding(
                               padding: const EdgeInsets.all(10.0),
                               child: Row(
@@ -475,58 +482,17 @@ class SegmentedControlExample extends StatelessWidget {
                                 ),
                               ),
 
-                              PopupMenuButton(
-                                padding: EdgeInsets.zero,
-                                surfaceTintColor: Colors.white,
-                                onSelected: (item) {},
-                                itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-                                  PopupMenuItem(
-                                    height: 42,
-                                    value: 0,
-                                    onTap: () => handleEdit(context, datum),
-                                    child: ListTile(
-                                      contentPadding: EdgeInsets.zero,
-                                      dense: true,
-                                      horizontalTitleGap: 8,
-                                      leading: const Icon(Icons.edit, size: 18),
-                                      title: labels.label('Edit', fontSize: 13, color: Colors.black87),
-                                    ),
-                                  ),
-                                  PopupMenuItem(
-                                    height: 42,
-                                    value: 1,
-                                    child: ListTile(
-                                      contentPadding: EdgeInsets.zero,
-                                      dense: true,
-                                      horizontalTitleGap: 8,
-                                      leading: const Icon(CupertinoIcons.globe, size: 18),
-                                      title: labels.label('View Insights', fontSize: 13, color: Colors.black87),
-                                    ),
-                                  ),
-                                  PopupMenuItem(
-                                    height: 42,
-                                    value: 3,
-                                    child: ListTile(
-                                      contentPadding: EdgeInsets.zero,
-                                      dense: true,
-                                      horizontalTitleGap: 8,
-                                      leading: const Icon(CupertinoIcons.arrow_counterclockwise, size: 18),
-                                      title: labels.label('Auto Renew', fontSize: 13, color: Colors.black87),
-                                    ),
-                                  ),
-                                  PopupMenuItem(
-                                    height: 42,
-                                    value: 2,
-                                    child: ListTile(
-                                      contentPadding: EdgeInsets.zero,
-                                      dense: true,
-                                      horizontalTitleGap: 8,
-                                      leading: const Icon(CupertinoIcons.arrowshape_turn_up_right, size: 18),
-                                      title: labels.label('Share', fontSize: 13, color: Colors.black87),
-                                    ),
-                                  ),
-                                ],
+                              IconButton(
+                                onPressed: () => showActionSheet(context, [
+                                  MoreTypeInfo('edit', 'Edit', null, () { handleEdit(context, ref, datum); }),
+                                  MoreTypeInfo('view_insights', 'View Insights', null, () { print('object'); }),
+                                  MoreTypeInfo('auto_renew', 'Auto Renew', null, () { }),
+                                  MoreTypeInfo('share', 'Share', null, () { }),
+                                ]),
+                                padding: const EdgeInsets.all(12.0),
+                                icon: const Icon(Icons.more_vert_rounded, color: Colors.black87,),
                               ),
+
                             ],
                           ),
                         ],
@@ -543,11 +509,25 @@ class SegmentedControlExample extends StatelessWidget {
     );
   }
 
-  void handleEdit(BuildContext context, DatumProfile datum) {
+  void handleView(BuildContext context, DatumProfile datum) {
     final result = GridCard(type: 'post', data: Data_.fromJson(datum.toJson()), actions: datum.actions ?? []);
     routeAnimation(
       context,
       pageBuilder: DetailsPost(title: datum.title ?? 'N/A', data: result),
+    );
+  }
+
+  Future<void> handleEdit(BuildContext context, WidgetRef ref, DatumProfile datum) async {
+    final res = await getEditPostInfoProvider(ref, datum.id ?? '');
+    final mainCat = res.data?.post?.category;
+    routeAnimation(
+      context,
+      pageBuilder: NewAdPage(
+        mainPro: MainCategory(id: mainCat?.parent ?? '', en_name: '', slug: '', parent: ''),
+        subPro: MainCategory(id: mainCat?.id ?? '', en_name: mainCat?.en_name ?? '', parent: mainCat?.parent ?? '',),
+        type: 'edit',
+        editData: res,
+      ),
     );
   }
 

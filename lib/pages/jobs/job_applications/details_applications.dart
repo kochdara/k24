@@ -108,9 +108,20 @@ class _ReviewResumePageState extends ConsumerState<ReviewResumePage> {
                         ),
                         ListTile(
                           onTap: () {
+                            print({
+                              ...?post?.toJson(),
+                              ...{'user': datum.data?.user?.toJson()},
+                            });
                             routeAnimation(
                               context,
-                              pageBuilder: DetailsPost(title: post?.title ?? 'N/A', data: GridCard(type: 'post', data: post)),
+                              pageBuilder: DetailsPost(title: post?.title ?? 'N/A', data: GridCard(
+                                type: datum.type,
+                                data: Data_.fromJson({
+                                  ...?post?.toJson(),
+                                  ...{'price': post?.salary, 'thumbnail': post?.logo, 'photos': []},
+                                  ...{'user': datum.data?.cv?.toJson()},
+                                }),
+                              ),),
                             );
                           },
                           dense: true,

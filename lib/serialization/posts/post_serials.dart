@@ -83,12 +83,14 @@ class PostCommune {
   String? slug;
   String? en_name;
   String? km_name;
+  String? parent;
 
   PostCommune({
     this.id,
     this.slug,
     this.en_name,
     this.km_name,
+    this.parent,
   });
 
   factory PostCommune.fromJson(Map json) => _$PostCommuneFromJson(json);
@@ -209,6 +211,7 @@ class PostDataField {
   String? fieldname;
   String? chained_field;
   List<PostFluffyOption?>? options;
+  List<PostFluffyOption?>? popular_options;
   dynamic value;
 
   PostDataField({
@@ -224,6 +227,7 @@ class PostDataField {
     this.chained_field,
     this.options,
     this.value,
+    this.popular_options,
   });
 
   factory PostDataField.fromJson(Map json) => _$PostDataFieldFromJson(json);

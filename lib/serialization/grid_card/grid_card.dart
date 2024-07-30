@@ -189,7 +189,7 @@ class Spec_ {
 
 }
 
-@JsonSerializable(converters: [ToString()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
 class Condition_ {
   String? title;
   String? field;
@@ -206,7 +206,7 @@ class Condition_ {
 
 }
 
-@JsonSerializable(converters: [ToString()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
 class HighlightSpec {
   String? title;
   String? field;
@@ -227,7 +227,7 @@ class HighlightSpec {
 
 }
 
-@JsonSerializable(converters: [ToString(), ToBool()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString(), ToBool()])
 class Store_ {
   String? id;
   String? title;
@@ -257,7 +257,7 @@ class Store_ {
 }
 
 
-@JsonSerializable(converters: [ToString(), ToBool(), ToDateTime()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString(), ToBool(), ToDateTime()])
 class User_ {
   String? id;
   String? name;
@@ -286,7 +286,7 @@ class User_ {
 
 }
 
-@JsonSerializable(converters: [ToBool()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToBool()])
 class Setting_ {
   bool? show_contact;
   bool? enable_chat;

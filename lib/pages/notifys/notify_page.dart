@@ -144,7 +144,13 @@ class BodyNotify extends ConsumerWidget {
                         default:
                           routeAnimation(
                             context,
-                            pageBuilder: DetailsPost(title: datum.data?.post?.title ?? 'N/A', data: GridCard(data: datum.data?.post)),
+                            pageBuilder: DetailsPost(title: datum.data?.post?.title ?? 'N/A', data: GridCard(
+                              type: datum.type,
+                              data: Data_.fromJson({
+                                ...?datum.data?.post?.toJson(),
+                                ...{'user': datum.data?.user?.toJson()},
+                              }),
+                            ),),
                           );
                           break;
                       }

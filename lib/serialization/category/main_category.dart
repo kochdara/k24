@@ -5,7 +5,7 @@ import 'package:k24/serialization/try_convert.dart';
 
 part 'main_category.g.dart';
 
-@JsonSerializable(converters: [ToString(), ToBool()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString(), ToBool()])
 class MainCategory {
   String? id;
   String? en_name;
@@ -26,7 +26,7 @@ class MainCategory {
     this.popular,
   });
 
-  factory MainCategory.fromJson(Map<String, dynamic> json) => _$MainCategoryFromJson(json);
+  factory MainCategory.fromJson(Map json) => _$MainCategoryFromJson(json!);
   Map toJson() => _$MainCategoryToJson(this);
 
 }

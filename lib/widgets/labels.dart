@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:html_unescape/html_unescape.dart';
 
 import '../helpers/config.dart';
 
 class Labels {
+  final unescape = HtmlUnescape();
 
   Widget label(String data, {
     double fontSize = 11,
@@ -16,7 +18,7 @@ class Labels {
     int? maxLines,
     double? lineHeight2,
   }) {
-    return Text(data,
+    return Text(unescape.convert(data),
       style: TextStyle(
         fontSize: fontSize,
         fontWeight: fontWeight,
@@ -44,7 +46,7 @@ class Labels {
     int? maxLines,
     double lineHeight = 1.35
   }) {
-    return SelectableText(data,
+    return SelectableText(unescape.convert(data),
       style: TextStyle(
         fontSize: fontSize,
         fontWeight: fontWeight,

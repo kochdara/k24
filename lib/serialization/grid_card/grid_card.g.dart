@@ -96,8 +96,7 @@ Data_ _$Data_FromJson(Map json) => Data_(
               Map<String, dynamic>.from(json['location'] as Map)),
       category: json['category'] == null
           ? null
-          : MainCategory.fromJson(
-              Map<String, dynamic>.from(json['category'] as Map)),
+          : MainCategory.fromJson(json['category'] as Map),
       highlight_specs: (json['highlight_specs'] as List<dynamic>?)
           ?.map((e) => e == null
               ? null
@@ -219,7 +218,7 @@ Map<String, dynamic> _$Spec_ToJson(Spec_ instance) => <String, dynamic>{
       'value_slug': const ToString().toJson(instance.value_slug),
     };
 
-Condition_ _$Condition_FromJson(Map<String, dynamic> json) => Condition_(
+Condition_ _$Condition_FromJson(Map json) => Condition_(
       title: const ToString().fromJson(json['title']),
       field: const ToString().fromJson(json['field']),
       value: const ToString().fromJson(json['value']),
@@ -232,8 +231,7 @@ Map<String, dynamic> _$Condition_ToJson(Condition_ instance) =>
       'value': const ToString().toJson(instance.value),
     };
 
-HighlightSpec _$HighlightSpecFromJson(Map<String, dynamic> json) =>
-    HighlightSpec(
+HighlightSpec _$HighlightSpecFromJson(Map json) => HighlightSpec(
       title: const ToString().fromJson(json['title']),
       field: const ToString().fromJson(json['field']),
       value: const ToString().fromJson(json['value']),
@@ -250,17 +248,21 @@ Map<String, dynamic> _$HighlightSpecToJson(HighlightSpec instance) =>
       'value_slug': const ToString().toJson(instance.value_slug),
     };
 
-Store_ _$Store_FromJson(Map<String, dynamic> json) => Store_(
+Store_ _$Store_FromJson(Map json) => Store_(
       id: const ToString().fromJson(json['id']),
       title: const ToString().fromJson(json['title']),
       username: const ToString().fromJson(json['username']),
       userid: const ToString().fromJson(json['userid']),
       logo: json['logo'] == null
           ? null
-          : CoverProfile.fromJson(json['logo'] as Map<String, dynamic>?),
+          : CoverProfile.fromJson((json['logo'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
       cover: json['cover'] == null
           ? null
-          : CoverProfile.fromJson(json['cover'] as Map<String, dynamic>?),
+          : CoverProfile.fromJson((json['cover'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
       is_verify: const ToBool().fromJson(json['is_verify']),
       created_date: json['created_date'],
       taxed: const ToString().fromJson(json['taxed']),
@@ -271,25 +273,28 @@ Map<String, dynamic> _$Store_ToJson(Store_ instance) => <String, dynamic>{
       'title': const ToString().toJson(instance.title),
       'username': const ToString().toJson(instance.username),
       'userid': const ToString().toJson(instance.userid),
-      'logo': instance.logo,
-      'cover': instance.cover,
+      'logo': instance.logo?.toJson(),
+      'cover': instance.cover?.toJson(),
       'is_verify': _$JsonConverterToJson<Object?, bool>(
           instance.is_verify, const ToBool().toJson),
       'created_date': instance.created_date,
       'taxed': const ToString().toJson(instance.taxed),
     };
 
-User_ _$User_FromJson(Map<String, dynamic> json) => User_(
+User_ _$User_FromJson(Map json) => User_(
       id: const ToString().fromJson(json['id']),
       name: const ToString().fromJson(json['name']),
       username: const ToString().fromJson(json['username']),
       photo: json['photo'] == null
           ? null
-          : CoverProfile.fromJson(json['photo'] as Map<String, dynamic>?),
+          : CoverProfile.fromJson((json['photo'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
       online_status: json['online_status'] == null
           ? null
-          : OnlineStatusProfile.fromJson(
-              json['online_status'] as Map<String, dynamic>?),
+          : OnlineStatusProfile.fromJson((json['online_status'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
       is_verify: const ToBool().fromJson(json['is_verify']),
       registered_date: const ToDateTime().fromJson(json['registered_date']),
       taxed: const ToString().fromJson(json['taxed']),
@@ -300,8 +305,8 @@ Map<String, dynamic> _$User_ToJson(User_ instance) => <String, dynamic>{
       'id': const ToString().toJson(instance.id),
       'name': const ToString().toJson(instance.name),
       'username': const ToString().toJson(instance.username),
-      'photo': instance.photo,
-      'online_status': instance.online_status,
+      'photo': instance.photo?.toJson(),
+      'online_status': instance.online_status?.toJson(),
       'is_verify': _$JsonConverterToJson<Object?, bool>(
           instance.is_verify, const ToBool().toJson),
       'registered_date': const ToDateTime().toJson(instance.registered_date),
@@ -309,7 +314,7 @@ Map<String, dynamic> _$User_ToJson(User_ instance) => <String, dynamic>{
       'user_type': const ToString().toJson(instance.user_type),
     };
 
-Setting_ _$Setting_FromJson(Map<String, dynamic> json) => Setting_(
+Setting_ _$Setting_FromJson(Map json) => Setting_(
       show_contact: const ToBool().fromJson(json['show_contact']),
       enable_chat: const ToBool().fromJson(json['enable_chat']),
       enable_like: const ToBool().fromJson(json['enable_like']),

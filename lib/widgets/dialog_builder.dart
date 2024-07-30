@@ -1,5 +1,8 @@
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../pages/chats/chat_page.dart';
 
 /// loading dialog ///
 Future<void> dialogBuilder(BuildContext context) {
@@ -34,5 +37,29 @@ Future<void> dialogBuilder(BuildContext context) {
           ),
         );
       }
+  );
+}
+
+void showActionSheet(BuildContext context, List<MoreTypeInfo> listMore) {
+  showCupertinoModalPopup<void>(
+    context: context,
+    builder: (BuildContext context) => CupertinoActionSheet(
+      actions: <CupertinoActionSheetAction>[
+        for (final type in listMore) CupertinoActionSheetAction(
+          onPressed: () {
+            Navigator.pop(context);
+            type.onTap!();
+          },
+          child: Text(type.description),
+        ),
+      ],
+      cancelButton: CupertinoActionSheetAction(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        isDestructiveAction: true,
+        child: const Text('Cancel', ),
+      ),
+    ),
   );
 }

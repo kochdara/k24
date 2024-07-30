@@ -10,6 +10,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../helpers/config.dart';
 import '../../helpers/helper.dart';
+import '../../serialization/posts/edit_post/edit_post.dart';
 import '../../widgets/dialog_builder.dart';
 import '../main/home_provider.dart';
 
@@ -118,5 +119,51 @@ class MyPostApi {
   void _handleError(String methodName, dynamic error, dynamic stacktrace) {
     print('Error in $methodName: $error');
     print(stacktrace);
+  }
+}
+
+Future<EditPostSerial> getEditPostInfoProvider(WidgetRef context, String proId) async {
+  try {
+    dialogBuilder(context.context);
+
+    final tokens = context.read(usersProvider).tokens;
+
+    Uri uri = Uri.parse('$baseUrl/me/posts/$proId').replace(queryParameters: {
+      'lang': lang,
+      'group': 'true',
+      'type': 'active',
+      'filter_version': '4',
+    });
+
+    final res = await Dio().get(uri.toString(), options: Options(headers: {
+      'Access-Token': tokens?.access_token,
+    }));
+
+    /// close dialog ///
+    Navigator.pop(context.context);
+
+    if (res.statusCode == 200 && res.data != null) {
+      // print(res.data);
+      return EditPostSerial.fromJson(res.data);
+    } else {
+      throw Exception('Failed to fetch data');
+    }
+  } on DioException catch(e) {
+    /// close dialog ///
+    Navigator.pop(context.context);
+
+    final response = e.response;
+    // Handle Dio-specific errors
+    if (response?.statusCode == 401) {
+      // Token might have expired, try to refresh the token
+      await checkTokens(context);
+      return await getEditPostInfoProvider(context, proId); // Retry the request after refreshing the token
+    }
+    throw Exception('Failed to fetch data2');
+  } catch(e) {
+    /// close dialog ///
+    Navigator.pop(context.context);
+
+    throw Exception('Failed catch: $e');
   }
 }

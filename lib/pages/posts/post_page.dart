@@ -16,7 +16,6 @@ import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/more_provider.dart';
 import 'package:k24/pages/posts/post_provider.dart';
-import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/serialization/helper.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/forms.dart';
@@ -28,9 +27,9 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../serialization/category/main_category.dart';
 import '../../serialization/filters/radio_select/radio.dart';
+import '../../serialization/posts/edit_post/edit_post.dart';
 import '../../serialization/posts/post_serials.dart';
 import '../../widgets/modals.dart';
-import '../details/details_post.dart';
 import '../main/home_provider.dart';
 
 final config = Config();
@@ -195,10 +194,14 @@ class NewAdPage extends ConsumerStatefulWidget {
     super.key,
     required this.mainPro,
     required this.subPro,
+    this.type,
+    this.editData,
   });
 
   final MainCategory? mainPro;
   final MainCategory? subPro;
+  final String? type;
+  final EditPostSerial? editData;
 
   @override
   ConsumerState<NewAdPage> createState() => _NewAdPageState();
@@ -207,8 +210,6 @@ class NewAdPage extends ConsumerStatefulWidget {
 class _NewAdPageState extends ConsumerState<NewAdPage> {
   StateProvider<Map> newData = StateProvider((ref) => {});
   StateProvider<List> phonePro = StateProvider((ref) => []);
-  StateProvider<List<XFile>> listIMG = StateProvider((ref) => []);
-  StateProvider<Map<String, XFile>> listIMG2 = StateProvider((ref) => {});
   final myPostApi = Provider((ref) => MyPostApi());
   final _formKey = GlobalKey<FormState>();
 
@@ -227,8 +228,10 @@ class _NewAdPageState extends ConsumerState<NewAdPage> {
   }
 
   void setupPage() {
+    final editID = widget.editData;
     futureAwait(duration: 1500, () {
-      final getPostFilterPro = ref.watch(getPostFilterProvider(ref, '${widget.subPro?.slug}', null));
+
+      final getPostFilterPro = ref.watch(getPostFilterProvider(ref, '${widget.subPro?.id}', null));
       final datum = getPostFilterPro.valueOrNull ?? PostSerial(data: PostData());
       final controllers = ref.watch(controllersPro);
       final controllersR = ref.watch(controllersPro.notifier);
@@ -252,16 +255,18 @@ class _NewAdPageState extends ConsumerState<NewAdPage> {
       updateNewData(ref, 'discount_type', 'percent', newData);
 
       List<PostLocation?> list = [];
-      for(final val in datum.data.locations ?? list) {
+      for (final val in datum.data.locations ?? list) {
         final valueList = val?.fields;
         // for check value list locations //
-        if(valueList is List) {
-          for(final secondVal in valueList!) {
-            updateNewData(ref, secondVal?.fieldname ?? '', secondVal?.value?.toJson(), newData);
+        if (valueList is List) {
+          for (final secondVal in valueList!) {
+            updateNewData(
+                ref, secondVal?.fieldname ?? '', secondVal?.value?.toJson(),
+                newData);
           }
         } else {
           // for check value map locations //
-          if(val?.value is Map && val?.type == 'data') {
+          if (val?.value is Map && val?.type == 'data') {
             for (var entry in val?.value.entries) {
               final key = entry.key;
               final value = entry.value;
@@ -274,12 +279,29 @@ class _NewAdPageState extends ConsumerState<NewAdPage> {
         }
       }
 
+      if(widget.type != null && widget.type == 'edit') {
+        // print(datum.toJson());
+        editID?.data?.toJson().forEach((key, value) {
+          if(value is Map) {
+            value.forEach((key, val) {
+              if(val is Map) {
+                final res = val['value'];
+                updateNewData(ref, key, res, newData);
+              } else {
+                updateNewData(ref, key, val, newData);
+              }
+            });
+          }
+        });
+      }
+
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final getPostFilterPro = ref.watch(getPostFilterProvider(ref, '${widget.subPro?.slug}', null));
+    final editID = widget.editData;
+    final getPostFilterPro = ref.watch(getPostFilterProvider(ref, '${editID?.data?.post?.cateid ?? widget.subPro?.id}', null));
     final datum = getPostFilterPro.valueOrNull ?? PostSerial(data: PostData());
     final controllers = ref.watch(controllersPro);
 
