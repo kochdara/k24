@@ -22,6 +22,7 @@ import 'package:k24/widgets/my_cards.dart';
 import '../../../serialization/chats/chat_serial.dart';
 import '../../../serialization/chats/conversation/conversation_serial.dart';
 import '../../../widgets/buttons.dart';
+import '../../../widgets/dialog_builder.dart';
 import '../../accounts/profile_public/another_profile.dart';
 
 final Labels labels = Labels();
@@ -391,7 +392,7 @@ class BodyChatDetails extends StatelessWidget {
                                   crossAxisAlignment: (val.folder == 'send') ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                                   children: [
                                     // text //
-                                    generateType(val),
+                                    generateType(context, val),
 
                                     const SizedBox(height: 6),
 
@@ -423,12 +424,12 @@ class BodyChatDetails extends StatelessWidget {
     );
   }
 
-  Widget generateType(ConData val) {
+  Widget generateType(BuildContext context, ConData val) {
     switch(val.type) {
       case 'text':
         return typeText(val);
       case 'photos' || 'photo':
-        return typeImage(val);
+        return typeImage(context, val);
       case 'post':
         return typePost(val);
       case 'map':
@@ -458,7 +459,7 @@ class BodyChatDetails extends StatelessWidget {
     );
   }
 
-  Widget typeImage(ConData val) {
+  Widget typeImage(BuildContext context, ConData val) {
 
     if(val.type == 'photos') {
       List data = val.data ?? [];
@@ -474,10 +475,13 @@ class BodyChatDetails extends StatelessWidget {
           direction: Axis.vertical,
           children: [
             for(final values in data)
-              Container(
-                constraints: const BoxConstraints(maxWidth: 300, minWidth: 200, maxHeight: 300, minHeight: 200),
-                color: Colors.white,
-                child: Image.network('${values['image']}', fit: BoxFit.cover),
+              InkWell(
+                onTap: () { if(values['image'] != null) viewImage(context, '${values['image']}'); },
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 300, minWidth: 200, maxHeight: 300, minHeight: 200),
+                  color: Colors.white,
+                  child: Image.network('${values['image']}', fit: BoxFit.cover),
+                ),
               ),
           ],
         ),
@@ -486,17 +490,20 @@ class BodyChatDetails extends StatelessWidget {
 
     /// single image ///
     final img = ConImage.fromJson(val.data ?? {});
-    return ClipRRect(
-      borderRadius: BorderRadius.only(
-        topLeft: const Radius.circular(20),
-        topRight: const Radius.circular(20),
-        bottomLeft: Radius.circular((val.folder == 'send') ? 20 : 0),
-        bottomRight: Radius.circular((val.folder == 'send') ? 0 : 20),
-      ),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 300, minWidth: 200, maxHeight: 300, minHeight: 200),
-        color: Colors.white,
-        child: Image.network('${img.image}', fit: BoxFit.cover),
+    return InkWell(
+      onTap: () { if(img.image != null) viewImage(context, '${img.image}'); },
+      child: ClipRRect(
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(20),
+          topRight: const Radius.circular(20),
+          bottomLeft: Radius.circular((val.folder == 'send') ? 20 : 0),
+          bottomRight: Radius.circular((val.folder == 'send') ? 0 : 20),
+        ),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 300, minWidth: 200, maxHeight: 300, minHeight: 200),
+          color: Colors.white,
+          child: Image.network('${img.image}', fit: BoxFit.cover),
+        ),
       ),
     );
   }

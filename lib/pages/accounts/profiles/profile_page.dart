@@ -2,7 +2,6 @@
 
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,7 +16,6 @@ import 'package:k24/pages/settings/settings_page.dart';
 import 'package:k24/serialization/accounts/profiles/profiles_own.dart';
 import 'package:k24/serialization/category/main_category.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
-import 'package:k24/serialization/posts/edit_post/edit_post.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/labels.dart';
@@ -120,8 +118,8 @@ class BodyProfile extends StatelessWidget {
 
               profilePro.when(
                 error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () {}),
-                loading: () => const Padding(
-                  padding: EdgeInsets.all(14.0),
+                loading: () => const SizedBox(
+                  height: 350,
                   child: Center(child: CircularProgressIndicator()),
                 ),
                 data: (data) {
@@ -135,15 +133,18 @@ class BodyProfile extends StatelessWidget {
                           // cover of image
                           Column(
                             children: [
-                              Container(
-                                color: config.primaryAppColor.shade50,
-                                height: 200,
-                                width: double.infinity,
-                                child: (datum?.cover?.url != null) ? FadeInImage.assetNetwork(
-                                    placeholder: placeholder,
-                                    image: '${datum?.cover?.url}',
-                                  fit: BoxFit.cover,
-                                ) : null,
+                              InkWell(
+                                onTap: () { if(datum?.cover?.url != null) viewImage(context, '${datum?.cover?.url}'); },
+                                child: Container(
+                                  color: config.primaryAppColor.shade50,
+                                  height: 200,
+                                  width: double.infinity,
+                                  child: (datum?.cover?.url != null) ? FadeInImage.assetNetwork(
+                                      placeholder: placeholder,
+                                      image: '${datum?.cover?.url}',
+                                    fit: BoxFit.cover,
+                                  ) : null,
+                                ),
                               ),
 
                               Container(
@@ -157,7 +158,7 @@ class BodyProfile extends StatelessWidget {
                             bottom: 10,
                             left: 10,
                             child: InkWell(
-                              onTap: () { },
+                              onTap: () { if(datum?.photo?.url != null) viewImage(context, '${datum?.photo?.url}'); },
                               child: Stack(
                                 children: [
                                   Container(
@@ -527,6 +528,7 @@ class SegmentedControlExample extends ConsumerWidget {
         subPro: MainCategory(id: mainCat?.id ?? '', en_name: mainCat?.en_name ?? '', parent: mainCat?.parent ?? '',),
         type: 'edit',
         editData: res,
+        datum: datum,
       ),
     );
   }

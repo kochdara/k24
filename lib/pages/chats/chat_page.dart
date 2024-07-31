@@ -138,8 +138,8 @@ class _ChatPageBuilderState extends ConsumerState<ChatPageBuilder> {
             delegate: SliverChildListDelegate([
               watchChat.when(
                 error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () {}),
-                loading: () => const Padding(
-                  padding: EdgeInsets.all(14.0),
+                loading: () => const SizedBox(
+                  height: 250,
                   child: Center(child: CircularProgressIndicator()),
                 ),
                 data: (data) {
@@ -235,7 +235,7 @@ class MoreButtonUI extends StatelessWidget {
               ref.read(moreTypeProvider.notifier).update((state) => type);
               Navigator.pop(context);
             },
-            child: Text(moreTypeInfo[type]?.description ?? 'N/A'),
+            child: labels.label('${moreTypeInfo[type]?.description}', color: Colors.blue.shade700, fontSize: 16,),
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
@@ -243,7 +243,7 @@ class MoreButtonUI extends StatelessWidget {
             Navigator.pop(context);
           },
           isDestructiveAction: true,
-          child: const Text('Cancel', ),
+          child: labels.label('Cancel', color: Colors.red, fontSize: 18,),
         ),
       ),
     );

@@ -47,8 +47,8 @@ class _CommentPageState extends ConsumerState<CommentPage> {
             delegate: SliverChildListDelegate([
               watchComment.when(
                 error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () {}),
-                loading: () => const Padding(
-                  padding: EdgeInsets.all(14.0),
+                loading: () => const SizedBox(
+                  height: 250,
                   child: Center(child: CircularProgressIndicator()),
                 ),
                 data: (data) {

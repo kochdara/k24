@@ -112,9 +112,9 @@ class GetBadges extends _$GetBadges {
       if (response?.statusCode == 401) {
         // Token might have expired, try to refresh the token
         await checkTokens(context);
-        await fetchData(); // Retry the request after refreshing the token
+        return await fetchData(); // Retry the request after refreshing the token
       }
-      throw Exception('throw exception: $response');
+      print('throw exception: $response');
     } catch (e) {
       // Handle other exceptions
       print('Error fetching banner ads: $e');

@@ -81,7 +81,6 @@ class OwnProfileList extends _$OwnProfileList {
         await checkTokens(context);
         await fetchHome(); // Retry the request after refreshing the token
       }
-      throw Exception('Dio error: ${e.message}');
     } catch (e, stacktrace) {
       // Handle exceptions and log the error
       print('Error: $e');
@@ -116,7 +115,7 @@ class GetTotalPost extends _$GetTotalPost {
       if (response?.statusCode == 401) {
         // Token might have expired, try to refresh the token
         await checkTokens(context);
-        await build(context); // Retry the request after refreshing the token
+        return await build(context); // Retry the request after refreshing the token
       }
       print('Dio error: ${e.message}');
     } catch (e, stacktrace) {
@@ -175,7 +174,7 @@ class MyAccountApiService {
           await checkTokens(ref);
           await submitRenew(id, context: context, ref: ref); // Retry the request after refreshing the token
         }
-        throw Exception('Dio error: ${e.message}');
+        print('Dio error: ${e.message}');
       } else {
         // Handle DioError without response
         myWidgets.showAlert(context, 'Error: $e');

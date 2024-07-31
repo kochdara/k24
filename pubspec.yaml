@@ -64,6 +64,7 @@ dependencies:
   device_info_plus: ^10.1.0
   google_maps_flutter: ^2.6.1
   html_unescape: ^2.0.0
+  photo_view: ^0.15.0
 
 dev_dependencies:
   flutter_test:

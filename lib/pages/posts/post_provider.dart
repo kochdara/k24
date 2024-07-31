@@ -60,12 +60,12 @@ class GetPostFilter extends _$GetPostFilter {
       if (response?.statusCode == 401) {
         // Token might have expired, try to refresh the token
         await checkTokens(context);
-        await fetchData(slug, storeid); // Retry the request after refreshing the token
+        return await fetchData(slug, storeid); // Retry the request after refreshing the token
       }
-      throw Exception('Dio error: ${e.message}');
+      print('Dio error: ${e.message}');
     } catch (e) {
       // Handle other exceptions
-      throw Exception('Error fetching data: $e');
+      print('Error fetching data: $e');
     }
     return null;
   }
@@ -74,13 +74,16 @@ class GetPostFilter extends _$GetPostFilter {
 class MyPostApi {
   final dio = Dio();
 
-  Future createPosts(BuildContext context, Map<String, dynamic> data, WidgetRef ref) async {
+  Future createPostsOrUpdate(BuildContext context, Map<String, dynamic> data, WidgetRef ref, {
+    String? productID,
+  }) async {
     dialogBuilder(context);
 
     try {
       final tokens = ref.watch(usersProvider);
       final formData = FormData.fromMap(data);
-      final subs = 'me/posts?lang=$lang';
+      String subs = 'me/posts?lang=$lang';
+      if(productID != null) subs = 'me/posts/$productID?lang=$lang';
       final res = await dio.post(
         '$baseUrl/$subs',
         data: formData,
@@ -102,11 +105,12 @@ class MyPostApi {
       if (response?.statusCode == 401) {
         // Token might have expired, try to refresh the token
         await checkTokens(ref);
-        await createPosts(context, data, ref); // Retry the request after refreshing the token
+        return await createPostsOrUpdate(context, data, ref, productID: productID); // Retry the request after refreshing the token
       } else {
         myWidgets.showAlert(context, '$response', title: 'Alert');
       }
-      _handleError('DioException: ', response, '');
+      _handleError('DioException: ', e, '');
+      print(e);
     } catch (e, stacktrace) {
       /// close dialog ///
       Navigator.pop(context);
@@ -130,7 +134,7 @@ Future<EditPostSerial> getEditPostInfoProvider(WidgetRef context, String proId) 
 
     Uri uri = Uri.parse('$baseUrl/me/posts/$proId').replace(queryParameters: {
       'lang': lang,
-      'group': 'true',
+      'group': 'false',
       'type': 'active',
       'filter_version': '4',
     });
@@ -145,8 +149,6 @@ Future<EditPostSerial> getEditPostInfoProvider(WidgetRef context, String proId) 
     if (res.statusCode == 200 && res.data != null) {
       // print(res.data);
       return EditPostSerial.fromJson(res.data);
-    } else {
-      throw Exception('Failed to fetch data');
     }
   } on DioException catch(e) {
     /// close dialog ///
@@ -159,11 +161,12 @@ Future<EditPostSerial> getEditPostInfoProvider(WidgetRef context, String proId) 
       await checkTokens(context);
       return await getEditPostInfoProvider(context, proId); // Retry the request after refreshing the token
     }
-    throw Exception('Failed to fetch data2');
+    print('Failed to fetch data2');
   } catch(e) {
     /// close dialog ///
     Navigator.pop(context.context);
 
-    throw Exception('Failed catch: $e');
+    print('Failed catch: $e');
   }
+  return EditPostSerial();
 }

@@ -1,5 +1,6 @@
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:k24/serialization/grid_card/grid_card.dart';
 
 import '../helper.dart';
 import '../try_convert.dart';
@@ -536,6 +537,7 @@ class MessageResData {
   String? short_link;
   dynamic storeid;
   List<String?>? actions;
+  GridDiscount? discount;
 
   MessageResData({
     this.id,
@@ -547,6 +549,7 @@ class MessageResData {
     this.short_link,
     this.storeid,
     this.actions,
+    this.discount,
   });
 
   factory MessageResData.fromJson(Map json) => _$MessageResDataFromJson(json);

@@ -46,7 +46,7 @@ class GetDetailPost extends _$GetDetailPost {
       if (response?.statusCode == 401) {
         // Token might have expired, try to refresh the token
         await checkTokens(context);
-        await fetch(); // Retry the request after refreshing the token
+        return await fetch(); // Retry the request after refreshing the token
       }
       print('Dio error: ${e.response}');
     } catch (e, stacktrace) {
@@ -123,7 +123,7 @@ class RelateDetailPost extends _$RelateDetailPost {
         await checkTokens(context);
         await fetch(); // Retry the request after refreshing the token
       }
-      throw Exception('Dio error: ${e.response}');
+      print('Dio error: ${e.response}');
     } catch (e, stacktrace) {
       print('Error in : $e');
       print(stacktrace);

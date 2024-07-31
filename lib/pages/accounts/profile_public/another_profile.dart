@@ -8,6 +8,7 @@ import 'package:k24/helpers/converts.dart';
 import 'package:k24/pages/accounts/profile_public/profile_provider.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/widgets/buttons.dart';
+import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
@@ -138,8 +139,8 @@ class BodyProfile extends StatelessWidget {
 
                     profilePro.when(
                       error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () {}),
-                      loading: () => const Padding(
-                        padding: EdgeInsets.all(14.0),
+                      loading: () => const SizedBox(
+                        height: 350,
                         child: Center(child: CircularProgressIndicator()),
                       ),
                       data: (data) {
@@ -155,15 +156,18 @@ class BodyProfile extends StatelessWidget {
                                 // cover of image
                                 Column(
                                   children: [
-                                    Container(
-                                      color: config.primaryAppColor.shade50,
-                                      height: 200,
-                                      width: double.infinity,
-                                      child: (datum?.cover?.url != null) ? FadeInImage.assetNetwork(
-                                        placeholder: 'assets/img/load.jpg',
-                                        image: '${datum?.cover?.url}',
-                                        fit: BoxFit.cover,
-                                      ) : null,
+                                    InkWell(
+                                      onTap: () { if(datum?.cover?.url != null) viewImage(context, '${datum?.cover?.url}'); },
+                                      child: Container(
+                                        color: config.primaryAppColor.shade50,
+                                        height: 200,
+                                        width: double.infinity,
+                                        child: (datum?.cover?.url != null) ? FadeInImage.assetNetwork(
+                                          placeholder: placeholder,
+                                          image: '${datum?.cover?.url}',
+                                          fit: BoxFit.cover,
+                                        ) : null,
+                                      ),
                                     ),
 
                                     Container(
@@ -177,7 +181,7 @@ class BodyProfile extends StatelessWidget {
                                   bottom: 10,
                                   left: 10,
                                   child: InkWell(
-                                    onTap: () { },
+                                    onTap: () { if(datum?.photo?.url != null) viewImage(context, '${datum?.photo?.url}'); },
                                     child: Stack(
                                       children: [
                                         Container(
@@ -191,7 +195,7 @@ class BodyProfile extends StatelessWidget {
                                           height: 94,
                                           child: (datum?.photo?.url != null) ? ClipOval(
                                             child: FadeInImage.assetNetwork(
-                                              placeholder: 'assets/img/load.jpg',
+                                              placeholder: placeholder,
                                               image: '${datum?.photo?.url}',
                                               width: 94,
                                               height: 94,
@@ -519,6 +523,5 @@ class AboutUI extends StatelessWidget {
     );
   }
 }
-
 
 

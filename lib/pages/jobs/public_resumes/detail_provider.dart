@@ -47,10 +47,10 @@ class GetDetailsResume extends _$GetDetailsResume {
       if (response?.statusCode == 401) {
         // Token might have expired, try to refresh the token
         await checkTokens(context);
-        await fetchHome(idJob, keyFields); // Retry the request after refreshing the token
+        return await fetchHome(idJob, keyFields); // Retry the request after refreshing the token
       }
 
-      throw Exception('Dio error: ${e.response}');
+      print('Dio error: ${e.response}');
     } catch (e, stacktrace) {
       print('Error in _fetchData: $e');
       print(stacktrace);

@@ -47,7 +47,7 @@ class MyAccountApiService {
         if (response?.statusCode == 401) {
           // Token might have expired, try to refresh the token
           await checkTokens(ref);
-          await submitAdd(data, context: context, ref: ref); // Retry the request after refreshing the token
+          return await submitAdd(data, context: context, ref: ref); // Retry the request after refreshing the token
         }
       } else {
         // load dialog error
@@ -83,7 +83,7 @@ class MyAccountApiService {
         if (response?.statusCode == 401) {
           // Token might have expired, try to refresh the token
           await checkTokens(ref);
-          await submitRemove(id: id, context: context, ref: ref); // Retry the request after refreshing the token
+          return await submitRemove(id: id, context: context, ref: ref); // Retry the request after refreshing the token
         }
       } else {
         // load dialog error

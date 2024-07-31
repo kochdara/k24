@@ -56,7 +56,7 @@ class CommentsPages extends _$CommentsPages {
         await checkTokens(context);
         await fetchComments(context); // Retry the request after refreshing the token
       }
-      throw Exception('Dio error: ${e.message}');
+      print('Dio error: ${e.message}');
     } catch (e, stacktrace) {
       print('Error fetching comments: $e');
       print(stacktrace);
@@ -185,7 +185,7 @@ Future<dynamic> submitMarkReadComment(String id, WidgetRef ref) async {
     if (response?.statusCode == 401) {
       // Token might have expired, try to refresh the token
       await checkTokens(ref);
-      await submitMarkReadComment(id, ref); // Retry the request after refreshing the token
+     return await submitMarkReadComment(id, ref); // Retry the request after refreshing the token
     }
     print('Dio error: ${e.message}');
   } catch (e, stacktrace) {

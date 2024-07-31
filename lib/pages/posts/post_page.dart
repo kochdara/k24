@@ -16,6 +16,7 @@ import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/more_provider.dart';
 import 'package:k24/pages/posts/post_provider.dart';
+import 'package:k24/serialization/accounts/profiles/profiles_own.dart';
 import 'package:k24/serialization/helper.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/forms.dart';
@@ -29,6 +30,7 @@ import '../../serialization/category/main_category.dart';
 import '../../serialization/filters/radio_select/radio.dart';
 import '../../serialization/posts/edit_post/edit_post.dart';
 import '../../serialization/posts/post_serials.dart';
+import '../../widgets/dialog_builder.dart';
 import '../../widgets/modals.dart';
 import '../main/home_provider.dart';
 
@@ -196,12 +198,14 @@ class NewAdPage extends ConsumerStatefulWidget {
     required this.subPro,
     this.type,
     this.editData,
+    this.datum,
   });
 
   final MainCategory? mainPro;
   final MainCategory? subPro;
   final String? type;
   final EditPostSerial? editData;
+  final DatumProfile? datum;
 
   @override
   ConsumerState<NewAdPage> createState() => _NewAdPageState();
@@ -210,6 +214,7 @@ class NewAdPage extends ConsumerStatefulWidget {
 class _NewAdPageState extends ConsumerState<NewAdPage> {
   StateProvider<Map> newData = StateProvider((ref) => {});
   StateProvider<List> phonePro = StateProvider((ref) => []);
+  StateProvider<bool> loadingPro = StateProvider((ref) => true);
   final myPostApi = Provider((ref) => MyPostApi());
   final _formKey = GlobalKey<FormState>();
 
@@ -229,7 +234,38 @@ class _NewAdPageState extends ConsumerState<NewAdPage> {
 
   void setupPage() {
     final editID = widget.editData;
+    final loading = ref.read(loadingPro.notifier);
     futureAwait(duration: 1500, () {
+      loading.state = true;
+
+      updateNewData(ref, 'available', 'true', newData);
+      updateNewData(ref, 'discount_type', 'percent', newData);
+
+      if(widget.type != null && widget.type == 'edit') {
+        // print(datum.toJson());
+        editID?.data?.toJson().forEach((key, value) {
+          if(value is Map) {
+            value.forEach((key, val) {
+              if(val is Map) {
+                final res = val['value'];
+                if(res is List) {
+                  for(int i=0; i<res.length; i++) {
+                    final image_url = res[i] is Map ? res[i] : res[i];
+                    updateNewData(ref, 'item_image[$i]', image_url, newData);
+                  }
+                } else { updateNewData(ref, key, res, newData); }
+
+                if(val['subfix'] is Map) {
+                  final subFix = PostSubFix.fromJson(val['subfix']) ;
+                  updateNewData(ref, '${subFix.fieldname}', subFix.value?.toJson(), newData);
+                }
+              } else {
+                updateNewData(ref, key, val, newData);
+              }
+            });
+          }
+        });
+      }
 
       final getPostFilterPro = ref.watch(getPostFilterProvider(ref, '${widget.subPro?.id}', null));
       final datum = getPostFilterPro.valueOrNull ?? PostSerial(data: PostData());
@@ -251,8 +287,6 @@ class _NewAdPageState extends ConsumerState<NewAdPage> {
       updateNewData(ref, 'filter_version', filterVersion, newData);
       updateNewData(ref, 'name', datum.data.contact?.name ?? '', newData);
       updateNewData(ref, 'email', datum.data.contact?.email ?? '', newData);
-      updateNewData(ref, 'available', 'true', newData);
-      updateNewData(ref, 'discount_type', 'percent', newData);
 
       List<PostLocation?> list = [];
       for (final val in datum.data.locations ?? list) {
@@ -279,22 +313,7 @@ class _NewAdPageState extends ConsumerState<NewAdPage> {
         }
       }
 
-      if(widget.type != null && widget.type == 'edit') {
-        // print(datum.toJson());
-        editID?.data?.toJson().forEach((key, value) {
-          if(value is Map) {
-            value.forEach((key, val) {
-              if(val is Map) {
-                final res = val['value'];
-                updateNewData(ref, key, res, newData);
-              } else {
-                updateNewData(ref, key, val, newData);
-              }
-            });
-          }
-        });
-      }
-
+      loading.state = false;
     });
   }
 
@@ -316,7 +335,7 @@ class _NewAdPageState extends ConsumerState<NewAdPage> {
           SliverList(
             delegate: SliverChildListDelegate([
 
-              if(getPostFilterPro.isLoading) const SizedBox(
+              if(getPostFilterPro.isLoading || ref.watch(loadingPro)) const SizedBox(
                 height: 350,
                 child: Center(child: CircularProgressIndicator()),
               ) else ...[
@@ -402,26 +421,44 @@ class _NewAdPageState extends ConsumerState<NewAdPage> {
             final result = ref.watch(newData);
             final Map<String, dynamic> valData = result.map((key, value) {
               if (value is Map) {
-                return MapEntry(key, value['fieldvalue'] ?? (value['value'] ?? value['id']));
+                return MapEntry(key, value['fieldvalue'] ?? (value['value'] ?? value['id']) ?? value['image_name']);
               } else {
                 return MapEntry(key, value);
               }
             });
             // Alert message show for you.
-            final rest = await sendPost.createPosts(context, valData, ref);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Processing Data')),
             );
-            final returnMessage = ResponseMessagePost.fromJson(rest ?? {});
-            if(returnMessage.data?.id != null) {
-              Navigator.of(context).popUntil((route) => route.isFirst);
-              // final data = returnMessage.data;
-              // futureAwait(() {
-              //   routeAnimation(
-              //     context,
-              //     pageBuilder: DetailsPost(title: data?.title ?? 'N/A', data: GridCard(data: Data_.fromJson(data?.toJson() ?? {}))),
-              //   );
+            // for update product data //
+            if(widget.type != null && widget.type == 'edit') {
+              final editID = widget.datum;
+              final productID = editID?.id ?? '';
+
+              // valData.forEach((key, value) {
+              //   print('edit: ($key: $value)');
               // });
+
+              final rest = await sendPost.createPostsOrUpdate(context, valData, ref, productID: productID);
+              final returnMessage = ResponseMessagePost.fromJson(rest ?? {});
+              if(returnMessage.data?.id != null) {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+                // final data = returnMessage.data;
+                // futureAwait(() {
+                //   routeAnimation(
+                //     context,
+                //     pageBuilder: DetailsPost(title: data?.title ?? 'N/A', data: GridCard(data: Data_.fromJson(data?.toJson() ?? {}))),
+                //   );
+                // });
+              }
+
+              // for create product data //
+            } else {
+              final rest = await sendPost.createPostsOrUpdate(context, valData, ref);
+              final returnMessage = ResponseMessagePost.fromJson(rest ?? {});
+              if(returnMessage.data?.id != null) {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              }
             }
           }
         },
@@ -446,9 +483,12 @@ class PhotosPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final limit = ref.watch(limitPro);
     final resultSet = ref.watch(newData);
-    final Map<String, dynamic> img = resultSet.map((key, value) {
-      if(key.toString().contains('item_image[')) return MapEntry(key, value);
-      return MapEntry('', value);
+    final Map<String, dynamic> img = {};
+
+    resultSet.forEach((key, value) {
+      if (key.toString().contains('item_image[')) {
+        img[key] = value;
+      }
     });
 
     return Container(
@@ -467,7 +507,7 @@ class PhotosPage extends ConsumerWidget {
                   child: labels.label('Photos', fontSize: 17, fontWeight: FontWeight.w500, color: Colors.black87),
                 ),
                 Expanded(
-                  child: labels.label('${img.length - 1}/$limit', fontSize: 14, color: Colors.black54, textAlign: TextAlign.end),
+                  child: labels.label('${img.length}/$limit', fontSize: 14, color: Colors.black54, textAlign: TextAlign.end),
                 ),
               ],
             ),
@@ -493,7 +533,8 @@ class PhotosPage extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(4),
                             child: FadeInImage.assetNetwork(
                               placeholder: placeholder,
-                              image: '$baseUrl/tmp/s-${resultSet['item_image[0]']}',
+                              image: resultSet['item_image[0]'] is Map ? resultSet['item_image[0]']['image_url']
+                              : '$baseUrl/tmp/s-${resultSet['item_image[0]']}',
                               height: 140,
                               fit: BoxFit.cover,
                               width: double.maxFinite,
@@ -507,7 +548,8 @@ class PhotosPage extends ConsumerWidget {
                           child: PopupMenuButton(
                             padding: EdgeInsets.zero,
                             surfaceTintColor: Colors.white,
-                            onSelected: (item) {},
+                            onSelected: (item) { },
+                            popUpAnimationStyle: AnimationStyle.noAnimation,
                             icon: Container(
                               decoration: BoxDecoration(
                                   color: Colors.white,
@@ -519,9 +561,10 @@ class PhotosPage extends ConsumerWidget {
                             ),
                             itemBuilder: (BuildContext context) => <PopupMenuEntry>[
                               PopupMenuItem(
-                                height: 42,
+                                height: 25,
                                 value: 0,
-                                onTap: () => { },
+                                onTap: () { viewImage(context, '${resultSet['item_image[0]'] is Map ? resultSet['item_image[0]']['image_url']
+                                    : '$baseUrl/tmp/s-${resultSet['item_image[0]']}'}'); },
                                 child: ListTile(
                                   contentPadding: EdgeInsets.zero,
                                   dense: true,
@@ -531,7 +574,7 @@ class PhotosPage extends ConsumerWidget {
                                 ),
                               ),
                               PopupMenuItem(
-                                height: 42,
+                                height: 25,
                                 value: 1,
                                 onTap: () => deleteImagePicker1(ref, 0),
                                 child: ListTile(
@@ -548,7 +591,7 @@ class PhotosPage extends ConsumerWidget {
                       ],
                     ),
                   ) : InkWell(
-                    onTap: () => ((img.length - 1) > 0) ? imagePicker1(ref, 0) : imagePicker8(ref),
+                    onTap: () => (img.isNotEmpty) ? imagePicker1(ref, 0) : imagePicker8(ref),
                     child: Container(
                       height: 140,
                       alignment: Alignment.center,
@@ -565,7 +608,7 @@ class PhotosPage extends ConsumerWidget {
                   ),
                 ),
 
-                if((img.length - 1) > 0) ...[
+                if(img.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -594,7 +637,8 @@ class PhotosPage extends ConsumerWidget {
                                         borderRadius: BorderRadius.circular(4),
                                         child: FadeInImage.assetNetwork(
                                           placeholder: placeholder,
-                                          image: '$baseUrl/tmp/s-${resultSet['item_image[$i]']}',
+                                          image: resultSet['item_image[$i]'] is Map ? resultSet['item_image[$i]']['image_url']
+                                          : '$baseUrl/tmp/s-${resultSet['item_image[$i]']}',
                                           height: 85,
                                           fit: BoxFit.cover,
                                           width: double.maxFinite,
@@ -608,7 +652,8 @@ class PhotosPage extends ConsumerWidget {
                                       child: PopupMenuButton(
                                         padding: EdgeInsets.zero,
                                         surfaceTintColor: Colors.white,
-                                        onSelected: (item) {},
+                                        onSelected: (item) { },
+                                        popUpAnimationStyle: AnimationStyle.noAnimation,
                                         icon: Container(
                                           decoration: BoxDecoration(
                                               color: Colors.white,
@@ -622,7 +667,8 @@ class PhotosPage extends ConsumerWidget {
                                           PopupMenuItem(
                                             height: 42,
                                             value: 0,
-                                            onTap: () => { },
+                                            onTap: () { viewImage(context, resultSet['item_image[$i]'] is Map ? resultSet['item_image[$i]']['image_url']
+                                                : '$baseUrl/tmp/s-${resultSet['item_image[$i]']}'); },
                                             child: ListTile(
                                               contentPadding: EdgeInsets.zero,
                                               dense: true,
@@ -769,27 +815,27 @@ class AdsDetails extends ConsumerWidget {
                 ),
                 SizedBox(height: space),
 
-                for(final vale in (dataList.headlines ?? [] as List<PostDescription?>)) ...[
+                for(final vale in (dataList.headlines ?? [])) ...[
                   _fieldGenerator(vale!.toJson(), newData),
                   SizedBox(height: space),
                 ],
 
-                for(final vale in (dataList.fields ?? [] as List<PostDataField?>)) ...[
+                for(final vale in (dataList.fields ?? [])) ...[
                   _fieldGenerator(vale!.toJson(), newData),
                   SizedBox(height: space),
                 ],
 
-                for(final vale in (dataList.prices ?? [] as List<PostPrice?>)) ...[
+                for(final vale in (dataList.prices ?? [])) ...[
                   _fieldGenerator(vale!.toJson(), newData),
                   SizedBox(height: space),
                 ],
 
-                for(final vale in (dataList.descriptions ?? [] as List<PostDescription?>)) ...[
+                for(final vale in (dataList.descriptions ?? [])) ...[
                   _fieldGenerator(vale!.toJson(), newData),
                   SizedBox(height: space),
                 ],
 
-                for(final vale in (dataList.locations ?? [] as List<PostLocation?>)) ...[
+                for(final vale in (dataList.locations ?? [])) ...[
                   _fieldGenerator(vale!.toJson(), newData),
                   SizedBox(height: space),
                 ],
@@ -876,7 +922,7 @@ class AdsContacts extends ConsumerWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: space),
+                SizedBox(height: space / 2),
 
                 for(int i=1; i<3; i++) ...[
                   if(controllers[i].text != '') ...[ Row(
@@ -903,7 +949,7 @@ class AdsContacts extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: space),
+                    SizedBox(height: space / 2),
                   ],
                 ],
 
@@ -1021,7 +1067,7 @@ class DeliveriesPage extends ConsumerWidget {
             child: Column(
               children: [
 
-                for(final vale in (dataList.deliveries ?? [] as List<PostDelivery?>)) ...[
+                for(final vale in (dataList.deliveries ?? [])) ...[
                   _fieldGenerator(vale!.toJson(), newData),
                   SizedBox(height: space),
                 ],
@@ -1047,7 +1093,6 @@ class FieldText extends ConsumerStatefulWidget {
 
 class _FieldTextState extends ConsumerState<FieldText> {
   late TextEditingController controller;
-  final StateProvider<String> ratePro = StateProvider((ref) => 'percent');
   final StateProvider<bool> hiddenPro = StateProvider((ref) => false);
   String? Function(String?)? valid;
 
@@ -1074,15 +1119,15 @@ class _FieldTextState extends ConsumerState<FieldText> {
   Widget build(BuildContext context) {
     final datum = PostPrice.fromJson(widget.field);
     final subFix = datum.subfix;
-    final watch = ref.watch(ratePro);
-    final hidden = ref.watch(hiddenPro);
     final resultSet = ref.watch(widget.newData);
+    final watch = (resultSet[subFix?.fieldname] is Map) ? resultSet[subFix?.fieldname]['value'] : resultSet[subFix?.fieldname];
+    final hidden = ref.watch(hiddenPro);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final fieldValue = resultSet[datum.fieldname] ?? '';
       if (controller.text != fieldValue) {
         final previousSelection = controller.selection;
-        controller.text = fieldValue;
+        controller.text = fieldValue.toString();
         controller.selection = previousSelection;
       }
     });
@@ -1111,14 +1156,13 @@ class _FieldTextState extends ConsumerState<FieldText> {
                 child: CupertinoSlidingSegmentedControl<String>(
                   backgroundColor: Colors.white,
                   thumbColor: config.secondaryColor.shade50,
-                  groupValue: watch,
+                  groupValue: watch ?? 'percent',
                   padding: const EdgeInsets.all(4),
                   onValueChanged: (String? value) {
-                    ref.read(ratePro.notifier).update((state) => '$value');
                     updateNewData(ref, subFix.fieldname ?? '', '$value', widget.newData);
                   },
                   children: {
-                    for (final val in (subFix.options ?? [] as List<PostValueElement?>))
+                    for (final val in (subFix.options ?? []))
                       '${val?.value}': Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: labels.label(
@@ -1190,7 +1234,7 @@ class _FieldTextAreaState extends ConsumerState<FieldTextArea> {
       final fieldValue = resultSet[datum.fieldname] ?? '';
       if (controller.text != fieldValue) {
         final previousSelection = controller.selection;
-        controller.text = fieldValue;
+        controller.text = fieldValue.toString();
         controller.selection = previousSelection;
       }
     });
@@ -1223,6 +1267,7 @@ class FieldRadio extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final datum = PostDataField.fromJson(field);
     final resultSet = ref.watch(newData);
+    final values = (resultSet[datum.fieldname] is Map) ? resultSet[datum.fieldname]['fieldvalue'] : resultSet[datum.fieldname];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1233,7 +1278,7 @@ class FieldRadio extends ConsumerWidget {
           direction: Axis.horizontal,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            for(final val in (datum.options ?? [] as List<PostFluffyOption?>)) ...[
+            for(final val in (datum.options ?? [])) ...[
               Expanded(
                 child: buttons.textButtons(
                   title: val?.fieldtitle ?? 'N/A',
@@ -1242,8 +1287,8 @@ class FieldRadio extends ConsumerWidget {
                   },
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   textSize: 13,
-                  bgColor: (resultSet[datum.fieldname] == val?.fieldvalue) ? config.infoColor.shade50 : Colors.white,
-                  borderColor: (resultSet[datum.fieldname] == val?.fieldvalue) ? config.infoColor.shade300 : config.secondaryColor.shade100,
+                  bgColor: (values == val?.fieldvalue) ? config.infoColor.shade50 : Colors.white,
+                  borderColor: (values == val?.fieldvalue) ? config.infoColor.shade300 : config.secondaryColor.shade100,
                 ),
               ),
               const SizedBox(width: 12),
@@ -1274,7 +1319,8 @@ class FieldSwitch extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final datum = PostDataField.fromJson(field);
     final resultSet = ref.watch(newData);
-    final watch = (resultSet[datum.fieldname] != null) ? resultSet[datum.fieldname] == 'true' : ref.watch(switchPro);
+    final values = (resultSet[datum.fieldname] is Map) ? resultSet[datum.fieldname]['value'] : resultSet[datum.fieldname];
+    final watch = (resultSet[datum.fieldname] != null) ? (values == 'true') : ref.watch(switchPro);
 
     return Container(
       decoration: BoxDecoration(
@@ -1363,7 +1409,7 @@ class _FieldSelectState extends ConsumerState<FieldSelect> {
         final result = wRadioField.value ?? [];
         late List resultSetList = [];
 
-        for (final val in wRadioField.fields ?? ([] as List<RadioSelect>)) {
+        for (final val in wRadioField.fields ?? []) {
           if (ref.watch(widget.newData)[val.fieldname] != null) {
             if (ref.watch(widget.newData)[val.fieldname] is Map) {
               resultSetList.add('${ref.watch(widget.newData)[val.fieldname]['en_name']}');
@@ -1374,11 +1420,11 @@ class _FieldSelectState extends ConsumerState<FieldSelect> {
         final setList = resultSetList.join(', ');
         final fieldValue = setList.isNotEmpty ? setList : result.join(', ');
 
-        if (controller.text != fieldValue) { controller.text = fieldValue; }
+        if (controller.text != fieldValue) { controller.text = fieldValue.toString(); }
       } else if (ref.watch(widget.newData)[wRadioField.fieldname] != null) {
         final fieldValue = ref.watch(widget.newData)[wRadioField.fieldname]['fieldtitle'] ?? '';
         if (controller.text != fieldValue) {
-          controller.text = fieldValue;
+          controller.text = fieldValue.toString();
         }
       } else {
         controller.text = '';
@@ -1445,7 +1491,7 @@ class GroupField extends ConsumerWidget {
         if(datum.slug == 'locations') ...[
           FieldSelect(field, newData: newData),
           const SizedBox(height: 12),
-        ] else for(final data in (datum.fields ?? [] as List<PostFieldField?>)) ...[
+        ] else for(final data in (datum.fields ?? [])) ...[
           _fieldGenerator(data!.toJson(), newData),
           const SizedBox(height: 12),
         ]

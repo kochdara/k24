@@ -81,7 +81,7 @@ class ChatPage extends _$ChatPage {
         await checkTokens(context);
         await fetchData(); // Retry the request after refreshing the token
       } else {
-        throw Exception('Dio error: ${e.response}');
+        print('Dio error: ${e.response}');
       }
     } catch (e, stacktrace) {
       print('Error: $e');

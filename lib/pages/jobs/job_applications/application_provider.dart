@@ -30,7 +30,7 @@ class MarkApiService {
       if (response?.statusCode == 401) {
         // Token might have expired, try to refresh the token
         await checkTokens(ref);
-        await submitMarkRead(data, ids, ref); // Retry the request after refreshing the token
+        return await submitMarkRead(data, ids, ref); // Retry the request after refreshing the token
       }
       print('Dio error: ${e.response}');
     } catch (e, stacktrace) {

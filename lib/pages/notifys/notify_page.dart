@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
+import 'package:k24/pages/chats/chat_page.dart';
 import 'package:k24/pages/notifys/notify_provider.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/labels.dart';
@@ -11,6 +12,7 @@ import 'package:k24/widgets/my_widgets.dart';
 
 import '../../helpers/helper.dart';
 import '../../serialization/notify/nortify_serial.dart';
+import '../../widgets/dialog_builder.dart';
 import '../details/details_post.dart';
 import '../jobs/job_applications/details_applications.dart';
 
@@ -77,7 +79,10 @@ class _NotifyPageState extends ConsumerState<NotifyPage> {
         titleSpacing: 6,
         actions: [
           IconButton(
-            onPressed: () =>  { },
+            onPressed: () => showActionSheet(context, [
+              MoreTypeInfo('mark_all_as_read', 'Mark all as read', null, () { }),
+              MoreTypeInfo('delete_all_notifications', 'Delete all notifications', null, () { }),
+            ]),
             padding: const EdgeInsets.all(14),
             icon: const Icon(Icons.more_vert_rounded),
           ),

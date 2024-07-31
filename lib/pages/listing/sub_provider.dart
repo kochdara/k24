@@ -105,7 +105,7 @@ class SubLists extends _$SubLists {
       } else {
         print('Dio error: ${e.response}');
       }
-      throw Exception('Dio error: ${e.response}');
+      print('Dio error: ${e.response}');
     } catch (e, stacktrace) {
       print('Error: $e');
       print(stacktrace);

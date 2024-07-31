@@ -42,7 +42,7 @@ class ProfilePublic extends _$ProfilePublic {
       if (response?.statusCode == 401) {
         // Token might have expired, try to refresh the token
         await checkTokens(context);
-        await build(context, usernames); // Retry the request after refreshing the token
+        return await build(context, usernames); // Retry the request after refreshing the token
       }
       print('Dio error: ${e.message}');
     } catch (e, stacktrace) {
@@ -126,7 +126,7 @@ class ProfileList extends _$ProfileList {
         await checkTokens(context);
         await fetchHome(); // Retry the request after refreshing the token
       }
-      throw Exception('Dio error: ${e.message}');
+      print('Dio error: ${e.message}');
     } catch (e, stacktrace) {
       print('Error: $e');
       print('Stacktrace: $stacktrace');
