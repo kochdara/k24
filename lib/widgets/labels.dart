@@ -27,6 +27,7 @@ class Labels {
         fontStyle: fontStyle,
         decoration: decoration,
         decorationStyle: decorationStyle,
+        fontFamily: 'en'
       ),
       textAlign: textAlign,
       overflow: overflow,
@@ -55,6 +56,7 @@ class Labels {
         fontStyle: fontStyle,
         decoration: decoration,
         decorationStyle: decorationStyle,
+        fontFamily: 'en'
       ),
       textAlign: textAlign,
       maxLines: maxLines,

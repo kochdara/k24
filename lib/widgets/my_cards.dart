@@ -6,14 +6,16 @@ import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/storage.dart';
+import 'package:k24/pages/accounts/check_login.dart';
+import 'package:k24/pages/posts/post_page.dart';
 import 'package:k24/serialization/category/main_category.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/labels.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,8 +23,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../helpers/config.dart';
 import '../helpers/helper.dart';
 import '../pages/accounts/likes/my_like_provider.dart';
+import '../pages/accounts/profile_public/another_profile.dart';
 import '../pages/details/details_post.dart';
 import '../pages/listing/sub_category.dart';
+import '../pages/more_provider.dart';
 
 final Labels labels = Labels();
 final Buttons buttons = Buttons();
@@ -63,7 +67,7 @@ class MyCards {
     );
   }
 
-  Widget postAdsCard(double? width, { double height = 240 }) {
+  Widget postAdsCard(BuildContext context, double? width, { double height = 240 }) {
     return Container(
       width: (width != null) ? responsive(width) : null,
       height: height,
@@ -89,7 +93,14 @@ class MyCards {
             width: double.infinity,
             child: buttons.button(
                 'Start Selling',
-                onPressed: () { },
+                onPressed: () async {
+                  final user = await getSecure('user', type: Map);
+                  if(user != null) {
+                    routeAnimation(context, pageBuilder: const PostProductPage());
+                  } else {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckLoginPage()));
+                  }
+                },
                 buttonSize: ButtonSizes.small,
                 buttonType: ButtonTypes.subtle,
                 backgroundColor: Colors.white,
@@ -393,7 +404,7 @@ class MyCards {
     );
   }
 
-  Widget cardHome(List<GridCard> data, {
+  Widget cardHome(BuildContext context, List<GridCard> data, {
     bool fetching = false,
     bool notRelates = true,
     ViewPage viewPage = ViewPage.grid
@@ -411,9 +422,9 @@ class MyCards {
               children: [
                 // post ads //
                 if(data.isNotEmpty && notRelates) ...[
-                  if(viewPage == ViewPage.grid) postAdsCard(width)
-                  else if(viewPage == ViewPage.list) postAdsCard(null, height: 200)
-                  else if(viewPage == ViewPage.view) postAdsCard(null, height: 200),
+                  if(viewPage == ViewPage.grid) postAdsCard(context, width)
+                  else if(viewPage == ViewPage.list) postAdsCard(context, null, height: 200)
+                  else if(viewPage == ViewPage.view) postAdsCard(context, null, height: 200),
                 ],
 
                 // items //
@@ -575,14 +586,14 @@ class MyCards {
                     top: 6,
                     right: 6,
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () => moreDetailsPro(context, v),
                       child: Container(
                         padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
                             color: Colors.black.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(16)
                         ),
-                        child: const Icon(Icons.more_vert_rounded, size: 15,  color: Colors.white),
+                        child: const Icon(Icons.more_vert_rounded, size: 18,  color: Colors.white),
                       ),
                     ),
                   ),
@@ -784,14 +795,14 @@ class MyCards {
                     top: 6,
                     right: 6,
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () => moreDetailsPro(context, v),
                       child: Container(
                         padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
                             color: Colors.black.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(16)
                         ),
-                        child: const Icon(Icons.more_vert_rounded, size: 15,  color: Colors.white),
+                        child: const Icon(Icons.more_vert_rounded, size: 18,  color: Colors.white),
                       ),
                     ),
                   ),
@@ -1066,7 +1077,7 @@ class MyCards {
                           buttons.invButton(
                             prefixIcons: MyWidgetLikes(data: data),
                             text: 'Like',
-                            onTap: () { },
+                            // onTap: () { },
                             color: (data?.is_like == true) ? config.primaryAppColor.shade600 : null
                           ),
                           const SizedBox(width: 14),
@@ -1099,7 +1110,30 @@ class MyCards {
 
 }
 
-final likeProvider = StateProvider.family<bool, String?>((ref, id) => false);
+Future<void> moreDetailsPro(BuildContext context, GridCard data) async {
+  final datum = data.data;
+  final userType = datum?.user?.user_type == '2';
+  return await showBarModalBottomSheet(context: context,
+    builder: (context) => MoreOptionsPage(
+      listData: [
+        MoreTypeInfo('view', userType ? 'Visit Store' : 'View Profile', userType ? Icons.business : Icons.perm_identity, Icons.person, () {
+          routeAnimation(context, pageBuilder: AnotherProfilePage(userData: datum?.user));
+        }),
+        MoreTypeInfo('share', 'Share', CupertinoIcons.arrowshape_turn_up_right, CupertinoIcons.arrowshape_turn_up_right_fill, () { }),
+        MoreTypeInfo('save', 'Save', Icons.bookmark_border, Icons.bookmark, () { }),
+        MoreTypeInfo('report', 'Report', Icons.report_gmailerrorred, Icons.report_rounded, () { }),
+      ],
+    ),
+  );
+}
+
+final likeProvider = StateNotifierProvider.family<LikeNotifier, bool, String?>((ref, id) => LikeNotifier());
+
+class LikeNotifier extends StateNotifier<bool> {
+  LikeNotifier() : super(false);
+
+  void toggleLike() => state = !state;
+}
 
 class MyWidgetLikes extends ConsumerWidget {
   final Data_? data;
@@ -1110,32 +1144,37 @@ class MyWidgetLikes extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final config = Config();
     final isLiked = data?.is_like ?? false;
+    final likeState = ref.watch(likeProvider(data?.id));
     final likeNotifier = ref.read(likeProvider(data?.id).notifier);
-    final likerNotifier = ref.watch(likeProvider(data?.id));
 
-    return InkWell(
-      onTap: () async {
-        final getTokens = await getSecure('user', type: Map);
-        if (getTokens != null) {
-          final submit = MyAccountApiService();
-          if (likerNotifier || isLiked) {
-            data?.is_like = false;
-            likeNotifier.state = false;
-            final result = await submit.submitRemove(context: context, id: '${data?.id}', ref: ref);
-            print(result.toJson());
+    return Container(
+      color: Colors.white,
+      child: InkWell(
+        onTap: () async {
+          final getTokens = await getSecure('user', type: Map);
+          if (getTokens != null) {
+            final submit = MyAccountApiService();
+            if (likeState || isLiked) {
+              data?.is_like = false;
+              likeNotifier.toggleLike();
+              final result = await submit.submitRemove(id: '${data?.id}', ref: ref);
+              print(result.toJson());
+            } else {
+              data?.is_like = true;
+              likeNotifier.toggleLike();
+              final dataSend = {'id': '${data?.id}', 'type': 'post'};
+              final result = await submit.submitAdd(dataSend, ref: ref);
+              print(result.toJson());
+            }
           } else {
-            data?.is_like = true;
-            likeNotifier.state = true;
-            final dataSend = {'id': '${data?.id}', 'type': 'post'};
-            final result = await submit.submitAdd(dataSend, context: context, ref: ref);
-            print(result.toJson());
+            routeAnimation(context, pageBuilder: const CheckLoginPage());
           }
-        }
-      },
-      child: Icon(
-        (likerNotifier || isLiked) ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
-        color: (likerNotifier || isLiked) ? config.primaryAppColor.shade600 : config.secondaryColor.shade200,
-        size: 24,
+        },
+        child: Icon(
+          (likeState || isLiked) ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+          color: (likeState || isLiked) ? config.primaryAppColor.shade600 : config.secondaryColor.shade200,
+          size: 24,
+        ),
       ),
     );
   }
@@ -1159,7 +1198,7 @@ class FreeDeliveryPage extends StatelessWidget {
         children: [
           const Icon(Icons.delivery_dining_sharp, size: 14, color: Colors.white),
           const SizedBox(width: 6),
-          labels.label(title, fontWeight: FontWeight.normal, maxLines: 1, fontSize: 10),
+          labels.label(title, fontWeight: FontWeight.normal, maxLines: 1, fontSize: 11),
         ],
       ),
     );
@@ -1186,6 +1225,45 @@ class DiscountPage extends StatelessWidget {
           labels.label(discount, fontSize: 12, lineHeight2: 1.10),
           labels.label('OFF', fontSize: 9),
         ],
+      ),
+    );
+  }
+}
+
+class MoreOptionsPage extends StatelessWidget {
+  const MoreOptionsPage({super.key,
+    required this.listData,
+  });
+
+  final List<MoreTypeInfo> listData;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListView.builder(
+              itemCount: listData.length,
+              shrinkWrap: true,
+              controller: ModalScrollController.of(context),
+              itemBuilder: (context, index) {
+
+                return ListTile(
+                  leading: Icon(listData[index].icon, color: Colors.black54, size: 26,),
+                  title: labels.label(listData[index].description, color: Colors.black54, fontSize: 16, overflow: TextOverflow.ellipsis),
+                  shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50, width: 1)),
+                  onTap: () async {
+                    Navigator.pop(context, 'success');
+                    listData[index].onTap!();
+                  },
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

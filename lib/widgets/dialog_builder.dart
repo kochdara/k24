@@ -3,11 +3,11 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:photo_view/photo_view.dart';
 
 import '../helpers/storage.dart';
 import '../pages/chats/chat_page.dart';
+import '../pages/more_provider.dart';
 
 /// loading dialog ///
 Future<void> dialogBuilder(BuildContext context) {
@@ -118,8 +118,16 @@ Future<void> viewImage(BuildContext context, String image) {
                       onPressed: () async {
                         final imageUrl = image;
                         try {
-                          final file = await downloadAndSaveImage(imageUrl);
-                          print(file.path);
+                          dialogBuilder(context);
+                          await downloadAndSaveImage(imageUrl);
+                          // print(file.path);
+                          // close //
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Image\'s downloaded successfully.', maxLines: 1, overflow: TextOverflow.ellipsis,),
+                            ),
+                          );
                         } catch (e) {
                           // Handle error
                           print('Error: $e');

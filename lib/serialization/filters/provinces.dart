@@ -5,7 +5,7 @@ import 'package:k24/serialization/helper.dart';
 import '../try_convert.dart';
 part 'provinces.g.dart';
 
-@JsonSerializable(anyMap: true, converters: [ToString(), ToBool()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString(), ToBool()])
 class Province {
   String? id;
   String? type;

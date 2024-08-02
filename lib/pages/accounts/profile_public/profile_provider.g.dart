@@ -6,7 +6,7 @@ part of 'profile_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$profilePublicHash() => r'96f602d067ad9d212990496fa15bf0c06d2fd14d';
+String _$profilePublicHash() => r'adfc8a49666199d62645b4b6bae8aa80c1fecd40';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -194,7 +194,7 @@ class _ProfilePublicProviderElement
   String? get username => (origin as ProfilePublicProvider).username;
 }
 
-String _$profileListHash() => r'5bd10b71303de9225f04138bceec9c3868612c8e';
+String _$profileListHash() => r'3ee0fb646641ace59ffc75b67aa0c9dbc504c932';
 
 abstract class _$ProfileList
     extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {

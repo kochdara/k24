@@ -136,6 +136,7 @@ class ContactUser {
   CommuneUser? commune;
   CommuneUser? district;
   String? address;
+  String? email;
   List<String?>? phone;
 
   ContactUser({
@@ -144,6 +145,7 @@ class ContactUser {
     this.commune,
     this.district,
     this.address,
+    this.email,
     this.phone,
   });
 
@@ -155,14 +157,14 @@ class ContactUser {
 @JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
 class CommuneUser {
   String? id;
-  String? kmName;
-  String? enName;
+  String? km_name;
+  String? en_name;
   String? slug;
 
   CommuneUser({
     this.id,
-    this.kmName,
-    this.enName,
+    this.km_name,
+    this.en_name,
     this.slug,
   });
 

@@ -6,7 +6,7 @@ part of 'profile_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$ownProfileListHash() => r'2c453bb2f321677404fcd38d66e29fca4c4f6f42';
+String _$ownProfileListHash() => r'b0c4be8daba3b7626726947bbb13781083e3cc61';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -172,7 +172,7 @@ class _OwnProfileListProviderElement
   WidgetRef get context => (origin as OwnProfileListProvider).context;
 }
 
-String _$getTotalPostHash() => r'99d7f7e23f7bf38c2703987743d6763eb1a2d415';
+String _$getTotalPostHash() => r'10ca8e7c64a1e772fb7b005cdce79bcee520645e';
 
 abstract class _$GetTotalPost
     extends BuildlessAutoDisposeAsyncNotifier<OwnDataTotalPost?> {

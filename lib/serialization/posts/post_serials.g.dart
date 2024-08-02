@@ -553,6 +553,10 @@ MessageResData _$MessageResDataFromJson(Map json) => MessageResData(
       actions: (json['actions'] as List<dynamic>?)
           ?.map(const ToString().fromJson)
           .toList(),
+      discount: json['discount'] == null
+          ? null
+          : GridDiscount.fromJson(
+              Map<String, dynamic>.from(json['discount'] as Map)),
     );
 
 Map<String, dynamic> _$MessageResDataToJson(MessageResData instance) =>
@@ -568,6 +572,7 @@ Map<String, dynamic> _$MessageResDataToJson(MessageResData instance) =>
       'short_link': const ToString().toJson(instance.short_link),
       'storeid': instance.storeid,
       'actions': instance.actions?.map(const ToString().toJson).toList(),
+      'discount': instance.discount?.toJson(),
     };
 
 MessageResPhoto _$MessageResPhotoFromJson(Map json) => MessageResPhoto(

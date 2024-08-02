@@ -214,7 +214,7 @@ class _GetBannerAdsProviderElement
   String? get page => (origin as GetBannerAdsProvider).page;
 }
 
-String _$getBadgesHash() => r'f64f08ebe5e6d634ab5ba9ad95c55c9658b96ebf';
+String _$getBadgesHash() => r'b1fb84616c130da1c9c5a283b2635ce32a77fc7b';
 
 abstract class _$GetBadges
     extends BuildlessAutoDisposeAsyncNotifier<NotifyBadges?> {

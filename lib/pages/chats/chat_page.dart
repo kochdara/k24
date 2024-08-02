@@ -15,6 +15,8 @@ import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
 
+import '../more_provider.dart';
+
 final Labels labels = Labels();
 final Config config = Config();
 final MyWidgets myWidgets = MyWidgets();
@@ -22,11 +24,11 @@ final MyCards myCards = MyCards();
 enum MoreType { all, buy, sell, unread, block_user }
 
 final Map<MoreType, MoreTypeInfo> moreTypeInfo = {
-  MoreType.all: MoreTypeInfo('all', 'All', CupertinoIcons.chat_bubble_2, () { }),
-  MoreType.buy: MoreTypeInfo('buy', 'Buy', CupertinoIcons.shopping_cart, () { }),
-  MoreType.sell: MoreTypeInfo('sell', 'Sell', CupertinoIcons.money_dollar_circle, () { }),
-  MoreType.unread: MoreTypeInfo('unread', 'Unread', CupertinoIcons.eye_slash, () { }),
-  MoreType.block_user: MoreTypeInfo('block_user', 'Block User', Icons.block, () { }),
+  MoreType.all: MoreTypeInfo('all', 'All', CupertinoIcons.chat_bubble_2, null, () { }),
+  MoreType.buy: MoreTypeInfo('buy', 'Buy', CupertinoIcons.shopping_cart, null, () { }),
+  MoreType.sell: MoreTypeInfo('sell', 'Sell', CupertinoIcons.money_dollar_circle, null, () { }),
+  MoreType.unread: MoreTypeInfo('unread', 'Unread', CupertinoIcons.eye_slash, null, () { }),
+  MoreType.block_user: MoreTypeInfo('block_user', 'Block User', Icons.block, null, () { }),
 };
 StateProvider<MoreType> moreTypeProvider = StateProvider<MoreType>((ref) => MoreType.all);
 
@@ -248,13 +250,4 @@ class MoreButtonUI extends StatelessWidget {
       ),
     );
   }
-}
-
-class MoreTypeInfo {
-  final String name;
-  final String description;
-  final IconData? icon;
-  final void Function()? onTap;
-
-  MoreTypeInfo(this.name, this.description, this.icon, this.onTap);
 }

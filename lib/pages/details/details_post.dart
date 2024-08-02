@@ -13,6 +13,7 @@ import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/serialization/chats/chat_serial.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/buttons.dart';
+import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/forms.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
@@ -159,7 +160,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                 left: 0,
                 width: width,
                 child: AnimatedOpacity(
-                  opacity: ref.watch(heightScrollProvider) >= (heightImg - 79) ? 1 : 0,
+                  opacity: ref.watch(heightScrollProvider) >= (heightImg - 100) ? 1 : 0,
                   duration: const Duration(milliseconds: 100),
                   child: appBar(),
                 ),
@@ -170,7 +171,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                 left: 0,
                 width: width,
                 child: AnimatedOpacity(
-                  opacity: ref.watch(heightScrollProvider) >= (heightImg - 79) ? 0 : 1,
+                  opacity: ref.watch(heightScrollProvider) >= (heightImg - 100) ? 0 : 1,
                   duration: const Duration(milliseconds: 100),
                   child: appBar(transparent: true),
                 ),
@@ -427,7 +428,7 @@ class BodyWidget extends ConsumerWidget {
                                 if(datum?.specs != null && datum?.specs is List)
                                   for(final v in datum?.specs as List<Spec_?>) ...[
                                     label.labelRich(
-                                      '${v?.value}', title2: '${v?.field}: ',
+                                      '${v?.value}', title2: '${v?.title}: ',
                                       fontSize: 15,
                                       color: (v!.field.toString().contains('category')) ? config.primaryAppColor.shade400 : Colors.black,
                                       color2: Colors.black,
@@ -440,7 +441,7 @@ class BodyWidget extends ConsumerWidget {
                             SizedBox(height: space * 1.5),
 
                             // more description //
-                            if(datum?.description != null) label.label('${datum?.description}', fontSize: 15, color: Colors.black),
+                            if(datum?.description != null) label.selectLabel('${datum?.description}', fontSize: 15, color: Colors.black),
 
                             SizedBox(height: space * 1.5),
 
@@ -468,7 +469,7 @@ class BodyWidget extends ConsumerWidget {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Padding(padding: const EdgeInsets.only(right: 8, top: 2),child: Icon(CupertinoIcons.location_solid, size: 18, color: config.secondaryColor.shade500)),
+                                  Padding(padding: const EdgeInsets.only(right: 8, top: 3),child: Icon(CupertinoIcons.location_solid, size: 18, color: config.secondaryColor.shade500)),
 
                                   Expanded(child: label.labelRich(ref.watch(location2) ?? '',
                                     title2: 'Location: ',
@@ -714,11 +715,9 @@ class BodyWidget extends ConsumerWidget {
                                     child: SizedBox(
                                       height: 40,
                                       child: forms.formField(hintText: 'Be the first to comment', radius: 20, readOnly: true,
+                                        enabled: false,
                                         fillColor: config.secondaryColor.shade50.withOpacity(0.5),
-                                        suffixIcon: InkWell(
-                                          onTap: () { },
-                                          child: Icon(Icons.send, size: 20, color: config.secondaryColor.shade300),
-                                        ),
+                                        suffixIcon: Icon(Icons.send, size: 20, color: config.secondaryColor.shade300),
                                       ),
                                     ),
                                   ),
@@ -735,7 +734,7 @@ class BodyWidget extends ConsumerWidget {
                       watchRelates.when(
                         error: (e, st) => myCards.notFound(context, id: '${dataDetails.data?.id}', message: '$e', onPressed: onPressed),
                         loading: () => myCards.shimmerHome(),
-                        data: (data) => myCards.cardHome(data, fetching: false, notRelates: false),
+                        data: (data) => myCards.cardHome(context, data, fetching: false, notRelates: false),
                       ),
 
                       /// top ads ///
@@ -973,35 +972,7 @@ class _PreviewImageState extends ConsumerState<PreviewImage> {
                   color: Colors.grey.shade50,
                   child: PhotoHero(
                     photo: '$v',
-                    onTap: () {
-
-                      Navigator.of(context).push(MaterialPageRoute<void>(
-                          builder: (context) {
-                            return Scaffold(
-                              body: InkWell(
-                                onTap: () => Navigator.of(context).pop(),
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  color: Colors.black87,
-                                  child: PageView(
-                                    children: [
-                                      for(final t in widget.list) Container(
-                                        alignment: Alignment.center,
-                                        color: Colors.black87,
-                                        child: PhotoHero(
-                                          photo: '$t',
-                                          onTap: () => Navigator.of(context).pop(),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-                      ));
-
-                    },
+                    onTap: () => viewImage(context, v),
                   ),
                 ),
 

@@ -106,6 +106,8 @@ class IconSerial {
   SizeOfImage? small;
   SizeOfImage? medium;
   SizeOfImage? large;
+  String? align;
+  dynamic offset;
 
   IconSerial({
     this.url,
@@ -115,6 +117,8 @@ class IconSerial {
     this.file,
     this.medium,
     this.large,
+    this.align,
+    this.offset,
   });
 
   factory IconSerial.fromJson(Map<String, dynamic> json) => _$IconSerialFromJson(json);

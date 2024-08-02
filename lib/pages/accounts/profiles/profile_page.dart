@@ -8,8 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/helper.dart';
+import 'package:k24/pages/accounts/edit_profile/edit_page.dart';
 import 'package:k24/pages/accounts/profiles/profile_provider.dart';
-import 'package:k24/pages/chats/chat_page.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/pages/posts/post_provider.dart';
 import 'package:k24/pages/settings/settings_page.dart';
@@ -24,6 +24,7 @@ import 'package:k24/widgets/my_widgets.dart';
 
 import '../../../serialization/accounts/profiles_public/profile_serial.dart';
 import '../../details/details_post.dart';
+import '../../more_provider.dart';
 import '../../posts/post_page.dart';
 import '../profile_public/profile_provider.dart';
 
@@ -211,7 +212,9 @@ class BodyProfile extends StatelessWidget {
                                     height: 36.0,
                                     child: buttons.textButtons(
                                       title: 'Edit Profile',
-                                      onPressed: () { },
+                                      onPressed: () {
+                                        routeAnimation(context, pageBuilder: const EditProfilePage());
+                                      },
                                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
                                       textColor: Colors.black87,
                                       bgColor: Colors.transparent,
@@ -485,10 +488,10 @@ class SegmentedControlExample extends ConsumerWidget {
 
                               IconButton(
                                 onPressed: () => showActionSheet(context, [
-                                  MoreTypeInfo('edit', 'Edit', null, () { handleEdit(context, ref, datum); }),
-                                  MoreTypeInfo('view_insights', 'View Insights', null, () { print('object'); }),
-                                  MoreTypeInfo('auto_renew', 'Auto Renew', null, () { }),
-                                  MoreTypeInfo('share', 'Share', null, () { }),
+                                  MoreTypeInfo('edit', 'Edit', null, null, () { handleEdit(context, ref, datum); }),
+                                  MoreTypeInfo('view_insights', 'View Insights', null, null, () { print('object'); }),
+                                  MoreTypeInfo('auto_renew', 'Auto Renew', null, null, () { }),
+                                  MoreTypeInfo('share', 'Share', null, null, () { }),
                                 ]),
                                 padding: const EdgeInsets.all(12.0),
                                 icon: const Icon(Icons.more_vert_rounded, color: Colors.black87,),

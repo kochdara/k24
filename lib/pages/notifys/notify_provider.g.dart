@@ -6,7 +6,7 @@ part of 'notify_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$notifyListHash() => r'af8b1d212d4d092561c800a9dfc5bf0335b073d4';
+String _$notifyListHash() => r'33a0127b26c4e9b438c4b2e052f5760b8078cdcd';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -172,7 +172,7 @@ class _NotifyListProviderElement
 }
 
 String _$notifyGetDetailsResumeHash() =>
-    r'109ed9c8e5b987e652f4214ad258ff962f92a0aa';
+    r'1929f87d58e5ab9e7de13e9f1615f6eedbbd0a7f';
 
 abstract class _$NotifyGetDetailsResume
     extends BuildlessAutoDisposeAsyncNotifier<NotifyResumeData?> {

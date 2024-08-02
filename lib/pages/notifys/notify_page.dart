@@ -15,6 +15,7 @@ import '../../serialization/notify/nortify_serial.dart';
 import '../../widgets/dialog_builder.dart';
 import '../details/details_post.dart';
 import '../jobs/job_applications/details_applications.dart';
+import '../more_provider.dart';
 
 final myWidgets = MyWidgets();
 final labels = Labels();
@@ -80,8 +81,8 @@ class _NotifyPageState extends ConsumerState<NotifyPage> {
         actions: [
           IconButton(
             onPressed: () => showActionSheet(context, [
-              MoreTypeInfo('mark_all_as_read', 'Mark all as read', null, () { }),
-              MoreTypeInfo('delete_all_notifications', 'Delete all notifications', null, () { }),
+              MoreTypeInfo('mark_all_as_read', 'Mark all as read', null, null, () { }),
+              MoreTypeInfo('delete_all_notifications', 'Delete all notifications', null, null, () { }),
             ]),
             padding: const EdgeInsets.all(14),
             icon: const Icon(Icons.more_vert_rounded),

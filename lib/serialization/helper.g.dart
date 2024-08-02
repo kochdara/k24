@@ -112,6 +112,8 @@ IconSerial _$IconSerialFromJson(Map json) => IconSerial(
           ? null
           : SizeOfImage.fromJson(
               Map<String, dynamic>.from(json['large'] as Map)),
+      align: const ToString().fromJson(json['align']),
+      offset: json['offset'],
     );
 
 Map<String, dynamic> _$IconSerialToJson(IconSerial instance) =>
@@ -123,6 +125,8 @@ Map<String, dynamic> _$IconSerialToJson(IconSerial instance) =>
       'small': instance.small?.toJson(),
       'medium': instance.medium?.toJson(),
       'large': instance.large?.toJson(),
+      'align': const ToString().toJson(instance.align),
+      'offset': instance.offset,
     };
 
 MapClass _$MapClassFromJson(Map json) => MapClass(

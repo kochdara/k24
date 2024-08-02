@@ -167,6 +167,7 @@ ContactUser _$ContactUserFromJson(Map json) => ContactUser(
           : CommuneUser.fromJson(
               Map<String, dynamic>.from(json['district'] as Map)),
       address: json['address'] as String?,
+      email: json['email'] as String?,
       phone:
           (json['phone'] as List<dynamic>?)?.map((e) => e as String?).toList(),
     );
@@ -178,21 +179,22 @@ Map<String, dynamic> _$ContactUserToJson(ContactUser instance) =>
       'commune': instance.commune?.toJson(),
       'district': instance.district?.toJson(),
       'address': instance.address,
+      'email': instance.email,
       'phone': instance.phone,
     };
 
 CommuneUser _$CommuneUserFromJson(Map json) => CommuneUser(
       id: const ToString().fromJson(json['id']),
-      kmName: const ToString().fromJson(json['kmName']),
-      enName: const ToString().fromJson(json['enName']),
+      km_name: const ToString().fromJson(json['km_name']),
+      en_name: const ToString().fromJson(json['en_name']),
       slug: const ToString().fromJson(json['slug']),
     );
 
 Map<String, dynamic> _$CommuneUserToJson(CommuneUser instance) =>
     <String, dynamic>{
       'id': const ToString().toJson(instance.id),
-      'kmName': const ToString().toJson(instance.kmName),
-      'enName': const ToString().toJson(instance.enName),
+      'km_name': const ToString().toJson(instance.km_name),
+      'en_name': const ToString().toJson(instance.en_name),
       'slug': const ToString().toJson(instance.slug),
     };
 

@@ -328,6 +328,7 @@ class BodyProfile extends StatelessWidget {
                                   error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () {}),
                                   loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPageProvider)),
                                   data: (data) => myCards.cardHome(
+                                    context,
                                     data,
                                     fetching: false,
                                     viewPage: ref.watch(viewPageProvider),

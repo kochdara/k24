@@ -1,5 +1,6 @@
 
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/serialization/banners/banner_serial.dart';
@@ -123,4 +124,12 @@ class GetBadges extends _$GetBadges {
   }
 }
 
+class MoreTypeInfo {
+  final String name;
+  final String description;
+  final IconData? icon;
+  final IconData? iconSave;
+  final void Function()? onTap;
 
+  MoreTypeInfo(this.name, this.description, this.icon, this.iconSave, this.onTap);
+}

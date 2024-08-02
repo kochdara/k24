@@ -31,8 +31,8 @@ Map<String, dynamic> _$ProvinceToJson(Province instance) => <String, dynamic>{
       'orders': const ToString().toJson(instance.orders),
       'popular': _$JsonConverterToJson<Object?, bool>(
           instance.popular, const ToBool().toJson),
-      'icon': instance.icon,
-      'map': instance.map,
+      'icon': instance.icon?.toJson(),
+      'map': instance.map?.toJson(),
     };
 
 Json? _$JsonConverterToJson<Json, Value>(

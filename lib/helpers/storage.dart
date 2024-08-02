@@ -3,7 +3,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path/path.dart' as path;
@@ -59,11 +59,15 @@ deleteAll(String key) async {
 }
 
 Future<File> downloadAndSaveImage(String imageUrl) async {
+  await requestPermissions();
   try {
     // Create Dio instance
     Dio dio = Dio();
-    // Get the document directory
-    final directory = await getApplicationDocumentsDirectory();
+    // Get the external storage directory
+    final directory = Directory('/storage/emulated/0/DCIM/k24');
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
     // Generate timestamp
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     // Create the file path with timestamp as filename
@@ -73,5 +77,15 @@ Future<File> downloadAndSaveImage(String imageUrl) async {
     return File(filePath);
   } catch (e) {
     throw Exception('Failed to download image: $e');
+  }
+}
+
+Future<void> requestPermissions() async {
+  final status = await Permission.storage.status;
+  if (!status.isGranted) {
+    final result = await Permission.storage.request();
+    if (!result.isGranted) {
+      // throw Exception('Storage permission denied');
+    }
   }
 }
