@@ -18,6 +18,7 @@ import 'package:k24/widgets/my_widgets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../serialization/notify/nortify_serial.dart';
+import '../accounts/edit_profile/edit_page.dart';
 import '../accounts/profile_public/another_profile.dart';
 
 final Labels labels = Labels();
@@ -84,39 +85,39 @@ class BodyProfile extends ConsumerWidget {
 
   final WidgetRef ref;
 
-  final List accountSetting = [
-    { 'title': 'Edit Profile', 'value': 'edit_profile', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-    { 'title': 'Change Password', 'value': 'change_password', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-    { 'title': 'Username', 'value': 'username', 'subtitle': 'username', 'trailing': true, 'child': null, 'onTap': () { } },
-    { 'title': 'Activate Phone', 'value': 'activate_phone', 'subtitle': '00000', 'trailing': true, 'child': null, 'onTap': () { } },
-    { 'title': 'Facebook', 'value': 'facebook', 'subtitle': 'Add', 'trailing': true, 'child': null, 'onTap': () { } },
-    { 'title': 'Google', 'value': 'google', 'subtitle': 'Add', 'trailing': true, 'child': null, 'onTap': () { } },
-    { 'title': 'Auto Update Profile Picture', 'value': 'auto_update_profile_picture', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-    { 'title': 'Privacy', 'value': 'privacy', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-    { 'title': 'Delete account', 'value': 'delete_account', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-    { 'title': 'Membership Information', 'value': 'membership_information', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-    { 'title': 'Billing Address', 'value': 'billing_address', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-  ];
-
-  final List appSetting = [
-    { 'title': 'Language', 'value': 'language', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-    { 'title': 'Theme', 'value': 'theme', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-    { 'title': 'Information', 'value': 'information', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-  ];
-
-  final List support = [
-    { 'title': 'Our Website', 'value': 'our_website', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-    { 'title': 'Posting Rules', 'value': 'posting_rules', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-    { 'title': 'Privacy Policy', 'value': 'privacy_policy', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-    { 'title': 'Contact Us', 'value': 'contact_us', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-    { 'title': 'Rate Us', 'value': 'rate_us', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-    { 'title': 'Safety Tips', 'value': 'safety_tips', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-    { 'title': 'Feedback', 'value': 'feedback', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
-  ];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userPro = ref.watch(usersProvider);
+
+    final List accountSetting = [
+      { 'title': 'Edit Profile', 'value': 'edit_profile', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { routeAnimation(context, pageBuilder: const EditProfilePage()); } },
+      { 'title': 'Change Password', 'value': 'change_password', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+      { 'title': 'Username', 'value': 'username', 'subtitle': 'username', 'trailing': true, 'child': null, 'onTap': () { } },
+      { 'title': 'Activate Phone', 'value': 'activate_phone', 'subtitle': '00000', 'trailing': true, 'child': null, 'onTap': () { } },
+      { 'title': 'Facebook', 'value': 'facebook', 'subtitle': 'Add', 'trailing': true, 'child': null, 'onTap': () { } },
+      { 'title': 'Google', 'value': 'google', 'subtitle': 'Add', 'trailing': true, 'child': null, 'onTap': () { } },
+      { 'title': 'Auto Update Profile Picture', 'value': 'auto_update_profile_picture', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+      { 'title': 'Privacy', 'value': 'privacy', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+      { 'title': 'Delete account', 'value': 'delete_account', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+      { 'title': 'Membership Information', 'value': 'membership_information', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+      { 'title': 'Billing Address', 'value': 'billing_address', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+    ];
+
+    final List appSetting = [
+      { 'title': 'Language', 'value': 'language', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+      { 'title': 'Theme', 'value': 'theme', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+      { 'title': 'Information', 'value': 'information', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+    ];
+
+    final List support = [
+      { 'title': 'Our Website', 'value': 'our_website', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+      { 'title': 'Posting Rules', 'value': 'posting_rules', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+      { 'title': 'Privacy Policy', 'value': 'privacy_policy', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+      { 'title': 'Contact Us', 'value': 'contact_us', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+      { 'title': 'Rate Us', 'value': 'rate_us', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+      { 'title': 'Safety Tips', 'value': 'safety_tips', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+      { 'title': 'Feedback', 'value': 'feedback', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+    ];
 
     final phones = userPro.user?.contact?.phone ?? [];
     // Update the subtitle where value is 'username'

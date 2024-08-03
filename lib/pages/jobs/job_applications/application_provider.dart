@@ -8,7 +8,7 @@ import '../../main/home_provider.dart';
 
 
 
-class MarkApiService {
+class MarkApiServiceApp {
   final Dio dio = Dio();
 
   Future<dynamic> submitMarkRead(Map<String, dynamic> data, String ids, WidgetRef ref) async {

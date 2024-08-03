@@ -34,7 +34,7 @@ class ReviewResumePage extends ConsumerStatefulWidget {
 }
 
 class _ReviewResumePageState extends ConsumerState<ReviewResumePage> {
-  final apiService = Provider((ref) => MarkApiService());
+  final apiService = Provider((ref) => MarkApiServiceApp());
 
   @override
   void initState() {
@@ -43,14 +43,14 @@ class _ReviewResumePageState extends ConsumerState<ReviewResumePage> {
   }
 
   Future<void> setupPage() async {
-    final datum = widget.datum;
-    Map<String, dynamic> data = {"action": "mark_as_read",};
-    futureAwait(() async {
-      final send = ref.watch(apiService);
-      if(mounted && datum.is_open == false) {
-        await send.submitMarkRead(data, '${datum.notid}', ref);
-      }
-    });
+    // final datum = widget.datum;
+    // Map<String, dynamic> data = {"action": "mark_as_read",};
+    // futureAwait(() async {
+    //   final send = ref.watch(apiService);
+    //   if(mounted && datum.is_open == false) {
+    //     await send.submitMarkRead(data, '${datum.notid}', ref);
+    //   }
+    // });
   }
 
   @override

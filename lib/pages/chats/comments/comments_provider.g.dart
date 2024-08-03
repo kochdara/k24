@@ -6,7 +6,7 @@ part of 'comments_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$commentsPagesHash() => r'a4eb8276cfded49fd8a5b23a56feb67658bd7be0';
+String _$commentsPagesHash() => r'08bdc967c205ed03f847dd709c26f77ae1e78ddf';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -173,20 +173,18 @@ class _CommentsPagesProviderElement
 }
 
 String _$conversationCommentsHash() =>
-    r'98ae8d44e5a03e30f731f40a08f88d30c94fba41';
+    r'42a05c7f6b2d7fd65db9057c1be1ff5de3ac53b1';
 
 abstract class _$ConversationComments
     extends BuildlessAutoDisposeAsyncNotifier<List<CommentDatum>> {
+  late final WidgetRef context;
   late final String postID;
-  late final String? offset_comment_id;
   late final String? sort;
-  late final String? reply_id;
 
   FutureOr<List<CommentDatum>> build(
+    WidgetRef context,
     String postID,
-    String? offset_comment_id,
     String? sort,
-    String? reply_id,
   );
 }
 
@@ -202,16 +200,14 @@ class ConversationCommentsFamily
 
   /// See also [ConversationComments].
   ConversationCommentsProvider call(
+    WidgetRef context,
     String postID,
-    String? offset_comment_id,
     String? sort,
-    String? reply_id,
   ) {
     return ConversationCommentsProvider(
+      context,
       postID,
-      offset_comment_id,
       sort,
-      reply_id,
     );
   }
 
@@ -220,10 +216,9 @@ class ConversationCommentsFamily
     covariant ConversationCommentsProvider provider,
   ) {
     return call(
+      provider.context,
       provider.postID,
-      provider.offset_comment_id,
       provider.sort,
-      provider.reply_id,
     );
   }
 
@@ -247,16 +242,14 @@ class ConversationCommentsProvider extends AutoDisposeAsyncNotifierProviderImpl<
     ConversationComments, List<CommentDatum>> {
   /// See also [ConversationComments].
   ConversationCommentsProvider(
+    WidgetRef context,
     String postID,
-    String? offset_comment_id,
     String? sort,
-    String? reply_id,
   ) : this._internal(
           () => ConversationComments()
+            ..context = context
             ..postID = postID
-            ..offset_comment_id = offset_comment_id
-            ..sort = sort
-            ..reply_id = reply_id,
+            ..sort = sort,
           from: conversationCommentsProvider,
           name: r'conversationCommentsProvider',
           debugGetCreateSourceHash:
@@ -266,10 +259,9 @@ class ConversationCommentsProvider extends AutoDisposeAsyncNotifierProviderImpl<
           dependencies: ConversationCommentsFamily._dependencies,
           allTransitiveDependencies:
               ConversationCommentsFamily._allTransitiveDependencies,
+          context: context,
           postID: postID,
-          offset_comment_id: offset_comment_id,
           sort: sort,
-          reply_id: reply_id,
         );
 
   ConversationCommentsProvider._internal(
@@ -279,26 +271,23 @@ class ConversationCommentsProvider extends AutoDisposeAsyncNotifierProviderImpl<
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
+    required this.context,
     required this.postID,
-    required this.offset_comment_id,
     required this.sort,
-    required this.reply_id,
   }) : super.internal();
 
+  final WidgetRef context;
   final String postID;
-  final String? offset_comment_id;
   final String? sort;
-  final String? reply_id;
 
   @override
   FutureOr<List<CommentDatum>> runNotifierBuild(
     covariant ConversationComments notifier,
   ) {
     return notifier.build(
+      context,
       postID,
-      offset_comment_id,
       sort,
-      reply_id,
     );
   }
 
@@ -308,19 +297,17 @@ class ConversationCommentsProvider extends AutoDisposeAsyncNotifierProviderImpl<
       origin: this,
       override: ConversationCommentsProvider._internal(
         () => create()
+          ..context = context
           ..postID = postID
-          ..offset_comment_id = offset_comment_id
-          ..sort = sort
-          ..reply_id = reply_id,
+          ..sort = sort,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
+        context: context,
         postID: postID,
-        offset_comment_id: offset_comment_id,
         sort: sort,
-        reply_id: reply_id,
       ),
     );
   }
@@ -334,19 +321,17 @@ class ConversationCommentsProvider extends AutoDisposeAsyncNotifierProviderImpl<
   @override
   bool operator ==(Object other) {
     return other is ConversationCommentsProvider &&
+        other.context == context &&
         other.postID == postID &&
-        other.offset_comment_id == offset_comment_id &&
-        other.sort == sort &&
-        other.reply_id == reply_id;
+        other.sort == sort;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
     hash = _SystemHash.combine(hash, postID.hashCode);
-    hash = _SystemHash.combine(hash, offset_comment_id.hashCode);
     hash = _SystemHash.combine(hash, sort.hashCode);
-    hash = _SystemHash.combine(hash, reply_id.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -354,17 +339,14 @@ class ConversationCommentsProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
 mixin ConversationCommentsRef
     on AutoDisposeAsyncNotifierProviderRef<List<CommentDatum>> {
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
+
   /// The parameter `postID` of this provider.
   String get postID;
 
-  /// The parameter `offset_comment_id` of this provider.
-  String? get offset_comment_id;
-
   /// The parameter `sort` of this provider.
   String? get sort;
-
-  /// The parameter `reply_id` of this provider.
-  String? get reply_id;
 }
 
 class _ConversationCommentsProviderElement
@@ -373,28 +355,25 @@ class _ConversationCommentsProviderElement
   _ConversationCommentsProviderElement(super.provider);
 
   @override
+  WidgetRef get context => (origin as ConversationCommentsProvider).context;
+  @override
   String get postID => (origin as ConversationCommentsProvider).postID;
   @override
-  String? get offset_comment_id =>
-      (origin as ConversationCommentsProvider).offset_comment_id;
-  @override
   String? get sort => (origin as ConversationCommentsProvider).sort;
-  @override
-  String? get reply_id => (origin as ConversationCommentsProvider).reply_id;
 }
 
-String _$replyCommentsHash() => r'9297d74516186338f73c7a30d6e0c62a42718810';
+String _$replyCommentsHash() => r'9629eb03e45503c4c2b8c7532b2c4507c15e2dff';
 
 abstract class _$ReplyComments
     extends BuildlessAutoDisposeAsyncNotifier<CommentDatum?> {
+  late final WidgetRef context;
   late final String postID;
-  late final String? offset_comment_id;
   late final String? sort;
   late final String? reply_id;
 
   FutureOr<CommentDatum?> build(
+    WidgetRef context,
     String postID,
-    String? offset_comment_id,
     String? sort,
     String? reply_id,
   );
@@ -411,14 +390,14 @@ class ReplyCommentsFamily extends Family<AsyncValue<CommentDatum?>> {
 
   /// See also [ReplyComments].
   ReplyCommentsProvider call(
+    WidgetRef context,
     String postID,
-    String? offset_comment_id,
     String? sort,
     String? reply_id,
   ) {
     return ReplyCommentsProvider(
+      context,
       postID,
-      offset_comment_id,
       sort,
       reply_id,
     );
@@ -429,8 +408,8 @@ class ReplyCommentsFamily extends Family<AsyncValue<CommentDatum?>> {
     covariant ReplyCommentsProvider provider,
   ) {
     return call(
+      provider.context,
       provider.postID,
-      provider.offset_comment_id,
       provider.sort,
       provider.reply_id,
     );
@@ -456,14 +435,14 @@ class ReplyCommentsProvider
     extends AutoDisposeAsyncNotifierProviderImpl<ReplyComments, CommentDatum?> {
   /// See also [ReplyComments].
   ReplyCommentsProvider(
+    WidgetRef context,
     String postID,
-    String? offset_comment_id,
     String? sort,
     String? reply_id,
   ) : this._internal(
           () => ReplyComments()
+            ..context = context
             ..postID = postID
-            ..offset_comment_id = offset_comment_id
             ..sort = sort
             ..reply_id = reply_id,
           from: replyCommentsProvider,
@@ -475,8 +454,8 @@ class ReplyCommentsProvider
           dependencies: ReplyCommentsFamily._dependencies,
           allTransitiveDependencies:
               ReplyCommentsFamily._allTransitiveDependencies,
+          context: context,
           postID: postID,
-          offset_comment_id: offset_comment_id,
           sort: sort,
           reply_id: reply_id,
         );
@@ -488,14 +467,14 @@ class ReplyCommentsProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
+    required this.context,
     required this.postID,
-    required this.offset_comment_id,
     required this.sort,
     required this.reply_id,
   }) : super.internal();
 
+  final WidgetRef context;
   final String postID;
-  final String? offset_comment_id;
   final String? sort;
   final String? reply_id;
 
@@ -504,8 +483,8 @@ class ReplyCommentsProvider
     covariant ReplyComments notifier,
   ) {
     return notifier.build(
+      context,
       postID,
-      offset_comment_id,
       sort,
       reply_id,
     );
@@ -517,8 +496,8 @@ class ReplyCommentsProvider
       origin: this,
       override: ReplyCommentsProvider._internal(
         () => create()
+          ..context = context
           ..postID = postID
-          ..offset_comment_id = offset_comment_id
           ..sort = sort
           ..reply_id = reply_id,
         from: from,
@@ -526,8 +505,8 @@ class ReplyCommentsProvider
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
+        context: context,
         postID: postID,
-        offset_comment_id: offset_comment_id,
         sort: sort,
         reply_id: reply_id,
       ),
@@ -543,8 +522,8 @@ class ReplyCommentsProvider
   @override
   bool operator ==(Object other) {
     return other is ReplyCommentsProvider &&
+        other.context == context &&
         other.postID == postID &&
-        other.offset_comment_id == offset_comment_id &&
         other.sort == sort &&
         other.reply_id == reply_id;
   }
@@ -552,8 +531,8 @@ class ReplyCommentsProvider
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
     hash = _SystemHash.combine(hash, postID.hashCode);
-    hash = _SystemHash.combine(hash, offset_comment_id.hashCode);
     hash = _SystemHash.combine(hash, sort.hashCode);
     hash = _SystemHash.combine(hash, reply_id.hashCode);
 
@@ -562,11 +541,11 @@ class ReplyCommentsProvider
 }
 
 mixin ReplyCommentsRef on AutoDisposeAsyncNotifierProviderRef<CommentDatum?> {
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
+
   /// The parameter `postID` of this provider.
   String get postID;
-
-  /// The parameter `offset_comment_id` of this provider.
-  String? get offset_comment_id;
 
   /// The parameter `sort` of this provider.
   String? get sort;
@@ -581,10 +560,9 @@ class _ReplyCommentsProviderElement
   _ReplyCommentsProviderElement(super.provider);
 
   @override
-  String get postID => (origin as ReplyCommentsProvider).postID;
+  WidgetRef get context => (origin as ReplyCommentsProvider).context;
   @override
-  String? get offset_comment_id =>
-      (origin as ReplyCommentsProvider).offset_comment_id;
+  String get postID => (origin as ReplyCommentsProvider).postID;
   @override
   String? get sort => (origin as ReplyCommentsProvider).sort;
   @override

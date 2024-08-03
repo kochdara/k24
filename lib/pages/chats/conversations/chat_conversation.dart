@@ -42,6 +42,7 @@ class ChatConversations extends ConsumerStatefulWidget {
 
 class _ChatDetailsState extends ConsumerState<ChatConversations> {
   final scrollController = ScrollController();
+  late TextEditingController controller;
   StateProvider<bool> hiddenProvider = StateProvider((ref) => false);
   StateProvider<bool> moreProvider = StateProvider((ref) => false);
   StateProvider<int> lengthProvider = StateProvider((ref) => 1);
@@ -60,6 +61,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
   }
 
   void setupPage() {
+    controller = TextEditingController();
     scrollDown();
     scrollController.addListener(() => onScroll(
       ref,
@@ -201,7 +203,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: forms.formField(
                       hintText: 'Type your message',
-                      controller: (text.isEmpty) ? TextEditingController(text: '$text') : null,
+                      controller: controller,
                       fillColor: config.backgroundColor,
                       onTap: () {
                         ref.read(hiddenProvider.notifier).update((state) => false);
@@ -219,7 +221,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
                 if(text.isNotEmpty) ...[
                   button(
                       Icons.send,
-                      onPressed:onSubmit
+                      onPressed: onSubmit
                   ),
 
                 ] else button(
@@ -331,6 +333,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
     await ref.read(apiServiceProvider).submitData(ref.watch(dataProvider), ref);
 
     /// clear ///
+    controller.clear();
     ref.read(dataProvider.notifier).update((state) => {});
     scrollDown(trig: false);
   }

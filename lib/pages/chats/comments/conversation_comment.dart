@@ -1,10 +1,13 @@
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
 import 'package:k24/pages/chats/comments/comments_provider.dart';
 import 'package:k24/pages/details/details_post.dart';
+import 'package:k24/pages/more_provider.dart';
 import 'package:k24/serialization/chats/comments/comments_serial.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/forms.dart';
@@ -18,12 +21,7 @@ final labels = Labels();
 final forms = Forms();
 final myCards = MyCards();
 
-enum MoreCommentType { copy, delete }
-
-final Map<MoreCommentType, MoreCommentTypeInfo> moreCommentTypeInfo = {
-  MoreCommentType.copy: const MoreCommentTypeInfo('copy', 'Copy'),
-  MoreCommentType.delete: const MoreCommentTypeInfo('delete', 'Delete'),
-};
+late StateProvider<CommentDatum?> replyIdPro;
 
 class ConversationCommentPage extends ConsumerStatefulWidget {
   const ConversationCommentPage({super.key, this.commentData, required this.comObject});
@@ -36,14 +34,48 @@ class ConversationCommentPage extends ConsumerStatefulWidget {
 }
 
 class _ConversationCommentPageState extends ConsumerState<ConversationCommentPage> {
+  final commentApi = Provider((ref) => CommentApiService());
+  late TextEditingController controller;
+  late FocusNode focusNode;
+  final ScrollController _scrollController = ScrollController();
+  StateProvider<bool> isLoadingPro = StateProvider((ref) => false);
+  StateProvider<int> lengthPro = StateProvider((ref) => 1);
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(() {
+      final pixels = _scrollController.position.pixels;
+      final maxScrollExtent = _scrollController.position.maxScrollExtent;
+      if (pixels > maxScrollExtent-50 && pixels <= maxScrollExtent) {
+        _fetchMoreData();
+      }
+    });
     setupPage();
   }
 
+  Future<void> _fetchMoreData() async {
+    final objectData = widget.comObject;
+    final watch = ref.watch(isLoadingPro);
+    final read = ref.read(isLoadingPro.notifier);
+    final readLen = ref.read(lengthPro.notifier);
+    if (watch) return;
+    read.state = true;
+
+    final fetchMore = ref.read(conversationCommentsProvider(
+      ref,
+      '${objectData.data?.id}', 'oldest',
+    ).notifier);
+    fetchMore.fetchComments();
+    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
+    readLen.state = fetchMore.length;
+    read.state = false;
+  }
+
   setupPage() {
+    replyIdPro = StateProvider((ref) => null);
+    controller = TextEditingController();
+    focusNode = FocusNode();
     futureAwait(() async {
       final objectData = widget.commentData;
       await submitMarkReadComment('${objectData!.id}', ref);
@@ -51,12 +83,18 @@ class _ConversationCommentPageState extends ConsumerState<ConversationCommentPag
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final objectData = widget.comObject;
+    final sendComment = ref.watch(commentApi);
+    final replyId = ref.watch(replyIdPro);
     final bottomHeight = MediaQuery.of(context).viewInsets.bottom;
-    final watchConversation = ref.watch(conversationCommentsProvider(
-      '${objectData.data?.id}', '0', 'oldest', '0'
-    ));
+    final conversation = conversationCommentsProvider(ref, '${objectData.data?.id}', 'oldest',);
+    final watchConversation = ref.watch(conversation);
 
     return Scaffold(
       appBar: AppBar(
@@ -94,10 +132,21 @@ class _ConversationCommentPageState extends ConsumerState<ConversationCommentPag
         ],
       ),
       backgroundColor: config.backgroundColor,
-      body: BodyComments(
-        ref,
-        watchConversation: watchConversation,
-        objectData: objectData,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.refresh(conversation.notifier).refresh();
+          ref.read(isLoadingPro.notifier).state = false;
+          ref.read(lengthPro.notifier).state = 1;
+        },
+        child: BodyComments(
+          ref,
+          watchConversation: watchConversation,
+          objectData: objectData,
+          scrollController: _scrollController,
+          isLoadingPro: isLoadingPro,
+          lengthPro: lengthPro,
+          focusNode: focusNode,
+        ),
       ),
       bottomNavigationBar: Container(
         color: Colors.white,
@@ -105,6 +154,26 @@ class _ConversationCommentPageState extends ConsumerState<ConversationCommentPag
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+
+            if(replyId != null && replyId.id != null) Container(
+              height: 34,
+              padding: const EdgeInsets.symmetric(horizontal: 14.0),
+              child: Flex(
+                direction: Axis.horizontal,
+                children: [
+                  labels.label('Reply to ', color: Colors.black54, fontSize: 13),
+                  labels.label(replyId.profile?.data?.name ?? 'N/A', color: Colors.black87, fontSize: 13),
+                  IconButton(
+                    onPressed: () { ref.read(replyIdPro.notifier).state = null; },
+                    padding: EdgeInsets.zero,
+                    alignment: Alignment.center,
+                    icon: const Icon(Icons.close, size: 18, color: Colors.black87,),
+                    iconSize: 18,
+                  )
+                ],
+              ),
+            ),
+            
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -114,16 +183,28 @@ class _ConversationCommentPageState extends ConsumerState<ConversationCommentPag
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: forms.formField(
                         hintText: 'Type your message',
-                        controller: TextEditingController(),
                         fillColor: config.backgroundColor,
-                        onTap: () {},
+                        controller: controller,
+                        focusNode: focusNode,
                         maxLines: 2,
                         style: const TextStyle(height: 1.45, fontSize: 13)
                     ),
                   ),
                 ),
 
-                button(Icons.send, onPressed: () => { },),
+                button(Icons.send, onPressed: () async {
+                  if(controller.text.trim().isNotEmpty) {
+                    Map<String, dynamic> data = {
+                      if(replyId != null && replyId.id != null) 'reply_id': replyId.id ?? ''
+                      else 'id': '${objectData.data?.id}',
+                      'comment': controller.text,
+                    };
+                    futureAwait(duration: 250, () { controller.clear(); });
+                    final result = await sendComment.submitAddComment(data, ref);
+                    print(result.toJson());
+                    print(data);
+                  }
+                },),
 
               ],
             ),
@@ -152,15 +233,24 @@ class BodyComments extends StatelessWidget {
   const BodyComments(this.ref, {super.key,
     required this.watchConversation,
     required this.objectData,
+    required this.scrollController,
+    required this.isLoadingPro,
+    required this.lengthPro,
+    required this.focusNode,
   });
 
   final WidgetRef ref;
   final AsyncValue<List<CommentDatum>> watchConversation;
   final CommentObject objectData;
+  final ScrollController scrollController;
+  final StateProvider<bool> isLoadingPro;
+  final StateProvider<int> lengthPro;
+  final FocusNode focusNode;
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      controller: scrollController,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
         child: watchConversation.when(
@@ -172,7 +262,17 @@ class BodyComments extends StatelessWidget {
             data: (data) {
               return Flex(direction: Axis.vertical,
                 children: [
-                  for(final datum in data) CardUIComments(datum: datum, objectData: objectData,),
+                  for(final datum in data) CardUIComments(
+                    datum: datum, objectData: objectData,
+                    focusNode: focusNode,
+                    oldDatum: datum,
+                  ),
+
+                  if(ref.watch(isLoadingPro) && ref.watch(lengthPro) > 0) Container(
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.all(20),
+                    child: const CircularProgressIndicator(),
+                  ) else if(ref.watch(lengthPro) <= 0) const NoMoreResult(),
                 ],
               );
             }
@@ -182,17 +282,38 @@ class BodyComments extends StatelessWidget {
   }
 }
 
-class CardUIComments extends ConsumerWidget {
-  CardUIComments({super.key, required this.datum, required this.objectData});
+class CardUIComments extends ConsumerStatefulWidget {
+  const CardUIComments({super.key, required this.datum,
+    required this.objectData,
+    required this.oldDatum,
+    required this.focusNode,
+  });
 
   final CommentDatum datum;
-  final StateProvider<CommentDatum> datumPro = StateProvider((ref) => CommentDatum());
+  final CommentDatum oldDatum;
   final CommentObject objectData;
+  final FocusNode focusNode;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CardUIComments> createState() => _CardUICommentsState();
+}
+
+class _CardUICommentsState extends ConsumerState<CardUIComments> {
+  late StateProvider<CommentDatum> datumPro;
+
+  @override
+  void initState() {
+    super.initState();
+    datumPro = StateProvider((ref) => CommentDatum());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final objectData = widget.objectData;
+    final datum = widget.datum;
     final result = ref.watch(replyCommentsProvider(
-      '${objectData.data?.id}', '0', 'oldest', '${datum.id}',
+      ref,
+      '${objectData.data?.id}', 'newest', '${datum.id}',
     ));
 
     final watchReply = ref.watch(datumPro);
@@ -247,10 +368,18 @@ class CardUIComments extends ConsumerWidget {
                     ),
                   ),
 
-                  const Positioned(
+                  Positioned(
                     top: -4,
                     right: -2,
-                    child: MoreButtonUI(),
+                    child: MoreButtonUI(listData: [
+                      MoreTypeInfo('copy', 'Copy', Icons.copy, null, () {
+                        Clipboard.setData(ClipboardData(text: datum.comment ?? '')).then((_) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied!')));
+                        });
+                      }),
+                      if(datum.actions != null && datum.actions!.contains('delete'))
+                        MoreTypeInfo('delete', 'Delete', CupertinoIcons.trash, null, () { }),
+                    ],),
                   ),
                 ],
               ),
@@ -266,9 +395,15 @@ class CardUIComments extends ConsumerWidget {
                     children: [
                       labels.selectLabel('${stringToTimeAgoDay(date: '${datum.date}', format: 'dd, MMM yyyy')}', fontSize: 12, color: Colors.black54),
                       const SizedBox(width: 14),
-                      InkWell(
-                        onTap: () { },
-                        child: labels.label('Reply', fontSize: 12, color: Colors.black87),
+                      if(datum.actions != null && datum.actions!.contains('reply')) InkWell(
+                        onTap: () {
+                          widget.focusNode.unfocus();
+                          ref.read(replyIdPro.notifier).state = widget.oldDatum;
+                          futureAwait(duration: 250, () {
+                            widget.focusNode.requestFocus();
+                          });
+                        },
+                        child: labels.label('Reply', fontSize: 12, color: config.warningColor.shade400),
                       ),
                     ],
                   ),
@@ -277,7 +412,10 @@ class CardUIComments extends ConsumerWidget {
                     const SizedBox(height: 8),
 
                     if(watchReply.id != null)
-                      for(final datum2 in watchReply.last_replies ?? []) CardUIComments(datum: datum2, objectData: objectData),
+                      for(final datum2 in watchReply.last_replies ?? []) CardUIComments(datum: datum2, objectData: objectData,
+                        oldDatum: widget.oldDatum,
+                        focusNode: widget.focusNode,
+                      ),
 
                     InkWell(
                       onTap: () async {
@@ -285,7 +423,7 @@ class CardUIComments extends ConsumerWidget {
                         ref.read(datumPro.notifier).update((state) => CommentDatum()) :
                         ref.read(datumPro.notifier).update((state) => result.valueOrNull ?? CommentDatum());
                       },
-                      child: labels.label('View previous reply (${datum.total_reply})', fontSize: 12, color: Colors.black87),
+                      child: labels.label('${watchReply.id != null ? 'Hide' : 'View' } previous reply (${datum.total_reply})', fontSize: 12, color: Colors.blue),
                     ),
 
                     const SizedBox(height: 8),
@@ -302,8 +440,11 @@ class CardUIComments extends ConsumerWidget {
 
 
 class MoreButtonUI extends StatelessWidget {
-  const MoreButtonUI({super.key
+  const MoreButtonUI({super.key,
+    required this.listData,
   });
+
+  final List<MoreTypeInfo> listData;
 
   @override
   Widget build(BuildContext context) {
@@ -312,16 +453,23 @@ class MoreButtonUI extends StatelessWidget {
       surfaceTintColor: Colors.white,
       iconSize: 20,
       onSelected: (item) { },
+      popUpAnimationStyle: AnimationStyle.noAnimation,
       itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-        for (final type in MoreCommentType.values) PopupMenuItem(
-          height: 42,
+        for (final type in listData) PopupMenuItem(
+          height: 34,
           value: 0,
-          onTap: () { },
-          child: ListTile(
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-            horizontalTitleGap: 8,
-            title: labels.label('${moreCommentTypeInfo[type]?.description}', fontSize: 14, color: Colors.black87),
+          onTap: () {
+            type.onTap!();
+          },
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            direction: Axis.horizontal,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Icon(type.icon, size: 15, color: Colors.black87),
+              labels.label(type.description, fontSize: 13, color: Colors.black87),
+            ],
           ),
         ),
       ],
@@ -329,9 +477,3 @@ class MoreButtonUI extends StatelessWidget {
   }
 }
 
-class MoreCommentTypeInfo {
-  final String name;
-  final String description;
-
-  const MoreCommentTypeInfo(this.name, this.description);
-}

@@ -2,6 +2,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/pages/main/home_provider.dart';
+import 'package:k24/serialization/users/user_serial.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../helpers/config.dart';
@@ -126,6 +127,91 @@ class NotifyGetDetailsResume extends _$NotifyGetDetailsResume {
       print(stacktrace);
     }
     return null;
+  }
+}
+
+
+
+class NotifyApiService {
+  final Dio dio = Dio();
+
+  Future<dynamic> submitMarkRead(Map<String, dynamic> data, String ids, WidgetRef ref) async {
+    try {
+      final tokens = ref.watch(usersProvider);
+
+      final subs = '$ids?lang=$lang';
+      final res = await dio.put('$notificationUrl/$subs', data: data, options: Options(headers: {
+        'Access-Token': '${tokens.tokens?.access_token}',
+      }, contentType: Headers.formUrlEncodedContentType));
+
+      final datum = res.data;
+      return datum;
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(ref);
+        return await submitMarkRead(data, ids, ref); // Retry the request after refreshing the token
+      }
+      print('Dio error: ${e.response}');
+    } catch (e, stacktrace) {
+      _handleError('submitData', e, stacktrace);
+    }
+    return null;
+  }
+
+  Future<MessageLogin> submitMarkReadAll(WidgetRef ref) async {
+    try {
+      final tokens = ref.watch(usersProvider);
+      final subs = 'mark_all_read?lang=$lang';
+      final res = await dio.put('$notificationUrl/$subs', options: Options(headers: {
+        'Access-Token': '${tokens.tokens?.access_token}',
+      }, contentType: Headers.formUrlEncodedContentType));
+
+      return MessageLogin.fromJson(res.data ?? {});
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(ref);
+        return await submitMarkReadAll(ref); // Retry the request after refreshing the token
+      }
+      print('Dio error: ${e.response}');
+    } catch (e, stacktrace) {
+      _handleError('submitData', e, stacktrace);
+    }
+    return MessageLogin();
+  }
+
+  Future<MessageLogin> submitDeleteAll(WidgetRef ref) async {
+    try {
+      final tokens = ref.watch(usersProvider);
+      final subs = 'delete_all?lang=$lang';
+      final res = await dio.delete('$notificationUrl/$subs', options: Options(headers: {
+        'Access-Token': '${tokens.tokens?.access_token}',
+      }, contentType: Headers.formUrlEncodedContentType));
+
+      return MessageLogin.fromJson(res.data ?? {});
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(ref);
+        return await submitDeleteAll(ref,); // Retry the request after refreshing the token
+      }
+      print('Dio error: ${e.response}');
+    } catch (e, stacktrace) {
+      _handleError('submitData', e, stacktrace);
+    }
+    return MessageLogin();
+  }
+
+  void _handleError(String methodName, dynamic error, StackTrace stacktrace) {
+    print('Error in $methodName: $error');
+    print(stacktrace);
   }
 }
 

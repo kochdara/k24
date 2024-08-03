@@ -9,6 +9,7 @@ import 'package:k24/widgets/my_cards.dart';
 
 import '../../../helpers/converts.dart';
 import '../../../serialization/chats/comments/comments_serial.dart';
+import '../../more_provider.dart';
 import 'conversation_comment.dart';
 
 final myCards = MyCards();
@@ -23,10 +24,34 @@ class CommentPage extends ConsumerStatefulWidget {
 }
 
 class _CommentPageState extends ConsumerState<CommentPage> {
+  final ScrollController _scrollController = ScrollController();
+  StateProvider<bool> isLoadingPro = StateProvider((ref) => false);
+  StateProvider<int> lengthPro = StateProvider((ref) => 1);
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(() {
+      final pixels = _scrollController.position.pixels;
+      final maxScrollExtent = _scrollController.position.maxScrollExtent;
+      if (pixels > maxScrollExtent-50 && pixels <= maxScrollExtent) {
+        _fetchMoreData();
+      }
+    });
+  }
+
+  Future<void> _fetchMoreData() async {
+    final watch = ref.watch(isLoadingPro);
+    final read = ref.read(isLoadingPro.notifier);
+    final readLen = ref.read(lengthPro.notifier);
+    if (watch) return;
+    read.state = true;
+
+    final fetchMore = ref.read(commentsPagesProvider(ref).notifier);
+    fetchMore.fetchComments(ref);
+    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
+    readLen.state = fetchMore.length;
+    read.state = false;
   }
 
   @override
@@ -39,9 +64,14 @@ class _CommentPageState extends ConsumerState<CommentPage> {
     final watchComment =  ref.watch(commentsPagesProvider(ref));
 
     return RefreshIndicator(
-      onRefresh: () => ref.read(commentsPagesProvider(ref).notifier).refresh(),
+      onRefresh: () async {
+        ref.read(commentsPagesProvider(ref).notifier).refresh();
+        ref.read(isLoadingPro.notifier).state = false;
+        ref.read(lengthPro.notifier).state = 1;
+      },
       notificationPredicate: (val) => !watchComment.isLoading,
       child: CustomScrollView(
+        controller: _scrollController,
         slivers: [
           SliverList(
             delegate: SliverChildListDelegate([
@@ -60,7 +90,7 @@ class _CommentPageState extends ConsumerState<CommentPage> {
                           routeAnimation(context, pageBuilder: ConversationCommentPage(commentData: datum, comObject: datum.object ?? CommentObject()));
                         },
                         child: Card(
-                          surfaceTintColor: Colors.white,
+                          surfaceTintColor: (datum.unread != "0") ? config.primaryAppColor : Colors.white,
                           shadowColor: Colors.black38,
                           shape: RoundedRectangleBorder(
                             side: BorderSide(color: config.secondaryColor.shade50),
@@ -92,7 +122,7 @@ class _CommentPageState extends ConsumerState<CommentPage> {
                                           Expanded(
                                             child: labels.label(datum.object?.data?.title ?? 'N/A', fontSize: 15, color: Colors.black87, maxLines: 1),
                                           ),
-                                          if(datum.unread != "0") Icon(Icons.circle_rounded, color: config.primaryAppColor.shade600, size: 8),
+                                          if(datum.unread != "0") Icon(Icons.circle_rounded, color: config.primaryAppColor.shade600, size: 12),
                                         ],
                                       ),
                                       labels.label('Total Comments: ${datum.total ?? 0}', color: (datum.unread != "0") ? Colors.black87 : Colors.black54, fontSize: 12),
@@ -106,6 +136,12 @@ class _CommentPageState extends ConsumerState<CommentPage> {
                           ),
                         ),
                       ),
+
+                      if(ref.watch(isLoadingPro) && ref.watch(lengthPro) > 0) Container(
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.all(20),
+                        child: const CircularProgressIndicator(),
+                      ) else if(ref.watch(lengthPro) <= 0) const NoMoreResult(),
                     ],
                   );
                 },

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
-import 'package:k24/pages/chats/chat_page.dart';
 import 'package:k24/pages/notifys/notify_provider.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/labels.dart';
@@ -21,6 +20,7 @@ final myWidgets = MyWidgets();
 final labels = Labels();
 final config = Config();
 final myCards = MyCards();
+final apiService = Provider((ref) => NotifyApiService());
 
 class NotifyPage extends ConsumerStatefulWidget {
   const NotifyPage({super.key});
@@ -69,6 +69,7 @@ class _NotifyPageState extends ConsumerState<NotifyPage> {
   @override
   Widget build(BuildContext context) {
     final listNotify = ref.watch(notifyListProvider(ref));
+    final send = ref.watch(apiService);
 
     return Scaffold(
       appBar: AppBar(
@@ -81,8 +82,14 @@ class _NotifyPageState extends ConsumerState<NotifyPage> {
         actions: [
           IconButton(
             onPressed: () => showActionSheet(context, [
-              MoreTypeInfo('mark_all_as_read', 'Mark all as read', null, null, () { }),
-              MoreTypeInfo('delete_all_notifications', 'Delete all notifications', null, null, () { }),
+              MoreTypeInfo('mark_all_as_read', 'Mark all as read', null, null, () async {
+                final res = await send.submitMarkReadAll(ref);
+                if(res.message != null) reloadData();
+              }),
+              MoreTypeInfo('delete_all_notifications', 'Delete all notifications', null, null, () async {
+                final res = await send.submitDeleteAll(ref);
+                if(res.message != null) reloadData();
+              }),
             ]),
             padding: const EdgeInsets.all(14),
             icon: const Icon(Icons.more_vert_rounded),
@@ -91,7 +98,7 @@ class _NotifyPageState extends ConsumerState<NotifyPage> {
       ),
       backgroundColor: config.backgroundColor,
       body: RefreshIndicator(
-        onRefresh: () => ref.refresh(notifyListProvider(ref).notifier).refresh(),
+        onRefresh: () => reloadData(),
         child: BodyNotify(
           scrollController: _scrollController,
           listNotify: listNotify,
@@ -103,6 +110,12 @@ class _NotifyPageState extends ConsumerState<NotifyPage> {
         context, ref, 1, null,
       ),
     );
+  }
+
+  Future<void> reloadData() async {
+    ref.refresh(notifyListProvider(ref).notifier).refresh();
+    ref.read(isLoadingPro.notifier).state = false;
+    ref.read(lengthPro.notifier).state = 1;
   }
 }
 
@@ -138,6 +151,15 @@ class BodyNotify extends ConsumerWidget {
                 children: [
                   for(final datum in data) ListTile(
                     onTap: () {
+                      // mark as read //
+                      Map<String, dynamic> data = {"action": "mark_as_read",};
+                      futureAwait(() async {
+                        final send = ref.watch(apiService);
+                        if(datum.is_open == false) {
+                          await send.submitMarkRead(data, '${datum.notid}', ref);
+                        }
+                      });
+
                       switch(datum.type) {
                         case 'apply_job':
                           routeAnimation(
@@ -206,20 +228,7 @@ class BodyNotify extends ConsumerWidget {
                     alignment: Alignment.center,
                     padding: const EdgeInsets.all(20),
                     child: const CircularProgressIndicator(),
-                  ) else if(ref.watch(lengthPro) <= 0) Container(
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          width: 100,
-                          height: 100,
-                          child: Image.asset(noMore, fit: BoxFit.contain,),
-                        ),
-                        labels.label('No More', fontSize: 15, color: Colors.black54),
-                      ],
-                    ),
-                  ),
+                  ) else if(ref.watch(lengthPro) <= 0) const NoMoreResult(),
 
                 ],
               );

@@ -3,11 +3,13 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:k24/widgets/labels.dart';
 import 'package:photo_view/photo_view.dart';
 
 import '../helpers/storage.dart';
-import '../pages/chats/chat_page.dart';
 import '../pages/more_provider.dart';
+
+final labels = Labels();
 
 /// loading dialog ///
 Future<void> dialogBuilder(BuildContext context) {

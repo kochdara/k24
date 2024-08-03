@@ -1,10 +1,11 @@
 
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/serialization/banners/banner_serial.dart';
 import 'package:k24/serialization/notify/nortify_serial.dart';
+import 'package:k24/widgets/labels.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../helpers/config.dart';
@@ -14,6 +15,7 @@ import '../serialization/chats/conversation/conversation_serial.dart';
 part 'more_provider.g.dart';
 
 final config = Config();
+final labels = Labels();
 
 StateProvider<NotifyBadges> dataBadgeProvider = StateProvider((ref) => NotifyBadges());
 
@@ -133,3 +135,28 @@ class MoreTypeInfo {
 
   MoreTypeInfo(this.name, this.description, this.icon, this.iconSave, this.onTap);
 }
+
+
+class NoMoreResult extends StatelessWidget {
+  const NoMoreResult({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          SizedBox(
+            width: 70,
+            height: 70,
+            child: Image.asset(noMore, fit: BoxFit.contain,),
+          ),
+          labels.label('No More', fontSize: 15, color: Colors.black54),
+        ],
+      ),
+    );
+  }
+}
+
+
