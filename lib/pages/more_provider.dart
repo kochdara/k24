@@ -160,3 +160,18 @@ class NoMoreResult extends StatelessWidget {
 }
 
 
+void alertSnack(BuildContext context, String title) {
+  final snackBar = SnackBar(
+    content: Text(title),
+    showCloseIcon: true,
+    // action: SnackBarAction(
+    //   label: 'Close',
+    //   onPressed: () {
+    //     // Some code to undo the change.
+    //   },
+    // ),
+  );
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+}
+
+

@@ -58,7 +58,20 @@ class _ChatPageViewState extends ConsumerState<ChatPageView> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          leading: Icon(CupertinoIcons.person_circle_fill, color: config.secondaryColor.shade50, size: 42),
+          leading: Center(
+            child: Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: config.secondaryColor.shade50,
+                borderRadius: BorderRadius.circular(60),
+              ),
+              child: (username.user?.photo?.url != null) ? CircleAvatar(
+                backgroundColor: Colors.black12,
+                backgroundImage: NetworkImage(username.user?.photo?.url ?? ''),
+              ) : Icon(Icons.person, color: config.secondaryColor.shade200, size: 26),
+            ),
+          ),
           title: labels.label('${username.user?.name}', fontSize: 20, fontWeight: FontWeight.w500, maxLines: 1, overflow: TextOverflow.ellipsis),
           titleSpacing: 6,
           actions: [
@@ -160,6 +173,7 @@ class _ChatPageBuilderState extends ConsumerState<ChatPageBuilder> {
                                   backgroundImage: NetworkImage(
                                     '${val.user?.photo?.url}',
                                   ),
+                                  backgroundColor: Colors.black12,
                                 ),
 
                                 if(val.user?.online_status!.is_active == true) Positioned(

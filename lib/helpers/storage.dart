@@ -39,7 +39,7 @@ remove(String key) async {
 getSecure(String key, {Type type = String}) async {
   String? value = await storage.read(key: key);
   if(value != null) {
-    if(type == Map) return jsonDecode(value);
+    if(type == Map || type == List) return jsonDecode(value);
     return value;
   }
   return null;

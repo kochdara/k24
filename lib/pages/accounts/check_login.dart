@@ -1,16 +1,25 @@
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
+import 'package:k24/helpers/helper.dart';
+import 'package:k24/helpers/storage.dart';
 import 'package:k24/pages/accounts/login/login.dart';
+import 'package:k24/pages/more_provider.dart';
+import 'package:k24/serialization/users/user_serial.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/labels.dart';
+
+import '../../widgets/my_widgets.dart';
+import 'login/login_provider.dart';
 
 final Labels labels = Labels();
 final Config config = Config();
 final Buttons buttons = Buttons();
+final myWidgets = MyWidgets();
 
 class CheckLoginPage extends ConsumerStatefulWidget {
   const CheckLoginPage({super.key});
@@ -20,10 +29,13 @@ class CheckLoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<CheckLoginPage> {
+  late List<UserSerial> userList;
 
   @override
   void initState() {
     super.initState();
+
+    userList = [];
     setupPage();
   }
 
@@ -36,22 +48,41 @@ class _LoginPageState extends ConsumerState<CheckLoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: config.backgroundColor,
-      body: const BodyLogin(),
+      body: BodyLogin(
+        userList: userList,
+      ),
     );
   }
 
-  void setupPage() { }
+  Future<void> setupPage() async {
+    final userData = await getSecure('list_user', type: List) ?? [];
+    futureAwait(duration: 10, () {
+      for(final val in userData) {
+        final use = UserSerial.fromJson(val ?? {});
+        setState(() {
+          userList.add(use);
+        });
+      }
+    });
+  }
 }
 
 class BodyLogin extends ConsumerWidget {
-  const BodyLogin({super.key});
+  BodyLogin({super.key,
+    required this.userList,
+  });
+
+  final List<UserSerial> userList;
+  final apiServiceProvider = Provider((ref) => MyApiService());
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
     return CustomScrollView(
       slivers: <Widget>[
         /// aap bar ///
         SliverAppBar(
+          pinned: true,
           actions: [
             IconButton(
               padding: const EdgeInsets.all(12),
@@ -89,45 +120,52 @@ class BodyLogin extends ConsumerWidget {
                     child: Column(
                       children: [
                         /// user card ///
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6),
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.4),
-                                spreadRadius: 0,
-                                blurRadius: 4,
-                                offset: const Offset(0, 1), // changes position of shadow
-                                blurStyle:  BlurStyle.solid,
-                              ),
-                            ],
-                          ),
-                          child: Material(
-                            borderRadius: BorderRadius.circular(6),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ListTile(
-                                  onTap: () { },
-                                  leading: Icon(CupertinoIcons.person_crop_circle_fill, size: 50, color: config.secondaryColor.shade100),
-                                    title: labels.label('username', fontSize: 15, fontWeight: FontWeight.w500, color: Colors.black87),
-                                  subtitle: labels.label('@username', fontSize: 12, color: Colors.black54),
-                                  dense: true,
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                                  trailing: IconButton(
-                                    onPressed: () {},
-                                    padding: const EdgeInsets.all(12),
-                                    icon: Icon(Icons.more_vert_rounded, color: config.secondaryColor.shade400),
-                                  ),
+                        for(final v in userList) ...[
+                          Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.4),
+                                  spreadRadius: 0,
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 1), // changes position of shadow
+                                  blurStyle:  BlurStyle.solid,
                                 ),
-
                               ],
                             ),
+                            child: Material(
+                              borderRadius: BorderRadius.circular(6),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ListTile(
+                                    onTap: () => loginPage(ref, v,),
+                                    leading: (v.data?.user?.photo?.url != null) ? CircleAvatar(
+                                      backgroundColor: Colors.black12,
+                                      backgroundImage: NetworkImage(v.data?.user?.photo?.url ?? ''),
+                                    ) : Icon(CupertinoIcons.person_crop_circle_fill, size: 50, color: config.secondaryColor.shade100),
+                                    title: labels.label(v.data?.user?.name ?? 'N/A', fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87),
+                                    subtitle: labels.label('@${v.data?.user?.username ?? 'N/A'}', fontSize: 12, color: Colors.black54),
+                                    dense: true,
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                                    horizontalTitleGap: 8,
+                                    trailing: IconButton(
+                                      onPressed: () {},
+                                      padding: const EdgeInsets.all(12),
+                                      icon: Icon(Icons.more_vert_rounded, color: config.secondaryColor.shade400),
+                                    ),
+                                  ),
+
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 14),
+                        ],
 
                         const SizedBox(height: 30),
 
@@ -203,6 +241,47 @@ class BodyLogin extends ConsumerWidget {
 
       ],
     );
+  }
+
+  Future<void> loginPage(WidgetRef ref, UserSerial v) async {
+    Map<String, dynamic> data = {
+      'login': v.data?.user?.username ?? '',
+      'password': v.password ?? '',
+    };
+    final result = await ref.read(apiServiceProvider).submitData(data, ref, context: ref.context);
+
+    if (result is Map && result['data'] != null) {
+      Map<String, dynamic> updateRes = { ...result, ...data };
+      final res = UserSerial.fromJson(updateRes);
+      final list = await getSecure('list_user', type: List);
+      // Ensure list is not null and is a List
+      List<dynamic> userList = list ?? [];
+      bool updated = false;
+      // Iterate over the list to find and update the existing entry
+      for (int i = 0; i < userList.length; i++) {
+        final val = userList[i];
+        final resp = UserSerial.fromJson(val as Map<String, dynamic>);
+        if (resp.data?.user?.id == res.data?.user?.id) {
+          userList[i] = updateRes;
+          updated = true;
+          break;
+        }
+      }
+
+      // If the entry was not found, add it to the list
+      if (!updated) {
+        userList.add(updateRes);
+      }
+      // Save the updated list
+      await saveSecure('list_user', userList);
+      // direct to home page
+      Navigator.of(ref.context).popUntil((route) => route.isFirst);
+      alertSnack(ref.context, 'User login successfully!');
+    } else {
+      // check error
+      final keyLog = MessageLogin.fromJson(result ?? {});
+      myWidgets.showAlert(ref.context, '${keyLog.message}');
+    }
   }
 }
 

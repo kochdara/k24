@@ -151,3 +151,35 @@ Map<String, dynamic> _$ConImageToJson(ConImage instance) => <String, dynamic>{
       'medium': instance.medium?.toJson(),
       'large': instance.large?.toJson(),
     };
+
+ResumeData _$ResumeDataFromJson(Map json) => ResumeData(
+      id: const ToString().fromJson(json['id']),
+      userid: const ToString().fromJson(json['userid']),
+      name: const ToString().fromJson(json['name']),
+      nationality: const ToString().fromJson(json['nationality']),
+      photo: json['photo'] == null
+          ? null
+          : IconSerial.fromJson(
+              Map<String, dynamic>.from(json['photo'] as Map)),
+      education_level: json['education_level'] == null
+          ? null
+          : ResumeEduLevel.fromJson(json['education_level'] as Map?),
+      position: const ToString().fromJson(json['position']),
+      work_experience: const ToString().fromJson(json['work_experience']),
+      sender: const ToString().fromJson(json['sender']),
+      key: const ToString().fromJson(json['key']),
+    );
+
+Map<String, dynamic> _$ResumeDataToJson(ResumeData instance) =>
+    <String, dynamic>{
+      'id': const ToString().toJson(instance.id),
+      'userid': const ToString().toJson(instance.userid),
+      'name': const ToString().toJson(instance.name),
+      'nationality': const ToString().toJson(instance.nationality),
+      'photo': instance.photo?.toJson(),
+      'education_level': instance.education_level?.toJson(),
+      'position': const ToString().toJson(instance.position),
+      'work_experience': const ToString().toJson(instance.work_experience),
+      'sender': const ToString().toJson(instance.sender),
+      'key': const ToString().toJson(instance.key),
+    };

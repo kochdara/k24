@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:k24/helpers/config.dart';
@@ -14,6 +15,7 @@ import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/chats/chat_provider.dart';
 import 'package:k24/pages/chats/conversations/chat_conversation_provider.dart';
+import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/forms.dart';
 import 'package:k24/widgets/labels.dart';
@@ -24,6 +26,7 @@ import '../../../serialization/chats/conversation/conversation_serial.dart';
 import '../../../widgets/buttons.dart';
 import '../../../widgets/dialog_builder.dart';
 import '../../accounts/profile_public/another_profile.dart';
+import '../../details/details_post.dart';
 
 final Labels labels = Labels();
 final Config config = Config();
@@ -46,6 +49,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
   StateProvider<bool> hiddenProvider = StateProvider((ref) => false);
   StateProvider<bool> moreProvider = StateProvider((ref) => false);
   StateProvider<int> lengthProvider = StateProvider((ref) => 1);
+  StateProvider<double> pixelsPro = StateProvider((ref) => 0);
   StateProvider<Map<String, dynamic>> dataProvider = StateProvider((ref) => {});
   final apiServiceProvider = Provider((ref) => MarkApiService());
 
@@ -68,6 +72,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
       scrollController,
       lengthProvider,
       widget.chatData,
+      pixelsPro,
     ));
   }
 
@@ -159,6 +164,16 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
         scrollController: scrollController,
         fetching: ref.watch(lengthProvider),
       ),
+      floatingActionButton: (ref.watch(pixelsPro) > 1000) ? IconButton(
+        onPressed: () { scrollDown(duration: 100, trig: false); },
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          elevation: MaterialStateProperty.all<double>(5.0),
+          shadowColor: MaterialStateProperty.all<Color>(Colors.black),
+        ),
+        icon: const Icon(Icons.arrow_downward, size: 20,),
+      ) : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       bottomNavigationBar: Container(
         color: Colors.white,
         padding: EdgeInsets.only(top: 4, bottom: bottomHeight + 4),
@@ -434,11 +449,15 @@ class BodyChatDetails extends StatelessWidget {
       case 'photos' || 'photo':
         return typeImage(context, val);
       case 'post':
-        return typePost(val);
+        return typePost(context, val);
       case 'map':
-        return typeMap(val);
+        return typeMap(context, val);
       case 'file':
-        return typeFile(val);
+        return typeFile(context, val);
+      case 'business_card':
+        return typeBusiness(context, val);
+      case 'resume':
+        return typeResume(context, val);
       default:
         return typeText(val);
     }
@@ -459,6 +478,125 @@ class BodyChatDetails extends StatelessWidget {
       ),
       constraints: const BoxConstraints(maxWidth: 250),
       child: labels.selectLabel('${val.message}', fontSize: 15, color: Colors.black87),
+    );
+  }
+
+  Widget typeBusiness(BuildContext context, ConData val) {
+    final usePro = ref.watch(usersProvider);
+    final dataMore = DataMore.fromJson(val.data ?? {});
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(20),
+          topRight: const Radius.circular(20),
+          bottomLeft: Radius.circular((val.folder == 'send') ? 20 : 0),
+          bottomRight: Radius.circular((val.folder == 'send') ? 0 : 20),
+        ),
+        color: Colors.white,
+        border: Border.all(color: config.secondaryColor.shade50),
+      ),
+      constraints: const BoxConstraints(maxWidth: 250),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          /// header ///
+          ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.black12,
+              backgroundImage: NetworkImage('${(val.folder == 'send') ? usePro.user?.photo?.url : chatData.user?.photo?.url}'),
+            ),
+            dense: true,
+            horizontalTitleGap: 10,
+            contentPadding: const EdgeInsets.only(left: 14),
+            title: labels.label((val.folder == 'send') ? usePro.user?.name??'N/A' : chatData.user?.name??'N/A', fontSize: 15, color: Colors.black87),
+            subtitle: labels.label('@${(val.folder == 'send') ? usePro.user?.username??'N/A' : chatData.user?.username}', fontSize: 12, color: Colors.black54),
+            trailing: IconButton(
+              onPressed: () { },
+              icon: const Icon(Icons.more_vert_rounded, size: 20, color: Colors.black54,),
+            ),
+          ),
+          Divider(height: 2, color: config.secondaryColor.shade50,),
+
+          /// header ///
+          Container(
+            // width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            child: Column(
+              children: [
+                ListUI(icon: Icons.business_outlined, title: dataMore.company ?? 'N/A',),
+                const SizedBox(height: 4,),
+                ListUI(icon: Icons.call, title: (dataMore.phone ?? []).join(', '),),
+                const SizedBox(height: 4,),
+                ListUI(icon: Icons.email, title: dataMore.email ?? 'N/A',),
+                const SizedBox(height: 4,),
+                ListUI(icon: CupertinoIcons.location_solid, title: '${dataMore.address??''}${(dataMore.address??'').isNotEmpty ? ', ':''}${dataMore.location?.long_location ?? 'N/A'}',),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget typeResume(BuildContext context, ConData val) {
+    final dataMore = ResumeData.fromJson(val.data ?? {});
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(20),
+          topRight: const Radius.circular(20),
+          bottomLeft: Radius.circular((val.folder == 'send') ? 20 : 0),
+          bottomRight: Radius.circular((val.folder == 'send') ? 0 : 20),
+        ),
+        color: Colors.white,
+        border: Border.all(color: config.secondaryColor.shade50),
+      ),
+      constraints: const BoxConstraints(maxWidth: 250),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          /// header ///
+          ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.black12,
+              backgroundImage: NetworkImage(dataMore.photo?.url ?? ''),
+            ),
+            dense: true,
+            horizontalTitleGap: 10,
+            contentPadding: const EdgeInsets.only(left: 14),
+            title: labels.label('Resume', fontSize: 12, color: Colors.black54,),
+            subtitle: labels.label(dataMore.name??'N/A', fontSize: 15, color: Colors.black87,),
+            trailing: IconButton(
+              onPressed: () { },
+              icon: const Icon(Icons.more_vert_rounded, size: 20, color: Colors.black54,),
+            ),
+          ),
+
+          /// text descriptions ///
+          Container(
+            padding: const EdgeInsets.only(left: 14, right: 14, bottom: 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                labels.labelRich(dataMore.education_level?.title??'N/A', title2: 'Education Level: ', fontSize: 14, color: Colors.black87,),
+                labels.labelRich('${dataMore.work_experience??'N/A'}+ Year', title2: 'Working Experience: ', fontSize: 14, color: Colors.black87,),
+                labels.labelRich(dataMore.position??'N/A', title2: 'Current Position: ', fontSize: 14, color: Colors.black87,),
+                const SizedBox(height: 8,),
+
+                buttons.textButtons(
+                  title: 'View Resume(CV)',
+                  onPressed: () {},
+                  radius: 24.0,
+                ),
+
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 
@@ -511,57 +649,65 @@ class BodyChatDetails extends StatelessWidget {
     );
   }
 
-  Widget typePost(ConData val) {
+  Widget typePost(BuildContext context, ConData val) {
     final data = ChatPost.fromJson(val.data ?? {});
 
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 250),
-      child: Card.outlined(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(20),
-            topRight: const Radius.circular(20),
-            bottomLeft: Radius.circular((val.folder == 'send') ? 20 : 0),
-            bottomRight: Radius.circular((val.folder == 'send') ? 0 : 20),
-          ),
-          side: BorderSide(
-            color: Colors.grey.withOpacity(0.2),
-            width: 1,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 120,
-              width: double.infinity,
-              child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-                child: Image.network('${data.thumbnail}', fit: BoxFit.cover),
-              ),
+    return InkWell(
+      onTap: () {
+        routeAnimation(context, pageBuilder: DetailsPost(
+          title: '${data.title}',
+          data: GridCard(data: Data_.fromJson(data.toJson()),),
+        ));
+      },
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 250),
+        child: Card.outlined(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(20),
+              topRight: const Radius.circular(20),
+              bottomLeft: Radius.circular((val.folder == 'send') ? 20 : 0),
+              bottomRight: Radius.circular((val.folder == 'send') ? 0 : 20),
             ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  labels.selectLabel('${data.title}', color: Colors.black87, fontSize: 15, fontWeight: FontWeight.w400),
-                  labels.selectLabel('\$${data.price??0.00}', color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
-                ],
+            side: BorderSide(
+              color: Colors.grey.withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 120,
+                width: double.infinity,
+                child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                  child: Image.network('${data.thumbnail}', fit: BoxFit.cover),
+                ),
               ),
-            )
 
-          ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    labels.label('${data.title}', color: Colors.black87, fontSize: 15, fontWeight: FontWeight.w400),
+                    labels.label('\$${data.price??0.00}', color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                  ],
+                ),
+              )
+
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget typeMap(ConData val) {
+  Widget typeMap(BuildContext context, ConData val) {
     final data = ChatPost.fromJson(val.data ?? {});
 
     BorderRadiusGeometry borderRadius = BorderRadius.only(
@@ -609,7 +755,7 @@ class BodyChatDetails extends StatelessWidget {
     );
   }
 
-  Widget typeFile(ConData val) {
+  Widget typeFile(BuildContext context, ConData val) {
     final data = ChatPost.fromJson(val.data ?? {});
 
     return Container(
@@ -637,5 +783,31 @@ class BodyChatDetails extends StatelessWidget {
     );
   }
 }
+
+class ListUI extends StatelessWidget {
+  const ListUI({super.key,
+    required this.icon,
+    required this.title,
+  });
+
+  final IconData? icon;
+  final String? title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 3.0),
+          child: Icon(icon, size: 18, color: Colors.black54,),
+        ),
+        const SizedBox(width: 8,),
+        Expanded(child: labels.selectLabel(title ?? 'N/A', fontSize: 15, color: Colors.black54)),
+      ],
+    );
+  }
+}
+
 
 

@@ -24,6 +24,7 @@ Map<String, dynamic> _$ProfileSerialToJson(ProfileSerial instance) =>
     };
 
 DataProfile _$DataProfileFromJson(Map json) => DataProfile(
+      id: const ToString().fromJson(json['id']),
       username: const ToString().fromJson(json['username']),
       name: const ToString().fromJson(json['name']),
       photo: json['photo'] == null
@@ -53,6 +54,7 @@ DataProfile _$DataProfileFromJson(Map json) => DataProfile(
           ?.map(const ToString().fromJson)
           .toList(),
       link: const ToString().fromJson(json['link']),
+      menu: (json['menu'] as List<dynamic>?)?.map((e) => e as String).toList(),
       is_aved: const ToBool().fromJson(json['is_aved']),
       following: const ToString().fromJson(json['following']),
       followers: const ToString().fromJson(json['followers']),
@@ -66,6 +68,7 @@ DataProfile _$DataProfileFromJson(Map json) => DataProfile(
 
 Map<String, dynamic> _$DataProfileToJson(DataProfile instance) =>
     <String, dynamic>{
+      'id': const ToString().toJson(instance.id),
       'username': const ToString().toJson(instance.username),
       'name': const ToString().toJson(instance.name),
       'photo': instance.photo?.toJson(),
@@ -78,6 +81,7 @@ Map<String, dynamic> _$DataProfileToJson(DataProfile instance) =>
           instance.is_verify, const ToBool().toJson),
       'verified': instance.verified?.map(const ToString().toJson).toList(),
       'link': const ToString().toJson(instance.link),
+      'menu': instance.menu,
       'is_aved': _$JsonConverterToJson<Object?, bool>(
           instance.is_aved, const ToBool().toJson),
       'following': const ToString().toJson(instance.following),

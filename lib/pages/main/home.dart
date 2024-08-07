@@ -71,9 +71,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
             /// body //
             SliverList(
-              delegate: SliverChildBuilderDelegate(
-                childCount: 1, (BuildContext context, int index) {
-                return Center(
+              delegate: SliverChildListDelegate([
+                Center(
                   child: Container(
                     constraints: const BoxConstraints(maxWidth: maxWidth),
                     child: Column(
@@ -114,8 +113,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ],
                     ),
                   ),
-                );
-              }),
+                )
+              ]),
             ),
 
           ],

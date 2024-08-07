@@ -18,6 +18,7 @@ import 'package:k24/widgets/my_widgets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../serialization/notify/nortify_serial.dart';
+import '../../widgets/my_cards.dart';
 import '../accounts/edit_profile/edit_page.dart';
 import '../accounts/profile_public/another_profile.dart';
 
@@ -143,10 +144,10 @@ class BodyProfile extends ConsumerWidget {
                   color: config.secondaryColor.shade50,
                   borderRadius: BorderRadius.circular(50),
                 ),
-                child: (userPro.user?.photo?.url != null) ? ClipOval(
-                  child: FadeInImage.assetNetwork(placeholder: placeholder, image: '${userPro.user?.photo?.url}', fit: BoxFit.cover),
-                ) :
-                const Icon(Icons.person, size: 30, color: Colors.grey),
+                child: (userPro.user?.photo?.url != null) ? CircleAvatar(
+                  backgroundColor: Colors.black12,
+                  backgroundImage: NetworkImage(userPro.user?.photo?.url ?? ''),
+                ) : const Icon(Icons.person, size: 30, color: Colors.grey),
               ),
               dense: true,
               contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
@@ -218,8 +219,10 @@ class BodyProfile extends ConsumerWidget {
                     ref.read(usersProvider.notifier).update((state) => DataUser());
                     ref.read(dataBadgeProvider.notifier).update((state) => NotifyBadges());
                     deleteSecure('user');
+                    resetAllLikes();
                     Navigator.pop(context);
                     Navigator.of(context).popUntil((route) => route.isFirst);
+                    alertSnack(context, 'User logout successfully!');
                   });
                 },
                 textColor: Colors.red,

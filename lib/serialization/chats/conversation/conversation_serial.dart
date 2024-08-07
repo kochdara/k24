@@ -2,6 +2,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../helper.dart';
+import '../../jobs/details/details_serial.dart';
 import '../../try_convert.dart';
 
 part 'conversation_serial.g.dart';
@@ -149,4 +150,37 @@ class ConImage {
   Map? toJson() => _$ConImageToJson(this);
 
 }
+
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+class ResumeData {
+  String? id;
+  String? userid;
+  String? name;
+  String? nationality;
+  IconSerial? photo;
+  ResumeEduLevel? education_level;
+  String? position;
+  String? work_experience;
+  String? sender;
+  String? key;
+
+  ResumeData({
+    this.id,
+    this.userid,
+    this.name,
+    this.nationality,
+    this.photo,
+    this.education_level,
+    this.position,
+    this.work_experience,
+    this.sender,
+    this.key,
+  });
+
+  factory ResumeData.fromJson(Map? json) => _$ResumeDataFromJson(json!);
+  Map? toJson() => _$ResumeDataToJson(this);
+
+}
+
 

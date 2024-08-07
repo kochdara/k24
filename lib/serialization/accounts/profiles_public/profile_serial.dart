@@ -24,6 +24,7 @@ class ProfileSerial {
 
 @JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString(), ToDateTime(), ToBool(), ToLists()])
 class DataProfile {
+  String? id;
   String? username;
   String? name;
   CoverProfile? photo;
@@ -35,6 +36,7 @@ class DataProfile {
   bool? is_verify;
   List<String?>? verified;
   String? link;
+  List<String>? menu;
   bool? is_aved;
   String? following;
   String? followers;
@@ -42,6 +44,7 @@ class DataProfile {
   SettingProfile? setting;
 
   DataProfile({
+    this.id,
     this.username,
     this.name,
     this.photo,
@@ -53,6 +56,7 @@ class DataProfile {
     this.is_verify,
     this.verified,
     this.link,
+    this.menu,
     this.is_aved,
     this.following,
     this.followers,

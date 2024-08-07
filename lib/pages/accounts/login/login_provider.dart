@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/storage.dart';
 import 'package:k24/pages/chats/chat_page.dart';
+import 'package:k24/pages/more_provider.dart';
 import 'package:k24/serialization/users/user_serial.dart';
 
 import '../../../widgets/dialog_builder.dart';
@@ -84,9 +85,39 @@ void onSubmit(BuildContext context,
   ref.read(loginMessage.notifier).update((state) => MessageLogin());
   if(formKey.currentState!.validate()) {
     final result = await ref.read(apiServiceProvider).submitData(data, ref, context: context);
-    if(result is Map && result['data'] != null) {
+    if (result is Map && result['data'] != null) {
+      Map<String, dynamic> updateRes = { ...result, ...data };
+      final res = UserSerial.fromJson(updateRes);
+
+      final list = await getSecure('list_user', type: List);
+
+      // Ensure list is not null and is a List
+      List<dynamic> userList = list ?? [];
+
+      bool updated = false;
+
+      // Iterate over the list to find and update the existing entry
+      for (int i = 0; i < userList.length; i++) {
+        final val = userList[i];
+        final resp = UserSerial.fromJson(val as Map<String, dynamic>);
+        if (resp.data?.user?.id == res.data?.user?.id) {
+          userList[i] = updateRes;
+          updated = true;
+          break;
+        }
+      }
+
+      // If the entry was not found, add it to the list
+      if (!updated) {
+        userList.add(updateRes);
+      }
+
+      // Save the updated list
+      await saveSecure('list_user', userList);
+
       // direct to home page
       Navigator.of(context).popUntil((route) => route.isFirst);
+      alertSnack(ref.context, 'User login successfully!');
     } else {
       // check error
       final keyLog = MessageLogin.fromJson(result ?? {});

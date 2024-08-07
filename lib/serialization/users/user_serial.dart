@@ -8,9 +8,13 @@ part 'user_serial.g.dart';
 @JsonSerializable(anyMap: true, explicitToJson: true)
 class UserSerial {
   DataUser? data;
+  String? login;
+  String? password;
 
   UserSerial({
     this.data,
+    this.login,
+    this.password,
   });
 
   factory UserSerial.fromJson(Map<String, dynamic> json) => _$UserSerialFromJson(json);

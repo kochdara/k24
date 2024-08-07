@@ -7,13 +7,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../helpers/config.dart';
 import '../../../helpers/helper.dart';
 import '../../../serialization/grid_card/grid_card.dart';
+import '../../../serialization/users/user_serial.dart';
 import '../../main/home_provider.dart';
 
 part 'profile_provider.g.dart';
 
 @riverpod
 class ProfilePublic extends _$ProfilePublic {
-  final String fields = 'cover,photo,logo,link,username,online_status,type,is_verify,about,registered_date,created_date,owner_id,category,contact[name,location,phone,address,map],business_hours,branches,keywords,verified,is_saved,following,followers,is_follow';
+  final String fields = 'all';
   final String meta = 'true';
   final String functions = 'chat,save,follow';
 
@@ -50,6 +51,16 @@ class ProfilePublic extends _$ProfilePublic {
       print('Stacktrace: $stacktrace');
     }
     return ProfileSerial(data: DataProfile());
+  }
+
+  Future<void> setIsFollow(bool isFollow) async {
+    final newMap = state.valueOrNull;
+    if(newMap != null) {
+      newMap.data.is_follow = isFollow;
+      state = AsyncData(newMap);
+    } else {
+      state = state;
+    }
   }
 }
 
@@ -132,5 +143,44 @@ class ProfileList extends _$ProfileList {
       print('Stacktrace: $stacktrace');
     }
   }
+}
+
+
+class ProfileSendApiService {
+  final dio = Dio();
+
+  Future<MessageLogin> submitFollow(String key, Map<String, dynamic> data, {
+    required WidgetRef ref,
+  }) async {
+      final tokens = ref.watch(usersProvider);
+
+      final formData = FormData.fromMap(data);
+      final subs = 'me/$key?lang=$lang';
+
+      try {
+        final res = await dio.post('$baseUrl/$subs', data: formData, options: Options(headers: {
+          'Access-Token': tokens.tokens?.access_token
+        }, contentType: Headers.formUrlEncodedContentType));
+
+        print(res.data);
+
+        return MessageLogin.fromJson(res.data ?? {});
+      } on DioException catch (e) {
+        print(e.response);
+        if (e.response != null) {
+          // Handle DioError with response
+          final response = e.response;
+          // Handle Dio-specific errors
+          if (response?.statusCode == 401) {
+            // Token might have expired, try to refresh the token
+            await checkTokens(ref);
+            return await submitFollow(key, data, ref: ref); // Retry the request after refreshing the token
+          }
+        }
+      } catch (e) {
+        print(e);
+      }
+      return MessageLogin();
+    }
 }
 

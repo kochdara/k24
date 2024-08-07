@@ -33,6 +33,11 @@ class _ProfilePageState extends ConsumerState<LoginPage> {
   final passwordNode = FocusNode();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: config.backgroundColor,

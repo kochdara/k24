@@ -95,7 +95,20 @@ class BodyProfile extends StatelessWidget {
         slivers: [
           SliverAppBar(
             floating: true,
-            leading: Icon(CupertinoIcons.person_circle_fill, color: config.secondaryColor.shade50, size: 42),
+            leading: Center(
+              child: Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: config.secondaryColor.shade50,
+                  borderRadius: BorderRadius.circular(60),
+                ),
+                child: (userKey.user?.photo?.url != null) ? CircleAvatar(
+                  backgroundColor: Colors.black12,
+                  backgroundImage: NetworkImage(userKey.user?.photo?.url ?? ''),
+                ) : Icon(Icons.person, color: config.secondaryColor.shade200, size: 26),
+              ),
+            ),
             title: labels.label('${userKey.user?.name}', fontSize: 20, fontWeight: FontWeight.w500),
             titleSpacing: 6,
             actions: [

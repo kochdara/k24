@@ -9,11 +9,15 @@ part of 'user_serial.dart';
 UserSerial _$UserSerialFromJson(Map json) => UserSerial(
       data:
           json['data'] == null ? null : DataUser.fromJson(json['data'] as Map),
+      login: json['login'] as String?,
+      password: json['password'] as String?,
     );
 
 Map<String, dynamic> _$UserSerialToJson(UserSerial instance) =>
     <String, dynamic>{
       'data': instance.data?.toJson(),
+      'login': instance.login,
+      'password': instance.password,
     };
 
 DataUser _$DataUserFromJson(Map json) => DataUser(

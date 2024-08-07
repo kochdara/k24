@@ -192,10 +192,12 @@ class ConversationPage extends _$ConversationPage {
 
 void onScroll(WidgetRef ref, ScrollController scrollController,
     StateProvider<int> lengthProvider,
-    ChatData chatData) async {
+    ChatData chatData,
+    StateProvider<double> pixelsPro,
+  ) async {
   final maxScroll = scrollController.position.maxScrollExtent;
   final currentScroll = scrollController.position.pixels;
-
+  ref.read(pixelsPro.notifier).state = currentScroll;
   if (currentScroll == maxScroll) {
     final len = ref.read(lengthProvider);
     if (len > 0) {

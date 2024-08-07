@@ -157,44 +157,47 @@ class MyCards {
 
   Widget cardCategory(List<MainCategory> data) {
     return Visibility(
-      visible: (data.isEmpty) ? false : true,
+      visible: data.isNotEmpty,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 12.0),
         decoration: const BoxDecoration(color: Colors.white),
-        alignment: Alignment.center,
         child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              double width = constraints.maxWidth;
-              return Wrap(
-                spacing: spaceMenu,
-                runSpacing: spaceMenu,
-                children: [
-
-                  for(final v in data) ...[
-                    cardMenu(map: {
-                      'title': v.en_name,
-                      'url': v.icon?.url,
-                      'width': width,
-                      'img_width': 35.0,
-                      'size': 11.0
-                    }, onTap: () {
-                      if(v.id != null && v.id != '#') {
-                        routeNoAnimation(
-                          context,
-                          pageBuilder: SubCategory(title: 'Sub Category', data: {
+          builder: (BuildContext context, BoxConstraints constraints) {
+            double width = constraints.maxWidth;
+            return Wrap(
+              spacing: spaceMenu,
+              runSpacing: spaceMenu,
+              children: data.map((v) {
+                return cardMenu(
+                  map: {
+                    'title': v.en_name,
+                    'url': v.icon?.url,
+                    'width': width,
+                    'img_width': 35.0,
+                    'size': 11.0,
+                  },
+                  onTap: () {
+                    if (v.id != null && v.id != '#') {
+                      routeNoAnimation(
+                        context,
+                        pageBuilder: SubCategory(
+                          title: 'Sub Category',
+                          data: {
                             'id': v.id ?? '',
                             'title': v.en_name ?? '',
                             'slug': v.slug ?? ''
-                          }, condition: false, setFilters: jsonEncode({})),
-                        );
-                      }
-                    }),
-                  ],
-
-                ],
-              );
-            }
+                          },
+                          condition: false,
+                          setFilters: jsonEncode({}),
+                        ),
+                      );
+                    }
+                  },
+                );
+              }).toList(),
+            );
+          },
         ),
       ),
     );
@@ -1028,6 +1031,23 @@ class MyCards {
                     child: DiscountPage(discount: discountString(data?.discount?.type, data?.discount?.amount_saved, data?.discount?.original_price),),
                   ),
                 ),
+
+                /// more ///
+                Positioned(
+                  top: 6,
+                  right: 6,
+                  child: InkWell(
+                    onTap: () => moreDetailsPro(context, v),
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(16)
+                      ),
+                      child: const Icon(Icons.more_vert_rounded, size: 18,  color: Colors.white),
+                    ),
+                  ),
+                ),
               ],
             ),
 
@@ -1127,12 +1147,22 @@ Future<void> moreDetailsPro(BuildContext context, GridCard data) async {
   );
 }
 
+final List<LikeNotifier> _notifiers = [];
+
 final likeProvider = StateNotifierProvider.family<LikeNotifier, bool, String?>((ref, id) => LikeNotifier());
 
 class LikeNotifier extends StateNotifier<bool> {
-  LikeNotifier() : super(false);
-
+  LikeNotifier() : super(false) {
+    _notifiers.add(this);
+  }
   void toggleLike() => state = !state;
+  void reset() => state = false;
+}
+
+void resetAllLikes() {
+  for (final notifier in _notifiers) {
+    notifier.reset();
+  }
 }
 
 class MyWidgetLikes extends ConsumerWidget {

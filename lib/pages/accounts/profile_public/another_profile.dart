@@ -1,5 +1,7 @@
 
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +9,7 @@ import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
 import 'package:k24/pages/accounts/profile_public/profile_provider.dart';
 import 'package:k24/pages/main/home_provider.dart';
+import 'package:k24/pages/more_provider.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/labels.dart';
@@ -15,7 +18,6 @@ import 'package:k24/widgets/my_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../serialization/grid_card/grid_card.dart';
-import '../../../serialization/accounts/profiles_public/profile_serial.dart';
 
 final Labels labels = Labels();
 final Buttons buttons = Buttons();
@@ -36,6 +38,7 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
   final ScrollController scrollController = ScrollController();
   final StateProvider<bool> showBar = StateProvider((ref) => false);
   final StateProvider<int> changePage = StateProvider((ref) => 0);
+  final StateProvider<Map> tmpPro = StateProvider((ref) => {});
 
   @override
   void initState() {
@@ -61,7 +64,8 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
     final userDatum = widget.userData;
     final username = '${userDatum?.username}';
     final profileListPub = profileListProvider(ref, username);
-    final profilePro = ref.watch(profilePublicProvider(ref, username));
+
+    final profilePro = profilePublicProvider(ref, username);
     final profileList = ref.watch(profileListPub);
 
     return DefaultTabController(
@@ -89,6 +93,7 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
             scrollController: scrollController,
             showBar: showBar,
             changePage: changePage,
+            tmpPro: tmpPro,
           ),
         ),
         bottomNavigationBar: myWidgets.bottomBarPage(
@@ -105,24 +110,29 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
 }
 
 class BodyProfile extends StatelessWidget {
-  const BodyProfile(this.ref, {super.key,
+  BodyProfile(this.ref, {super.key,
     required this.profilePro,
     required this.profileList,
     required this.scrollController,
     required this.showBar,
     required this.changePage,
+    required this.tmpPro,
   });
 
   final WidgetRef ref;
-  final AsyncValue<ProfileSerial?> profilePro;
+  final ProfilePublicProvider profilePro;
   final AsyncValue<List<GridCard>> profileList;
   final ScrollController scrollController;
   final StateProvider<bool> showBar;
   final StateProvider<int> changePage;
+  final StateProvider<Map> tmpPro;
+  final sendApi = Provider((ref) => ProfileSendApiService());
 
   @override
   Widget build(BuildContext context) {
     TextStyle? style = const TextStyle(color: Colors.black87, fontSize: 14, fontFamily: 'en');
+    final tmp = ref.watch(tmpPro);
+    final profile = ref.watch(profilePro);
 
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints cons) {
@@ -137,7 +147,7 @@ class BodyProfile extends StatelessWidget {
                 SliverList(
                   delegate: SliverChildListDelegate([
 
-                    profilePro.when(
+                    profile.when(
                       error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () {}),
                       loading: () => const SizedBox(
                         height: 350,
@@ -214,13 +224,16 @@ class BodyProfile extends StatelessWidget {
                                     child: Row(
                                       children: [
                                         buttons.textButtons(
-                                          title: 'Follow',
-                                          onPressed: () { },
+                                          title: 'Follow${(datum?.is_follow == true) ? 'ing' : ''}',
+                                          onPressed: () => submitDataPro({
+                                            'id': '${datum?.id}',
+                                            'type': 'user',
+                                          }, datum?.is_follow == true, profilePro),
                                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
                                           textColor: config.primaryAppColor.shade600,
                                           bgColor: Colors.transparent,
                                           borderColor: Colors.transparent,
-                                          prefixIcon: Icons.add,
+                                          prefixIcon: (datum?.is_follow == true || tmp['is_follow'] == true) ? Icons.check : Icons.add,
                                           prefColor: config.primaryAppColor.shade600,
                                           prefixSize: 16,
                                         ),
@@ -417,6 +430,30 @@ class BodyProfile extends StatelessWidget {
         );
       }
     );
+  }
+
+  Future<void> submitDataPro(Map<String, dynamic> data, bool is_follow, ProfilePublicProvider profilePro) async {
+    final sendData = ref.watch(sendApi);
+    // submit to clear follow //
+    if(is_follow) {
+      showActionSheet(ref.context, [
+        MoreTypeInfo('unfollow', 'Unfollow', null, null, () async {
+          final result = await sendData.submitFollow('unfollow', data, ref: ref);
+          if(result.message != null) {
+            ref.read(profilePro.notifier).setIsFollow(false);
+            alertSnack(ref.context, result.message ?? 'N/A');
+          }
+        }),
+      ]);
+
+      // submit to follow //
+    } else {
+      final result = await sendData.submitFollow('follow', data, ref: ref);
+      if(result.message != null) {
+        ref.read(profilePro.notifier).setIsFollow(true);
+        alertSnack(ref.context, result.message ?? 'N/A');
+      }
+    }
   }
 }
 
