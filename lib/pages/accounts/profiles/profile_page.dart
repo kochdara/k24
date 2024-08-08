@@ -24,6 +24,7 @@ import 'package:k24/widgets/my_widgets.dart';
 
 import '../../../serialization/accounts/profiles_public/profile_serial.dart';
 import '../../details/details_post.dart';
+import '../../likes/like_page.dart';
 import '../../more_provider.dart';
 import '../../posts/post_page.dart';
 import '../profile_public/profile_provider.dart';
@@ -282,7 +283,9 @@ class BodyProfile extends StatelessWidget {
                                     runSpacing: 2,
                                     direction: Axis.horizontal,
                                     children: [
-                                      ButtonsUI(prefixIcon: Icons.favorite, title: 'Likes', width: width, onPressed: () => {}),
+                                      ButtonsUI(prefixIcon: Icons.favorite, title: 'Likes', width: width, onPressed: () {
+                                        routeNoAnimation(context, pageBuilder: const LikesPage());
+                                      }),
                                       ButtonsUI(prefixIcon: Icons.bookmark, title: 'Saves', width: width, onPressed: () => {}),
                                       ButtonsUI(prefixIcon: Icons.work, title: 'Applied jobs', width: width, onPressed: () => {}),
                                       ButtonsUI(prefixIcon: Icons.assignment, title: 'Job Applications', width: width, onPressed: () => {}),

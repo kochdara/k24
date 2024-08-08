@@ -18,7 +18,7 @@ part 'sub_provider.g.dart';
 class SubLists extends _$SubLists {
   late List<GridCard> list = [];
   String fields = 'thumbnail,photos,location,user,store,renew_date,link,category,is_saved,is_like,total_like,total_comment,highlight_specs,condition,object_highlight_specs';
-  String fun = 'save,chat,like,comment,apply_job,shipping,banner[image,code,google_ads,iframe,innity],highlight_ads[highlight_specs],highlight_ads[object_highlight_specs]';
+  String fun = 'save,chat,like,comment,apply_job,shipping';
 
   int limit = 0;
   int current_result = 0;

@@ -29,7 +29,7 @@ class HomeSerial {
 
 }
 
-@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString(), ToLists()])
 class GridCard {
   @JsonKey(fromJson: ToString.tryConvert)
   String? type;
@@ -49,7 +49,7 @@ class GridCard {
 
 }
 
-@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString(), ToBool(), ToInt(), ToDouble(), ToDateTime()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString(), ToBool(), ToInt(), ToDouble(), ToDateTime(), ToLists()])
 class Data_ {
   @JsonKey(fromJson: ToString.tryConvert)
   String? id;

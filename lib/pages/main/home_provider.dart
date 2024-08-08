@@ -56,7 +56,7 @@ class GetMainCategory extends _$GetMainCategory {
 @riverpod
 class HomeLists extends _$HomeLists {
   final Dio dio = Dio();
-  final String fields = 'thumbnail,photos,location,user,store,renew_date,link,category,is_saved,is_like,total_like,total_comment,condition,highlight_specs';
+  final String fields = 'thumbnail,photos,location,user,store,renew_date,link,category,is_saved,is_like,total_like,total_comment,highlight_specs,condition,object_highlight_specs';
   final String fun = 'banner,save,chat,like,comment,apply_job,shipping';
 
   List<GridCard> _list = [];

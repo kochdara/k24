@@ -10,6 +10,7 @@ import 'package:k24/helpers/converts.dart';
 import 'package:k24/pages/accounts/profile_public/profile_provider.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/pages/more_provider.dart';
+import 'package:k24/serialization/chats/chat_serial.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/labels.dart';
@@ -17,7 +18,10 @@ import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../helpers/helper.dart';
+import '../../../serialization/accounts/profiles_public/profile_serial.dart';
 import '../../../serialization/grid_card/grid_card.dart';
+import '../../chats/conversations/chat_conversation.dart';
 
 final Labels labels = Labels();
 final Buttons buttons = Buttons();
@@ -38,7 +42,8 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
   final ScrollController scrollController = ScrollController();
   final StateProvider<bool> showBar = StateProvider((ref) => false);
   final StateProvider<int> changePage = StateProvider((ref) => 0);
-  final StateProvider<Map> tmpPro = StateProvider((ref) => {});
+  StateProvider<bool> isLoadingPro = StateProvider((ref) => false);
+  StateProvider<int> lengthPro = StateProvider((ref) => 1);
 
   @override
   void initState() {
@@ -47,16 +52,44 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
       final scrollPosition = scrollController.position.pixels;
       final currentShowBarState = ref.watch(showBar);
       updateShowBarState(scrollPosition, currentShowBarState);
+      final maxScrollExtent = scrollController.position.maxScrollExtent;
+      if (scrollPosition > maxScrollExtent - 50 && scrollPosition <= maxScrollExtent) {
+        _fetchMoreData();
+      }
     });
     setupPage();
   }
 
   void updateShowBarState(double scrollPosition, bool currentShowBarState) {
-    if (scrollPosition >= 450.0 && !currentShowBarState) {
+    if (scrollPosition >= 500.0 && !currentShowBarState) {
       ref.read(showBar.notifier).update((state) => true);
-    } else if (scrollPosition < 450.0 && currentShowBarState) {
+    } else if (scrollPosition < 500.0 && currentShowBarState) {
       ref.read(showBar.notifier).update((state) => false);
     }
+  }
+
+  Future<void> _fetchMoreData() async {
+    final watch = ref.watch(isLoadingPro);
+    final read = ref.read(isLoadingPro.notifier);
+    final readLen = ref.read(lengthPro.notifier);
+    if (watch) return;
+    read.state = true;
+
+    final userDatum = widget.userData;
+    final username = '${userDatum?.username}';
+    final profileListPub = profileListProvider(ref, username);
+    final fetchMore = ref.read(profileListPub.notifier);
+    fetchMore.fetchHome();
+
+    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
+    readLen.state = fetchMore.length;
+    read.state = false;
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -72,7 +105,7 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: labels.label('${userDatum?.name}', fontSize: 20, fontWeight: FontWeight.w500),
+          title: labels.label('${userDatum?.name}', fontSize: 20, fontWeight: FontWeight.w500, maxLines: 1, overflow: TextOverflow.ellipsis),
           titleSpacing: 6,
           elevation: 0.0,
           shadowColor: Colors.transparent,
@@ -85,7 +118,11 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
         ),
         backgroundColor: config.backgroundColor,
         body: RefreshIndicator(
-          onRefresh: () => ref.read(profileListPub.notifier).refresh(username),
+          onRefresh: () async {
+            ref.read(profileListPub.notifier).refresh(username);
+            ref.read(isLoadingPro.notifier).state = false;
+            ref.read(lengthPro.notifier).state = 1;
+          },
           child: BodyProfile(
             ref,
             profilePro: profilePro,
@@ -93,7 +130,8 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
             scrollController: scrollController,
             showBar: showBar,
             changePage: changePage,
-            tmpPro: tmpPro,
+            isLoadingPro: isLoadingPro,
+            lengthPro: lengthPro,
           ),
         ),
         bottomNavigationBar: myWidgets.bottomBarPage(
@@ -116,7 +154,8 @@ class BodyProfile extends StatelessWidget {
     required this.scrollController,
     required this.showBar,
     required this.changePage,
-    required this.tmpPro,
+    required this.isLoadingPro,
+    required this.lengthPro,
   });
 
   final WidgetRef ref;
@@ -125,13 +164,13 @@ class BodyProfile extends StatelessWidget {
   final ScrollController scrollController;
   final StateProvider<bool> showBar;
   final StateProvider<int> changePage;
-  final StateProvider<Map> tmpPro;
+  final StateProvider<bool> isLoadingPro;
+  final StateProvider<int> lengthPro;
   final sendApi = Provider((ref) => ProfileSendApiService());
 
   @override
   Widget build(BuildContext context) {
     TextStyle? style = const TextStyle(color: Colors.black87, fontSize: 14, fontFamily: 'en');
-    final tmp = ref.watch(tmpPro);
     final profile = ref.watch(profilePro);
 
     return LayoutBuilder(
@@ -233,7 +272,7 @@ class BodyProfile extends StatelessWidget {
                                           textColor: config.primaryAppColor.shade600,
                                           bgColor: Colors.transparent,
                                           borderColor: Colors.transparent,
-                                          prefixIcon: (datum?.is_follow == true || tmp['is_follow'] == true) ? Icons.check : Icons.add,
+                                          prefixIcon: (datum?.is_follow == true) ? Icons.check : Icons.add,
                                           prefColor: config.primaryAppColor.shade600,
                                           prefixSize: 16,
                                         ),
@@ -256,43 +295,32 @@ class BodyProfile extends StatelessWidget {
                                   labels.label('@${datum?.username}', color: Colors.black54, fontSize: 14),
                                   labels.label('${datum?.followers ?? '0'} followers • ${datum?.following ?? '0'} Following', color: Colors.black87, fontSize: 14),
 
-                                  Flex(
-                                    direction: Axis.horizontal,
-                                    children: [
-                                      if(datum?.is_verify == true) labels.labelIcon(
-                                        leftIcon: const Padding(
-                                          padding: EdgeInsets.only(right: 6.0),
-                                          child: Icon(Icons.check_circle_outline, size: 14),
-                                        ),
-                                        leftTitle: 'Verified',
-                                        style: style,
-                                      ),
-                                    ],
+                                  if(datum?.is_verify == true) labels.labelIcon(
+                                    leftIcon: const Padding(
+                                      padding: EdgeInsets.only(right: 6.0),
+                                      child: Icon(Icons.check_circle_outline, size: 14),
+                                    ),
+                                    leftTitle: 'Verified',
+                                    style: style,
                                   ),
 
-                                  Wrap(
-                                    spacing: 20,
-                                    runSpacing: 8,
-                                    direction: Axis.horizontal,
-                                    children: [
-                                      labels.labelIcon(
-                                        leftIcon: const Padding(
-                                          padding: EdgeInsets.only(right: 6.0),
-                                          child: Icon(Icons.calendar_today_outlined, size: 14),
-                                        ),
-                                        leftTitle: 'Joined ${stringToString(date: '${datum?.registered_date}', format: 'dd, MMM yyyy')}',
-                                        style: style,
-                                      ),
+                                  labels.labelIcon(
+                                    leftIcon: const Padding(
+                                      padding: EdgeInsets.only(right: 6.0),
+                                      child: Icon(Icons.calendar_today_outlined, size: 14),
+                                    ),
+                                    leftTitle: 'Joined ${stringToString(date: '${datum?.registered_date}', format: 'dd, MMM yyyy')}',
+                                    style: style,
+                                  ),
 
-                                      if(datum?.contact?.address != null) labels.labelIcon(
-                                        leftIcon: const Padding(
-                                          padding: EdgeInsets.only(right: 6.0),
-                                          child: Icon(Icons.location_on_outlined, size: 14),
-                                        ),
-                                        leftTitle: '${datum?.contact?.address}',
-                                        style: style,
-                                      ),
-                                    ],
+                                  if(datum?.contact?.address != null) labels.labelIcon(
+                                    leftIcon: const Padding(
+                                      padding: EdgeInsets.only(right: 6.0),
+                                      child: Icon(Icons.location_on_outlined, size: 14),
+                                    ),
+                                    leftTitle: '${datum?.contact?.address}',
+                                    style: style,
+                                    maxLines: 2,
                                   ),
 
                                   const SizedBox(height: 10),
@@ -305,7 +333,7 @@ class BodyProfile extends StatelessWidget {
                                         Expanded(
                                           child: buttons.textButtons(
                                             title: 'Call',
-                                            onPressed: () {  },
+                                            onPressed: () => callFun(context, datum),
                                             prefixIcon: Icons.call,
                                             prefColor: Colors.white,
                                             prefixSize: 20,
@@ -317,11 +345,23 @@ class BodyProfile extends StatelessWidget {
                                           ),
                                         ),
                                         const SizedBox(width: 10),
-                                        ButtonUIS(icon: Icons.sms, onPressed: () {}),
+                                        ButtonUIS(icon: Icons.sms, onPressed: () => smsFun(context, datum)),
                                         const SizedBox(width: 10),
                                         ButtonUIS(icon: CupertinoIcons.qrcode, onPressed: () {}),
                                         const SizedBox(width: 10),
-                                        ButtonUIS(icon: Icons.more_horiz, onPressed: () {}),
+                                        ButtonUIS(icon: Icons.more_horiz, onPressed: () {
+                                          showActionSheet2(context, [
+                                            MoreTypeInfo('Follow${(datum?.is_follow == true) ? 'ing' : ''}', '', (datum?.is_follow == true) ? Icons.check : Icons.add, null, () => submitDataPro({
+                                              'id': '${datum?.id}',
+                                              'type': 'user',
+                                            }, datum?.is_follow == true, profilePro)),
+                                            MoreTypeInfo('Save', '', Icons.bookmark_border, null, () { }),
+                                            MoreTypeInfo('Copy link', meta?.url ?? '', Icons.link, null, () { }),
+                                            MoreTypeInfo('Direction', '', Icons.u_turn_right_outlined, null, () { }),
+                                            MoreTypeInfo('QR Code', '', CupertinoIcons.qrcode, null, () { }),
+                                            MoreTypeInfo('Report', '', Icons.report_gmailerrorred_sharp, null, () { }),
+                                          ]);
+                                        }),
                                       ],
                                     ),
                                   ),
@@ -348,6 +388,13 @@ class BodyProfile extends StatelessWidget {
                                     notRelates: false,
                                   ),
                                 ),
+
+                                /// loading data ///
+                                if(ref.watch(isLoadingPro) && ref.watch(lengthPro) > 0) Container(
+                                  alignment: Alignment.center,
+                                  padding: const EdgeInsets.all(20),
+                                  child: const CircularProgressIndicator(),
+                                ) else if(ref.watch(lengthPro) <= 0) const NoMoreResult(),
                               ],
                             ),
                             // about page
@@ -430,6 +477,31 @@ class BodyProfile extends StatelessWidget {
         );
       }
     );
+  }
+
+  Future<void> callFun(BuildContext context, DataProfile? datum) async {
+    if(checkLogs(ref)) {
+      final phone = datum?.contact?.phone_white_operator ?? [];
+      showActionSheet(context, [
+        for(final v in phone)
+          MoreTypeInfo(v?.slug ?? '', v?.phone ?? '', null, null, () async {
+            final Uri smsLaunchUri = Uri(
+              scheme: 'tel',
+              path: v?.phone ?? '',
+            );
+            await launchUrl(smsLaunchUri);
+          }),
+      ]);
+    }
+  }
+
+  Future<void> smsFun(BuildContext context, DataProfile? datum) async {
+    if(checkLogs(ref)) {
+      routeAnimation(context, pageBuilder: ChatConversations(chatData: ChatData(
+          to_id: datum?.id,
+          user: ChatUser.fromJson(datum?.toJson() ?? {})
+      )));
+    }
   }
 
   Future<void> submitDataPro(Map<String, dynamic> data, bool is_follow, ProfilePublicProvider profilePro) async {

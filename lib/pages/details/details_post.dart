@@ -249,7 +249,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                   width: width,
                   child: buttons.textButtons(
                     title: 'Call',
-                    onPressed: () { },
+                    onPressed: () => callFun(dataDetails?.data?.phone_white_operator),
                     padSize: 10,
                     textSize: 18,
                     textWeight: FontWeight.w500,
@@ -285,6 +285,22 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
           }
       ),
     );
+  }
+
+  Future<void> callFun(List<PhoneWhiteOperator?>? phones) async {
+    if(checkLogs(ref)) {
+      final phone = phones ?? [];
+      showActionSheet(ref.context, [
+        for(final v in phone)
+          MoreTypeInfo(v?.slug ?? '', v?.phone ?? '', null, null, () async {
+            final Uri smsLaunchUri = Uri(
+              scheme: 'tel',
+              path: v?.phone ?? '',
+            );
+            await launchUrl(smsLaunchUri);
+          }),
+      ]);
+    }
   }
 }
 

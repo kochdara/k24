@@ -58,8 +58,6 @@ class ProfilePublic extends _$ProfilePublic {
     if(newMap != null) {
       newMap.data.is_follow = isFollow;
       state = AsyncData(newMap);
-    } else {
-      state = state;
     }
   }
 }
@@ -74,8 +72,8 @@ class ProfileList extends _$ProfileList {
   String? usernames;
 
   int limit = 0;
-  int current_result = 0;
   int offset = 0;
+  int length = 1;
 
   @override
   Future<List<GridCard>> build(WidgetRef context, String username) {
@@ -84,16 +82,14 @@ class ProfileList extends _$ProfileList {
   }
 
   Future<List<GridCard>> fetchHome() async {
-    if (current_result >= limit) {
-      await fetchProfiles(usernames!);
-    }
+    await fetchProfiles(usernames!);
     return list;
   }
 
   Future<void> refresh(String username) async {
     limit = 0;
-    current_result = 0;
     offset = 0;
+    length = 1;
     list.clear();
     state = const AsyncLoading();
 
@@ -110,20 +106,25 @@ class ProfileList extends _$ProfileList {
         'Access-Token': accessToken,
       } : null));
 
+      print('object: ${offset + limit}');
+
       if (res.statusCode == 200) {
         final HomeSerial resp = HomeSerial.fromJson(res.data ?? {});
         limit = resp.limit ?? 0;
-        offset = resp.offset ?? 0;
-        current_result = resp.current_result ?? 0;
-
         final newProfiles = resp.data ?? [];
-        for (final val in newProfiles) {
-          final index = list.indexWhere((element) => element.data?.id == val?.data?.id);
+        length = newProfiles.length;
 
-          if (index != -1) {
-            list[index] = val!;
-          } else {
-            list.add(val!);
+        if(newProfiles.isNotEmpty) {
+          offset = resp.offset ?? 0;
+
+          for (final val in newProfiles) {
+            final index = list.indexWhere((element) => element.data?.id == val?.data?.id);
+
+            if (index != -1) {
+              list[index] = val!;
+            } else {
+              list.add(val!);
+            }
           }
         }
       } else {
@@ -136,6 +137,7 @@ class ProfileList extends _$ProfileList {
         // Token might have expired, try to refresh the token
         await checkTokens(context);
         await fetchHome(); // Retry the request after refreshing the token
+        return;
       }
       print('Dio error: ${e.message}');
     } catch (e, stacktrace) {

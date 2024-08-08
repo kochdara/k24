@@ -4,6 +4,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:k24/widgets/labels.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:photo_view/photo_view.dart';
 
 import '../helpers/storage.dart';
@@ -154,3 +155,32 @@ Future<void> viewImage(BuildContext context, String image) {
       }
   );
 }
+
+
+void showActionSheet2(BuildContext context, List<MoreTypeInfo> listMore) {
+  showBarModalBottomSheet(context: context,
+    builder: (context) => Material(
+      child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final type in listMore) ListTile(
+                onTap: () {
+                  Navigator.pop(context);
+                  type.onTap!();
+                },
+                leading: (type.icon != null) ? Icon(type.icon, size: 22, color: Colors.black87,) : null,
+                title: labels.label(type.name, color: Colors.black87, fontSize: 16),
+                shape: const Border(bottom: BorderSide(color: Colors.black12)),
+                subtitle: (type.description.isNotEmpty) ? labels.label(type.description, color: Colors.black87, fontSize: 13) : null,
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+

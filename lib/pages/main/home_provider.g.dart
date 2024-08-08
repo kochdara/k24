@@ -172,7 +172,7 @@ class _GetMainCategoryProviderElement
   String get parent => (origin as GetMainCategoryProvider).parent;
 }
 
-String _$homeListsHash() => r'20597f0167fbcf289b2275275d9897f6001cd363';
+String _$homeListsHash() => r'808e96a2fbda469d067ac81cf290c363c19b9f73';
 
 abstract class _$HomeLists
     extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {

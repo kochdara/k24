@@ -280,7 +280,7 @@ class BodyLogin extends ConsumerWidget {
     } else {
       // check error
       final keyLog = MessageLogin.fromJson(result ?? {});
-      myWidgets.showAlert(ref.context, '${keyLog.message}');
+      myWidgets.showAlert(ref.context, '${keyLog.message}', title: 'Alert');
     }
   }
 }

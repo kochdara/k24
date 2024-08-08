@@ -2,6 +2,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:k24/pages/accounts/check_login.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/serialization/banners/banner_serial.dart';
 import 'package:k24/serialization/notify/nortify_serial.dart';
@@ -174,4 +175,13 @@ void alertSnack(BuildContext context, String title) {
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }
 
+bool checkLogs(WidgetRef ref, ) {
+  final userPro = ref.watch(usersProvider);
+  if(userPro.user?.id != null) {
+    return true;
+  } else {
+    routeAnimation(ref.context, pageBuilder: const CheckLoginPage());
+    return false;
+  }
+}
 

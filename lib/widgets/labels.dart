@@ -92,6 +92,7 @@ class Labels {
     Widget? centerIcon,
     Widget? rightIcon,
     TextStyle? style,
+    int? maxLines,
   }) {
     return RichText(
       text: TextSpan(
@@ -105,6 +106,7 @@ class Labels {
         ],
       ),
       overflow: TextOverflow.ellipsis,
+      maxLines: maxLines,
     );
   }
 
