@@ -18,7 +18,6 @@ import 'package:k24/widgets/my_widgets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../serialization/notify/nortify_serial.dart';
-import '../../widgets/my_cards.dart';
 import '../accounts/edit_profile/edit_page.dart';
 import '../accounts/profile_public/another_profile.dart';
 
@@ -219,7 +218,6 @@ class BodyProfile extends ConsumerWidget {
                     ref.read(usersProvider.notifier).update((state) => DataUser());
                     ref.read(dataBadgeProvider.notifier).update((state) => NotifyBadges());
                     deleteSecure('user');
-                    resetAllLikes();
                     Navigator.pop(context);
                     Navigator.of(context).popUntil((route) => route.isFirst);
                     alertSnack(context, 'User logout successfully!');

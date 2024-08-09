@@ -50,8 +50,9 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = homeListsProvider(ref, ref.watch(newData));
     final mainCate = ref.watch(getMainCategoryProvider('0'));
-    final homeList = ref.watch(homeListsProvider(ref, ref.watch(newData)));
+    final homeList = ref.watch(provider);
     final bannerAds = ref.watch(getBannerAdsProvider('app', 'image'));
 
     return Scaffold(
@@ -107,6 +108,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                             data,
                             fetching: ref.watch(fetchingProvider),
                             viewPage: ref.watch(viewPageProvider),
+                            provider: provider,
                           ),
                         ),
 

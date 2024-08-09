@@ -74,7 +74,8 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
   Widget build(BuildContext context) {
     final dataCate = widget.data;
     final watchCate = ref.watch(getMainCategoryProvider('${dataCate['id']}'));
-    final watchLists = ref.watch(subListsProvider(ref, '${dataCate['slug']}', newFilter: ref.watch(newData) as Map?));
+    final provider = subListsProvider(ref, '${dataCate['slug']}', newFilter: ref.watch(newData) as Map?);
+    final watchLists = ref.watch(provider);
 
     final title = ref.watch(newData)['keyword'];
 
@@ -182,6 +183,7 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
                                   data,
                                   fetching: ref.watch(fetchingProvider),
                                   viewPage: ref.watch(viewPageProvider),
+                                  provider: provider,
                                 ),
                               ),
 

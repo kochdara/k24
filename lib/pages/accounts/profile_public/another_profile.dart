@@ -132,6 +132,7 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
             changePage: changePage,
             isLoadingPro: isLoadingPro,
             lengthPro: lengthPro,
+            provider: profileListPub,
           ),
         ),
         bottomNavigationBar: myWidgets.bottomBarPage(
@@ -156,6 +157,7 @@ class BodyProfile extends StatelessWidget {
     required this.changePage,
     required this.isLoadingPro,
     required this.lengthPro,
+    required this.provider,
   });
 
   final WidgetRef ref;
@@ -166,6 +168,7 @@ class BodyProfile extends StatelessWidget {
   final StateProvider<int> changePage;
   final StateProvider<bool> isLoadingPro;
   final StateProvider<int> lengthPro;
+  final dynamic provider;
   final sendApi = Provider((ref) => ProfileSendApiService());
 
   @override
@@ -386,6 +389,7 @@ class BodyProfile extends StatelessWidget {
                                     fetching: false,
                                     viewPage: ref.watch(viewPageProvider),
                                     notRelates: false,
+                                    provider: provider,
                                   ),
                                 ),
 

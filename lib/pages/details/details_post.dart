@@ -86,7 +86,8 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     final adid = dataDetails.data?.id;
     final userTokens = ref.watch(usersProvider);
     final watchDetails = ref.watch(getDetailPostProvider(ref, '$adid'));
-    final watchRelates = ref.watch(relateDetailPostProvider(ref, '$adid'));
+    final provider = relateDetailPostProvider(ref, '$adid');
+    final watchRelates = ref.watch(provider);
     final watchChat = ref.watch(getTopByUidProvider(ref, adid: '$adid'));
 
     final dataRes = watchDetails.valueOrNull ?? dataDetails;
@@ -147,6 +148,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                       location: location,
                       location2: location2,
                       onPressed: _handleRefresh,
+                      provider: provider,
                     ),
                   ),
                 ),
@@ -225,7 +227,6 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
           builder: (BuildContext context, BoxConstraints constraints) {
             double width = (constraints.maxWidth) * 0.32;
             final isLiked = dataDetails?.data?.is_like ?? false;
-            final likeNotifier = ref.read(likeProvider(dataDetails?.data?.id));
 
             return Row(
               children: [
@@ -237,9 +238,9 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                     textSize: 14,
                     textWeight: FontWeight.w500,
                     bgColor: Colors.transparent,
-                    prefixIcon: (likeNotifier || isLiked) ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+                    prefixIcon: (isLiked) ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
                     prefixSize: 24,
-                    prefColor: (likeNotifier || isLiked) ? config.primaryAppColor.shade600 : Colors.black,
+                    prefColor: (isLiked) ? config.primaryAppColor.shade600 : Colors.black,
                   ),
                 ),
 
@@ -322,9 +323,11 @@ class BodyWidget extends ConsumerWidget {
     required this.location,
     required this.location2,
     this.onPressed,
+    this.provider,
   });
 
   final String title;
+  final dynamic provider;
   final GridCard dataDetails;
   final List listImg;
   final double space;
@@ -750,7 +753,10 @@ class BodyWidget extends ConsumerWidget {
                       watchRelates.when(
                         error: (e, st) => myCards.notFound(context, id: '${dataDetails.data?.id}', message: '$e', onPressed: onPressed),
                         loading: () => myCards.shimmerHome(),
-                        data: (data) => myCards.cardHome(context, data, fetching: false, notRelates: false),
+                        data: (data) => myCards.cardHome(
+                          context, data, fetching: false, notRelates: false,
+                          provider: provider,
+                        ),
                       ),
 
                       /// top ads ///

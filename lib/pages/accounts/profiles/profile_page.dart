@@ -10,8 +10,10 @@ import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/accounts/edit_profile/edit_page.dart';
 import 'package:k24/pages/accounts/profiles/profile_provider.dart';
+import 'package:k24/pages/jobs/apply_job/apply_job_page.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/pages/posts/post_provider.dart';
+import 'package:k24/pages/saves/save_page.dart';
 import 'package:k24/pages/settings/settings_page.dart';
 import 'package:k24/serialization/accounts/profiles/profiles_own.dart';
 import 'package:k24/serialization/category/main_category.dart';
@@ -286,8 +288,12 @@ class BodyProfile extends StatelessWidget {
                                       ButtonsUI(prefixIcon: Icons.favorite, title: 'Likes', width: width, onPressed: () {
                                         routeNoAnimation(context, pageBuilder: const LikesPage());
                                       }),
-                                      ButtonsUI(prefixIcon: Icons.bookmark, title: 'Saves', width: width, onPressed: () => {}),
-                                      ButtonsUI(prefixIcon: Icons.work, title: 'Applied jobs', width: width, onPressed: () => {}),
+                                      ButtonsUI(prefixIcon: Icons.bookmark, title: 'Saves', width: width, onPressed: () {
+                                        routeNoAnimation(context, pageBuilder: const SavesPage());
+                                      }),
+                                      ButtonsUI(prefixIcon: Icons.work, title: 'Applied jobs', width: width, onPressed: () {
+                                        routeNoAnimation(context, pageBuilder: const ApplyJobPage());
+                                      }),
                                       ButtonsUI(prefixIcon: Icons.assignment, title: 'Job Applications', width: width, onPressed: () => {}),
                                       ButtonsUI(prefixIcon: Icons.description, title: 'Resume (CV)', width: width, onPressed: () => {}),
                                       ButtonsUI(prefixIcon: Icons.subscriptions, title: 'Subscription', width: width, onPressed: () => {}),

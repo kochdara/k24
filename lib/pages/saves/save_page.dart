@@ -4,7 +4,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k24/pages/likes/likes_provider.dart';
+import 'package:k24/pages/likes/like_page.dart';
+import 'package:k24/pages/saves/save_provider.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/serialization/likes/likes_serial.dart';
 import 'package:k24/widgets/dialog_builder.dart';
@@ -22,14 +23,14 @@ final labels = Labels();
 final config = Config();
 final myCards = MyCards();
 
-class LikesPage extends ConsumerStatefulWidget {
-  const LikesPage({super.key});
+class SavesPage extends ConsumerStatefulWidget {
+  const SavesPage({super.key});
 
   @override
-  ConsumerState<LikesPage> createState() => _LikesPageState();
+  ConsumerState<SavesPage> createState() => _SavesPageState();
 }
 
-class _LikesPageState extends ConsumerState<LikesPage> {
+class _SavesPageState extends ConsumerState<SavesPage> {
 
   late ScrollController scrollController = ScrollController();
   StateProvider<bool> isLoadingPro = StateProvider((ref) => false);
@@ -54,8 +55,8 @@ class _LikesPageState extends ConsumerState<LikesPage> {
     if (watch) return;
     read.state = true;
 
-    final fetchMore = ref.read(getTotalLikesProvider(ref, 'newest').notifier);
-    fetchMore.fetchLikes('newest');
+    final fetchMore = ref.read(getTotalSaveProvider(ref, 'newest', type: 'all').notifier);
+    fetchMore.fetchSaves();
     await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
     readLen.state = fetchMore.length;
     read.state = false;
@@ -63,14 +64,14 @@ class _LikesPageState extends ConsumerState<LikesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = getTotalLikesProvider(ref, 'newest');
-    final getLikes = ref.watch(getTotalLikesProvider(ref, 'newest'));
+    final provider = getTotalSaveProvider(ref, 'newest', type: 'all');
+    final getSaves = ref.watch(getTotalSaveProvider(ref, 'newest', type: 'all'));
 
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () => reloadData(),
         child: LikesBody(
-          getLikes: getLikes,
+          getSaves: getSaves,
           provider: provider,
           scrollController: scrollController,
           isLoadingPro: ref.watch(isLoadingPro),
@@ -85,7 +86,7 @@ class _LikesPageState extends ConsumerState<LikesPage> {
   }
 
   Future<void> reloadData() async {
-    ref.refresh(getTotalLikesProvider(ref, 'newest').notifier).refresh();
+    ref.refresh(getTotalSaveProvider(ref, 'newest', type: 'all').notifier).refresh();
     ref.read(isLoadingPro.notifier).state = false;
     ref.read(lengthPro.notifier).state = 1;
   }
@@ -98,19 +99,19 @@ class _LikesPageState extends ConsumerState<LikesPage> {
 
 class LikesBody extends ConsumerWidget {
   LikesBody({super.key,
-    required this.getLikes,
+    required this.getSaves,
     required this.provider,
     required this.scrollController,
     required this.isLoadingPro,
     required this.lengthPro,
   });
 
-  final AsyncValue<List<LikesDatum?>?> getLikes;
-  final GetTotalLikesProvider provider;
+  final AsyncValue<List<LikesDatum?>?> getSaves;
+  final GetTotalSaveProvider provider;
   final ScrollController scrollController;
   final bool isLoadingPro;
   final int lengthPro;
-  final sendApi = Provider((ref) => LikesApiService());
+  final sendApi = Provider((ref) => SaveApiService());
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -120,14 +121,14 @@ class LikesBody extends ConsumerWidget {
       slivers: [
         SliverAppBar(
           floating: true,
-          title: labels.label('Likes', fontSize: 20, fontWeight: FontWeight.w500),
+          title: labels.label('Saves', fontSize: 20, fontWeight: FontWeight.w500),
           titleSpacing: 6,
         ),
 
         SliverList(delegate: SliverChildListDelegate([
           const SizedBox(height: 12,),
 
-          getLikes.when(
+          getSaves.when(
             error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () { }),
             loading: () => const SizedBox(
               height: 250,
@@ -144,13 +145,15 @@ class LikesBody extends ConsumerWidget {
 
                         return InkWell(
                           onTap: () {
-                            routeAnimation(
-                              context,
-                              pageBuilder: DetailsPost(title: fieldData.title??'N/A', data: GridCard(
-                                type: 'post',
-                                data: Data_.fromJson(fieldData.toJson() ?? {}),
-                              )),
-                            );
+                            if(fieldData.id != null) {
+                              routeAnimation(
+                                context,
+                                pageBuilder: DetailsPost(title: fieldData.title??'N/A', data: GridCard(
+                                  type: 'post',
+                                  data: Data_.fromJson(fieldData.toJson() ?? {}),
+                                )),
+                              );
+                            }
                           },
                           child: Card(
                             shape: RoundedRectangleBorder(
@@ -175,19 +178,19 @@ class LikesBody extends ConsumerWidget {
                                         onPressed: () async {
                                           if(checkLogs(ref)) {
                                             showActionSheet(context, [
-                                              MoreTypeInfo('unlike', 'Unlike', null, null, () async {
+                                              MoreTypeInfo('unsave', 'Unsave', null, null, () async {
                                                 final send = ref.watch(sendApi);
-                                                String idLikes = datum?.id ?? '';
-                                                final res = await send.submitRemoveLike(ref, idLikes);
+                                                String idSaves = datum?.id ?? '';
+                                                final res = await send.submitRemoveSave(ref, idSaves);
                                                 if(res.message != null) {
-                                                  ref.read(provider.notifier).removeAt(idLikes);
+                                                  ref.read(provider.notifier).removeAt(idSaves);
                                                   alertSnack(context, res.message ?? '');
                                                 }
                                               }),
                                             ]);
                                           }
                                         },
-                                        icon: Icon(CupertinoIcons.suit_heart_fill, size: 24, color: config.primaryAppColor.shade600,),
+                                        icon: Icon(Icons.bookmark, size: 24, color: config.primaryAppColor.shade600,),
                                       ),
                                     ),
                                   ),
@@ -213,71 +216,6 @@ class LikesBody extends ConsumerWidget {
           const SizedBox(height: 12,),
 
         ])),
-      ],
-    );
-  }
-}
-
-class CardViewData extends ConsumerWidget {
-  const CardViewData({super.key,
-    required this.datum,
-  });
-
-  final LikesDatum? datum;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final data = (datum?.data is Map) ? LikesData.fromJson(datum?.data) : LikesData();
-    double height = 140;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        Container(
-          width: height,
-          height: height,
-          color: config.secondaryColor.shade50,
-          child: ClipRRect(
-            borderRadius: const BorderRadius.horizontal(left: Radius.circular(5)),
-            child: ((data.thumbnail ?? '').isNotEmpty) ?
-            FadeInImage.assetNetwork(placeholder: placeholder, image: data.thumbnail ?? '', fit: BoxFit.cover)
-                : Container(
-              padding: const EdgeInsets.all(5),
-              alignment: Alignment.center,
-              color: config.infoColor.shade50, // Color(0xFFE8F5FB),
-              child: labels.label(data.title ?? 'N/A', color: config.infoColor.shade600, fontSize: 14, textAlign: TextAlign.center, maxLines: 3,),
-            ),
-          ),
-        ),
-
-        Expanded(
-          child: Container(
-            height: height,
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    labels.label(data.title??'N/A', color: config.secondaryColor.shade900, fontSize: 15, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.normal, maxLines: 2),
-
-                    labels.labelIcon(
-                      leftIcon: Icon(Icons.location_on_outlined, size: 13, color: config.secondaryColor.shade200),
-                      leftTitle: ' ${data.contact?.location?.en_name ?? 'N/A'}',
-                      style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'en', height: lineHeight),
-                    ),
-                  ],
-                ),
-
-                labels.label('\$${data.price??'0.00'}', color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold),
-
-              ],
-            ),
-          ),
-        ),
       ],
     );
   }

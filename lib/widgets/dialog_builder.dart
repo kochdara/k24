@@ -65,7 +65,7 @@ void showActionSheet(BuildContext context, List<MoreTypeInfo> listMore) {
                 Icon(type.icon, size: 18, color: Colors.blue.shade700,),
                 const SizedBox(width: 8,),
               ],
-              labels.label(type.description, color: Colors.blue.shade700, fontSize: 16,),
+              labels.label(type.description, color: Colors.blue.shade700, fontSize: 16, fontWeight: FontWeight.w500),
             ],
           ),
         ),
@@ -142,7 +142,7 @@ Future<void> viewImage(BuildContext context, String image) {
                         children: [
                           Icon(Icons.cloud_download_outlined, color: Colors.white,),
                           SizedBox(width: 10,),
-                          Text('Download', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),),
+                          Text('Save', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),),
                         ],
                       ),
                     ),
@@ -157,7 +157,9 @@ Future<void> viewImage(BuildContext context, String image) {
 }
 
 
-void showActionSheet2(BuildContext context, List<MoreTypeInfo> listMore) {
+void showActionSheet2(BuildContext context, List<MoreTypeInfo> listMore, {
+    String? title,
+  }) {
   showBarModalBottomSheet(context: context,
     builder: (context) => Material(
       child: SafeArea(
@@ -166,6 +168,12 @@ void showActionSheet2(BuildContext context, List<MoreTypeInfo> listMore) {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if(title != null) ListTile(
+                title: labels.label(title, color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w500, textAlign: TextAlign.center),
+                shape: const Border(bottom: BorderSide(color: Colors.black12)),
+                tileColor: Colors.black12,
+              ),
+
               for (final type in listMore) ListTile(
                 onTap: () {
                   Navigator.pop(context);

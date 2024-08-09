@@ -410,7 +410,8 @@ class MyCards {
   Widget cardHome(BuildContext context, List<GridCard> data, {
     bool fetching = false,
     bool notRelates = true,
-    ViewPage viewPage = ViewPage.grid
+    ViewPage viewPage = ViewPage.grid,
+    dynamic provider,
   }) {
     return Visibility(
       visible: (data.isEmpty && !notRelates) ? false : true,
@@ -432,9 +433,9 @@ class MyCards {
 
                 // items //
                 for(final v in data) ...[
-                  if(viewPage == ViewPage.grid) gridCard(width, v, context: context)
-                  else if(viewPage == ViewPage.list) listCard(v, context: context)
-                  else if(viewPage == ViewPage.view) viewCards(v, context: context),
+                  if(viewPage == ViewPage.grid) gridCard(width, v, context: context, provider: provider, )
+                  else if(viewPage == ViewPage.list) listCard(v, context: context, provider: provider, )
+                  else if(viewPage == ViewPage.view) viewCards(v, context: context, provider: provider, ),
                 ],
 
                 // fetching //
@@ -494,7 +495,9 @@ class MyCards {
 
   StateProvider<bool> isLikes = StateProvider((ref) => false);
 
-  Widget gridCard(double width, GridCard v, { required BuildContext context }) {
+  Widget gridCard(double width, GridCard v, { required BuildContext context,
+    dynamic provider,
+  }) {
     List listImg = [];
     final data = v.data;
     String thumbnail = '';
@@ -685,7 +688,7 @@ class MyCards {
                 Positioned(
                   right: 6,
                   bottom: 6,
-                  child: MyWidgetLikes(data: data),
+                  child: MyWidgetLikes(data: data, provider: provider,),
                 )
               ],
             ),
@@ -696,7 +699,9 @@ class MyCards {
     );
   }
 
-  Widget listCard(GridCard v, { required BuildContext context }) {
+  Widget listCard(GridCard v, { required BuildContext context,
+    dynamic provider,
+  }) {
     List listImg = [];
     final data = v.data;
     // var setting = v['setting'] ?? {};
@@ -890,7 +895,7 @@ class MyCards {
                   Positioned(
                     right: 6,
                     bottom: 6,
-                    child: MyWidgetLikes(data: data),
+                    child: MyWidgetLikes(data: data, provider: provider,),
                   ),
 
                 ],
@@ -903,7 +908,9 @@ class MyCards {
     );
   }
 
-  Widget viewCards(GridCard v, { required BuildContext context }) {
+  Widget viewCards(GridCard v, { required BuildContext context,
+    dynamic provider,
+  }) {
     final data = v.data;
     String thumbnail = '';
     List listImg = [];
@@ -1095,7 +1102,7 @@ class MyCards {
                         children: [
 
                           buttons.invButton(
-                            prefixIcons: MyWidgetLikes(data: data),
+                            prefixIcons: MyWidgetLikes(data: data, provider: provider,),
                             text: 'Like',
                             // onTap: () { },
                             color: (data?.is_like == true) ? config.primaryAppColor.shade600 : null
@@ -1147,35 +1154,18 @@ Future<void> moreDetailsPro(BuildContext context, GridCard data) async {
   );
 }
 
-final List<LikeNotifier> _notifiers = [];
-
-final likeProvider = StateNotifierProvider.family<LikeNotifier, bool, String?>((ref, id) => LikeNotifier());
-
-class LikeNotifier extends StateNotifier<bool> {
-  LikeNotifier() : super(false) {
-    _notifiers.add(this);
-  }
-  void toggleLike() => state = !state;
-  void reset() => state = false;
-}
-
-void resetAllLikes() {
-  for (final notifier in _notifiers) {
-    notifier.reset();
-  }
-}
-
 class MyWidgetLikes extends ConsumerWidget {
   final Data_? data;
+  final dynamic provider;
 
-  const MyWidgetLikes({super.key, required this.data});
+  const MyWidgetLikes({super.key, required this.data,
+    required this.provider,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final config = Config();
     final isLiked = data?.is_like ?? false;
-    final likeState = ref.watch(likeProvider(data?.id));
-    final likeNotifier = ref.read(likeProvider(data?.id).notifier);
 
     return Container(
       color: Colors.white,
@@ -1184,16 +1174,17 @@ class MyWidgetLikes extends ConsumerWidget {
           final getTokens = await getSecure('user', type: Map);
           if (getTokens != null) {
             final submit = MyAccountApiService();
-            if (likeState || isLiked) {
+            String ids = data?.id ?? '';
+            if (isLiked) {
               data?.is_like = false;
-              likeNotifier.toggleLike();
-              final result = await submit.submitRemove(id: '${data?.id}', ref: ref);
+              final result = await submit.submitRemove(id: ids, ref: ref);
+              ref.read((provider).notifier).updateLikes(ids, false) ;
               print(result.toJson());
             } else {
               data?.is_like = true;
-              likeNotifier.toggleLike();
-              final dataSend = {'id': '${data?.id}', 'type': 'post'};
+              final dataSend = {'id': ids, 'type': 'post'};
               final result = await submit.submitAdd(dataSend, ref: ref);
+              ref.read((provider).notifier).updateLikes(ids, true) ;
               print(result.toJson());
             }
           } else {
@@ -1201,8 +1192,8 @@ class MyWidgetLikes extends ConsumerWidget {
           }
         },
         child: Icon(
-          (likeState || isLiked) ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
-          color: (likeState || isLiked) ? config.primaryAppColor.shade600 : config.secondaryColor.shade200,
+          (isLiked) ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+          color: (isLiked) ? config.primaryAppColor.shade600 : config.secondaryColor.shade200,
           size: 24,
         ),
       ),
