@@ -25,41 +25,45 @@ class ChatPage extends _$ChatPage {
   Dio dio = Dio();
 
   int limit = 20; // Default limit for pagination
-  int currentPage = 0;
-  late String type;
+  int offset = 0;
+  int length = 1;
+  String? types;
 
   @override
-  FutureOr<List<ChatData>> build(WidgetRef context, String type) async {
-    this.type = type;
-    await fetchData();
+  FutureOr<List<ChatData>> build(WidgetRef context, String? type) async {
+    types = type;
+    if(list.isEmpty) await fetchData(true);
     return list;
   }
 
-  Future<void> refresh({bool load = true}) async {
-    currentPage = 0;
-    list = [];
-    if (load) state = const AsyncLoading();
-    await fetchData();
+  Future<void> refresh(bool load) async {
+    if (load) {
+      offset = 0;
+      length = 1;
+      list = [];
+      state = const AsyncLoading();
+    }
+    await fetchData(false);
     state = AsyncData(list);
     print('Data length after refresh: ${list.length}');
   }
 
-  Future<void> fetchData() async {
+  Future<void> fetchData(bool off) async {
     try {
       final tokens = ref.read(usersProvider);
-      final subs =
-          'topics?type=$type&lang=en&offset=${currentPage * limit}&fields=$fields';
-      final response = await dio.get('$chatUrl/$subs',
-          options: Options(headers: {
-            'Access-Token': tokens.tokens?.access_token,
-          }));
+      String subs = 'topics?type=$types&lang=en&fields=$fields';
+      if(off) subs += '&offset=$offset';
+      final response = await dio.get('$chatUrl/$subs', options: Options(headers: {
+        'Access-Token': tokens.tokens?.access_token,
+      }));
 
       if (response.statusCode == 200) {
         final resp = ChatSerial.fromJson(response.data ?? {});
+        limit = resp.limit;
+        length = resp.data?.length ?? 0;
         if (resp.data != null && resp.data!.isNotEmpty) {
           final data = resp.data!;
-          limit = resp.limit;
-          currentPage++;
+          offset = offset + limit;
 
           for (final val in data) {
             // Find the index of the element with the same id as val
@@ -73,13 +77,15 @@ class ChatPage extends _$ChatPage {
           }
         }
       }
+      list.sort((a, b) => b.updated_date!.compareTo(a.updated_date ?? DateTime.now()));
     } on DioException catch (e) {
       final response = e.response;
       // Handle Dio-specific errors
       if (response?.statusCode == 401) {
         // Token might have expired, try to refresh the token
         await checkTokens(context);
-        await fetchData(); // Retry the request after refreshing the token
+        await fetchData(off); // Retry the request after refreshing the token
+        return;
       } else {
         print('Dio error: ${e.response}');
       }
@@ -140,8 +146,7 @@ class ConversationPage extends _$ConversationPage {
     try {
       if(first_message_id.isNotEmpty) message_id = first_message_id;
       final tokens = context.watch(usersProvider);
-      String subs = 'messages?lang=$lang&'
-          'first_message_id=${(addNew)?'':message_id}&limit=$limited';
+      String subs = 'messages?lang=$lang&first_message_id=${(addNew)?'':message_id}&limit=$limited';
       if(topic_ids != null && topic_ids!.isNotEmpty && topic_ids != '0') {
         subs += '&topic_id=$topic_ids';
       } else {
@@ -150,6 +155,8 @@ class ConversationPage extends _$ConversationPage {
       final res = await dio.get('$chatUrl/$subs', options: Options(headers: {
         'Access-Token': tokens.tokens?.access_token,
       }));
+
+      print(subs);
 
       final resp = ConSerial.fromJson(res.data ?? {});
 
@@ -188,6 +195,13 @@ class ConversationPage extends _$ConversationPage {
     }
     return 0;
   }
+
+  Future<void> addNew(ConData value) async {
+    final newList = state.valueOrNull;
+    newList?.add(value);
+    state = AsyncData(newList!);
+    print('object: 123');
+  }
 }
 
 void onScroll(WidgetRef ref, ScrollController scrollController,
@@ -203,7 +217,7 @@ void onScroll(WidgetRef ref, ScrollController scrollController,
     if (len > 0) {
       final conversationPageNotifier = ref.read(conversationPageProvider(
         ref,
-        '${chatData.id}',
+        chatData.id,
         jsonEncode(chatData.last_message?.toJson() ?? {}),
         chatData.to_id
       ).notifier);

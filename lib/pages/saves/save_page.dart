@@ -15,6 +15,7 @@ import 'package:k24/widgets/my_widgets.dart';
 
 import '../../helpers/config.dart';
 import '../../helpers/helper.dart';
+import '../accounts/profile_public/another_profile.dart';
 import '../details/details_post.dart';
 import '../more_provider.dart';
 
@@ -146,18 +147,30 @@ class LikesBody extends ConsumerWidget {
                         return InkWell(
                           onTap: () {
                             if(fieldData.id != null) {
-                              routeAnimation(
-                                context,
-                                pageBuilder: DetailsPost(title: fieldData.title??'N/A', data: GridCard(
-                                  type: 'post',
-                                  data: Data_.fromJson(fieldData.toJson() ?? {}),
-                                )),
-                              );
+                              String type = datum?.type ?? '';
+
+                              switch(type) {
+                                case 'user':
+                                  routeAnimation(
+                                    context,
+                                    pageBuilder: AnotherProfilePage(userData: User_.fromJson(datum?.data ?? {})),
+                                  );
+                                  break;
+                                default:
+                                  routeAnimation(
+                                    context,
+                                    pageBuilder: DetailsPost(title: fieldData.title??'N/A', data: GridCard(
+                                      type: 'post',
+                                      data: Data_.fromJson(fieldData.toJson() ?? {}),
+                                    )),
+                                  );
+                                  break;
+                              }
                             }
                           },
                           child: Card(
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6.0),
+                              borderRadius: BorderRadius.circular(8.0),
                             ),
                             surfaceTintColor: Colors.white,
                             elevation: 1,

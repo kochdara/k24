@@ -6,7 +6,7 @@ part of 'chat_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$chatPageHash() => r'41e056f85fac08190e847139b341b5c939306abe';
+String _$chatPageHash() => r'239eacca79a03c0965e2eae9ff5bf126d8a5cb3e';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -32,11 +32,11 @@ class _SystemHash {
 abstract class _$ChatPage
     extends BuildlessAutoDisposeAsyncNotifier<List<ChatData>> {
   late final WidgetRef context;
-  late final String type;
+  late final String? type;
 
   FutureOr<List<ChatData>> build(
     WidgetRef context,
-    String type,
+    String? type,
   );
 }
 
@@ -52,7 +52,7 @@ class ChatPageFamily extends Family<AsyncValue<List<ChatData>>> {
   /// See also [ChatPage].
   ChatPageProvider call(
     WidgetRef context,
-    String type,
+    String? type,
   ) {
     return ChatPageProvider(
       context,
@@ -91,7 +91,7 @@ class ChatPageProvider
   /// See also [ChatPage].
   ChatPageProvider(
     WidgetRef context,
-    String type,
+    String? type,
   ) : this._internal(
           () => ChatPage()
             ..context = context
@@ -120,7 +120,7 @@ class ChatPageProvider
   }) : super.internal();
 
   final WidgetRef context;
-  final String type;
+  final String? type;
 
   @override
   FutureOr<List<ChatData>> runNotifierBuild(
@@ -179,7 +179,7 @@ mixin ChatPageRef on AutoDisposeAsyncNotifierProviderRef<List<ChatData>> {
   WidgetRef get context;
 
   /// The parameter `type` of this provider.
-  String get type;
+  String? get type;
 }
 
 class _ChatPageProviderElement
@@ -190,10 +190,10 @@ class _ChatPageProviderElement
   @override
   WidgetRef get context => (origin as ChatPageProvider).context;
   @override
-  String get type => (origin as ChatPageProvider).type;
+  String? get type => (origin as ChatPageProvider).type;
 }
 
-String _$conversationPageHash() => r'b7e6f3b9c711d19f69b3ba1d31375efed3a1eacc';
+String _$conversationPageHash() => r'8498d7e71bf6df9292b9bb38fd451e259f456c9d';
 
 abstract class _$ConversationPage
     extends BuildlessAutoDisposeStreamNotifier<List<ConData>> {

@@ -11,6 +11,7 @@ import 'package:k24/pages/chats/comments/comment_page.dart';
 import 'package:k24/pages/chats/conversations/chat_conversation.dart';
 import 'package:k24/pages/chats/chat_provider.dart';
 import 'package:k24/pages/main/home_provider.dart';
+import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
@@ -21,16 +22,6 @@ final Labels labels = Labels();
 final Config config = Config();
 final MyWidgets myWidgets = MyWidgets();
 final MyCards myCards = MyCards();
-enum MoreType { all, buy, sell, unread, block_user }
-
-final Map<MoreType, MoreTypeInfo> moreTypeInfo = {
-  MoreType.all: MoreTypeInfo('all', 'All', CupertinoIcons.chat_bubble_2, null, () { }),
-  MoreType.buy: MoreTypeInfo('buy', 'Buy', CupertinoIcons.shopping_cart, null, () { }),
-  MoreType.sell: MoreTypeInfo('sell', 'Sell', CupertinoIcons.money_dollar_circle, null, () { }),
-  MoreType.unread: MoreTypeInfo('unread', 'Unread', CupertinoIcons.eye_slash, null, () { }),
-  MoreType.block_user: MoreTypeInfo('block_user', 'Block User', Icons.block, null, () { }),
-};
-StateProvider<MoreType> moreTypeProvider = StateProvider<MoreType>((ref) => MoreType.all);
 
 class ChatPageView extends ConsumerStatefulWidget {
   const ChatPageView({super.key, required this.selectedIndex});
@@ -42,17 +33,17 @@ class ChatPageView extends ConsumerStatefulWidget {
 }
 
 class _ChatPageViewState extends ConsumerState<ChatPageView> {
+  late StateProvider<String?> newMap;
+
   @override
   void initState() {
     super.initState();
-    moreTypeProvider = StateProvider<MoreType>((ref) => MoreType.all);
+    newMap = StateProvider((ref) => 'all');
   }
 
   @override
   Widget build(BuildContext context) {
     final username = ref.watch(usersProvider);
-    final typePro = ref.watch(moreTypeProvider);
-    final description = moreTypeInfo[typePro]?.description;
 
     return DefaultTabController(
       length: 2,
@@ -75,20 +66,32 @@ class _ChatPageViewState extends ConsumerState<ChatPageView> {
           title: labels.label('${username.user?.name}', fontSize: 20, fontWeight: FontWeight.w500, maxLines: 1, overflow: TextOverflow.ellipsis),
           titleSpacing: 6,
           actions: [
-            MoreButtonUI(ref: ref, moreTypeProvider: moreTypeProvider),
+            IconButton(
+              onPressed: () => showActionSheet(context, [
+                MoreTypeInfo('all', 'All', CupertinoIcons.chat_bubble_2, null, () => updateMap(ref, 'all')),
+                MoreTypeInfo('buy', 'Buy', CupertinoIcons.shopping_cart, null, () => updateMap(ref, 'buy')),
+                MoreTypeInfo('sell', 'Sell', CupertinoIcons.money_dollar_circle, null, () => updateMap(ref, 'sell')),
+                MoreTypeInfo('unread', 'Unread', CupertinoIcons.eye_slash, null, () => updateMap(ref, 'unread')),
+                MoreTypeInfo('block_user', 'Block User', Icons.block, null, () => updateMap(ref, 'block_user')),
+              ]),
+              padding: const EdgeInsets.all(10.0),
+              icon: const Icon(Icons.more_vert_rounded, color: Colors.white,),
+            ),
           ],
           bottom: TabBar(
             indicatorColor: config.primaryAppColor.shade200,
             indicatorSize: TabBarIndicatorSize.tab,
             indicatorWeight: 3,
             tabs: <Widget>[
-              Tab(icon: labels.label((typePro == MoreType.block_user) ? '$description' : 'Chat/$description', fontSize: 16, fontWeight: FontWeight.w500)),
+              Tab(icon: labels.label('Chat/${ref.watch(newMap)}', fontSize: 16, fontWeight: FontWeight.w500)),
               Tab(icon: labels.label('Comment', fontSize: 16, fontWeight: FontWeight.w500)),
             ],
           ),
         ),
         backgroundColor: config.backgroundColor,
-        body: const BodyChat(),
+        body: BodyChat(
+          newMap: newMap,
+        ),
         bottomSheet: myWidgets.bottomBarPage(
           context, ref, widget.selectedIndex,
           null
@@ -96,58 +99,111 @@ class _ChatPageViewState extends ConsumerState<ChatPageView> {
       ),
     );
   }
+
+  void updateMap(WidgetRef ref, String val) {
+    ref.read(newMap.notifier).update((state) {
+      return val.toString();
+    });
+  }
 }
 
 class BodyChat extends StatelessWidget {
-  const BodyChat({super.key});
+  const BodyChat({super.key,
+    required this.newMap,
+  });
+
+  final StateProvider<String?> newMap;
 
   @override
   Widget build(BuildContext context) {
-    return const TabBarView(
+    return TabBarView(
       children: <Widget>[
         /// tap 1 ///
-        ChatPageBuilder(),
+        ChatPageBuilder(
+          newMap: newMap,
+        ),
 
         /// tap 2 ///
-        CommentPage(),
+        const CommentPage(),
       ],
     );
   }
 }
 
 class ChatPageBuilder extends ConsumerStatefulWidget {
-  const ChatPageBuilder({super.key});
+  const ChatPageBuilder({super.key,
+    required this.newMap,
+  });
+
+  final StateProvider<String?> newMap;
 
   @override
   ConsumerState<ChatPageBuilder> createState() => _ChatPageBuilderState();
 }
 
 class _ChatPageBuilderState extends ConsumerState<ChatPageBuilder> {
+  final ScrollController scrollController = ScrollController();
+  StateProvider<bool> isLoadingPro = StateProvider((ref) => false);
+  StateProvider<int> lengthPro = StateProvider((ref) => 1);
 
   @override
   void initState() {
     super.initState();
     futureAwait(() => trigger());
+    scrollController.addListener(() {
+      final pixels = scrollController.position.pixels;
+      final maxScrollExtent = scrollController.position.maxScrollExtent;
+      if (pixels > maxScrollExtent-50 && pixels <= maxScrollExtent) {
+        _fetchMoreData();
+      }
+    });
+  }
+
+  Future<void> _fetchMoreData() async {
+    final watch = ref.watch(isLoadingPro);
+    final read = ref.read(isLoadingPro.notifier);
+    final readLen = ref.read(lengthPro.notifier);
+    if (watch) return;
+    read.state = true;
+
+    final fetchMore = ref.read(chatPageProvider(ref, '${ref.watch(widget.newMap)}').notifier);
+    fetchMore.fetchData(true);
+    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
+    readLen.state = fetchMore.length;
+    read.state = false;
   }
 
   trigger() {
     if(mounted) {
-      final chatPro = chatPageProvider(ref, '${moreTypeInfo[ref.watch(moreTypeProvider)]?.name}');
+      final chatPro = chatPageProvider(ref, '${ref.watch(widget.newMap)}');
       print("@# 1");
-      ref.read(chatPro.notifier).refresh(load: false);
+      ref.read(chatPro.notifier).refresh(false);
       Future.delayed(Duration(seconds: ref.read(delayed)), () => trigger());
     }
   }
 
   @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final chatPro = chatPageProvider(ref, '${moreTypeInfo[ref.watch(moreTypeProvider)]?.name}');
+    final chatPro = chatPageProvider(ref, '${ref.watch(widget.newMap)}');
     final watchChat = ref.watch(chatPro);
+    final isLoading = ref.watch(isLoadingPro);
+    final length = ref.watch(lengthPro);
 
     return RefreshIndicator(
-      onRefresh: () async => {  },
+      onRefresh: () async {
+        ref.read(chatPro.notifier).refresh(true);
+        ref.read(isLoadingPro.notifier).state = false;
+        ref.read(lengthPro.notifier).state = 1;
+      },
       notificationPredicate: (val) => !watchChat.isLoading,
       child: CustomScrollView(
+        controller: scrollController,
         slivers: [
           SliverList(
             delegate: SliverChildListDelegate([
@@ -207,6 +263,12 @@ class _ChatPageBuilderState extends ConsumerState<ChatPageBuilder> {
                           },
                         ),
 
+                      if(isLoading && length > 0) Container(
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.all(20),
+                        child: const CircularProgressIndicator(),
+                      ) else if(length <= 0) const NoMoreResult(),
+
                     ],
                   );
                 },
@@ -216,51 +278,6 @@ class _ChatPageBuilderState extends ConsumerState<ChatPageBuilder> {
             ]),
           ),
         ],
-      ),
-    );
-  }
-}
-
-
-class MoreButtonUI extends StatelessWidget {
-  const MoreButtonUI({super.key,
-    required this.ref,
-    required this.moreTypeProvider,
-  });
-
-  final WidgetRef ref;
-  final StateProvider<MoreType> moreTypeProvider;
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () => _showActionSheet(context),
-      padding: const EdgeInsets.all(10.0),
-      icon: const Icon(Icons.more_vert_rounded, color: Colors.white,),
-    );
-  }
-
-  // This shows a CupertinoModalPopup which hosts a CupertinoActionSheet.
-  void _showActionSheet(BuildContext context) {
-    showCupertinoModalPopup<void>(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          for (final type in MoreType.values) CupertinoActionSheetAction(
-            onPressed: () {
-              ref.read(moreTypeProvider.notifier).update((state) => type);
-              Navigator.pop(context);
-            },
-            child: labels.label('${moreTypeInfo[type]?.description}', color: Colors.blue.shade700, fontSize: 16,),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          isDestructiveAction: true,
-          child: labels.label('Cancel', color: Colors.red, fontSize: 18,),
-        ),
       ),
     );
   }

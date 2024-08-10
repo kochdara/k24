@@ -118,7 +118,7 @@ class _ReviewResumePageState extends ConsumerState<ReviewResumePage> {
                                 type: datum.type,
                                 data: Data_.fromJson({
                                   ...?post?.toJson(),
-                                  ...{'price': post?.salary, 'thumbnail': post?.logo, 'photos': []},
+                                  ...{'price': post?.salary, 'thumbnail': post?.logo, 'photos': post?.thumbnails},
                                   ...{'user': datum.data?.cv?.toJson()},
                                 }),
                               ),),
@@ -144,7 +144,7 @@ class _ReviewResumePageState extends ConsumerState<ReviewResumePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               labels.label('Apply Date: ${stringToTimeAgoDay(date: '${datum.send_date}', format: 'dd, MMM yyyy') ?? 'N/A'}', fontSize: 13, color: Colors.black54,),
-                              labels.labelRich('\$${datum.data?.post?.price ?? '0.0'}+', title2: '${datum.data?.post?.ad_field ?? ''} • ',
+                              labels.labelRich('\$${(datum.data?.post?.price != 0) ? datum.data?.post?.price : (post?.salary ?? '0.0')}+', title2: '${datum.data?.post?.ad_field ?? post?.type} • ',
                                   fontSize: 13,
                                   color: Colors.red,
                                   color2: Colors.black54,

@@ -109,12 +109,13 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
   Widget build(BuildContext context) {
     final bottomHeight = MediaQuery.of(context).viewInsets.bottom;
     final watchHin = ref.watch(hiddenProvider);
-    final watchConversation = ref.watch(conversationPageProvider(
-      ref,
-      widget.chatData.id,
-      jsonEncode(widget.chatData.last_message?.toJson() ?? {}),
-      widget.chatData.to_id
-    ));
+    final provider = conversationPageProvider(
+        ref,
+        widget.chatData.id,
+        jsonEncode(widget.chatData.last_message?.toJson() ?? {}),
+        widget.chatData.to_id
+    );
+    final watchConversation = ref.watch(provider);
     final text = ref.watch(dataProvider)['message']??'';
     final watchMore = ref.watch(moreProvider);
 
@@ -125,7 +126,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
       {'id': '4', 'icon': Icons.attach_file, 'label': 'Attach file'},
       {'id': '5', 'icon': Icons.description, 'label': 'Resume (CV)'},
       {'id': '6', 'icon': Icons.local_shipping, 'label': 'Shipping / Billing Address'},
-      {'id': '7', 'icon': Icons.ads_click, 'label': 'sumsongly\'s ads'},
+      {'id': '7', 'icon': Icons.ads_click, 'label': '${widget.chatData.user?.username??'N/A'} ads'},
       {'id': '8', 'icon': Icons.my_library_books, 'label': 'My ads'},
     ];
 
@@ -205,7 +206,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
                         "file": filePath.file ?? '',
                       }});
 
-                      onSubmit();
+                      onSubmit(provider);
                     }
                   }),
 
@@ -236,7 +237,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
                 if(text.isNotEmpty) ...[
                   button(
                       Icons.send,
-                      onPressed: onSubmit
+                      onPressed: () => onSubmit(provider)
                   ),
 
                 ] else button(
@@ -252,6 +253,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
             if(watchMore) Container(
               padding: const EdgeInsets.only(top: 10.0),
               constraints: const BoxConstraints(maxHeight: 225, minHeight: 200),
+              color: config.backgroundColor,
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   int crossAxisCount;
@@ -292,7 +294,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
                                 "name": files.name,
                               }});
 
-                              onSubmit();
+                              onSubmit(provider);
                             }
                           }
                         },
@@ -301,6 +303,10 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
                           children: [
                             Card(
                               margin: const EdgeInsets.only(bottom: 8.0),
+                              surfaceTintColor: Colors.grey.shade50,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
                               child: Padding(
                                 padding: const EdgeInsets.all(14.0),
                                 child: Icon(datum['icon'], size: 26, color: config.secondaryColor.shade400),
@@ -322,18 +328,19 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
     );
   }
 
-  Future<void> onSubmit() async {
+  Future<void> onSubmit(ConversationPageProvider provider) async {
 
     // Define topic as Map<String, String>
     Map<String, String> topic = {};
 
     // Consolidate conditions to determine topic
-    if (widget.chatData.id != '0') {
-      topic = {'topic_id': '${widget.chatData.id}'};
-    } else if (widget.chatData.to_id != '0') {
-      topic = {'to_id': '${widget.chatData.to_id}'};
-    } else if (widget.chatData.adid != '0') {
-      topic = {'adid': '${widget.chatData.adid}'};
+    final chat = widget.chatData;
+    if (chat.id != null && chat.id!.isNotEmpty && chat.id != '0') {
+      topic = {'topic_id': '${chat.id}'};
+    } else if (chat.to_id != null && chat.to_id!.isNotEmpty && chat.to_id != '0') {
+      topic = {'to_id': '${chat.to_id}'};
+    } else {
+      topic = {'adid': '${chat.adid}'};
     }
 
     // Update state immutably
@@ -345,7 +352,8 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
     print(ref.watch(dataProvider));
 
     /// submit data ///
-    await ref.read(apiServiceProvider).submitData(ref.watch(dataProvider), ref);
+    final result = await ref.read(apiServiceProvider).submitData(ref.watch(dataProvider), ref);
+    if(result.id != null) ref.read(provider.notifier).addNew(result);
 
     /// clear ///
     controller.clear();

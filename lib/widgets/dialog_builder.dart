@@ -169,9 +169,9 @@ void showActionSheet2(BuildContext context, List<MoreTypeInfo> listMore, {
             mainAxisSize: MainAxisSize.min,
             children: [
               if(title != null) ListTile(
-                title: labels.label(title, color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w500, textAlign: TextAlign.center),
-                shape: const Border(bottom: BorderSide(color: Colors.black12)),
-                tileColor: Colors.black12,
+                title: labels.label(title, color: Colors.black87, fontSize: 17, textAlign: TextAlign.center),
+                shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50)),
+                tileColor: config.secondaryColor.shade50,
               ),
 
               for (final type in listMore) ListTile(
@@ -181,7 +181,7 @@ void showActionSheet2(BuildContext context, List<MoreTypeInfo> listMore, {
                 },
                 leading: (type.icon != null) ? Icon(type.icon, size: 22, color: Colors.black87,) : null,
                 title: labels.label(type.name, color: Colors.black87, fontSize: 16),
-                shape: const Border(bottom: BorderSide(color: Colors.black12)),
+                shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50)),
                 subtitle: (type.description.isNotEmpty) ? labels.label(type.description, color: Colors.black87, fontSize: 13) : null,
               ),
             ],

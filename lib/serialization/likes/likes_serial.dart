@@ -47,10 +47,14 @@ class LikesData {
   String? userid;
   LikesContact? contact;
   String? link;
-  String? photo;
+  String? name;
+  String? username;
+  dynamic photo;
+  bool? is_verify;
   List<String?>? photos;
   String? thumbnail;
   List<String?>? thumbnails;
+  OnlineStatusProfile? online_status;
 
   LikesData({
     this.id,
@@ -59,10 +63,13 @@ class LikesData {
     this.userid,
     this.contact,
     this.link,
+    this.name,
+    this.username,
     this.photo,
     this.photos,
     this.thumbnail,
     this.thumbnails,
+    this.online_status,
   });
 
   factory LikesData.fromJson(Map<String, dynamic> json) => _$LikesDataFromJson(json);

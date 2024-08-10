@@ -194,7 +194,7 @@ class _ProfilePublicProviderElement
   String? get username => (origin as ProfilePublicProvider).username;
 }
 
-String _$profileListHash() => r'1513033d35a704deff7d6326d43832d57f36d3e6';
+String _$profileListHash() => r'a7d9db49ebdb2a5d1651da58908444f6ee5a8409';
 
 abstract class _$ProfileList
     extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {

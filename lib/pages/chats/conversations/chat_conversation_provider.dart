@@ -96,7 +96,7 @@ class MarkApiService {
       final res = await dio.post('$chatUrl/$subs', data: formData, options: Options(headers: {
         'Access-Token': '${tokens.tokens?.access_token}',
       }, contentType: Headers.formUrlEncodedContentType));
-      final resp = ConData.fromJson(res.data ?? {});
+      final resp = ConData.fromJson(res.data['data'] ?? {});
 
       return resp;
     } on DioException catch (e) {

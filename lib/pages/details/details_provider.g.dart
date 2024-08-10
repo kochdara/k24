@@ -194,7 +194,7 @@ class _GetDetailPostProviderElement
   String get id => (origin as GetDetailPostProvider).id;
 }
 
-String _$relateDetailPostHash() => r'b4632e327c6449e062043b13f9aadb4513b1e24f';
+String _$relateDetailPostHash() => r'4a8711f7af4b02c6f86fcef817bb59ab17088ec6';
 
 abstract class _$RelateDetailPost
     extends BuildlessAutoDisposeAsyncNotifier<List<GridCard>> {

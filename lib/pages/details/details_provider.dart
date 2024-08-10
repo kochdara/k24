@@ -129,6 +129,17 @@ class RelateDetailPost extends _$RelateDetailPost {
       print(stacktrace);
     }
   }
+
+  Future<void> updateLikes(String ids, bool? isLikes) async {
+    final newList = state.valueOrNull;
+    if (newList != null) {
+      final index = newList.indexWhere((element) => element.data?.id == ids);
+      if (index != -1) {
+        newList[index].data?.is_like = isLikes;
+        state = AsyncData(newList);
+      }
+    }
+  }
 }
 
 class ViewApiService {

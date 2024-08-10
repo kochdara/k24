@@ -73,6 +73,7 @@ class _ApplyJobPageState extends ConsumerState<ApplyJobPage> {
         centerTitle: true,
         titleSpacing: 6,
         elevation: 0.0,
+        shadowColor: Colors.transparent,
       ),
       body: RefreshIndicator(
         onRefresh: () => reloadData(),
@@ -162,7 +163,7 @@ class BodyApplyJob extends ConsumerWidget {
                                   elevation: 1,
                                   margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.0),
+                                    borderRadius: BorderRadius.circular(6.0),
                                     child: Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisSize: MainAxisSize.max,
@@ -172,7 +173,7 @@ class BodyApplyJob extends ConsumerWidget {
                                           height: height,
                                           color: config.secondaryColor.shade50,
                                           child: ClipRRect(
-                                            borderRadius: const BorderRadius.horizontal(left: Radius.circular(5)),
+                                            borderRadius: const BorderRadius.horizontal(left: Radius.circular(6)),
                                             child: ((data?.post?.logo ?? '').isNotEmpty) ?
                                             FadeInImage.assetNetwork(placeholder: placeholder, image: data?.post?.logo ?? '', fit: BoxFit.cover)
                                                 : Container(

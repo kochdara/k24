@@ -11,6 +11,8 @@ import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/accounts/edit_profile/edit_page.dart';
 import 'package:k24/pages/accounts/profiles/profile_provider.dart';
 import 'package:k24/pages/jobs/apply_job/apply_job_page.dart';
+import 'package:k24/pages/jobs/job_applications/application_provider.dart';
+import 'package:k24/pages/jobs/job_applications/jobapplications_page.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/pages/posts/post_provider.dart';
 import 'package:k24/pages/saves/save_page.dart';
@@ -89,6 +91,8 @@ class BodyProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userKey = ref.watch(usersProvider);
+    final getBadges = ref.watch(getBadgesAppProvider(ref));
+    final valBadges = getBadges.valueOrNull;
 
     return RefreshIndicator(
       onRefresh: () {
@@ -287,16 +291,20 @@ class BodyProfile extends StatelessWidget {
                                     children: [
                                       ButtonsUI(prefixIcon: Icons.favorite, title: 'Likes', width: width, onPressed: () {
                                         routeNoAnimation(context, pageBuilder: const LikesPage());
-                                      }),
+                                      }, badge: '0',),
                                       ButtonsUI(prefixIcon: Icons.bookmark, title: 'Saves', width: width, onPressed: () {
                                         routeNoAnimation(context, pageBuilder: const SavesPage());
-                                      }),
+                                      }, badge: '0',),
                                       ButtonsUI(prefixIcon: Icons.work, title: 'Applied jobs', width: width, onPressed: () {
                                         routeNoAnimation(context, pageBuilder: const ApplyJobPage());
-                                      }),
-                                      ButtonsUI(prefixIcon: Icons.assignment, title: 'Job Applications', width: width, onPressed: () => {}),
-                                      ButtonsUI(prefixIcon: Icons.description, title: 'Resume (CV)', width: width, onPressed: () => {}),
-                                      ButtonsUI(prefixIcon: Icons.subscriptions, title: 'Subscription', width: width, onPressed: () => {}),
+                                      }, badge: '0',),
+                                      ButtonsUI(prefixIcon: Icons.assignment, title: 'Job Applications', width: width, onPressed: () {
+                                        routeNoAnimation(context, pageBuilder: const JobApplicationPage());
+                                      }, badge: valBadges?.data?.newCount ?? '0',),
+                                      ButtonsUI(prefixIcon: Icons.description, title: 'Resume (CV)', width: width, onPressed: () => {
+                                      }, badge: '0',),
+                                      ButtonsUI(prefixIcon: Icons.subscriptions, title: 'Subscription', width: width, onPressed: () => {
+                                      }, badge: '0',),
                                     ],
                                   );
                                 }
@@ -568,27 +576,48 @@ class SegmentedControlExample extends ConsumerWidget {
 
 class ButtonsUI extends StatelessWidget {
   const ButtonsUI({super.key, required this.title, required this.onPressed,
-  required this.prefixIcon, required this.width});
+    required this.prefixIcon, required this.width,
+    required this.badge,
+  });
 
   final String title;
   final IconData? prefixIcon;
   final VoidCallback? onPressed;
   final double width;
+  final String badge;
 
   @override
   Widget build(BuildContext context) {
+    final badges = int.tryParse(badge) ?? 0;
+
     return SizedBox(
       width: width / 2,
-      child: buttons.textButtons(
-        title: title,
-        onPressed: onPressed,
-        padSize: 8,
-        textSize: 14,
-        textColor: config.secondaryColor.shade300,
-        prefixIcon: prefixIcon,
-        prefColor: config.secondaryColor.shade300,
-        prefixSize: 18,
-        mainAxisAlignment: MainAxisAlignment.start,
+      child: Stack(
+        children: [
+          buttons.textButtons(
+            title: title,
+            onPressed: onPressed,
+            padSize: 8,
+            textSize: 14,
+            textColor: config.secondaryColor.shade300,
+            prefixIcon: prefixIcon,
+            prefColor: config.secondaryColor.shade300,
+            prefixSize: 18,
+            mainAxisAlignment: MainAxisAlignment.start,
+          ),
+
+          if(badges > 0) Positioned(
+            right: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                color: config.warningColor.shade600,
+                borderRadius: BorderRadius.circular(6.0),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+              child: labels.label('${badges < 100 ? badges : '99+'}', fontSize: 11),
+            ),
+          )
+        ],
       ),
     );
   }

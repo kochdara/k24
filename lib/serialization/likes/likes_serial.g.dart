@@ -53,7 +53,9 @@ LikesData _$LikesDataFromJson(Map json) => LikesData(
           : LikesContact.fromJson(
               Map<String, dynamic>.from(json['contact'] as Map)),
       link: const ToString().fromJson(json['link']),
-      photo: const ToString().fromJson(json['photo']),
+      name: const ToString().fromJson(json['name']),
+      username: const ToString().fromJson(json['username']),
+      photo: json['photo'],
       photos: (json['photos'] as List<dynamic>?)
           ?.map(const ToString().fromJson)
           .toList(),
@@ -61,7 +63,12 @@ LikesData _$LikesDataFromJson(Map json) => LikesData(
       thumbnails: (json['thumbnails'] as List<dynamic>?)
           ?.map(const ToString().fromJson)
           .toList(),
-    );
+      online_status: json['online_status'] == null
+          ? null
+          : OnlineStatusProfile.fromJson((json['online_status'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
+    )..is_verify = json['is_verify'] as bool?;
 
 Map<String, dynamic> _$LikesDataToJson(LikesData instance) => <String, dynamic>{
       'id': const ToString().toJson(instance.id),
@@ -70,10 +77,14 @@ Map<String, dynamic> _$LikesDataToJson(LikesData instance) => <String, dynamic>{
       'userid': const ToString().toJson(instance.userid),
       'contact': instance.contact?.toJson(),
       'link': const ToString().toJson(instance.link),
-      'photo': const ToString().toJson(instance.photo),
+      'name': const ToString().toJson(instance.name),
+      'username': const ToString().toJson(instance.username),
+      'photo': instance.photo,
+      'is_verify': instance.is_verify,
       'photos': instance.photos?.map(const ToString().toJson).toList(),
       'thumbnail': const ToString().toJson(instance.thumbnail),
       'thumbnails': instance.thumbnails?.map(const ToString().toJson).toList(),
+      'online_status': instance.online_status?.toJson(),
     };
 
 LikesContact _$LikesContactFromJson(Map json) => LikesContact(

@@ -173,7 +173,7 @@ class BodyProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle? style = const TextStyle(color: Colors.black87, fontSize: 14, fontFamily: 'en');
+    TextStyle? style = TextStyle(color: Colors.black87, fontSize: 14, fontFamily: 'en', height: lineHeight);
     final profile = ref.watch(profilePro);
 
     return LayoutBuilder(
@@ -289,13 +289,12 @@ class BodyProfile extends StatelessWidget {
                               color: Colors.white,
                               padding: const EdgeInsets.symmetric(horizontal: 10),
                               width: double.infinity,
-                              child: Wrap(
-                                spacing: 2,
-                                runSpacing: 4,
+                              child: Flex(
                                 direction: Axis.vertical,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  labels.label('${datum?.name}', color: Colors.black87, fontSize: 22, fontWeight: FontWeight.w500),
-                                  labels.label('@${datum?.username}', color: Colors.black54, fontSize: 14),
+                                  labels.selectLabel('${datum?.name}', color: Colors.black87, fontSize: 22, fontWeight: FontWeight.w500),
+                                  labels.selectLabel('@${datum?.username}', color: Colors.black54, fontSize: 14),
                                   labels.label('${datum?.followers ?? '0'} followers • ${datum?.following ?? '0'} Following', color: Colors.black87, fontSize: 14),
 
                                   if(datum?.is_verify == true) labels.labelIcon(
@@ -502,6 +501,7 @@ class BodyProfile extends StatelessWidget {
   Future<void> smsFun(BuildContext context, DataProfile? datum) async {
     if(checkLogs(ref)) {
       routeAnimation(context, pageBuilder: ChatConversations(chatData: ChatData(
+          id: null,
           to_id: datum?.id,
           user: ChatUser.fromJson(datum?.toJson() ?? {})
       )));

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/pages/likes/likes_provider.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
+import 'package:k24/serialization/helper.dart';
 import 'package:k24/serialization/likes/likes_serial.dart';
 import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/labels.dart';
@@ -154,7 +155,7 @@ class LikesBody extends ConsumerWidget {
                           },
                           child: Card(
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6.0),
+                              borderRadius: BorderRadius.circular(8.0),
                             ),
                             surfaceTintColor: Colors.white,
                             elevation: 1,
@@ -228,6 +229,7 @@ class CardViewData extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final data = (datum?.data is Map) ? LikesData.fromJson(datum?.data) : LikesData();
+    final photos = (data.photo is Map) ? IconSerial.fromJson(data.photo ?? {}) : IconSerial(url: data.photo);
     double height = 140;
 
     return Row(
@@ -240,13 +242,13 @@ class CardViewData extends ConsumerWidget {
           color: config.secondaryColor.shade50,
           child: ClipRRect(
             borderRadius: const BorderRadius.horizontal(left: Radius.circular(5)),
-            child: ((data.thumbnail ?? '').isNotEmpty) ?
-            FadeInImage.assetNetwork(placeholder: placeholder, image: data.thumbnail ?? '', fit: BoxFit.cover)
+            child: ((data.thumbnail ?? (photos.url ?? '')).isNotEmpty) ?
+            FadeInImage.assetNetwork(placeholder: placeholder, image: '${data.thumbnail ?? photos.url}', fit: BoxFit.cover)
                 : Container(
               padding: const EdgeInsets.all(5),
               alignment: Alignment.center,
               color: config.infoColor.shade50, // Color(0xFFE8F5FB),
-              child: labels.label(data.title ?? 'N/A', color: config.infoColor.shade600, fontSize: 14, textAlign: TextAlign.center, maxLines: 3,),
+              child: labels.label(data.title ?? (data.name ?? 'N/A'), color: config.infoColor.shade600, fontSize: 14, textAlign: TextAlign.center, maxLines: 3,),
             ),
           ),
         ),
@@ -262,17 +264,17 @@ class CardViewData extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    labels.label(data.title??'N/A', color: config.secondaryColor.shade900, fontSize: 15, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.normal, maxLines: 2),
+                    labels.label(data.title??(data.name ?? 'N/A'), color: config.secondaryColor.shade900, fontSize: 15, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.normal, maxLines: 2),
 
                     labels.labelIcon(
                       leftIcon: Icon(Icons.location_on_outlined, size: 13, color: config.secondaryColor.shade200),
-                      leftTitle: ' ${data.contact?.location?.en_name ?? 'N/A'}',
+                      leftTitle: ' ${data.contact?.location?.en_name ?? (data.username ?? 'N/A')}',
                       style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'en', height: lineHeight),
                     ),
                   ],
                 ),
 
-                labels.label('\$${data.price??'0.00'}', color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold),
+                if(data.price != null) labels.label('\$${data.price ?? '0.00'}', color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold),
 
               ],
             ),

@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:k24/serialization/category/main_category.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 
-const String baseUrl = "https://test-api.khmer24.mobi";
-const String postUrl = "https://test-posts.khmer24.mobi";
-const String notificationUrl = "https://test-notifications.khmer24.mobi";
-const String chatUrl = "https://test-chats.khmer24.mobi";
-const String commentUrl = "https://test-comments.khmer24.mobi";
-const String likeUrl = "https://test-likes.khmer24.mobi";
-const String insightUrl = "https://test-insights.khmer24.mobi";
-const String trackingUrl = "https://test-tracking.khmer24.mobi";
-const String paymentUrl = "https://test-payments.khmer24.mobi";
-const String jobUrl = "https://test-jobs.khmer24.mobi";
+const String baseUrl = "https://api.khmer24.mobi";
+const String postUrl = "https://posts.khmer24.mobi";
+const String notificationUrl = "https://notifications.khmer24.mobi";
+const String chatUrl = "https://chats.khmer24.mobi";
+const String commentUrl = "https://comments.khmer24.mobi";
+const String likeUrl = "https://likes.khmer24.mobi";
+const String insightUrl = "https://insights.khmer24.mobi";
+const String trackingUrl = "https://tracking.khmer24.mobi";
+const String paymentUrl = "https://payments.khmer24.mobi";
+const String jobUrl = "https://jobs.khmer24.mobi";
 
 const double radius = 6;
 const double maxWidth = 1080;
