@@ -511,23 +511,25 @@ class BodyProfile extends StatelessWidget {
   Future<void> submitDataPro(Map<String, dynamic> data, bool is_follow, ProfilePublicProvider profilePro) async {
     final sendData = ref.watch(sendApi);
     // submit to clear follow //
-    if(is_follow) {
-      showActionSheet(ref.context, [
-        MoreTypeInfo('unfollow', 'Unfollow', null, null, () async {
-          final result = await sendData.submitFollow('unfollow', data, ref: ref);
-          if(result.message != null) {
-            ref.read(profilePro.notifier).setIsFollow(false);
-            alertSnack(ref.context, result.message ?? 'N/A');
-          }
-        }),
-      ]);
+    if(checkLogs(ref)) {
+      if(is_follow) {
+        showActionSheet(ref.context, [
+          MoreTypeInfo('unfollow', 'Unfollow', null, null, () async {
+            final result = await sendData.submitFollow('unfollow', data, ref: ref);
+            if(result.message != null) {
+              ref.read(profilePro.notifier).setIsFollow(false);
+              alertSnack(ref.context, result.message ?? 'N/A');
+            }
+          }),
+        ]);
 
-      // submit to follow //
-    } else {
-      final result = await sendData.submitFollow('follow', data, ref: ref);
-      if(result.message != null) {
-        ref.read(profilePro.notifier).setIsFollow(true);
-        alertSnack(ref.context, result.message ?? 'N/A');
+        // submit to follow //
+      } else {
+        final result = await sendData.submitFollow('follow', data, ref: ref);
+        if(result.message != null) {
+          ref.read(profilePro.notifier).setIsFollow(true);
+          alertSnack(ref.context, result.message ?? 'N/A');
+        }
       }
     }
   }

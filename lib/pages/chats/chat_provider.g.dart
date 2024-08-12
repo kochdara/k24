@@ -193,7 +193,7 @@ class _ChatPageProviderElement
   String? get type => (origin as ChatPageProvider).type;
 }
 
-String _$conversationPageHash() => r'8498d7e71bf6df9292b9bb38fd451e259f456c9d';
+String _$conversationPageHash() => r'9fe7f2a9eb7a1464abaec7fb0bf86d51f3ddee4e';
 
 abstract class _$ConversationPage
     extends BuildlessAutoDisposeStreamNotifier<List<ConData>> {

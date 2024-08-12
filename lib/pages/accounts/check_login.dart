@@ -11,6 +11,7 @@ import 'package:k24/pages/accounts/login/login.dart';
 import 'package:k24/pages/more_provider.dart';
 import 'package:k24/serialization/users/user_serial.dart';
 import 'package:k24/widgets/buttons.dart';
+import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/labels.dart';
 
 import '../../widgets/my_widgets.dart';
@@ -29,13 +30,12 @@ class CheckLoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<CheckLoginPage> {
-  late List<UserSerial> userList;
+  late StateProvider<List<UserSerial>> userList;
 
   @override
   void initState() {
     super.initState();
-
-    userList = [];
+    userList = StateProvider((ref) => []);
     setupPage();
   }
 
@@ -59,8 +59,8 @@ class _LoginPageState extends ConsumerState<CheckLoginPage> {
     futureAwait(duration: 10, () {
       for(final val in userData) {
         final use = UserSerial.fromJson(val ?? {});
-        setState(() {
-          userList.add(use);
+        ref.read(userList.notifier).update((state) {
+          return [ ...state, ...[use] ];
         });
       }
     });
@@ -72,11 +72,12 @@ class BodyLogin extends ConsumerWidget {
     required this.userList,
   });
 
-  final List<UserSerial> userList;
+  final StateProvider<List<UserSerial>> userList;
   final apiServiceProvider = Provider((ref) => MyApiService());
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userList);
 
     return CustomScrollView(
       slivers: <Widget>[
@@ -120,51 +121,38 @@ class BodyLogin extends ConsumerWidget {
                     child: Column(
                       children: [
                         /// user card ///
-                        for(final v in userList) ...[
-                          Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6),
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.4),
-                                  spreadRadius: 0,
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 1), // changes position of shadow
-                                  blurStyle:  BlurStyle.solid,
-                                ),
-                              ],
+                        for(final v in user) ...[
+                          ListTile(
+                            onTap: () => loginPage(ref, v,),
+                            leading: (v.data?.user?.photo?.url != null) ? CircleAvatar(
+                              backgroundColor: Colors.black12,
+                              backgroundImage: NetworkImage(v.data?.user?.photo?.url ?? ''),
+                            ) : Icon(CupertinoIcons.person_crop_circle_fill, size: 50, color: config.secondaryColor.shade100),
+                            title: labels.label(v.data?.user?.name ?? 'N/A', fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87),
+                            subtitle: labels.label('@${v.data?.user?.username ?? 'N/A'}', fontSize: 12, color: Colors.black54),
+                            dense: true,
+                            tileColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              side: BorderSide(color: Colors.grey.shade300),
                             ),
-                            child: Material(
-                              borderRadius: BorderRadius.circular(6),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  ListTile(
-                                    onTap: () => loginPage(ref, v,),
-                                    leading: (v.data?.user?.photo?.url != null) ? CircleAvatar(
-                                      backgroundColor: Colors.black12,
-                                      backgroundImage: NetworkImage(v.data?.user?.photo?.url ?? ''),
-                                    ) : Icon(CupertinoIcons.person_crop_circle_fill, size: 50, color: config.secondaryColor.shade100),
-                                    title: labels.label(v.data?.user?.name ?? 'N/A', fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87),
-                                    subtitle: labels.label('@${v.data?.user?.username ?? 'N/A'}', fontSize: 12, color: Colors.black54),
-                                    dense: true,
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                                    horizontalTitleGap: 8,
-                                    trailing: IconButton(
-                                      onPressed: () {},
-                                      padding: const EdgeInsets.all(12),
-                                      icon: Icon(Icons.more_vert_rounded, color: config.secondaryColor.shade400),
-                                    ),
-                                  ),
-
-                                ],
-                              ),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                            horizontalTitleGap: 8,
+                            trailing: IconButton(
+                              onPressed: () => showActionSheet(context, [
+                                MoreTypeInfo('edit', 'Edit', null, null, () {
+                                  routeAnimation(context, pageBuilder: LoginPage(
+                                    log: v.login,
+                                    pass: v.password,
+                                  ));
+                                }),
+                                MoreTypeInfo('remove', 'Remove', null, null, () => removeUser(ref, v)),
+                              ]),
+                              padding: const EdgeInsets.all(12),
+                              icon: Icon(Icons.more_vert_rounded, color: config.secondaryColor.shade400),
                             ),
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 10,),
                         ],
 
                         const SizedBox(height: 30),
@@ -241,6 +229,22 @@ class BodyLogin extends ConsumerWidget {
 
       ],
     );
+  }
+
+  Future<void> removeUser(WidgetRef ref, UserSerial v) async {
+    final userListNotifier = ref.read(userList.notifier);
+    final currentList = userListNotifier.state;
+
+    int i = currentList.indexWhere((element) => element.data?.user?.id == v.data?.user?.id);
+    if (i != -1) {
+      final updatedList = List<UserSerial>.from(currentList)..removeAt(i);
+      userListNotifier.state = updatedList;  // Update the state
+
+      // Save the updated list
+      await saveSecure('list_user', updatedList);
+
+      alertSnack(ref.context, 'User removed successfully!');
+    }
   }
 
   Future<void> loginPage(WidgetRef ref, UserSerial v) async {

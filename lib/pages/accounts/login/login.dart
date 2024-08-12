@@ -18,7 +18,12 @@ final Buttons buttons = Buttons();
 final Config config = Config();
 
 class LoginPage extends ConsumerStatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({super.key, this.log,
+    this.pass,
+  });
+
+  final String? log;
+  final String? pass;
 
   @override
   ConsumerState<LoginPage> createState() => _ProfilePageState();
@@ -31,10 +36,23 @@ class _ProfilePageState extends ConsumerState<LoginPage> {
   final StateProvider<MessageLogin> loginMessage = StateProvider((ref) => MessageLogin());
   final loginNode = FocusNode();
   final passwordNode = FocusNode();
+  late TextEditingController logController;
+  late TextEditingController passController;
 
   @override
   void initState() {
     super.initState();
+    logController = TextEditingController();
+    passController = TextEditingController();
+    if(widget.log != null) logController.text = widget.log ?? '';
+    if(widget.pass != null) passController.text = widget.pass ?? '';
+  }
+
+  @override
+  void dispose() {
+    logController = TextEditingController();
+    passController = TextEditingController();
+    super.dispose();
   }
 
   @override
@@ -49,6 +67,8 @@ class _ProfilePageState extends ConsumerState<LoginPage> {
         loginMessage: loginMessage,
         loginNode: loginNode,
         passwordNode: passwordNode,
+        logController: logController,
+        passController: passController,
       ),
     );
   }
@@ -60,6 +80,8 @@ class BodyProfile extends StatelessWidget {
     required this.loginMessage,
     required this.loginNode,
     required this.passwordNode,
+    required this.logController,
+    required this.passController,
   });
 
   final WidgetRef ref;
@@ -70,6 +92,8 @@ class BodyProfile extends StatelessWidget {
   final apiServiceProvider = Provider((ref) => MyApiService());
   final FocusNode loginNode;
   final FocusNode passwordNode;
+  final TextEditingController logController;
+  final TextEditingController passController;
 
   @override
   Widget build(BuildContext context) {
@@ -131,6 +155,7 @@ class BodyProfile extends StatelessWidget {
                           labelText: 'Phone Number or Username',
                           autofocus: true,
                           focusNode: loginNode,
+                          controller: logController,
                           textInputAction: TextInputAction.next,
                           validator: ValidationBuilder().minLength(3).maxLength(50).build(),
                           onChanged: (val) {
@@ -152,6 +177,7 @@ class BodyProfile extends StatelessWidget {
                         forms.labelFormFields(
                           labelText: 'Password',
                           focusNode: passwordNode,
+                          controller: passController,
                           obscureText: ref.watch(obscureText),
                           validator: ValidationBuilder().minLength(8).maxLength(50).build(),
                           onChanged: (val) {

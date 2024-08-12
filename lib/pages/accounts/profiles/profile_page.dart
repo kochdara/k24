@@ -1,6 +1,6 @@
 
 
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, unused_result
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -50,23 +50,69 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
+  final ScrollController scrollController = ScrollController();
+  StateProvider<bool> isLoadingPro = StateProvider((ref) => false);
+  StateProvider<int> lengthPro = StateProvider((ref) => 1);
 
   @override
   void initState() {
     super.initState();
     setupPage();
+    scrollController.addListener(() {
+      final pixels = scrollController.position.pixels;
+      final maxScrollExtent = scrollController.position.maxScrollExtent;
+      if (pixels > maxScrollExtent-150 && pixels <= maxScrollExtent) {
+        _fetchMoreData();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchMoreData() async {
+    final watch = ref.watch(isLoadingPro);
+    final read = ref.read(isLoadingPro.notifier);
+    final readLen = ref.read(lengthPro.notifier);
+    if (watch) return;
+    read.state = true;
+
+    final fetchMore = ref.read(ownProfileListProvider(ref).notifier);
+    fetchMore.fetchHome();
+    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
+    readLen.state = fetchMore.length;
+    read.state = false;
   }
 
   @override
   Widget build(BuildContext context) {
     final userPro = ref.watch(usersProvider);
-    final profilePro = ref.watch(profilePublicProvider(ref, '${userPro.user?.username}'));
+    final providerPro = profilePublicProvider(ref, '${userPro.user?.username}');
+    final profilePro = ref.watch(providerPro);
+    final provider = ownProfileListProvider(ref);
+    final ownProfilePro = ref.watch(provider);
 
     return Scaffold(
       backgroundColor: config.backgroundColor,
-      body: BodyProfile(
-        ref,
-        profilePro: profilePro,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.refresh(providerPro.future);
+          ref.read(provider.notifier).refresh();
+          ref.read(isLoadingPro.notifier).state = false;
+          ref.read(lengthPro.notifier).state = 1;
+        },
+        child: BodyProfile(
+          ref,
+          profilePro: profilePro,
+          provider: provider,
+          ownProfilePro: ownProfilePro,
+          isLoading: ref.watch(isLoadingPro),
+          length: ref.watch(lengthPro),
+          scrollController: scrollController,
+        ),
       ),
       bottomNavigationBar: myWidgets.bottomBarPage(
           context, ref, widget.selectedIndex,
@@ -83,10 +129,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 class BodyProfile extends StatelessWidget {
   const BodyProfile(this.ref, {super.key,
     required this.profilePro,
+    required this.provider,
+    required this.ownProfilePro,
+    required this.isLoading,
+    required this.length,
+    required this.scrollController,
   });
 
+  final bool isLoading;
+  final ScrollController scrollController;
+  final int length;
   final WidgetRef ref;
   final AsyncValue<ProfileSerial?> profilePro;
+  final OwnProfileListProvider provider;
+  final AsyncValue<List<DatumProfile>> ownProfilePro;
 
   @override
   Widget build(BuildContext context) {
@@ -94,244 +150,245 @@ class BodyProfile extends StatelessWidget {
     final getBadges = ref.watch(getBadgesAppProvider(ref));
     final valBadges = getBadges.valueOrNull;
 
-    return RefreshIndicator(
-      onRefresh: () {
-        return ref.read(ownProfileListProvider(ref).notifier).refresh();
-      },
-      child: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            floating: true,
-            leading: Center(
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: config.secondaryColor.shade50,
-                  borderRadius: BorderRadius.circular(60),
-                ),
-                child: (userKey.user?.photo?.url != null) ? CircleAvatar(
-                  backgroundColor: Colors.black12,
-                  backgroundImage: NetworkImage(userKey.user?.photo?.url ?? ''),
-                ) : Icon(Icons.person, color: config.secondaryColor.shade200, size: 26),
+    return CustomScrollView(
+      controller: scrollController,
+      slivers: [
+        SliverAppBar(
+          floating: true,
+          leading: Center(
+            child: Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: config.secondaryColor.shade50,
+                borderRadius: BorderRadius.circular(60),
               ),
+              child: (userKey.user?.photo?.url != null) ? CircleAvatar(
+                backgroundColor: Colors.black12,
+                backgroundImage: NetworkImage(userKey.user?.photo?.url ?? ''),
+              ) : Icon(Icons.person, color: config.secondaryColor.shade200, size: 26),
             ),
-            title: labels.label('${userKey.user?.name}', fontSize: 20, fontWeight: FontWeight.w500),
-            titleSpacing: 6,
-            actions: [
-              IconButton(
-                onPressed: () { },
-                icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_fill, color: Colors.white),
-              ),
-
-              IconButton(
-                onPressed: () {
-                  routeNoAnimation(context, pageBuilder: const SettingPage());
-                },
-                icon: const Icon(Icons.settings, color: Colors.white),
-              ),
-            ],
           ),
+          title: labels.label('${userKey.user?.name}', fontSize: 20, fontWeight: FontWeight.w500),
+          titleSpacing: 6,
+          actions: [
+            IconButton(
+              onPressed: () { },
+              icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_fill, color: Colors.white),
+            ),
 
-          /// body //
-          SliverList(
-            delegate: SliverChildListDelegate([
+            IconButton(
+              onPressed: () {
+                routeNoAnimation(context, pageBuilder: const SettingPage());
+              },
+              icon: const Icon(Icons.settings, color: Colors.white),
+            ),
+          ],
+        ),
 
-              profilePro.when(
-                error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () {}),
-                loading: () => const SizedBox(
-                  height: 350,
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-                data: (data) {
-                  final datum = data?.data;
+        /// body //
+        SliverList(
+          delegate: SliverChildListDelegate([
 
-                  return Flex(
-                    direction: Axis.vertical,
-                    children: [
-                      Stack(
-                        children: [
-                          // cover of image
-                          Column(
-                            children: [
-                              InkWell(
-                                onTap: () { if(datum?.cover?.url != null) viewImage(context, '${datum?.cover?.url}'); },
-                                child: Container(
-                                  color: config.primaryAppColor.shade50,
-                                  height: 200,
-                                  width: double.infinity,
-                                  child: (datum?.cover?.url != null) ? FadeInImage.assetNetwork(
-                                      placeholder: placeholder,
-                                      image: '${datum?.cover?.url}',
-                                    fit: BoxFit.cover,
-                                  ) : null,
-                                ),
-                              ),
+            profilePro.when(
+              error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () {}),
+              loading: () => const SizedBox(
+                height: 350,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              data: (data) {
+                final datum = data?.data;
 
-                              Container(
-                                height: 60,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
-                          // profile image
-                          Positioned(
-                            bottom: 10,
-                            left: 10,
-                            child: InkWell(
-                              onTap: () { if(datum?.photo?.url != null) viewImage(context, '${datum?.photo?.url}'); },
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                        color: config.secondaryColor.shade100,
-                                        borderRadius: BorderRadius.circular(100),
-                                        border: Border.all(color: Colors.white, width: 4)
-                                    ),
-                                    alignment: Alignment.center,
-                                    width: 94,
-                                    height: 94,
-                                    child: (datum?.photo?.url != null) ? ClipOval(
-                                      child: FadeInImage.assetNetwork(
-                                        placeholder: placeholder,
-                                        image: '${datum?.photo?.url}',
-                                        width: 94,
-                                        height: 94,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ) : const Icon(Icons.person, size: 64, color: Colors.white),
-                                  ),
-
-                                  Positioned(
-                                    bottom: 4,
-                                    right: 4,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(50),
-                                        color: config.secondaryColor.shade50,
-                                      ),
-                                      child: Icon(Icons.camera_alt, size: 14, color: config.secondaryColor.shade400),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                          // edit profile
-                          Positioned(
-                              bottom: 4,
-                              right: 10,
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                    onPressed: () => { },
-                                    icon: const Icon(CupertinoIcons.qrcode, size: 30, color: Colors.black87),
-                                  ),
-                                  SizedBox(
-                                    height: 36.0,
-                                    child: buttons.textButtons(
-                                      title: 'Edit Profile',
-                                      onPressed: () {
-                                        routeAnimation(context, pageBuilder: const EditProfilePage());
-                                      },
-                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                                      textColor: Colors.black87,
-                                      bgColor: Colors.transparent,
-                                      borderColor: Colors.black54,
-                                      padSize: 0
-                                    ),
-                                  ),
-                                ],
-                              )
-                          )
-                        ],
-                      ),
-                      // name, username, followers, following and subscriptions
-                      Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                return Flex(
+                  direction: Axis.vertical,
+                  children: [
+                    Stack(
+                      children: [
+                        // cover of image
+                        Column(
                           children: [
-                            Wrap(
-                              spacing: 4,
-                              runSpacing: 4,
-                              direction: Axis.vertical,
-                              children: [
-                                labels.label('${userKey.user?.name}', color: Colors.black87, fontSize: 22, fontWeight: FontWeight.w500),
-                                Wrap(
-                                  spacing: 8,
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  children: [
-                                    labels.label('@${userKey.user?.username}', color: Colors.black54, fontSize: 14),
-                                    if(userKey.user?.membership?.title != null) Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: config.primaryAppColor.shade600),
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: labels.label('${userKey.user?.membership?.title}', color: config.primaryAppColor.shade600, fontSize: 13),
-                                    ),
-                                  ],
-                                ),
-                                labels.label('${datum?.followers ?? '0'} followers • ${datum?.following ?? '0'} Following', color: Colors.black54, fontSize: 14),
-                              ],
+                            InkWell(
+                              onTap: () { if(datum?.cover?.url != null) viewImage(context, '${datum?.cover?.url}'); },
+                              child: Container(
+                                color: config.primaryAppColor.shade50,
+                                height: 200,
+                                width: double.infinity,
+                                child: (datum?.cover?.url != null) ? FadeInImage.assetNetwork(
+                                    placeholder: placeholder,
+                                    image: '${datum?.cover?.url}',
+                                  fit: BoxFit.cover,
+                                ) : null,
+                              ),
                             ),
 
-                            const SizedBox(height: 8),
-
-                            LayoutBuilder(
-                                builder: (BuildContext context, BoxConstraints constraints) {
-                                  double width = constraints.maxWidth - 12;
-                                  return Wrap(
-                                    spacing: 10,
-                                    runSpacing: 2,
-                                    direction: Axis.horizontal,
-                                    children: [
-                                      ButtonsUI(prefixIcon: Icons.favorite, title: 'Likes', width: width, onPressed: () {
-                                        routeNoAnimation(context, pageBuilder: const LikesPage());
-                                      }, badge: '0',),
-                                      ButtonsUI(prefixIcon: Icons.bookmark, title: 'Saves', width: width, onPressed: () {
-                                        routeNoAnimation(context, pageBuilder: const SavesPage());
-                                      }, badge: '0',),
-                                      ButtonsUI(prefixIcon: Icons.work, title: 'Applied jobs', width: width, onPressed: () {
-                                        routeNoAnimation(context, pageBuilder: const ApplyJobPage());
-                                      }, badge: '0',),
-                                      ButtonsUI(prefixIcon: Icons.assignment, title: 'Job Applications', width: width, onPressed: () {
-                                        routeNoAnimation(context, pageBuilder: const JobApplicationPage());
-                                      }, badge: valBadges?.data?.newCount ?? '0',),
-                                      ButtonsUI(prefixIcon: Icons.description, title: 'Resume (CV)', width: width, onPressed: () => {
-                                      }, badge: '0',),
-                                      ButtonsUI(prefixIcon: Icons.subscriptions, title: 'Subscription', width: width, onPressed: () => {
-                                      }, badge: '0',),
-                                    ],
-                                  );
-                                }
+                            Container(
+                              height: 60,
+                              color: Colors.white,
                             ),
-
-                            const SizedBox(height: 8),
-
                           ],
                         ),
+                        // profile image
+                        Positioned(
+                          bottom: 10,
+                          left: 10,
+                          child: InkWell(
+                            onTap: () { if(datum?.photo?.url != null) viewImage(context, '${datum?.photo?.url}'); },
+                            child: Stack(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                      color: config.secondaryColor.shade100,
+                                      borderRadius: BorderRadius.circular(100),
+                                      border: Border.all(color: Colors.white, width: 4)
+                                  ),
+                                  alignment: Alignment.center,
+                                  width: 94,
+                                  height: 94,
+                                  child: (datum?.photo?.url != null) ? ClipOval(
+                                    child: FadeInImage.assetNetwork(
+                                      placeholder: placeholder,
+                                      image: '${datum?.photo?.url}',
+                                      width: 94,
+                                      height: 94,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ) : const Icon(Icons.person, size: 64, color: Colors.white),
+                                ),
+
+                                Positioned(
+                                  bottom: 4,
+                                  right: 4,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(50),
+                                      color: config.secondaryColor.shade50,
+                                    ),
+                                    child: Icon(Icons.camera_alt, size: 14, color: config.secondaryColor.shade400),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        // edit profile
+                        Positioned(
+                            bottom: 4,
+                            right: 10,
+                            child: Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () => { },
+                                  icon: const Icon(CupertinoIcons.qrcode, size: 30, color: Colors.black87),
+                                ),
+                                SizedBox(
+                                  height: 36.0,
+                                  child: buttons.textButtons(
+                                    title: 'Edit Profile',
+                                    onPressed: () {
+                                      routeAnimation(context, pageBuilder: const EditProfilePage());
+                                    },
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                                    textColor: Colors.black87,
+                                    bgColor: Colors.transparent,
+                                    borderColor: Colors.black54,
+                                    padSize: 0
+                                  ),
+                                ),
+                              ],
+                            )
+                        )
+                      ],
+                    ),
+                    // name, username, followers, following and subscriptions
+                    Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            direction: Axis.vertical,
+                            children: [
+                              labels.label('${userKey.user?.name}', color: Colors.black87, fontSize: 22, fontWeight: FontWeight.w500),
+                              Wrap(
+                                spacing: 8,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  labels.label('@${userKey.user?.username}', color: Colors.black54, fontSize: 14),
+                                  if(userKey.user?.membership?.title != null) Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: config.primaryAppColor.shade600),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: labels.label('${userKey.user?.membership?.title}', color: config.primaryAppColor.shade600, fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                              labels.label('${datum?.followers ?? '0'} followers • ${datum?.following ?? '0'} Following', color: Colors.black54, fontSize: 14),
+                            ],
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          LayoutBuilder(
+                              builder: (BuildContext context, BoxConstraints constraints) {
+                                double width = constraints.maxWidth - 12;
+                                return Wrap(
+                                  spacing: 10,
+                                  runSpacing: 2,
+                                  direction: Axis.horizontal,
+                                  children: [
+                                    ButtonsUI(prefixIcon: Icons.favorite, title: 'Likes', width: width, onPressed: () {
+                                      routeNoAnimation(context, pageBuilder: const LikesPage());
+                                    }, badge: '0',),
+                                    ButtonsUI(prefixIcon: Icons.bookmark, title: 'Saves', width: width, onPressed: () {
+                                      routeNoAnimation(context, pageBuilder: const SavesPage());
+                                    }, badge: '0',),
+                                    ButtonsUI(prefixIcon: Icons.work, title: 'Applied jobs', width: width, onPressed: () {
+                                      routeNoAnimation(context, pageBuilder: const ApplyJobPage());
+                                    }, badge: '0',),
+                                    ButtonsUI(prefixIcon: Icons.assignment, title: 'Job Applications', width: width, onPressed: () {
+                                      routeNoAnimation(context, pageBuilder: const JobApplicationPage());
+                                    }, badge: valBadges?.data?.newCount ?? '0',),
+                                    ButtonsUI(prefixIcon: Icons.description, title: 'Resume (CV)', width: width, onPressed: () => {
+                                    }, badge: '0',),
+                                    ButtonsUI(prefixIcon: Icons.subscriptions, title: 'Subscription', width: width, onPressed: () => {
+                                    }, badge: '0',),
+                                  ],
+                                );
+                              }
+                          ),
+
+                          const SizedBox(height: 8),
+
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      /// top ads ///
-                      myCards.ads(url: 'https://www.khmer24.ws/www/delivery/ai.php?filename=08232023_bannercarsale_(640x290)-2.jpg%20(3)&contenttype=jpeg', loading: false),
-                      const SizedBox(height: 8),
-                      // manage my ads
-                      SegmentedControlExample(),
+                    ),
+                    const SizedBox(height: 8),
+                    /// top ads ///
+                    myCards.ads(url: 'https://www.khmer24.ws/www/delivery/ai.php?filename=08232023_bannercarsale_(640x290)-2.jpg%20(3)&contenttype=jpeg', loading: false),
+                    const SizedBox(height: 8),
+                    // manage my ads
+                    SegmentedControlExample(
+                      provider: provider,
+                      ownProfilePro: ownProfilePro,
+                      isLoading: isLoading,
+                      length: length,
+                    ),
 
-                    ],
-                  );
-                },
-              ),
+                  ],
+                );
+              },
+            ),
 
-            ]),
-          ),
+          ]),
+        ),
 
-        ],
-      ),
+      ],
     );
   }
 }
@@ -340,7 +397,17 @@ enum TypeSelect { active, premiere, expired }
 final StateProvider<TypeSelect> selectedSegment = StateProvider((ref) => TypeSelect.active);
 
 class SegmentedControlExample extends ConsumerWidget {
-  SegmentedControlExample({super.key});
+  SegmentedControlExample({super.key,
+    required this.provider,
+    required this.ownProfilePro,
+    required this.isLoading,
+    required this.length,
+  });
+
+  final OwnProfileListProvider provider;
+  final AsyncValue<List<DatumProfile>> ownProfilePro;
+  final bool isLoading;
+  final int length;
 
   final Map<TypeSelect, int> skyColors = <TypeSelect, int>{
     TypeSelect.active: 0,
@@ -351,9 +418,7 @@ class SegmentedControlExample extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final submitApi = ref.watch(myAPIService);
-    final ownProfilePro = ref.watch(ownProfileListProvider(ref));
     final getTotalPostPro = ref.watch(getTotalPostProvider(ref));
-
     final dataTotal = getTotalPostPro.valueOrNull ?? OwnDataTotalPost();
 
     return LayoutBuilder(
@@ -487,8 +552,10 @@ class SegmentedControlExample extends ConsumerWidget {
                                 child: buttons.textButtons(
                                   title: 'Renew',
                                   onPressed: !checkDate('${datum.renew_date}') ? () => submitApi.submitRenew(
-                                      '${datum.id}', context: context, ref: ref)
-                                  : null,
+                                    '${datum.id}', provider,
+                                    context: context,
+                                    ref: ref,
+                                  ) : null,
                                   padSize: 0,
                                   textSize: 14,
                                   textColor: checkDate('${datum.renew_date}') ? Colors.black54 : Colors.black87,
@@ -536,6 +603,12 @@ class SegmentedControlExample extends ConsumerWidget {
                 );
               },
             ),
+
+            if(isLoading && length > 0) Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.all(20),
+              child: const CircularProgressIndicator(),
+            ) else if(length <= 0) const NoMoreResult(),
 
           ],
         );

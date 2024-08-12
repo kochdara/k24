@@ -206,7 +206,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
                         "file": filePath.file ?? '',
                       }});
 
-                      onSubmit(provider);
+                      await onSubmit(provider);
                     }
                   }),
 
@@ -294,7 +294,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
                                 "name": files.name,
                               }});
 
-                              onSubmit(provider);
+                              await onSubmit(provider);
                             }
                           }
                         },
@@ -329,7 +329,6 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
   }
 
   Future<void> onSubmit(ConversationPageProvider provider) async {
-
     // Define topic as Map<String, String>
     Map<String, String> topic = {};
 

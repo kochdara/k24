@@ -98,6 +98,8 @@ class MarkApiService {
       }, contentType: Headers.formUrlEncodedContentType));
       final resp = ConData.fromJson(res.data['data'] ?? {});
 
+      print(res.data);
+
       return resp;
     } on DioException catch (e) {
       final response = e.response;

@@ -22,9 +22,11 @@ final MyWidgets myWidgets = MyWidgets();
 class OwnProfileList extends _$OwnProfileList {
   late List<DatumProfile> list = [];
   final String fields = 'id,title,price,photo,thumbnail,views,renew_date,posted_date,last_update,link,auto_renew,is_premium,status,total_like,total_comment,total_job_application,insights,category_type,availability';
-  final String fun = 'insights';
+  final String fun = 'like,comment,apply_job,shipping,insights';
   final Dio dio = Dio();
   int limit = 0;
+  int offset = 0;
+  int length = 1;
 
   @override
   Future<List<DatumProfile>> build(WidgetRef context) async => fetchHome();
@@ -38,6 +40,8 @@ class OwnProfileList extends _$OwnProfileList {
   // Refresh the profile list by resetting the state and re-fetching the data
   Future<void> refresh() async {
     limit = 0;
+    offset = 0;
+    length = 1;
     list = [];
     state = const AsyncLoading();
     await fetchHome();
@@ -48,16 +52,20 @@ class OwnProfileList extends _$OwnProfileList {
   Future<void> urlAPI() async {
     try {
       final accessTokens = context.watch(usersProvider).tokens?.access_token;
-      final subs = 'me/posts?lang=en&fields=$fields&functions=$fun';
+      final subs = 'me/posts?lang=en&fields=$fields&functions=$fun&offset=$offset';
       final res = await dio.get(
         '$baseUrl/$subs',
         options: Options(headers: {'Access-Token':  accessTokens}),
       );
 
+      print(subs);
+
       if (res.statusCode == 200) {
         final resp = OwnProfileSerial.fromJson(res.data ?? {});
         final data = resp.data ?? [];
         limit = resp.limit ?? 0;
+        length = data.length;
+        if(data.isNotEmpty) offset = offset + limit;
 
         final updatedList = <DatumProfile>[];
         final existingIds = list.map((e) => e.id).toSet();
@@ -80,11 +88,23 @@ class OwnProfileList extends _$OwnProfileList {
         // Token might have expired, try to refresh the token
         await checkTokens(context);
         await fetchHome(); // Retry the request after refreshing the token
+        return;
       }
     } catch (e, stacktrace) {
       // Handle exceptions and log the error
       print('Error: $e');
       print(stacktrace);
+    }
+  }
+
+  Future<void> updatedAt(String? ids, { DateTime? renewDate }) async {
+    final newList = state.valueOrNull;
+    if (newList != null) {
+      final index = newList.indexWhere((element) => element.id == ids);
+      if (index != -1) {
+        if(renewDate != null) newList[index].renew_date = renewDate;
+        state = AsyncData(newList);
+      }
     }
   }
 }
@@ -132,7 +152,7 @@ class MyAccountApiService {
   final Dio dio = Dio();
 
   Future<void> submitRenew(
-      String id, {
+      String id, OwnProfileListProvider provider, {
         required BuildContext context,
         required WidgetRef ref,
       }) async {
@@ -157,6 +177,7 @@ class MyAccountApiService {
 
       if (res.statusCode == 200) {
         final resp = MessageLogin.fromJson(res.data ?? {});
+        ref.read(provider.notifier).updatedAt(id, renewDate: DateTime.now());
         alertSnack(context, resp.message ?? 'Operation successful');
       } else {
         alertSnack(context, 'Failed to renew post');
@@ -172,7 +193,8 @@ class MyAccountApiService {
         if (response?.statusCode == 401) {
           // Token might have expired, try to refresh the token
           await checkTokens(ref);
-          await submitRenew(id, context: context, ref: ref); // Retry the request after refreshing the token
+          await submitRenew(id, provider, context: context, ref: ref); // Retry the request after refreshing the token
+          return;
         }
         print('Dio error: ${e.message}');
       } else {
