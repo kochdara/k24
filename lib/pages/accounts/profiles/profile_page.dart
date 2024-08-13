@@ -14,23 +14,19 @@ import 'package:k24/pages/jobs/apply_job/apply_job_page.dart';
 import 'package:k24/pages/jobs/job_applications/application_provider.dart';
 import 'package:k24/pages/jobs/job_applications/jobapplications_page.dart';
 import 'package:k24/pages/main/home_provider.dart';
-import 'package:k24/pages/posts/post_provider.dart';
 import 'package:k24/pages/saves/save_page.dart';
 import 'package:k24/pages/settings/settings_page.dart';
 import 'package:k24/serialization/accounts/profiles/profiles_own.dart';
-import 'package:k24/serialization/category/main_category.dart';
-import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/dialog_builder.dart';
+import 'package:k24/widgets/forms.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
 
 import '../../../serialization/accounts/profiles_public/profile_serial.dart';
-import '../../details/details_post.dart';
 import '../../likes/like_page.dart';
 import '../../more_provider.dart';
-import '../../posts/post_page.dart';
 import '../profile_public/profile_provider.dart';
 
 final Labels labels = Labels();
@@ -39,6 +35,7 @@ final MyWidgets myWidgets = MyWidgets();
 final MyCards myCards = MyCards();
 final Config config = Config();
 final myAPIService = Provider((ref) => MyAccountApiService());
+final forms = Forms();
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key, required this.selectedIndex});
@@ -53,6 +50,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   final ScrollController scrollController = ScrollController();
   StateProvider<bool> isLoadingPro = StateProvider((ref) => false);
   StateProvider<int> lengthPro = StateProvider((ref) => 1);
+  final newMap = StateProvider<Map<String, dynamic>>((ref) => {});
+  final StateProvider<TypeSelect> selectedSegment = StateProvider((ref) => TypeSelect.active);
 
   @override
   void initState() {
@@ -77,11 +76,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final watch = ref.watch(isLoadingPro);
     final read = ref.read(isLoadingPro.notifier);
     final readLen = ref.read(lengthPro.notifier);
+    final mapVal = ref.watch(newMap);
     if (watch) return;
     read.state = true;
 
-    final fetchMore = ref.read(ownProfileListProvider(ref).notifier);
-    fetchMore.fetchHome();
+    final fetchMore = ref.read(ownProfileListProvider(ref, mapVal).notifier);
+    fetchMore.fetchHome(mapVal);
     await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
     readLen.state = fetchMore.length;
     read.state = false;
@@ -89,10 +89,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final mapVal = ref.watch(newMap);
     final userPro = ref.watch(usersProvider);
     final providerPro = profilePublicProvider(ref, '${userPro.user?.username}');
     final profilePro = ref.watch(providerPro);
-    final provider = ownProfileListProvider(ref);
+    final provider = ownProfileListProvider(ref, mapVal);
     final ownProfilePro = ref.watch(provider);
 
     return Scaffold(
@@ -103,6 +104,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ref.read(provider.notifier).refresh();
           ref.read(isLoadingPro.notifier).state = false;
           ref.read(lengthPro.notifier).state = 1;
+          ref.read(newMap.notifier).state = {};
         },
         child: BodyProfile(
           ref,
@@ -112,6 +114,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           isLoading: ref.watch(isLoadingPro),
           length: ref.watch(lengthPro),
           scrollController: scrollController,
+          newMap: newMap,
+          selectedSegment: selectedSegment,
         ),
       ),
       bottomNavigationBar: myWidgets.bottomBarPage(
@@ -134,6 +138,8 @@ class BodyProfile extends StatelessWidget {
     required this.isLoading,
     required this.length,
     required this.scrollController,
+    required this.newMap,
+    required this.selectedSegment,
   });
 
   final bool isLoading;
@@ -143,6 +149,8 @@ class BodyProfile extends StatelessWidget {
   final AsyncValue<ProfileSerial?> profilePro;
   final OwnProfileListProvider provider;
   final AsyncValue<List<DatumProfile>> ownProfilePro;
+  final StateProvider<Map<String, dynamic>> newMap;
+  final StateProvider<TypeSelect> selectedSegment;
 
   @override
   Widget build(BuildContext context) {
@@ -378,6 +386,8 @@ class BodyProfile extends StatelessWidget {
                       ownProfilePro: ownProfilePro,
                       isLoading: isLoading,
                       length: length,
+                      newMap: newMap,
+                      selectedSegment: selectedSegment,
                     ),
 
                   ],
@@ -394,7 +404,6 @@ class BodyProfile extends StatelessWidget {
 }
 
 enum TypeSelect { active, premiere, expired }
-final StateProvider<TypeSelect> selectedSegment = StateProvider((ref) => TypeSelect.active);
 
 class SegmentedControlExample extends ConsumerWidget {
   SegmentedControlExample({super.key,
@@ -402,24 +411,37 @@ class SegmentedControlExample extends ConsumerWidget {
     required this.ownProfilePro,
     required this.isLoading,
     required this.length,
+    required this.newMap,
+    required this.selectedSegment,
   });
 
   final OwnProfileListProvider provider;
   final AsyncValue<List<DatumProfile>> ownProfilePro;
   final bool isLoading;
   final int length;
+  final StateProvider<Map<String, dynamic>> newMap;
+  final StateProvider<TypeSelect> selectedSegment;
 
   final Map<TypeSelect, int> skyColors = <TypeSelect, int>{
     TypeSelect.active: 0,
     TypeSelect.premiere: 1,
     TypeSelect.expired: 2,
   };
+  final StateProvider<Map> newVal = StateProvider((ref) => {
+    'type': 'active',
+    'reason': 'sold',
+    'description': '',
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final submitApi = ref.watch(myAPIService);
     final getTotalPostPro = ref.watch(getTotalPostProvider(ref));
     final dataTotal = getTotalPostPro.valueOrNull ?? OwnDataTotalPost();
+    final getReason = ref.watch(getDeleteReasonProvider(ref));
+    final getPostFilter = ref.watch(getPostFilterProvider(ref));
+
+    final newFilter = ref.watch(newMap);
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
@@ -431,13 +453,70 @@ class SegmentedControlExample extends ConsumerWidget {
               color: Colors.white,
               padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 6),
               alignment: Alignment.centerLeft,
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                direction: Axis.vertical,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
                 children: [
                   labels.label('Manage My Ads', fontSize: 20, color: Colors.black87, fontWeight: FontWeight.w500),
+                  const SizedBox(height: 6,),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: forms.labelFormFields(
+                          hintText: 'Search...',
+                          prefixIcon: const Icon(Icons.search, size: 24, color: Colors.black54,),
+                          onFieldSubmitted: (val) {
+                            updateKey(ref, 'keyword', val);
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10,),
+
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: config.secondaryColor.shade100),
+                            borderRadius: BorderRadius.circular(6), // Optional: to give rounded corners
+                          ),
+                          child: ListTile(
+                            onTap: () {
+                              final datumVal = getPostFilter.valueOrNull;
+                              final newDatum = datumVal?.data ?? [];
+
+                              showActionSheet2(context, [
+                                for(final val in newDatum) if(val?.parent == '0') MoreTypeInfo(val?.en_name ?? 'N/A', '', null, images(val?.icon?.url ?? ''), () {
+                                  showActionSheet2(context, [
+                                    MoreTypeInfo(val?.en_name ?? 'N/A', '', null, images(val?.icon?.url ?? ''), () {
+                                      updateKey(ref, 'category', val?.id);
+                                      updateKey(ref, 'cateTitle', val?.en_name);
+                                    }),
+                                    for(final val2 in newDatum) if(val2?.parent == val?.id) MoreTypeInfo(val2?.en_name ?? 'N/A', '', null, images(val2?.icon?.url ?? ''), () {
+                                      updateKey(ref, 'category', val2?.id);
+                                      updateKey(ref, 'cateTitle', val2?.en_name);
+                                    }),
+                                  ], title: 'Sub Category');
+                                }),
+                              ], title: 'Category');
+                            },
+                            dense: true,
+                            visualDensity: VisualDensity.comfortable,
+                            contentPadding: const EdgeInsets.only(left: 12,),
+                            title: labels.label(newFilter['cateTitle'] ?? 'All Category', color: Colors.black54, fontSize: 15, maxLines: 1, overflow: TextOverflow.ellipsis),
+                            trailing: newFilter['cateTitle'] != null ? IconButton(icon: const Icon(Icons.clear_outlined, color: Colors.black54, size: 20,), onPressed: () {
+                              updateKey(ref, 'category', null);
+                              updateKey(ref, 'cateTitle', null);
+                            }, visualDensity: VisualDensity.comfortable,)
+                            : const Padding(
+                              padding: EdgeInsets.only(right: 8.0),
+                              child: Icon(Icons.arrow_forward_ios_outlined, color: Colors.black54, size: 16,),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10,),
 
                   SizedBox(
                     width: width - 20,
@@ -447,20 +526,29 @@ class SegmentedControlExample extends ConsumerWidget {
                       groupValue: ref.watch(selectedSegment),
                       onValueChanged: (TypeSelect? value) {
                         if (value != null) {
+                          String? val;
+                          if(value == TypeSelect.expired) {
+                            val = 'expired';
+                          } else if(value == TypeSelect.premiere) {
+                            val = 'paid';
+                          } else {
+                            val = 'active';
+                          }
+                          updateKey(ref, 'type', val);
                           ref.read(selectedSegment.notifier).update((state) => value);
                         }
                       },
                       children: <TypeSelect, Widget>{
                         TypeSelect.active: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
                           child: labels.label('Active (${dataTotal.active ?? 0})', fontSize: 13, color: Colors.black87, textAlign: TextAlign.center),
                         ),
                         TypeSelect.premiere: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
                           child: labels.label('Premiere (${dataTotal.paid ?? 0})', fontSize: 13, color: Colors.black87, textAlign: TextAlign.center),
                         ),
                         TypeSelect.expired: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
                           child: labels.label('Expired (${dataTotal.expired ?? 0})', fontSize: 13, color: Colors.black87, textAlign: TextAlign.center),
                         ),
                       },
@@ -470,7 +558,7 @@ class SegmentedControlExample extends ConsumerWidget {
               ),
             ),
 
-            if(ref.watch(selectedSegment).index == 0) ownProfilePro.when(
+            ownProfilePro.when(
               error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () => { }),
               loading: () => myCards.shimmerHome(viewPage: ViewPage.list),
               data: (data) {
@@ -494,15 +582,16 @@ class SegmentedControlExample extends ConsumerWidget {
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if(datum.thumbnail != null) Container(
+                                  Container(
                                     width: 125,
                                     height: 125,
                                     margin: const EdgeInsets.only(right: 10.0),
-                                    child: FadeInImage.assetNetwork(
+                                    color: config.infoColor.shade50,
+                                    child: (datum.thumbnail != null) ? FadeInImage.assetNetwork(
                                       placeholder: placeholder,
                                       image: '${datum.thumbnail}',
                                       fit: BoxFit.cover,
-                                    ),
+                                    ) : Center(child: labels.label(datum.title ?? 'N/A', color: config.infoColor.shade600, fontSize: 14, textAlign: TextAlign.center, maxLines: 2,)),
                                   ),
 
                                   Expanded(
@@ -576,7 +665,21 @@ class SegmentedControlExample extends ConsumerWidget {
                               Expanded(
                                 child: buttons.textButtons(
                                   title: 'Delete',
-                                  onPressed: () { },
+                                  onPressed: () async {
+                                    final res = await showDeleteReasonDialog(context, ref, getReason.valueOrNull, newVal);
+                                    if(res != null) {
+                                      submitApi.submitDelete(
+                                        datum.id ?? '',
+                                        ref.watch(newVal),
+                                        provider,
+                                        context: context,
+                                        ref: ref,
+                                      );
+                                      print(datum.id);
+                                      print(res);
+                                      print(ref.watch(newVal));
+                                    }
+                                  },
                                   padSize: 0,
                                   textSize: 14,
                                   bgColor: Colors.transparent,
@@ -616,84 +719,17 @@ class SegmentedControlExample extends ConsumerWidget {
     );
   }
 
-  void handleView(BuildContext context, DatumProfile datum) {
-    final result = GridCard(type: 'post', data: Data_.fromJson(datum.toJson()), actions: datum.actions ?? []);
-    routeAnimation(
-      context,
-      pageBuilder: DetailsPost(title: datum.title ?? 'N/A', data: result),
-    );
-  }
-
-  Future<void> handleEdit(BuildContext context, WidgetRef ref, DatumProfile datum) async {
-    final res = await getEditPostInfoProvider(ref, datum.id ?? '');
-    final mainCat = res.data?.post?.category;
-    routeAnimation(
-      context,
-      pageBuilder: NewAdPage(
-        mainPro: MainCategory(id: mainCat?.parent ?? '', en_name: '', slug: '', parent: ''),
-        subPro: MainCategory(id: mainCat?.id ?? '', en_name: mainCat?.en_name ?? '', parent: mainCat?.parent ?? '',),
-        type: 'edit',
-        editData: res,
-        datum: datum,
-      ),
-    );
-  }
-
-  bool checkDate(String date) {
-    DateTime? dateTime = DateTime.tryParse(date);
-    final now = DateTime.now();
-    final difference = now.difference(dateTime!);
-    return difference.inHours < 12;
-  }
-}
-
-class ButtonsUI extends StatelessWidget {
-  const ButtonsUI({super.key, required this.title, required this.onPressed,
-    required this.prefixIcon, required this.width,
-    required this.badge,
-  });
-
-  final String title;
-  final IconData? prefixIcon;
-  final VoidCallback? onPressed;
-  final double width;
-  final String badge;
-
-  @override
-  Widget build(BuildContext context) {
-    final badges = int.tryParse(badge) ?? 0;
-
-    return SizedBox(
-      width: width / 2,
-      child: Stack(
-        children: [
-          buttons.textButtons(
-            title: title,
-            onPressed: onPressed,
-            padSize: 8,
-            textSize: 14,
-            textColor: config.secondaryColor.shade300,
-            prefixIcon: prefixIcon,
-            prefColor: config.secondaryColor.shade300,
-            prefixSize: 18,
-            mainAxisAlignment: MainAxisAlignment.start,
-          ),
-
-          if(badges > 0) Positioned(
-            right: 0,
-            child: Container(
-              decoration: BoxDecoration(
-                color: config.warningColor.shade600,
-                borderRadius: BorderRadius.circular(6.0),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
-              child: labels.label('${badges < 100 ? badges : '99+'}', fontSize: 11),
-            ),
-          )
-        ],
-      ),
-    );
+  void updateKey(WidgetRef ref, String key, String? val) {
+    ref.read(newMap.notifier).update((state) {
+      return { ...state, ...{ key: val }, };
+    });
   }
 }
 
 
+Widget images(String src) {
+  return CircleAvatar(
+    backgroundColor: Colors.black12,
+    child: FadeInImage.assetNetwork(placeholder: placeholder, image: src, fit: BoxFit.cover,),
+  );
+}

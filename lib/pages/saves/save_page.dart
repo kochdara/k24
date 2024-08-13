@@ -197,7 +197,6 @@ class LikesBody extends ConsumerWidget {
                                                 final res = await send.submitRemoveSave(ref, idSaves);
                                                 if(res.message != null) {
                                                   ref.read(provider.notifier).removeAt(idSaves);
-                                                  alertSnack(context, res.message ?? '');
                                                 }
                                               }),
                                             ]);

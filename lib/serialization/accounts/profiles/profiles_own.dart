@@ -158,3 +158,44 @@ class InsightsProfile {
 
 }
 
+
+
+
+
+
+
+
+
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToLists()])
+class DeleteReasonSerial {
+  List<DeleteReasonDatum?>? data;
+
+  DeleteReasonSerial({
+    this.data,
+  });
+
+  factory DeleteReasonSerial.fromJson(Map<String, dynamic> json) => _$DeleteReasonSerialFromJson(json);
+  Map<String, dynamic> toJson() => _$DeleteReasonSerialToJson(this);
+
+}
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+class DeleteReasonDatum {
+  String? value;
+  String? km;
+  String? en;
+
+  DeleteReasonDatum({
+    this.value,
+    this.km,
+    this.en,
+  });
+
+  factory DeleteReasonDatum.fromJson(Map<String, dynamic> json) => _$DeleteReasonDatumFromJson(json);
+  Map<String, dynamic> toJson() => _$DeleteReasonDatumToJson(this);
+
+}
+
+
+

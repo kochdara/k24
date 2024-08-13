@@ -1,3 +1,6 @@
 
 2024-06-12:
 edit: offset, duplicate function, onDispose
+
+
+send save in list card //

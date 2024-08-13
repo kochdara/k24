@@ -10,6 +10,7 @@ import 'package:k24/pages/accounts/profile_public/another_profile.dart';
 import 'package:k24/pages/chats/conversations/chat_conversation_provider.dart';
 import 'package:k24/pages/details/details_provider.dart';
 import 'package:k24/pages/main/home_provider.dart';
+import 'package:k24/pages/saves/save_provider.dart';
 import 'package:k24/serialization/chats/chat_serial.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/buttons.dart';
@@ -85,7 +86,8 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     final dataDetails = widget.data;
     final adid = dataDetails.data?.id;
     final userTokens = ref.watch(usersProvider);
-    final watchDetails = ref.watch(getDetailPostProvider(ref, '$adid'));
+    final providerDe = getDetailPostProvider(ref, '$adid');
+    final watchDetails = ref.watch(providerDe);
     final provider = relateDetailPostProvider(ref, '$adid');
     final watchRelates = ref.watch(provider);
     final watchChat = ref.watch(getTopByUidProvider(ref, adid: '$adid'));
@@ -109,7 +111,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      appBar: (listImg!.isEmpty) ? appBar() : null,
+      appBar: (listImg!.isEmpty || (dataRes.data?.thumbnail ?? '').isEmpty) ? appBar() : null,
       backgroundColor: config.backgroundColor,
       body: SafeArea(
         top: false,
@@ -122,7 +124,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                 constraints: const BoxConstraints(maxWidth: maxWidth),
                 child: Opacity(
                   opacity: 1,
-                  child: myWidgets.imageList(context, ref, dataDetails.data?.thumbnail ?? '', listImg!, widget.title, heightImg: heightImg),
+                  child: myWidgets.imageList(context, ref, listImg!, widget.title, heightImg: heightImg),
                 ),
               ),
             ),
@@ -149,6 +151,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                       location2: location2,
                       onPressed: _handleRefresh,
                       provider: provider,
+                      providerDe: providerDe,
                     ),
                   ),
                 ),
@@ -324,10 +327,12 @@ class BodyWidget extends ConsumerWidget {
     required this.location2,
     this.onPressed,
     this.provider,
+    required this.providerDe,
   });
 
   final String title;
   final dynamic provider;
+  final GetDetailPostProvider providerDe;
   final GridCard dataDetails;
   final List listImg;
   final double space;
@@ -350,7 +355,7 @@ class BodyWidget extends ConsumerWidget {
         /// header image list ///
         Opacity(
           opacity: 0,
-          child: myWidgets.imageList(context, ref, dataDetails.data?.thumbnail ?? '', listImg, title, heightImg: heightImg),
+          child: myWidgets.imageList(context, ref, listImg, title, heightImg: heightImg),
         ),
 
         /// body of content ///
@@ -553,12 +558,27 @@ class BodyWidget extends ConsumerWidget {
                             Expanded(
                               child: buttons.textButtons(
                                 title: 'Save',
-                                onPressed: () { },
-                                padSize: 12,
+                                onPressed: () async {
+                                  final send = SaveApiService();
+                                  if((datum?.is_saved == true)) {
+                                    final result = await send.submitRemoveSave(ref, datum?.id, type: 'post');
+                                    if(result.message != null) {
+                                      ref.read(providerDe.notifier).updateAt(isSaved: false);
+                                      print(result.toJson());
+                                    }
+                                  } else {
+                                    final result = await send.submitSaved(ref, id: datum?.id, type: 'post');
+                                    if(result.message != null) {
+                                      ref.read(providerDe.notifier).updateAt(isSaved: true);
+                                      print(result.toJson());
+                                    }
+                                  }
+                                },
+                                padSize: 10,
                                 textSize: 14,
                                 textWeight: FontWeight.w500,
                                 textColor: config.secondaryColor.shade300,
-                                prefixIcon: Icons.bookmark,
+                                prefixIcon: (datum?.is_saved == true) ? Icons.bookmark : Icons.bookmark_border,
                                 prefColor: config.secondaryColor.shade300,
                                 prefixSize: 20,
                               ),
@@ -569,7 +589,7 @@ class BodyWidget extends ConsumerWidget {
                               child: buttons.textButtons(
                                 title: 'Report',
                                 onPressed: () { },
-                                padSize: 12,
+                                padSize: 10,
                                 textSize: 14,
                                 textWeight: FontWeight.w500,
                                 textColor: config.secondaryColor.shade300,
@@ -584,7 +604,7 @@ class BodyWidget extends ConsumerWidget {
                               child: buttons.textButtons(
                                 title: 'Share',
                                 onPressed: () { },
-                                padSize: 12,
+                                padSize: 10,
                                 textSize: 14,
                                 textWeight: FontWeight.w500,
                                 textColor: config.secondaryColor.shade300,

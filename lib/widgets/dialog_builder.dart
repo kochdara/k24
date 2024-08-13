@@ -179,7 +179,8 @@ void showActionSheet2(BuildContext context, List<MoreTypeInfo> listMore, {
                   Navigator.pop(context);
                   type.onTap!();
                 },
-                leading: (type.icon != null) ? Icon(type.icon, size: 22, color: Colors.black87,) : null,
+                leading: (type.icon != null) ? Icon(type.icon, size: 22, color: Colors.black87,)
+                : (type.iconSave is Widget) ? type.iconSave : null,
                 title: labels.label(type.name, color: Colors.black87, fontSize: 16),
                 shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50)),
                 subtitle: (type.description.isNotEmpty) ? labels.label(type.description, color: Colors.black87, fontSize: 13) : null,

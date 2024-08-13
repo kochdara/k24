@@ -102,15 +102,16 @@ class _CommentPageState extends ConsumerState<CommentPage> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                if(datum.object?.data?.thumbnail != null) Container(
+                                Container(
                                   width: 89,
                                   height: 89,
                                   margin: const EdgeInsets.only(right: 10.0),
-                                  child: FadeInImage.assetNetwork(
+                                  color: config.infoColor.shade50,
+                                  child: (datum.object?.data?.thumbnail != null) ? FadeInImage.assetNetwork(
                                     placeholder: placeholder,
                                     image: '${datum.object?.data?.thumbnail}',
                                     fit: BoxFit.cover,
-                                  ),
+                                  ) : Center(child: labels.label(datum.object?.data?.title ?? 'N/A', color: config.infoColor.shade600, fontSize: 14, textAlign: TextAlign.center, maxLines: 2,)),
                                 ),
 
                                 Expanded(

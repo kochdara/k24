@@ -573,3 +573,46 @@ class MessageResPhoto {
 }
 
 
+
+
+
+
+
+
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ ToLists()])
+class CategoryPostSerial {
+  List<CategoryPostDatum?>? data;
+
+  CategoryPostSerial({
+    this.data,
+  });
+
+  factory CategoryPostSerial.fromJson(Map<String, dynamic> json) => _$CategoryPostSerialFromJson(json);
+  Map<String, dynamic> toJson() => _$CategoryPostSerialToJson(this);
+
+}
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ ToString(),])
+class CategoryPostDatum {
+  String? id;
+  String? en_name;
+  String? km_name;
+  IconSerial? icon;
+  String? slug;
+  String? parent;
+
+  CategoryPostDatum({
+    this.id,
+    this.en_name,
+    this.km_name,
+    this.icon,
+    this.slug,
+    this.parent,
+  });
+
+  factory CategoryPostDatum.fromJson(Map<String, dynamic> json) => _$CategoryPostDatumFromJson(json);
+  Map<String, dynamic> toJson() => _$CategoryPostDatumToJson(this);
+
+}
+

@@ -585,3 +585,37 @@ Map<String, dynamic> _$MessageResPhotoToJson(MessageResPhoto instance) =>
       'image_url': const ToString().toJson(instance.image_url),
       'image_name': const ToString().toJson(instance.image_name),
     };
+
+CategoryPostSerial _$CategoryPostSerialFromJson(Map json) => CategoryPostSerial(
+      data: (json['data'] as List<dynamic>?)
+          ?.map((e) => e == null
+              ? null
+              : CategoryPostDatum.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList(),
+    );
+
+Map<String, dynamic> _$CategoryPostSerialToJson(CategoryPostSerial instance) =>
+    <String, dynamic>{
+      'data': instance.data?.map((e) => e?.toJson()).toList(),
+    };
+
+CategoryPostDatum _$CategoryPostDatumFromJson(Map json) => CategoryPostDatum(
+      id: const ToString().fromJson(json['id']),
+      en_name: const ToString().fromJson(json['en_name']),
+      km_name: const ToString().fromJson(json['km_name']),
+      icon: json['icon'] == null
+          ? null
+          : IconSerial.fromJson(Map<String, dynamic>.from(json['icon'] as Map)),
+      slug: const ToString().fromJson(json['slug']),
+      parent: const ToString().fromJson(json['parent']),
+    );
+
+Map<String, dynamic> _$CategoryPostDatumToJson(CategoryPostDatum instance) =>
+    <String, dynamic>{
+      'id': const ToString().toJson(instance.id),
+      'en_name': const ToString().toJson(instance.en_name),
+      'km_name': const ToString().toJson(instance.km_name),
+      'icon': instance.icon?.toJson(),
+      'slug': const ToString().toJson(instance.slug),
+      'parent': const ToString().toJson(instance.parent),
+    };

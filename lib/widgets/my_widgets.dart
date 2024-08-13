@@ -196,7 +196,7 @@ class MyWidgets {
     );
   }
 
-  Widget imageList(BuildContext context, WidgetRef ref, String thumbnail, List listImg, String title, {
+  Widget imageList(BuildContext context, WidgetRef ref, List listImg, String title, {
     double heightImg = 300.0
   }) {
     return InkWell(
@@ -210,11 +210,11 @@ class MyWidgets {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if(thumbnail != '') ...[
+            if(listImg.isNotEmpty) ...[
               SizedBox(
                 height: heightImg,
                 width: double.infinity,
-                child: FadeInImage.assetNetwork(placeholder: placeholder, image: thumbnail, fit: BoxFit.cover),
+                child: FadeInImage.assetNetwork(placeholder: placeholder, image: listImg.first, fit: BoxFit.cover),
               ),
             ],
 

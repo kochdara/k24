@@ -6,7 +6,7 @@ part of 'profile_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$ownProfileListHash() => r'7d41d7189d405ef09877f18045a7cd10a206bea1';
+String _$ownProfileListHash() => r'0f7f1989bbff21bf97447b48cd415539a5f33c74';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -32,9 +32,11 @@ class _SystemHash {
 abstract class _$OwnProfileList
     extends BuildlessAutoDisposeAsyncNotifier<List<DatumProfile>> {
   late final WidgetRef context;
+  late final Map<String, dynamic>? newMap;
 
   FutureOr<List<DatumProfile>> build(
     WidgetRef context,
+    Map<String, dynamic>? newMap,
   );
 }
 
@@ -50,9 +52,11 @@ class OwnProfileListFamily extends Family<AsyncValue<List<DatumProfile>>> {
   /// See also [OwnProfileList].
   OwnProfileListProvider call(
     WidgetRef context,
+    Map<String, dynamic>? newMap,
   ) {
     return OwnProfileListProvider(
       context,
+      newMap,
     );
   }
 
@@ -62,6 +66,7 @@ class OwnProfileListFamily extends Family<AsyncValue<List<DatumProfile>>> {
   ) {
     return call(
       provider.context,
+      provider.newMap,
     );
   }
 
@@ -86,8 +91,11 @@ class OwnProfileListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   /// See also [OwnProfileList].
   OwnProfileListProvider(
     WidgetRef context,
+    Map<String, dynamic>? newMap,
   ) : this._internal(
-          () => OwnProfileList()..context = context,
+          () => OwnProfileList()
+            ..context = context
+            ..newMap = newMap,
           from: ownProfileListProvider,
           name: r'ownProfileListProvider',
           debugGetCreateSourceHash:
@@ -98,6 +106,7 @@ class OwnProfileListProvider extends AutoDisposeAsyncNotifierProviderImpl<
           allTransitiveDependencies:
               OwnProfileListFamily._allTransitiveDependencies,
           context: context,
+          newMap: newMap,
         );
 
   OwnProfileListProvider._internal(
@@ -108,9 +117,11 @@ class OwnProfileListProvider extends AutoDisposeAsyncNotifierProviderImpl<
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.context,
+    required this.newMap,
   }) : super.internal();
 
   final WidgetRef context;
+  final Map<String, dynamic>? newMap;
 
   @override
   FutureOr<List<DatumProfile>> runNotifierBuild(
@@ -118,6 +129,7 @@ class OwnProfileListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   ) {
     return notifier.build(
       context,
+      newMap,
     );
   }
 
@@ -126,13 +138,16 @@ class OwnProfileListProvider extends AutoDisposeAsyncNotifierProviderImpl<
     return ProviderOverride(
       origin: this,
       override: OwnProfileListProvider._internal(
-        () => create()..context = context,
+        () => create()
+          ..context = context
+          ..newMap = newMap,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         context: context,
+        newMap: newMap,
       ),
     );
   }
@@ -145,13 +160,16 @@ class OwnProfileListProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   bool operator ==(Object other) {
-    return other is OwnProfileListProvider && other.context == context;
+    return other is OwnProfileListProvider &&
+        other.context == context &&
+        other.newMap == newMap;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, context.hashCode);
+    hash = _SystemHash.combine(hash, newMap.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -161,6 +179,9 @@ mixin OwnProfileListRef
     on AutoDisposeAsyncNotifierProviderRef<List<DatumProfile>> {
   /// The parameter `context` of this provider.
   WidgetRef get context;
+
+  /// The parameter `newMap` of this provider.
+  Map<String, dynamic>? get newMap;
 }
 
 class _OwnProfileListProviderElement
@@ -170,6 +191,8 @@ class _OwnProfileListProviderElement
 
   @override
   WidgetRef get context => (origin as OwnProfileListProvider).context;
+  @override
+  Map<String, dynamic>? get newMap => (origin as OwnProfileListProvider).newMap;
 }
 
 String _$getTotalPostHash() => r'10ca8e7c64a1e772fb7b005cdce79bcee520645e';
@@ -315,6 +338,296 @@ class _GetTotalPostProviderElement
 
   @override
   WidgetRef get context => (origin as GetTotalPostProvider).context;
+}
+
+String _$getDeleteReasonHash() => r'2c0971b12f82d1d05145415e27327198e28eb1bc';
+
+abstract class _$GetDeleteReason
+    extends BuildlessAutoDisposeAsyncNotifier<DeleteReasonSerial?> {
+  late final WidgetRef context;
+
+  FutureOr<DeleteReasonSerial?> build(
+    WidgetRef context,
+  );
+}
+
+/// See also [GetDeleteReason].
+@ProviderFor(GetDeleteReason)
+const getDeleteReasonProvider = GetDeleteReasonFamily();
+
+/// See also [GetDeleteReason].
+class GetDeleteReasonFamily extends Family<AsyncValue<DeleteReasonSerial?>> {
+  /// See also [GetDeleteReason].
+  const GetDeleteReasonFamily();
+
+  /// See also [GetDeleteReason].
+  GetDeleteReasonProvider call(
+    WidgetRef context,
+  ) {
+    return GetDeleteReasonProvider(
+      context,
+    );
+  }
+
+  @override
+  GetDeleteReasonProvider getProviderOverride(
+    covariant GetDeleteReasonProvider provider,
+  ) {
+    return call(
+      provider.context,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'getDeleteReasonProvider';
+}
+
+/// See also [GetDeleteReason].
+class GetDeleteReasonProvider extends AutoDisposeAsyncNotifierProviderImpl<
+    GetDeleteReason, DeleteReasonSerial?> {
+  /// See also [GetDeleteReason].
+  GetDeleteReasonProvider(
+    WidgetRef context,
+  ) : this._internal(
+          () => GetDeleteReason()..context = context,
+          from: getDeleteReasonProvider,
+          name: r'getDeleteReasonProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$getDeleteReasonHash,
+          dependencies: GetDeleteReasonFamily._dependencies,
+          allTransitiveDependencies:
+              GetDeleteReasonFamily._allTransitiveDependencies,
+          context: context,
+        );
+
+  GetDeleteReasonProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.context,
+  }) : super.internal();
+
+  final WidgetRef context;
+
+  @override
+  FutureOr<DeleteReasonSerial?> runNotifierBuild(
+    covariant GetDeleteReason notifier,
+  ) {
+    return notifier.build(
+      context,
+    );
+  }
+
+  @override
+  Override overrideWith(GetDeleteReason Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: GetDeleteReasonProvider._internal(
+        () => create()..context = context,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        context: context,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeAsyncNotifierProviderElement<GetDeleteReason, DeleteReasonSerial?>
+      createElement() {
+    return _GetDeleteReasonProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetDeleteReasonProvider && other.context == context;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin GetDeleteReasonRef
+    on AutoDisposeAsyncNotifierProviderRef<DeleteReasonSerial?> {
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
+}
+
+class _GetDeleteReasonProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<GetDeleteReason,
+        DeleteReasonSerial?> with GetDeleteReasonRef {
+  _GetDeleteReasonProviderElement(super.provider);
+
+  @override
+  WidgetRef get context => (origin as GetDeleteReasonProvider).context;
+}
+
+String _$getPostFilterHash() => r'5c773aab5fcb301e79fb6798989d94b3d1a044d3';
+
+abstract class _$GetPostFilter
+    extends BuildlessAutoDisposeAsyncNotifier<CategoryPostSerial?> {
+  late final WidgetRef context;
+
+  FutureOr<CategoryPostSerial?> build(
+    WidgetRef context,
+  );
+}
+
+/// See also [GetPostFilter].
+@ProviderFor(GetPostFilter)
+const getPostFilterProvider = GetPostFilterFamily();
+
+/// See also [GetPostFilter].
+class GetPostFilterFamily extends Family<AsyncValue<CategoryPostSerial?>> {
+  /// See also [GetPostFilter].
+  const GetPostFilterFamily();
+
+  /// See also [GetPostFilter].
+  GetPostFilterProvider call(
+    WidgetRef context,
+  ) {
+    return GetPostFilterProvider(
+      context,
+    );
+  }
+
+  @override
+  GetPostFilterProvider getProviderOverride(
+    covariant GetPostFilterProvider provider,
+  ) {
+    return call(
+      provider.context,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'getPostFilterProvider';
+}
+
+/// See also [GetPostFilter].
+class GetPostFilterProvider extends AutoDisposeAsyncNotifierProviderImpl<
+    GetPostFilter, CategoryPostSerial?> {
+  /// See also [GetPostFilter].
+  GetPostFilterProvider(
+    WidgetRef context,
+  ) : this._internal(
+          () => GetPostFilter()..context = context,
+          from: getPostFilterProvider,
+          name: r'getPostFilterProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$getPostFilterHash,
+          dependencies: GetPostFilterFamily._dependencies,
+          allTransitiveDependencies:
+              GetPostFilterFamily._allTransitiveDependencies,
+          context: context,
+        );
+
+  GetPostFilterProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.context,
+  }) : super.internal();
+
+  final WidgetRef context;
+
+  @override
+  FutureOr<CategoryPostSerial?> runNotifierBuild(
+    covariant GetPostFilter notifier,
+  ) {
+    return notifier.build(
+      context,
+    );
+  }
+
+  @override
+  Override overrideWith(GetPostFilter Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: GetPostFilterProvider._internal(
+        () => create()..context = context,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        context: context,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeAsyncNotifierProviderElement<GetPostFilter, CategoryPostSerial?>
+      createElement() {
+    return _GetPostFilterProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetPostFilterProvider && other.context == context;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin GetPostFilterRef
+    on AutoDisposeAsyncNotifierProviderRef<CategoryPostSerial?> {
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
+}
+
+class _GetPostFilterProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<GetPostFilter,
+        CategoryPostSerial?> with GetPostFilterRef {
+  _GetPostFilterProviderElement(super.provider);
+
+  @override
+  WidgetRef get context => (origin as GetPostFilterProvider).context;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

@@ -161,3 +161,29 @@ Map<String, dynamic> _$InsightsProfileToJson(InsightsProfile instance) =>
       'impression': _$JsonConverterToJson<Object?, int>(
           instance.impression, const ToInt().toJson),
     };
+
+DeleteReasonSerial _$DeleteReasonSerialFromJson(Map json) => DeleteReasonSerial(
+      data: (json['data'] as List<dynamic>?)
+          ?.map((e) => e == null
+              ? null
+              : DeleteReasonDatum.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList(),
+    );
+
+Map<String, dynamic> _$DeleteReasonSerialToJson(DeleteReasonSerial instance) =>
+    <String, dynamic>{
+      'data': instance.data?.map((e) => e?.toJson()).toList(),
+    };
+
+DeleteReasonDatum _$DeleteReasonDatumFromJson(Map json) => DeleteReasonDatum(
+      value: const ToString().fromJson(json['value']),
+      km: const ToString().fromJson(json['km']),
+      en: const ToString().fromJson(json['en']),
+    );
+
+Map<String, dynamic> _$DeleteReasonDatumToJson(DeleteReasonDatum instance) =>
+    <String, dynamic>{
+      'value': const ToString().toJson(instance.value),
+      'km': const ToString().toJson(instance.km),
+      'en': const ToString().toJson(instance.en),
+    };

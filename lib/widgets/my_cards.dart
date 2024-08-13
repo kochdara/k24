@@ -11,6 +11,7 @@ import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/storage.dart';
 import 'package:k24/pages/accounts/check_login.dart';
 import 'package:k24/pages/posts/post_page.dart';
+import 'package:k24/pages/saves/save_provider.dart';
 import 'package:k24/serialization/category/main_category.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/buttons.dart';
@@ -1143,12 +1144,14 @@ Future<void> moreDetailsPro(BuildContext context, GridCard data) async {
   return await showBarModalBottomSheet(context: context,
     builder: (context) => MoreOptionsPage(
       listData: [
-        MoreTypeInfo('view', userType ? 'Visit Store' : 'View Profile', userType ? Icons.business : Icons.perm_identity, Icons.person, () {
+        MoreTypeInfo('view', userType ? 'Visit Store' : 'View Profile', userType ? Icons.business : Icons.perm_identity, null, () {
           routeAnimation(context, pageBuilder: AnotherProfilePage(userData: datum?.user));
         }),
-        MoreTypeInfo('share', 'Share', CupertinoIcons.arrowshape_turn_up_right, CupertinoIcons.arrowshape_turn_up_right_fill, () { }),
-        MoreTypeInfo('save', 'Save', Icons.bookmark_border, Icons.bookmark, () { }),
-        MoreTypeInfo('report', 'Report', Icons.report_gmailerrorred, Icons.report_rounded, () { }),
+        MoreTypeInfo('share', 'Share', CupertinoIcons.arrowshape_turn_up_right, null, () {}),
+        MoreTypeInfo('save', 'Save', (datum?.is_saved == true) ? Icons.bookmark : Icons.bookmark_border, null, () {
+          final send = SaveApiService();
+        }),
+        MoreTypeInfo('report', 'Report', Icons.report_gmailerrorred, null, () { }),
       ],
     ),
   );
@@ -1178,13 +1181,13 @@ class MyWidgetLikes extends ConsumerWidget {
             if (isLiked) {
               data?.is_like = false;
               final result = await submit.submitRemove(id: ids, ref: ref);
-              ref.read((provider).notifier).updateLikes(ids, false) ;
+              ref.read((provider).notifier).updateHomeAt(ids, false) ;
               print(result.toJson());
             } else {
               data?.is_like = true;
               final dataSend = {'id': ids, 'type': 'post'};
               final result = await submit.submitAdd(dataSend, ref: ref);
-              ref.read((provider).notifier).updateLikes(ids, true) ;
+              ref.read((provider).notifier).updateHomeAt(ids, true) ;
               print(result.toJson());
             }
           } else {

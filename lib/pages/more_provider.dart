@@ -131,7 +131,7 @@ class MoreTypeInfo {
   final String name;
   final String description;
   final IconData? icon;
-  final IconData? iconSave;
+  final Widget? iconSave;
   final void Function()? onTap;
 
   MoreTypeInfo(this.name, this.description, this.icon, this.iconSave, this.onTap);

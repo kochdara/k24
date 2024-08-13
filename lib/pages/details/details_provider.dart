@@ -55,6 +55,14 @@ class GetDetailPost extends _$GetDetailPost {
     }
     return GridCard();
   }
+
+  Future<void> updateAt({ bool? isSaved }) async {
+    final newMap = state.valueOrNull;
+    if (newMap != null) {
+      if(isSaved != null) newMap.data?.is_saved = isSaved;
+      state = AsyncData(newMap);
+    }
+  }
 }
 
 @riverpod
