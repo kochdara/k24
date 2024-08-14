@@ -132,7 +132,7 @@ class HomeLists extends _$HomeLists {
     }
   }
 
-  Future<void> updateHomeAt(String ids, { bool? isLikes, bool? isSaved }) async {
+  Future<void> updateLikes(String ids, { bool? isLikes, bool? isSaved }) async {
     final newList = state.valueOrNull;
     if (newList != null) {
       final index = newList.indexWhere((element) => element.data?.id == ids);

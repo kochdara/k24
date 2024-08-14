@@ -185,3 +185,8 @@ bool checkLogs(WidgetRef ref, ) {
   }
 }
 
+bool checkOwnUser(WidgetRef ref, String? anotherId) {
+  final userPro = ref.watch(usersProvider);
+  return userPro.user?.id == anotherId;
+}
+

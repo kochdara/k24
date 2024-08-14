@@ -4,6 +4,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
+import 'package:k24/pages/accounts/check_login.dart';
+import 'package:k24/pages/more_provider.dart';
 
 import '../../../helpers/helper.dart';
 import '../../../serialization/users/user_serial.dart';
@@ -26,7 +28,9 @@ class MyAccountApiService {
         'Access-Token': tokens.tokens?.access_token
       }, contentType: Headers.formUrlEncodedContentType));
 
-      return MessageLogin.fromJson(res.data ?? {});
+      final resp = MessageLogin.fromJson(res.data ?? {});
+      alertSnack(ref.context, resp.message ?? '');
+      return resp;
     } on DioException catch (e) {
       if (e.response != null) {
         // Handle DioError with response
@@ -36,6 +40,8 @@ class MyAccountApiService {
           // Token might have expired, try to refresh the token
           await checkTokens(ref);
           return await submitAdd(data, ref: ref); // Retry the request after refreshing the token
+        } else {
+          myWidgets.showAlert(ref.context, '${response ?? ''}', title: 'Alert');
         }
       }
     } catch (e) {
@@ -52,8 +58,9 @@ class MyAccountApiService {
       final res = await dio.delete('$likeUrl/$subs', options: Options(headers: {
         'Access-Token': tokens.tokens?.access_token
       }));
-
-      return MessageLogin.fromJson(res.data ?? {});
+      final resp = MessageLogin.fromJson(res.data ?? {});
+      alertSnack(ref.context, resp.message ?? '');
+      return resp;
     } on DioException catch (e) {
       if (e.response != null) {
         // Handle DioError with response
@@ -64,6 +71,8 @@ class MyAccountApiService {
           // Token might have expired, try to refresh the token
           await checkTokens(ref);
           return await submitRemove(id: id, ref: ref); // Retry the request after refreshing the token
+        } else {
+          myWidgets.showAlert(ref.context, '${response ?? ''}', title: 'Alert');
         }
       }
     } catch (e) {

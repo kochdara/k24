@@ -37,7 +37,7 @@ class DataProfile {
   List<String?>? verified;
   String? link;
   List<String>? menu;
-  bool? is_aved;
+  bool? is_saved;
   String? following;
   String? followers;
   bool? is_follow;
@@ -57,7 +57,7 @@ class DataProfile {
     this.verified,
     this.link,
     this.menu,
-    this.is_aved,
+    this.is_saved,
     this.following,
     this.followers,
     this.is_follow,

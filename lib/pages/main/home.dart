@@ -102,9 +102,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                         /// home list ///
                         homeList.when(
                           error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () => handleRefresh(ref, newData)),
-                          loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPageProvider)),
+                          loading: () => myCards.shimmerHome(ref, viewPage: ref.watch(viewPageProvider)),
                           data: (data) => myCards.cardHome(
-                            context,
+                            context, ref,
                             data,
                             fetching: ref.watch(fetchingProvider),
                             viewPage: ref.watch(viewPageProvider),

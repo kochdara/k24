@@ -144,7 +144,7 @@ class MyWidgets {
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: title != null ? Text(title) : null,
-        content: Text(message),
+        content: SelectableText(message),
         actions: <Widget>[
           // TextButton(
           //   onPressed: () => Navigator.pop(context, 'Cancel'),

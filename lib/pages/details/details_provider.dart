@@ -56,9 +56,14 @@ class GetDetailPost extends _$GetDetailPost {
     return GridCard();
   }
 
-  Future<void> updateAt({ bool? isSaved }) async {
+  Future<void> updateLikes(String ids, { bool? isLikes, bool? isSaved }) async {
     final newMap = state.valueOrNull;
     if (newMap != null) {
+      if(isLikes != null) {
+        int total = newMap.data?.total_like ?? 0;
+        newMap.data?.total_like = (isLikes == true) ? total + 1 : total - 1;
+        newMap.data?.is_like = isLikes;
+      }
       if(isSaved != null) newMap.data?.is_saved = isSaved;
       state = AsyncData(newMap);
     }
@@ -138,12 +143,13 @@ class RelateDetailPost extends _$RelateDetailPost {
     }
   }
 
-  Future<void> updateLikes(String ids, bool? isLikes) async {
+  Future<void> updateLikes(String ids, { bool? isLikes, bool? isSaved }) async {
     final newList = state.valueOrNull;
     if (newList != null) {
       final index = newList.indexWhere((element) => element.data?.id == ids);
       if (index != -1) {
-        newList[index].data?.is_like = isLikes;
+        if(isLikes != null) newList[index].data?.is_like = isLikes;
+        if(isSaved != null) newList[index].data?.is_saved = isSaved;
         state = AsyncData(newList);
       }
     }

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
+import 'package:k24/helpers/functions.dart';
 import 'package:k24/pages/accounts/profile_public/profile_provider.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/pages/more_provider.dart';
@@ -260,7 +261,7 @@ class BodyProfile extends StatelessWidget {
                                   ),
                                 ),
                                 // edit profile
-                                Positioned(
+                                if(!checkOwnUser(ref, datum?.id)) Positioned(
                                     bottom: 4,
                                     right: 10,
                                     child: Row(
@@ -297,12 +298,20 @@ class BodyProfile extends StatelessWidget {
                                   labels.selectLabel('@${datum?.username}', color: Colors.black54, fontSize: 14),
                                   labels.label('${datum?.followers ?? '0'} followers • ${datum?.following ?? '0'} Following', color: Colors.black87, fontSize: 14),
 
-                                  if(datum?.is_verify == true) labels.labelIcon(
+                                  if(datum?.verified != null) labels.labelIcon(
                                     leftIcon: const Padding(
                                       padding: EdgeInsets.only(right: 6.0),
                                       child: Icon(Icons.check_circle_outline, size: 14),
                                     ),
                                     leftTitle: 'Verified',
+                                    rightIcon: const Wrap(
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 6.0),
+                                          child: Icon(Icons.call, size: 14),
+                                        ),
+                                      ],
+                                    ),
                                     style: style,
                                   ),
 
@@ -357,8 +366,12 @@ class BodyProfile extends StatelessWidget {
                                               'id': '${datum?.id}',
                                               'type': 'user',
                                             }, datum?.is_follow == true, profilePro)),
-                                            MoreTypeInfo('Save', '', Icons.bookmark_border, null, () { }),
-                                            MoreTypeInfo('Copy link', meta?.url ?? '', Icons.link, null, () { }),
+                                            MoreTypeInfo('${(datum?.is_saved == true) ? 'Uns' : 'S'}ave', '', (datum?.is_saved == true) ? Icons.bookmark : Icons.bookmark_border, null, () {
+                                              savedFunctions(ref, datum?.id, profilePro, isSaved: datum?.is_saved, type: 'user', type2: 'post');
+                                            }),
+                                            MoreTypeInfo('Copy link', meta?.url ?? '', Icons.link, null, () {
+                                              copyFunction(context, meta?.url);
+                                            }),
                                             MoreTypeInfo('Direction', '', Icons.u_turn_right_outlined, null, () { }),
                                             MoreTypeInfo('QR Code', '', CupertinoIcons.qrcode, null, () { }),
                                             MoreTypeInfo('Report', '', Icons.report_gmailerrorred_sharp, null, () { }),
@@ -381,9 +394,9 @@ class BodyProfile extends StatelessWidget {
                                 /// listing page ///
                                 profileList.when(
                                   error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () {}),
-                                  loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPageProvider)),
+                                  loading: () => myCards.shimmerHome(ref, viewPage: ref.watch(viewPageProvider)),
                                   data: (data) => myCards.cardHome(
-                                    context,
+                                    context, ref,
                                     data,
                                     fetching: false,
                                     viewPage: ref.watch(viewPageProvider),
@@ -413,7 +426,7 @@ class BodyProfile extends StatelessWidget {
 
                                   const AboutUI(
                                     title: 'Verified',
-                                    icon: Icons.verified_user_outlined,
+                                    icon: Icons.check_circle_outline_outlined,
                                   ),
 
                                   if(datum?.contact?.phone != null) AboutUI(
@@ -421,7 +434,7 @@ class BodyProfile extends StatelessWidget {
                                     icon: CupertinoIcons.phone,
                                     isThreeLine: true,
                                     color: config.primaryAppColor.shade600,
-                                    buttonTitle: 'Click To Show Phone Number',
+                                    buttonTitle: 'Click To Call',
                                   ),
 
                                   AboutUI(
@@ -499,7 +512,7 @@ class BodyProfile extends StatelessWidget {
   }
 
   Future<void> smsFun(BuildContext context, DataProfile? datum) async {
-    if(checkLogs(ref)) {
+    if(checkLogs(ref) && !checkOwnUser(ref, datum?.id)) {
       routeAnimation(context, pageBuilder: ChatConversations(chatData: ChatData(
           id: null,
           to_id: datum?.id,
@@ -517,7 +530,7 @@ class BodyProfile extends StatelessWidget {
           MoreTypeInfo('unfollow', 'Unfollow', null, null, () async {
             final result = await sendData.submitFollow('unfollow', data, ref: ref);
             if(result.message != null) {
-              ref.read(profilePro.notifier).setIsFollow(false);
+              ref.read(profilePro.notifier).updateLikes('0', isFollow: false);
               alertSnack(ref.context, result.message ?? 'N/A');
             }
           }),
@@ -527,7 +540,7 @@ class BodyProfile extends StatelessWidget {
       } else {
         final result = await sendData.submitFollow('follow', data, ref: ref);
         if(result.message != null) {
-          ref.read(profilePro.notifier).setIsFollow(true);
+          ref.read(profilePro.notifier).updateLikes('0', isFollow: true);
           alertSnack(ref.context, result.message ?? 'N/A');
         }
       }
@@ -622,6 +635,7 @@ class AboutUI extends StatelessWidget {
     return ListTile(
       isThreeLine: isThreeLine ?? false,
       dense: true,
+      horizontalTitleGap: 8,
       contentPadding: EdgeInsets.zero,
       leading: Icon(icon, size: 26, color: config.secondaryColor.shade400,),
       title: InkWell(onTap: onTap,child: labels.label(title, fontSize: 15, color: color ?? Colors.black87)),

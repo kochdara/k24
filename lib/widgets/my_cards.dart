@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/converts.dart';
+import 'package:k24/helpers/functions.dart';
 import 'package:k24/helpers/storage.dart';
 import 'package:k24/pages/accounts/check_login.dart';
 import 'package:k24/pages/posts/post_page.dart';
@@ -408,7 +409,7 @@ class MyCards {
     );
   }
 
-  Widget cardHome(BuildContext context, List<GridCard> data, {
+  Widget cardHome(BuildContext context, WidgetRef ref, List<GridCard> data, {
     bool fetching = false,
     bool notRelates = true,
     ViewPage viewPage = ViewPage.grid,
@@ -434,9 +435,9 @@ class MyCards {
 
                 // items //
                 for(final v in data) ...[
-                  if(viewPage == ViewPage.grid) gridCard(width, v, context: context, provider: provider, )
-                  else if(viewPage == ViewPage.list) listCard(v, context: context, provider: provider, )
-                  else if(viewPage == ViewPage.view) viewCards(v, context: context, provider: provider, ),
+                  if(viewPage == ViewPage.grid) gridCard(ref, width, v, context: context, provider: provider, )
+                  else if(viewPage == ViewPage.list) listCard(ref, v, context: context, provider: provider, )
+                  else if(viewPage == ViewPage.view) viewCards(ref, v, context: context, provider: provider, ),
                 ],
 
                 // fetching //
@@ -446,9 +447,9 @@ class MyCards {
                     highlightColor: Colors.white,
                     child: Column(
                       children: [
-                        if(viewPage == ViewPage.grid) gridCard(width, v, context: context)
-                        else if(viewPage == ViewPage.list) listCard(v, context: context)
-                        else if(viewPage == ViewPage.view) viewCards(v, context: context),
+                        if(viewPage == ViewPage.grid) gridCard(ref, width, v, context: context)
+                        else if(viewPage == ViewPage.list) listCard(ref, v, context: context)
+                        else if(viewPage == ViewPage.view) viewCards(ref, v, context: context),
                       ],
                     ),
                   ),
@@ -465,7 +466,7 @@ class MyCards {
     );
   }
 
-  Widget shimmerHome({ ViewPage viewPage = ViewPage.grid }) {
+  Widget shimmerHome(WidgetRef ref, { ViewPage viewPage = ViewPage.grid }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       child: LayoutBuilder(
@@ -481,9 +482,9 @@ class MyCards {
 
                 // items //
                 for(final v in listViewSkeleton) ...[
-                  if(viewPage == ViewPage.grid) gridCard(width, v, context: context),
-                  if(viewPage == ViewPage.list) listCard(v, context: context),
-                  if(viewPage == ViewPage.view) viewCards(v, context: context),
+                  if(viewPage == ViewPage.grid) gridCard(ref, width, v, context: context),
+                  if(viewPage == ViewPage.list) listCard(ref, v, context: context),
+                  if(viewPage == ViewPage.view) viewCards(ref, v, context: context),
                 ],
 
               ],
@@ -496,7 +497,7 @@ class MyCards {
 
   StateProvider<bool> isLikes = StateProvider((ref) => false);
 
-  Widget gridCard(double width, GridCard v, { required BuildContext context,
+  Widget gridCard(WidgetRef ref, double width, GridCard v, { required BuildContext context,
     dynamic provider,
   }) {
     List listImg = [];
@@ -593,7 +594,7 @@ class MyCards {
                     top: 6,
                     right: 6,
                     child: InkWell(
-                      onTap: () => moreDetailsPro(context, v),
+                      onTap: () => moreDetailsPro(context, ref, v, provider),
                       child: Container(
                         padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
@@ -700,7 +701,7 @@ class MyCards {
     );
   }
 
-  Widget listCard(GridCard v, { required BuildContext context,
+  Widget listCard(WidgetRef ref, GridCard v, { required BuildContext context,
     dynamic provider,
   }) {
     List listImg = [];
@@ -804,7 +805,7 @@ class MyCards {
                     top: 6,
                     right: 6,
                     child: InkWell(
-                      onTap: () => moreDetailsPro(context, v),
+                      onTap: () => moreDetailsPro(context, ref, v, provider),
                       child: Container(
                         padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
@@ -909,7 +910,7 @@ class MyCards {
     );
   }
 
-  Widget viewCards(GridCard v, { required BuildContext context,
+  Widget viewCards(WidgetRef ref, GridCard v, { required BuildContext context,
     dynamic provider,
   }) {
     final data = v.data;
@@ -1045,7 +1046,7 @@ class MyCards {
                   top: 6,
                   right: 6,
                   child: InkWell(
-                    onTap: () => moreDetailsPro(context, v),
+                    onTap: () => moreDetailsPro(context, ref, v, provider),
                     child: Container(
                       padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
@@ -1138,7 +1139,7 @@ class MyCards {
 
 }
 
-Future<void> moreDetailsPro(BuildContext context, GridCard data) async {
+Future<void> moreDetailsPro(BuildContext context, WidgetRef ref, GridCard data, dynamic provider) async {
   final datum = data.data;
   final userType = datum?.user?.user_type == '2';
   return await showBarModalBottomSheet(context: context,
@@ -1148,8 +1149,8 @@ Future<void> moreDetailsPro(BuildContext context, GridCard data) async {
           routeAnimation(context, pageBuilder: AnotherProfilePage(userData: datum?.user));
         }),
         MoreTypeInfo('share', 'Share', CupertinoIcons.arrowshape_turn_up_right, null, () {}),
-        MoreTypeInfo('save', 'Save', (datum?.is_saved == true) ? Icons.bookmark : Icons.bookmark_border, null, () {
-          final send = SaveApiService();
+        MoreTypeInfo('save', 'Save', (datum?.is_saved == true) ? Icons.bookmark : Icons.bookmark_border, null, () async {
+          savedFunctions(ref, datum?.id, provider, isSaved: datum?.is_saved, type: 'post', type2: 'post');
         }),
         MoreTypeInfo('report', 'Report', Icons.report_gmailerrorred, null, () { }),
       ],
@@ -1181,13 +1182,13 @@ class MyWidgetLikes extends ConsumerWidget {
             if (isLiked) {
               data?.is_like = false;
               final result = await submit.submitRemove(id: ids, ref: ref);
-              ref.read((provider).notifier).updateHomeAt(ids, false) ;
+              ref.read((provider).notifier).updateLikes(ids, isLikes: false);
               print(result.toJson());
             } else {
               data?.is_like = true;
               final dataSend = {'id': ids, 'type': 'post'};
               final result = await submit.submitAdd(dataSend, ref: ref);
-              ref.read((provider).notifier).updateHomeAt(ids, true) ;
+              ref.read((provider).notifier).updateLikes(ids, isLikes: true);
               print(result.toJson());
             }
           } else {

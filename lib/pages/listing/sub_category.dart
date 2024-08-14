@@ -177,9 +177,9 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
                               /// grid view ///
                               watchLists.when(
                                 error: (e, st) => myCards.notFound(context, id: '${dataCate['id']}', message: '$e', onPressed: () => subHandleRefresh(ref, widget.data, newData, indProvider)),
-                                loading: () => myCards.shimmerHome(viewPage: ref.watch(viewPageProvider)),
+                                loading: () => myCards.shimmerHome(ref, viewPage: ref.watch(viewPageProvider)),
                                 data: (data) => myCards.cardHome(
-                                  context,
+                                  context, ref,
                                   data,
                                   fetching: ref.watch(fetchingProvider),
                                   viewPage: ref.watch(viewPageProvider),

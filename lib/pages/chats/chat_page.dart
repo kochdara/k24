@@ -92,7 +92,7 @@ class _ChatPageViewState extends ConsumerState<ChatPageView> {
         body: BodyChat(
           newMap: newMap,
         ),
-        bottomSheet: myWidgets.bottomBarPage(
+        bottomNavigationBar: myWidgets.bottomBarPage(
           context, ref, widget.selectedIndex,
           null
         ),

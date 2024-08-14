@@ -490,7 +490,7 @@ class _DeleteReasonDialogState extends State<DeleteReasonDialog> {
                               Row(
                                 children: [
                                   Expanded(
-                                    flex: 1,
+                                    flex: 3,
                                     child: buttons.textButtons(
                                       title: 'Cancel',
                                       textSize: 15,
@@ -500,7 +500,7 @@ class _DeleteReasonDialogState extends State<DeleteReasonDialog> {
                                   ),
                                   const SizedBox(width: 10),
                                   Expanded(
-                                    flex: 2,
+                                    flex: 4,
                                     child: buttons.textButtons(
                                       title: 'Submit',
                                       textSize: 15,
@@ -523,7 +523,7 @@ class _DeleteReasonDialogState extends State<DeleteReasonDialog> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 350),
+                const SizedBox(height: 250),
               ],
             ),
           ),

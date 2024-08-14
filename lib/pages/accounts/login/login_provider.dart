@@ -34,18 +34,11 @@ class MyApiService {
       Navigator.pop(context);
 
       return res.data;
-    } on DioError catch (e) {
+    } on DioException catch (e) {
+      final res = e.response;
       /// close dialog ///
       Navigator.pop(context);
-
-      if (e.response != null) {
-        // Handle DioError with response
-        return e.response?.data;
-      } else {
-        // load dialog error
-        myWidgets.showAlert(context, '$e');
-      }
-
+      return res?.data;
     }
   }
 
@@ -127,7 +120,7 @@ void onSubmit(BuildContext context,
 
       if(login?.message != null) {loginNode.requestFocus();}
       else if(password?.message != null) {passwordNode.requestFocus();}
-      else { myWidgets.showAlert(context, '${keyLog.message}'); }
+      myWidgets.showAlert(context, keyLog.message ?? 'N/A', title: 'Alert');
       print('error: ${keyLog.toJson()}');
     }
   }

@@ -103,7 +103,7 @@ class GetTotalSave extends _$GetTotalSave {
 class SaveApiService {
   final dio = Dio();
 
-  Future<MessageLogin> submitSaved(WidgetRef ref, {required String? id, String type = 'post'}) async {
+  Future<MessageLogin> submitSaved(WidgetRef ref, {required String? id, String? type = 'post'}) async {
     final tokens = ref.watch(usersProvider);
 
     final formData = FormData.fromMap({

@@ -53,10 +53,11 @@ class ProfilePublic extends _$ProfilePublic {
     return ProfileSerial(data: DataProfile());
   }
 
-  Future<void> setIsFollow(bool isFollow) async {
+  Future<void> updateLikes(String ids, { bool? isFollow, bool? isSaved }) async {
     final newMap = state.valueOrNull;
     if(newMap != null) {
-      newMap.data.is_follow = isFollow;
+      if(isFollow != null) newMap.data.is_follow = isFollow;
+      if(isSaved != null) newMap.data.is_saved = isSaved;
       state = AsyncData(newMap);
     }
   }
@@ -146,12 +147,13 @@ class ProfileList extends _$ProfileList {
     }
   }
 
-  Future<void> updateLikes(String ids, bool? isLikes) async {
+  Future<void> updateLikes(String ids, { bool? isLikes, bool? isSaved }) async {
     final newList = state.valueOrNull;
     if (newList != null) {
       final index = newList.indexWhere((element) => element.data?.id == ids);
       if (index != -1) {
-        newList[index].data?.is_like = isLikes;
+        if(isLikes != null) newList[index].data?.is_like = isLikes;
+        if(isSaved != null) newList[index].data?.is_saved = isSaved;
         state = AsyncData(newList);
       }
     }

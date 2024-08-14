@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/accounts/login/login_provider.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/forms.dart';
@@ -46,6 +47,12 @@ class _ProfilePageState extends ConsumerState<LoginPage> {
     passController = TextEditingController();
     if(widget.log != null) logController.text = widget.log ?? '';
     if(widget.pass != null) passController.text = widget.pass ?? '';
+    futureAwait(duration: 250, () {
+      ref.read(loginAuth.notifier).update((state) => {...state, ...{
+        'login': widget.log ?? '',
+        'password': widget.pass ?? '',
+      }});
+    });
   }
 
   @override

@@ -8,6 +8,7 @@ import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/helpers/storage.dart';
 import 'package:k24/pages/accounts/login/login.dart';
+import 'package:k24/pages/accounts/register/register_page.dart';
 import 'package:k24/pages/more_provider.dart';
 import 'package:k24/serialization/users/user_serial.dart';
 import 'package:k24/widgets/buttons.dart';
@@ -185,7 +186,7 @@ class BodyLogin extends ConsumerWidget {
                               child: buttons.textButtons(
                                 title: 'Register',
                                 onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                                  routeAnimation(context, pageBuilder: const RegisterPage());
                                 },
                                 padSize: 10,
                                 textSize: 16,

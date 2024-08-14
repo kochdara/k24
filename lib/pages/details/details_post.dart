@@ -2,9 +2,9 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
+import 'package:k24/helpers/functions.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/accounts/profile_public/another_profile.dart';
 import 'package:k24/pages/chats/conversations/chat_conversation_provider.dart';
@@ -111,7 +111,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      appBar: (listImg!.isEmpty || (dataRes.data?.thumbnail ?? '').isEmpty) ? appBar() : null,
+      appBar: (listImg!.isEmpty || (dataRes.data?.thumbnail ?? '').isEmpty) ? appBar(watchDetails.valueOrNull, providerDe) : null,
       backgroundColor: config.backgroundColor,
       body: SafeArea(
         top: false,
@@ -167,7 +167,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                 child: AnimatedOpacity(
                   opacity: ref.watch(heightScrollProvider) >= (heightImg - 100) ? 1 : 0,
                   duration: const Duration(milliseconds: 100),
-                  child: appBar(),
+                  child: appBar(watchDetails.valueOrNull, providerDe),
                 ),
               ),
 
@@ -178,7 +178,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                 child: AnimatedOpacity(
                   opacity: ref.watch(heightScrollProvider) >= (heightImg - 100) ? 0 : 1,
                   duration: const Duration(milliseconds: 100),
-                  child: appBar(transparent: true),
+                  child: appBar(watchDetails.valueOrNull, providerDe, transparent: true),
                 ),
               ),
             ],
@@ -187,32 +187,55 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
         ),
       ),
       bottomNavigationBar: (watchChat.valueOrNull != null && dataRes.data?.user?.id != userTokens.user?.id) ?
-      bottomNav(watchChat.valueOrNull, watchDetails.valueOrNull) : null,
+      bottomNav(watchChat.valueOrNull, watchDetails.valueOrNull, providerDe) : null,
     );
   }
 
-  PreferredSizeWidget appBar({ bool transparent = false }) {
+  PreferredSizeWidget appBar(GridCard? dataDetails, dynamic provider, { bool transparent = false }) {
+    final datum = dataDetails?.data;
+
     return AppBar(
       title: transparent ? null : label.label(widget.title, overflow: TextOverflow.ellipsis, fontSize: 20, fontWeight: FontWeight.w500),
       titleSpacing: 0,
       backgroundColor: transparent ? Colors.transparent : null,
       shadowColor: transparent ? Colors.transparent : null,
       surfaceTintColor: transparent ? Colors.transparent : null,
-      actions: [
-        IconButton(
-          onPressed: () { },
-          icon: const Icon(CupertinoIcons.bookmark, color: Colors.white),
+      actions: (datum == null) ? [] : [
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.black26,
+            borderRadius: BorderRadius.circular(32),
+          ),
+          child: IconButton(
+            visualDensity: VisualDensity.compact,
+            tooltip: 'Save',
+            onPressed: () {
+              savedFunctions(ref, datum.id, provider, isSaved: datum.is_saved, type: 'post', type2: 'post');
+            },
+            iconSize: 22,
+            icon: Icon((datum.is_saved == true) ? CupertinoIcons.bookmark_fill : CupertinoIcons.bookmark, color: Colors.white),
+          ),
         ),
+        const SizedBox(width: 6,),
 
-        IconButton(
-          onPressed: () { },
-          icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_fill, color: Colors.white),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.black26,
+            borderRadius: BorderRadius.circular(32),
+          ),
+          child: IconButton(
+            visualDensity: VisualDensity.compact,
+            tooltip: 'Share',
+            onPressed: () { },
+            iconSize: 22,
+            icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_fill, color: Colors.white),
+          ),
         ),
       ],
     );
   }
 
-  Widget bottomNav(ChatData? chatData, GridCard? dataDetails) {
+  Widget bottomNav(ChatData? chatData, GridCard? dataDetails, dynamic provider) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
       decoration: BoxDecoration(
@@ -236,7 +259,9 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                 Expanded(
                   child: buttons.textButtons(
                     title: formatNumber('${dataDetails?.data?.total_like ?? 0}'),
-                    onPressed: () { },
+                    onPressed: () {
+                      likedFunction(ref, dataDetails?.data?.id ?? '', isLiked, provider);
+                    },
                     padSize: 10,
                     textSize: 14,
                     textWeight: FontWeight.w500,
@@ -272,7 +297,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                   child: buttons.textButtons(
                     title: 'Chat',
                     onPressed: (chatData?.user?.id != '') ? () {
-                      routeAnimation(context, pageBuilder: ChatConversations(chatData: chatData ?? ChatData()));
+                      if(checkLogs(ref)) routeAnimation(context, pageBuilder: ChatConversations(chatData: chatData ?? ChatData()));
                     } : null,
                     padSize: 10,
                     textSize: 18,
@@ -563,13 +588,13 @@ class BodyWidget extends ConsumerWidget {
                                   if((datum?.is_saved == true)) {
                                     final result = await send.submitRemoveSave(ref, datum?.id, type: 'post');
                                     if(result.message != null) {
-                                      ref.read(providerDe.notifier).updateAt(isSaved: false);
+                                      ref.read(providerDe.notifier).updateLikes('0', isSaved: false);
                                       print(result.toJson());
                                     }
                                   } else {
                                     final result = await send.submitSaved(ref, id: datum?.id, type: 'post');
                                     if(result.message != null) {
-                                      ref.read(providerDe.notifier).updateAt(isSaved: true);
+                                      ref.read(providerDe.notifier).updateLikes('0', isSaved: true);
                                       print(result.toJson());
                                     }
                                   }
@@ -772,9 +797,9 @@ class BodyWidget extends ConsumerWidget {
                       /// relate card ///
                       watchRelates.when(
                         error: (e, st) => myCards.notFound(context, id: '${dataDetails.data?.id}', message: '$e', onPressed: onPressed),
-                        loading: () => myCards.shimmerHome(),
+                        loading: () => myCards.shimmerHome(ref,),
                         data: (data) => myCards.cardHome(
-                          context, data, fetching: false, notRelates: false,
+                          context, ref, data, fetching: false, notRelates: false,
                           provider: provider,
                         ),
                       ),

@@ -560,7 +560,7 @@ class SegmentedControlExample extends ConsumerWidget {
 
             ownProfilePro.when(
               error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () => { }),
-              loading: () => myCards.shimmerHome(viewPage: ViewPage.list),
+              loading: () => myCards.shimmerHome(ref, viewPage: ViewPage.list),
               data: (data) {
                 return Flex(
                   direction: Axis.vertical,

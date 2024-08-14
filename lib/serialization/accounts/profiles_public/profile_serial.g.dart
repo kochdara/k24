@@ -55,7 +55,7 @@ DataProfile _$DataProfileFromJson(Map json) => DataProfile(
           .toList(),
       link: const ToString().fromJson(json['link']),
       menu: (json['menu'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      is_aved: const ToBool().fromJson(json['is_aved']),
+      is_saved: const ToBool().fromJson(json['is_saved']),
       following: const ToString().fromJson(json['following']),
       followers: const ToString().fromJson(json['followers']),
       is_follow: const ToBool().fromJson(json['is_follow']),
@@ -82,8 +82,8 @@ Map<String, dynamic> _$DataProfileToJson(DataProfile instance) =>
       'verified': instance.verified?.map(const ToString().toJson).toList(),
       'link': const ToString().toJson(instance.link),
       'menu': instance.menu,
-      'is_aved': _$JsonConverterToJson<Object?, bool>(
-          instance.is_aved, const ToBool().toJson),
+      'is_saved': _$JsonConverterToJson<Object?, bool>(
+          instance.is_saved, const ToBool().toJson),
       'following': const ToString().toJson(instance.following),
       'followers': const ToString().toJson(instance.followers),
       'is_follow': _$JsonConverterToJson<Object?, bool>(
