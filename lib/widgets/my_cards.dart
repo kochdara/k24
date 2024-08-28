@@ -11,6 +11,7 @@ import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/functions.dart';
 import 'package:k24/helpers/storage.dart';
 import 'package:k24/pages/accounts/check_login.dart';
+import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/pages/posts/post_page.dart';
 import 'package:k24/pages/saves/save_provider.dart';
 import 'package:k24/serialization/category/main_category.dart';
@@ -284,7 +285,7 @@ class MyCards {
                     ],
 
                   ],
-                  carouselController: CarouselController(),
+                  carouselController: CarouselSliderController(),
                   options: CarouselOptions(
                     // autoPlay: true,
                     // enlargeCenterPage: true,
@@ -664,7 +665,7 @@ class MyCards {
                         leftIcon: Icon(Icons.access_time, size: 12, color: config.secondaryColor.shade200),
                         leftTitle: ' ${stringToTimeAgoDay(date: '${data?.renew_date ?? data?.posted_date}', format: 'MMM, yy')}',
                         rightTitle: location,
-                        style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'en', height: lineHeight),
+                        style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'kh', height: lineHeight),
                       ),
                       //
                       labels.label(type, color: config.secondaryColor.shade200, overflow: TextOverflow.ellipsis),
@@ -863,7 +864,7 @@ class MyCards {
                               leftIcon: Icon(Icons.access_time, size: 12, color: config.secondaryColor.shade200),
                               leftTitle: ' ${stringToTimeAgoDay(date: '${data?.renew_date ?? data?.posted_date}', format: 'MMM, yy')}',
                               rightTitle: location,
-                              style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'en', height: lineHeight),
+                              style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'kh', height: lineHeight),
                             ),
                             //
                             labels.label(type, color: config.secondaryColor.shade200, overflow: TextOverflow.ellipsis),
@@ -1074,7 +1075,7 @@ class MyCards {
                     leftIcon: Icon(Icons.access_time, size: 12, color: config.secondaryColor.shade200),
                     leftTitle: ' ${stringToTimeAgoDay(date: '${data?.renew_date ?? data?.posted_date}', format: 'MMM, yy')}',
                     rightTitle: location,
-                    style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'en', height: lineHeight),
+                    style: TextStyle(color: config.secondaryColor.shade200, fontSize: 11, fontWeight: FontWeight.normal, fontFamily: 'kh', height: lineHeight),
                   ),
                   const SizedBox(height: 4),
 
@@ -1150,7 +1151,7 @@ Future<void> moreDetailsPro(BuildContext context, WidgetRef ref, GridCard data, 
         }),
         MoreTypeInfo('share', 'Share', CupertinoIcons.arrowshape_turn_up_right, null, () {}),
         MoreTypeInfo('save', 'Save', (datum?.is_saved == true) ? Icons.bookmark : Icons.bookmark_border, null, () async {
-          savedFunctions(ref, datum?.id, provider, isSaved: datum?.is_saved, type: 'post', type2: 'post');
+          savedFunctions(ref, datum?.id, provider, isSaved: datum?.is_saved, type: 'post', typeRemove: 'post');
         }),
         MoreTypeInfo('report', 'Report', Icons.report_gmailerrorred, null, () { }),
       ],
@@ -1175,8 +1176,8 @@ class MyWidgetLikes extends ConsumerWidget {
       color: Colors.white,
       child: InkWell(
         onTap: () async {
-          final getTokens = await getSecure('user', type: Map);
-          if (getTokens != null) {
+          final getTokens = ref.watch(usersProvider);
+          if (getTokens.user?.id != null) {
             final submit = MyAccountApiService();
             String ids = data?.id ?? '';
             if (isLiked) {

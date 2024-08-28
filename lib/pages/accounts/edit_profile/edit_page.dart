@@ -133,6 +133,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     final rHidden = ref.read(hiddenPro.notifier);
     final resultSet = ref.watch(newMap);
     final editData = ref.watch(editPro);
+    final edit = ref.read(editPro.notifier);
     final uploadImg = ref.watch(uploadData);
 
     return Scaffold(
@@ -161,14 +162,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                       Column(
                         children: [
                           InkWell(
-                            onTap: () => imagePicker1('upload_cover'),
+                            onTap: () => imagePicker1('upload_cover', edit),
                             child: Container(
                               color: config.primaryAppColor.shade600,
                               height: 200,
                               width: double.infinity,
                               child: (editData?.cover?.url != null) ? FadeInImage.assetNetwork(
                                 placeholder: placeholder,
-                                image: '${editData?.cover?.url}',
+                                image: editData?.cover?.url ?? '',
                                 fit: BoxFit.cover,
                               ) : Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -188,7 +189,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                       Positioned(
                         bottom: 10,
                         child: InkWell(
-                          onTap: () => imagePicker1('upload_profile'),
+                          onTap: () => imagePicker1('upload_profile', edit),
                           child: Stack(
                             children: [
                               Container(
@@ -203,7 +204,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                                 child: (editData?.photo?.url != null) ? ClipOval(
                                   child: FadeInImage.assetNetwork(
                                     placeholder: placeholder,
-                                    image: '${editData?.photo?.url}',
+                                    image: editData?.photo?.url ?? '',
                                     width: 94,
                                     height: 94,
                                     fit: BoxFit.cover,
@@ -522,7 +523,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     print(ref.watch(newMap));
   }
 
-  Future<void> imagePicker1(String type) async {
+  Future<void> imagePicker1(String type, StateController<EditProfileData?> edit) async {
     final uploadImg = ref.watch(uploadData);
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -537,16 +538,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         "file": multipartImage,
       }, ref, type);
       if(res.image != null) {
-        setState(() {
-          ref.read(editPro.notifier).update((state) {
-            final newMap = state;
-            if(type == 'upload_cover') {
-              newMap?.cover?.url =  res.image;
-            } else {
-              newMap?.photo?.url =  res.image;
-            }
-            return newMap;
-          });
+        edit.update((state) {
+          final newMap = state;
+          if(type == 'upload_cover') {
+            newMap?.cover?.url =  res.image;
+          } else {
+            newMap?.photo?.url =  res.image;
+          }
+          return newMap;
         });
       }
       print(res.toJson());

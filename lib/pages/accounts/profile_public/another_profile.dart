@@ -367,7 +367,7 @@ class BodyProfile extends StatelessWidget {
                                               'type': 'user',
                                             }, datum?.is_follow == true, profilePro)),
                                             MoreTypeInfo('${(datum?.is_saved == true) ? 'Uns' : 'S'}ave', '', (datum?.is_saved == true) ? Icons.bookmark : Icons.bookmark_border, null, () {
-                                              savedFunctions(ref, datum?.id, profilePro, isSaved: datum?.is_saved, type: 'user', type2: 'post');
+                                              savedFunctions(ref, datum?.id, profilePro, isSaved: datum?.is_saved, type: 'user', typeRemove: 'post');
                                             }),
                                             MoreTypeInfo('Copy link', meta?.url ?? '', Icons.link, null, () {
                                               copyFunction(context, meta?.url);

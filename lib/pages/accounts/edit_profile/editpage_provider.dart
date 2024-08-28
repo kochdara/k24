@@ -8,11 +8,20 @@ import 'package:k24/helpers/config.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/my_widgets.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../helpers/helper.dart';
 import '../../../serialization/accounts/edit_profile/edit_profile_serial.dart';
 
 final myWidgets = MyWidgets();
+
+// @riverpod
+// class EditProfile extends _$EditProfile {
+//   EditProfileData? build() => EditProfileData();
+//   void setNew({ String? cover }) {
+//     if(cover != null) state = { ...state,  };
+//   }
+// }
 
 Future<EditProfileData?> getEditProfile(WidgetRef context) async {
   final String? accessTokens = context.watch(usersProvider).tokens?.access_token;

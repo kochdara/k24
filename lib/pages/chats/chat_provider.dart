@@ -45,7 +45,7 @@ class ChatPage extends _$ChatPage {
     }
     await fetchData(false);
     state = AsyncData(list);
-    print('Data length after refresh: ${list.length}');
+    print('Data: ${list.length} offset: $offset length: $length');
   }
 
   Future<void> fetchData(bool off) async {
@@ -63,7 +63,7 @@ class ChatPage extends _$ChatPage {
         length = resp.data?.length ?? 0;
         if (resp.data != null && resp.data!.isNotEmpty) {
           final data = resp.data!;
-          offset = offset + limit;
+          if(off) offset = offset + limit;
 
           for (final val in data) {
             // Find the index of the element with the same id as val

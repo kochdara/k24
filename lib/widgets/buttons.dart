@@ -73,7 +73,7 @@ class Buttons {
           if(iconPrefix != null && showSpace) const SizedBox(width: 8,),
           if(prefix != null) prefix,
           if(prefix != null && showSpace) const SizedBox(width: 8,),
-          Text(title, style: const TextStyle(fontFamily: 'en')),
+          Text(title, style: const TextStyle(fontFamily: 'kh')),
           if(subFix != null && showSpace) const SizedBox(width: 8,),
           if(subFix != null) subFix,
           if(iconSubFix != null && showSpace) const SizedBox(width: 8,),

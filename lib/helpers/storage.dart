@@ -4,34 +4,34 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path/path.dart' as path;
 
 const storage = FlutterSecureStorage();
 
-save(String key, var value) async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  if(value is bool) return await prefs.setBool(key, value);
-  String newValue = value is String ? value : "";
-  if(value is Map) newValue = jsonEncode(value);
-  if(value is List) newValue = jsonEncode({"data":value});
-  await prefs.setString(key, newValue);
-}
-
-get(String key, {var type = String}) async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  if(type is  bool) return prefs.getBool(key);
-  String? value = prefs.getString(key);
-  if(type is Map) return value != null ? jsonDecode(value) : null;
-  if(type is List) return value != null ? jsonDecode(value)["data"] : null;
-  return value;
-}
-
-remove(String key) async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.remove(key);
-}
+// save(String key, var value) async {
+//   final SharedPreferences prefs = await SharedPreferences.getInstance();
+//   if(value is bool) return await prefs.setBool(key, value);
+//   String newValue = value is String ? value : "";
+//   if(value is Map) newValue = jsonEncode(value);
+//   if(value is List) newValue = jsonEncode({"data":value});
+//   await prefs.setString(key, newValue);
+// }
+//
+// get(String key, {var type = String}) async {
+//   final SharedPreferences prefs = await SharedPreferences.getInstance();
+//   if(type is  bool) return prefs.getBool(key);
+//   String? value = prefs.getString(key);
+//   if(type is Map) return value != null ? jsonDecode(value) : null;
+//   if(type is List) return value != null ? jsonDecode(value)["data"] : null;
+//   return value;
+// }
+//
+// remove(String key) async {
+//   final SharedPreferences prefs = await SharedPreferences.getInstance();
+//   prefs.remove(key);
+// }
 
 // ==================== //
 // using secure library //

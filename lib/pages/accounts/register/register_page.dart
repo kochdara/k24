@@ -380,8 +380,9 @@ class _ConfirmPageState extends ConsumerState<ConfirmPage> {
                             context, ref, watch,
                             accessToken: confirmData?.next_page?.token,
                           );
-                          if(result?.data?.user != null) {
-                            ref.read(usersProvider.notifier).update((state) => result?.data ?? DataUser());
+                          if(result?.data?.user?.id != null) {
+                            await saveSecure('user', result?.data?.toJson() ?? {});
+                            ref.read(usersProvider.notifier).update((state) => DataUser.fromJson(result?.data?.toJson() ?? {}));
                             // direct to home page
                             Navigator.of(context).popUntil((route) => route.isFirst);
                             alertSnack(ref.context, 'User created successfully!');

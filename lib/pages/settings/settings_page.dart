@@ -1,4 +1,6 @@
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -9,6 +11,7 @@ import 'package:k24/helpers/helper.dart';
 import 'package:k24/helpers/storage.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/pages/more_provider.dart';
+import 'package:k24/pages/settings/settings_provider.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/serialization/users/user_serial.dart';
 import 'package:k24/widgets/buttons.dart';
@@ -81,7 +84,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 }
 
 class BodyProfile extends ConsumerWidget {
-  BodyProfile(this.ref, {super.key});
+  const BodyProfile(this.ref, {super.key});
 
   final WidgetRef ref;
 
@@ -211,17 +214,21 @@ class BodyProfile extends ConsumerWidget {
               padding: const EdgeInsets.all(18.0),
               child: buttons.textButtons(
                 title: 'Logout',
-                onPressed: () {
-                  dialogBuilder(context);
+                onPressed: () async {
+                  final send = SettingsApiService();
 
-                  futureAwait(duration: 500, () {
+                  final result = await send.logoutAccount(context, ref, {
+                    'device_id': '0',
+                  });
+                  if(result?.status == 'success') {
                     ref.read(usersProvider.notifier).update((state) => DataUser());
                     ref.read(dataBadgeProvider.notifier).update((state) => NotifyBadges());
                     deleteSecure('user');
-                    Navigator.pop(context);
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                    alertSnack(context, 'User logout successfully!');
-                  });
+                    futureAwait(duration: 250, () {
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                      alertSnack(context, result?.message ?? 'User logout successfully!');
+                    });
+                  }
                 },
                 textColor: Colors.red,
                 textWeight: FontWeight.w500,
@@ -238,6 +245,7 @@ class BodyProfile extends ConsumerWidget {
                   labels.label('@${userPro.user?.username ?? 'Unknown'}', fontSize: 14, color: Colors.black54),
                   labels.label('Version: ${ref.watch(versionPro)}', fontSize: 14, color: Colors.black54),
                   labels.label('${ref.watch(modelPro)}: ${ref.watch(modelVPro)}', fontSize: 14, color: Colors.black54),
+                  labels.label(InternetAddress.anyIPv4.address, fontSize: 14, color: Colors.black54),
                 ],
               ),
             ),

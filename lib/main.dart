@@ -26,8 +26,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
         primarySwatch: Colors.blue,
-        fontFamily: 'en',
-        textTheme: Theme.of(context).textTheme.apply(fontFamily: 'en'),
+        fontFamily: 'kh',
+        textTheme: Theme.of(context).textTheme.apply(fontFamily: 'kh'),
         cardTheme: const CardTheme(color: Colors.white),
         pageTransitionsTheme: const PageTransitionsTheme(builders: {
           TargetPlatform.android: CupertinoPageTransitionsBuilder(),

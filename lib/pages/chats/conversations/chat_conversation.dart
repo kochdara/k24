@@ -66,7 +66,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
 
   void setupPage() {
     controller = TextEditingController();
-    scrollDown();
+    scrollDown(duration: 5000);
     scrollController.addListener(() => onScroll(
       ref,
       scrollController,

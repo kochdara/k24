@@ -195,6 +195,20 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
     final datum = dataDetails?.data;
 
     return AppBar(
+      leading: IconButton(
+        visualDensity: VisualDensity.standard,
+        tooltip: 'Back',
+        onPressed: () => Navigator.pop(context),
+        iconSize: 18,
+        icon: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.black26,
+            borderRadius: BorderRadius.circular(32),
+          ),
+          child: const Icon(Icons.arrow_back, size: 24,),
+        ),
+      ),
       title: transparent ? null : label.label(widget.title, overflow: TextOverflow.ellipsis, fontSize: 20, fontWeight: FontWeight.w500),
       titleSpacing: 0,
       backgroundColor: transparent ? Colors.transparent : null,
@@ -210,9 +224,9 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
             visualDensity: VisualDensity.compact,
             tooltip: 'Save',
             onPressed: () {
-              savedFunctions(ref, datum.id, provider, isSaved: datum.is_saved, type: 'post', type2: 'post');
+              savedFunctions(ref, datum.id, provider, isSaved: datum.is_saved, type: 'post', typeRemove: 'post');
             },
-            iconSize: 22,
+            iconSize: 20,
             icon: Icon((datum.is_saved == true) ? CupertinoIcons.bookmark_fill : CupertinoIcons.bookmark, color: Colors.white),
           ),
         ),
@@ -227,7 +241,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
             visualDensity: VisualDensity.compact,
             tooltip: 'Share',
             onPressed: () { },
-            iconSize: 22,
+            iconSize: 20,
             icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_fill, color: Colors.white),
           ),
         ),
@@ -584,20 +598,7 @@ class BodyWidget extends ConsumerWidget {
                               child: buttons.textButtons(
                                 title: 'Save',
                                 onPressed: () async {
-                                  final send = SaveApiService();
-                                  if((datum?.is_saved == true)) {
-                                    final result = await send.submitRemoveSave(ref, datum?.id, type: 'post');
-                                    if(result.message != null) {
-                                      ref.read(providerDe.notifier).updateLikes('0', isSaved: false);
-                                      print(result.toJson());
-                                    }
-                                  } else {
-                                    final result = await send.submitSaved(ref, id: datum?.id, type: 'post');
-                                    if(result.message != null) {
-                                      ref.read(providerDe.notifier).updateLikes('0', isSaved: true);
-                                      print(result.toJson());
-                                    }
-                                  }
+                                  savedFunctions(ref, datum?.id, providerDe, isSaved: datum?.is_saved, type: 'post', typeRemove: 'post');
                                 },
                                 padSize: 10,
                                 textSize: 14,

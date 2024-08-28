@@ -149,7 +149,7 @@ class _ChatPageBuilderState extends ConsumerState<ChatPageBuilder> {
   @override
   void initState() {
     super.initState();
-    futureAwait(() => trigger());
+    futureAwait(duration: 5000, () => trigger());
     scrollController.addListener(() {
       final pixels = scrollController.position.pixels;
       final maxScrollExtent = scrollController.position.maxScrollExtent;
@@ -177,7 +177,7 @@ class _ChatPageBuilderState extends ConsumerState<ChatPageBuilder> {
     if(mounted) {
       final chatPro = chatPageProvider(ref, '${ref.watch(widget.newMap)}');
       print("@# 1");
-      ref.read(chatPro.notifier).refresh(false);
+      if(!ref.watch(isLoadingPro)) ref.read(chatPro.notifier).refresh(false);
       Future.delayed(Duration(seconds: ref.read(delayed)), () => trigger());
     }
   }

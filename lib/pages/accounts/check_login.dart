@@ -1,9 +1,13 @@
 
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/helpers/storage.dart';
@@ -14,8 +18,10 @@ import 'package:k24/serialization/users/user_serial.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/labels.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../widgets/my_widgets.dart';
+import '../settings/settings_page.dart';
 import 'login/login_provider.dart';
 
 final Labels labels = Labels();
@@ -38,6 +44,7 @@ class _LoginPageState extends ConsumerState<CheckLoginPage> {
     super.initState();
     userList = StateProvider((ref) => []);
     setupPage();
+    setupPageDevice();
   }
 
   @override
@@ -66,19 +73,42 @@ class _LoginPageState extends ConsumerState<CheckLoginPage> {
       }
     });
   }
+
+  void setupPageDevice() async {
+    futureAwait(duration: 1, () async {
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      ref.read(versionPro.notifier).update((state) => packageInfo.version);
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        ref.read(modelPro.notifier).update((state) => androidInfo.model);
+        ref.read(modelVPro.notifier).update((state) => androidInfo.version.release);
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        ref.read(modelPro.notifier).update((state) => iosInfo.utsname.machine);
+        ref.read(modelVPro.notifier).update((state) => iosInfo.systemVersion);
+      }
+    });
+  }
 }
 
-class BodyLogin extends ConsumerWidget {
-  BodyLogin({super.key,
+class BodyLogin extends ConsumerStatefulWidget {
+  const BodyLogin({super.key,
     required this.userList,
   });
 
   final StateProvider<List<UserSerial>> userList;
+
+  @override
+  ConsumerState<BodyLogin> createState() => _BodyLoginState();
+}
+
+class _BodyLoginState extends ConsumerState<BodyLogin> {
   final apiServiceProvider = Provider((ref) => MyApiService());
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userList);
+  Widget build(BuildContext context) {
+    final user = ref.watch(widget.userList);
 
     return CustomScrollView(
       slivers: <Widget>[
@@ -98,133 +128,144 @@ class BodyLogin extends ConsumerWidget {
         SliverList(
           delegate: SliverChildBuilderDelegate(
             childCount: 1, (BuildContext context, int index) {
-              return Column(
-                children: [
-                  /// title ///
-                  Container(
-                    height: 170,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
+            return Column(
+              children: [
+                /// title ///
+                Container(
+                  height: 170,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
                       color: config.primaryAppColor.shade600
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        labels.label('Khmer24', fontSize: 38, fontWeight: FontWeight.bold),
-                        labels.label('Buy faster, Sell faster', fontSize: 16, fontWeight: FontWeight.w500),
-                      ],
-                    ),
                   ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      labels.label('Khmer24', fontSize: 38, fontWeight: FontWeight.bold),
+                      labels.label('Buy faster, Sell faster', fontSize: 16, fontWeight: FontWeight.w500),
+                    ],
+                  ),
+                ),
 
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        /// user card ///
-                        for(final v in user) ...[
-                          ListTile(
-                            onTap: () => loginPage(ref, v,),
-                            leading: (v.data?.user?.photo?.url != null) ? CircleAvatar(
-                              backgroundColor: Colors.black12,
-                              backgroundImage: NetworkImage(v.data?.user?.photo?.url ?? ''),
-                            ) : Icon(CupertinoIcons.person_crop_circle_fill, size: 50, color: config.secondaryColor.shade100),
-                            title: labels.label(v.data?.user?.name ?? 'N/A', fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87),
-                            subtitle: labels.label('@${v.data?.user?.username ?? 'N/A'}', fontSize: 12, color: Colors.black54),
-                            dense: true,
-                            tileColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              side: BorderSide(color: Colors.grey.shade300),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                            horizontalTitleGap: 8,
-                            trailing: IconButton(
-                              onPressed: () => showActionSheet(context, [
-                                MoreTypeInfo('edit', 'Edit', null, null, () {
-                                  routeAnimation(context, pageBuilder: LoginPage(
-                                    log: v.login,
-                                    pass: v.password,
-                                  ));
-                                }),
-                                MoreTypeInfo('remove', 'Remove', null, null, () => removeUser(ref, v)),
-                              ]),
-                              padding: const EdgeInsets.all(12),
-                              icon: Icon(Icons.more_vert_rounded, color: config.secondaryColor.shade400),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      /// user card ///
+                      for(final v in user) ...[
+                        ListTile(
+                          onTap: () => loginPage(ref, v,),
+                          leading: (v.data?.user?.photo?.url != null) ? CircleAvatar(
+                            backgroundColor: Colors.black12,
+                            backgroundImage: NetworkImage(v.data?.user?.photo?.url ?? ''),
+                          ) : Icon(CupertinoIcons.person_crop_circle_fill, size: 50, color: config.secondaryColor.shade100),
+                          title: labels.label(v.data?.user?.name ?? 'N/A', fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87),
+                          subtitle: labels.label('@${v.data?.user?.username ?? 'N/A'}', fontSize: 12, color: Colors.black54),
+                          dense: true,
+                          tileColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            side: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                          horizontalTitleGap: 8,
+                          trailing: IconButton(
+                            onPressed: () => showActionSheet(context, [
+                              MoreTypeInfo('edit', 'Edit', null, null, () {
+                                routeAnimation(context, pageBuilder: LoginPage(
+                                  log: v.login ?? v.data?.user?.username,
+                                  pass: v.password,
+                                ));
+                              }),
+                              MoreTypeInfo('remove', 'Remove', null, null, () => removeUser(ref, v)),
+                            ]),
+                            padding: const EdgeInsets.all(12),
+                            icon: Icon(Icons.more_vert_rounded, color: config.secondaryColor.shade400),
+                          ),
+                        ),
+                        const SizedBox(height: 10,),
+                      ],
+
+                      const SizedBox(height: 30),
+
+                      labels.label('Login Or Register With Your Phone Number', fontSize: 14, color: Colors.black87),
+
+                      const SizedBox(height: 20),
+
+                      /// button //
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: buttons.textButtons(
+                              title: 'Login',
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                              },
+                              padSize: 10,
+                              textSize: 16,
+                              textWeight: FontWeight.w500,
+                              textColor: Colors.white,
+                              bgColor: config.warningColor.shade400,
                             ),
                           ),
-                          const SizedBox(height: 10,),
+
+                          const SizedBox(width: 15),
+
+                          Expanded(
+                            child: buttons.textButtons(
+                              title: 'Register',
+                              onPressed: () {
+                                routeAnimation(context, pageBuilder: const RegisterPage());
+                              },
+                              padSize: 10,
+                              textSize: 16,
+                              textWeight: FontWeight.w500,
+                              textColor: Colors.white,
+                              bgColor: config.warningColor.shade400,
+                            ),
+                          ),
                         ],
+                      ),
 
-                        const SizedBox(height: 30),
+                      const SizedBox(height: 20),
 
-                        labels.label('Login Or Register With Your Phone Number', fontSize: 14, color: Colors.black87),
+                      labels.label('Quickly Connect', fontSize: 14, color: Colors.black87 ),
+                      const SizedBox(height: 10),
 
-                        const SizedBox(height: 20),
+                      /// more login //
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            onPressed: () { },
+                            iconSize: 45,
+                            icon: Icon(Icons.facebook, color: Colors.blue.shade800),
+                          ),
 
-                        /// button //
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: buttons.textButtons(
-                                title: 'Login',
-                                onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
-                                },
-                                padSize: 10,
-                                textSize: 16,
-                                textWeight: FontWeight.w500,
-                                textColor: Colors.white,
-                                bgColor: config.warningColor.shade400,
-                              ),
-                            ),
+                          IconButton(
+                            onPressed: () { },
+                            iconSize: 45,
+                            icon: const FaIcon(FontAwesomeIcons.googlePlusG, color: Colors.red,),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
 
-                            const SizedBox(width: 15),
+                      labels.label('By continuing, you agree to our Posting Rule and Private Policy.', fontSize: 14, color: Colors.black87, textAlign: TextAlign.center),
+                      const SizedBox(height: 20),
 
-                            Expanded(
-                              child: buttons.textButtons(
-                                title: 'Register',
-                                onPressed: () {
-                                  routeAnimation(context, pageBuilder: const RegisterPage());
-                                },
-                                padSize: 10,
-                                textSize: 16,
-                                textWeight: FontWeight.w500,
-                                textColor: Colors.white,
-                                bgColor: config.warningColor.shade400,
-                              ),
-                            ),
-                          ],
-                        ),
+                      labels.label('Version: ${ref.watch(versionPro)}', fontSize: 14, color: Colors.black54),
+                      labels.label('${ref.watch(modelPro)}: ${ref.watch(modelVPro)}', fontSize: 14, color: Colors.black54),
+                      labels.label(InternetAddress.anyIPv4.address, fontSize: 14, color: Colors.black54),
 
-                        const SizedBox(height: 20),
-
-                        labels.label('Quickly Connect', fontSize: 14, color: Colors.black87 ),
-
-                        /// more login //
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              onPressed: () { },
-                              icon: Icon(Icons.facebook, size: 50, color: Colors.blue.shade800),
-                            ),
-
-                            IconButton(
-                              onPressed: () { },
-                              icon: const Icon(Icons.gpp_good_outlined, size: 50, color: Colors.blue),
-                            ),
-                          ],
-                        ),
-
-                      ],
-                    ),
+                    ],
                   ),
+                ),
 
-                ],
-              );
-            },
+              ],
+            );
+          },
           ),
         ),
 
@@ -233,7 +274,7 @@ class BodyLogin extends ConsumerWidget {
   }
 
   Future<void> removeUser(WidgetRef ref, UserSerial v) async {
-    final userListNotifier = ref.read(userList.notifier);
+    final userListNotifier = ref.read(widget.userList.notifier);
     final currentList = userListNotifier.state;
 
     int i = currentList.indexWhere((element) => element.data?.user?.id == v.data?.user?.id);
@@ -289,4 +330,5 @@ class BodyLogin extends ConsumerWidget {
     }
   }
 }
+
 

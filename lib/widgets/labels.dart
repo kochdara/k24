@@ -27,7 +27,7 @@ class Labels {
         fontStyle: fontStyle,
         decoration: decoration,
         decorationStyle: decorationStyle,
-        fontFamily: 'en'
+        fontFamily: 'kh'
       ),
       textAlign: textAlign,
       overflow: overflow,
@@ -56,7 +56,7 @@ class Labels {
         fontStyle: fontStyle,
         decoration: decoration,
         decorationStyle: decorationStyle,
-        fontFamily: 'en'
+        fontFamily: 'kh'
       ),
       textAlign: textAlign,
       maxLines: maxLines,
@@ -75,7 +75,7 @@ class Labels {
   }) {
     return RichText(
       text: TextSpan(
-          style: TextStyle(fontSize: fontSize, color: color, height: lineHeight, fontFamily: 'en', fontWeight: fontWeight),
+          style: TextStyle(fontSize: fontSize, color: color, height: lineHeight, fontFamily: 'kh', fontWeight: fontWeight),
           children: [
             if(title2.isNotEmpty) TextSpan(text: title2, style: TextStyle(fontWeight: fontWeight2, color: color2)),
             TextSpan(text: title),

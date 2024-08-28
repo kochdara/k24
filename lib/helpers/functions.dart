@@ -9,12 +9,12 @@ import 'package:k24/pages/more_provider.dart';
 import 'package:k24/pages/saves/save_provider.dart';
 
 Future<void> savedFunctions(WidgetRef ref, String? id, dynamic provider, {
-  bool? isSaved, String? type = 'user', String? type2 = 'post',
+  bool? isSaved, String? type = 'user', String? typeRemove = 'post',
 }) async {
   if(checkLogs(ref)) {
     final send = SaveApiService();
     if(isSaved == true) {
-      final result = await send.submitRemoveSave(ref, id, type: type2);
+      final result = await send.submitRemoveSave(ref, id, type: typeRemove);
       print(result.toJson());
       if(result.message != null) {
         ref.read(provider.notifier).updateLikes(id, isSaved: false);
