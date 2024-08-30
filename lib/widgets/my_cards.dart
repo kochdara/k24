@@ -1222,7 +1222,7 @@ class FreeDeliveryPage extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.delivery_dining_sharp, size: 14, color: Colors.white),
+          const Icon(Icons.delivery_dining_sharp, size: 18, color: Colors.white),
           const SizedBox(width: 6),
           labels.label(title, fontWeight: FontWeight.normal, maxLines: 1, fontSize: 11),
         ],

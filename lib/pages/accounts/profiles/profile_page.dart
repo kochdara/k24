@@ -13,6 +13,7 @@ import 'package:k24/pages/accounts/profiles/profile_provider.dart';
 import 'package:k24/pages/jobs/apply_job/apply_job_page.dart';
 import 'package:k24/pages/jobs/job_applications/application_provider.dart';
 import 'package:k24/pages/jobs/job_applications/jobapplications_page.dart';
+import 'package:k24/pages/jobs/my_resume/check_informations.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/pages/saves/save_page.dart';
 import 'package:k24/pages/settings/settings_page.dart';
@@ -362,7 +363,8 @@ class BodyProfile extends StatelessWidget {
                                     ButtonsUI(prefixIcon: Icons.assignment, title: 'Job Applications', width: width, onPressed: () {
                                       routeNoAnimation(context, pageBuilder: const JobApplicationPage());
                                     }, badge: valBadges?.data?.newCount ?? '0',),
-                                    ButtonsUI(prefixIcon: Icons.description, title: 'Resume (CV)', width: width, onPressed: () => {
+                                    ButtonsUI(prefixIcon: Icons.description, title: 'Resume (CV)', width: width, onPressed: () {
+                                      routeNoAnimation(context, pageBuilder: const CheckInfoResumePage());
                                     }, badge: '0',),
                                     ButtonsUI(prefixIcon: Icons.subscriptions, title: 'Subscription', width: width, onPressed: () => {
                                     }, badge: '0',),
@@ -599,7 +601,7 @@ class SegmentedControlExample extends ConsumerWidget {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         labels.selectLabel(datum.title ?? 'N/A', fontSize: 15, color: Colors.black87),
-                                        labels.label('\$${datum.price ?? 0.0}', fontSize: 15, color: Colors.red, fontWeight: FontWeight.w500),
+                                        labels.label('\$${datum.price ?? 0.0}', fontSize: 15, color: Colors.red, fontWeight: FontWeight.w600),
                                         Flex(
                                           direction: Axis.horizontal,
                                           crossAxisAlignment: CrossAxisAlignment.start,

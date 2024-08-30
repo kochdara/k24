@@ -79,7 +79,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
   void scrollDown({int duration = 1000, bool trig = true}) {
     futureAwait(duration: duration, () {
       if(trig) trigger(widget.chatData);
-      scrollController.jumpTo(0);
+      if(mounted) scrollController.jumpTo(0);
     });
   }
 

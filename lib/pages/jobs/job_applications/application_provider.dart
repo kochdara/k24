@@ -133,12 +133,12 @@ class GetBadgesApp extends _$GetBadgesApp {
 class MarkApiServiceApp {
   final Dio dio = Dio();
 
-  Future<dynamic> submitMarkRead(Map<String, dynamic> data, String ids, WidgetRef ref) async {
+  Future<dynamic> listMarkRead(Map<String, dynamic> data, String ids, WidgetRef ref) async {
     try {
       final tokens = ref.watch(usersProvider);
 
-      final subs = '$ids?lang=$lang';
-      final res = await dio.put('$notificationUrl/$subs', data: data, options: Options(headers: {
+      final subs = 'me/job_applications/$ids?lang=$lang';
+      final res = await dio.post('$jobUrl/$subs', data: data, options: Options(headers: {
         'Access-Token': '${tokens.tokens?.access_token}',
       }, contentType: Headers.formUrlEncodedContentType));
 
@@ -152,7 +152,7 @@ class MarkApiServiceApp {
       if (response?.statusCode == 401) {
         // Token might have expired, try to refresh the token
         await checkTokens(ref);
-        return await submitMarkRead(data, ids, ref); // Retry the request after refreshing the token
+        return await listMarkRead(data, ids, ref); // Retry the request after refreshing the token
       }
       print('Dio error: ${e.response}');
     } catch (e, stacktrace) {

@@ -43,14 +43,16 @@ class _ReviewResumePageState extends ConsumerState<ReviewResumePage> {
   }
 
   Future<void> setupPage() async {
-    // final datum = widget.datum;
-    // Map<String, dynamic> data = {"action": "mark_as_read",};
-    // futureAwait(() async {
-    //   final send = ref.watch(apiService);
-    //   if(mounted && datum.is_open == false) {
-    //     await send.submitMarkRead(data, '${datum.notid}', ref);
-    //   }
-    // });
+    if(mounted) {
+      final datum = widget.datum;
+      Map<String, dynamic> data = {"status": "viewed",};
+      futureAwait(duration: 250, () async {
+        final send = ref.watch(apiService);
+        if(datum.is_open == false) {
+          await send.listMarkRead(data, '${datum.notid}', ref);
+        }
+      });
+    }
   }
 
   @override
@@ -91,6 +93,10 @@ class _ReviewResumePageState extends ConsumerState<ReviewResumePage> {
               final skills = application?.skills;
               final languages = application?.languages;
               final references = application?.references;
+
+              List position = [];
+              if(personalDetails?.position != null) position.add(personalDetails?.position);
+              if(personalDetails?.work_experience != null) position.add('${personalDetails?.work_experience} years experience');
 
               return Column(
                 children: [
@@ -174,6 +180,7 @@ class _ReviewResumePageState extends ConsumerState<ReviewResumePage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 labels.label(personalDetails?.name ?? 'N/A', fontSize: 17, fontWeight: FontWeight.w500, color: Colors.black87,),
+                                if(position.isNotEmpty) labels.label(position.join(' • '), fontSize: 14, color: Colors.black54,),
                                 const SizedBox(height: 8,),
 
                                 LabelIcons(title: 'Gender', subTitle: personalDetails?.gender?.title ?? 'N/A', icon: Icons.transgender,),
@@ -525,7 +532,7 @@ class LabelIcons extends StatelessWidget {
           Icon(icon, size: 16, color: Colors.black54,),
           const SizedBox(width: 8,),
           Expanded(
-            child: labels.label(subTitle != null ? '$title: $subTitle' : title, fontSize: 14, color: color ?? Colors.black54,),
+            child: labels.label((subTitle != null && subTitle != 'N/A') ? '$subTitle' : '$title: N/A', fontSize: 14, color: color ?? Colors.black54,),
           ),
         ],
       ),

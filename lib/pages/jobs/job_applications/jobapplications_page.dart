@@ -150,6 +150,8 @@ class BodyJobApplication extends ConsumerWidget {
                                         context,
                                         pageBuilder: ReviewResumePage(
                                           datum: NotifyDatum(
+                                            notid: datum?.id,
+                                            is_open: datum?.status?.value != 'new',
                                             send_date: datum?.apply_date,
                                             data: NotifyData(
                                               cv: ResumeData.fromJson(oldSchool as Map<String, dynamic>),

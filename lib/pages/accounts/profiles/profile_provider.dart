@@ -59,7 +59,7 @@ class OwnProfileList extends _$OwnProfileList {
     offset = 0;
     length = 1;
     list = [];
-    state = const AsyncLoading();
+    // state = const AsyncLoading();
     await fetchHome(newMaps);
     state = AsyncData(list);
   }

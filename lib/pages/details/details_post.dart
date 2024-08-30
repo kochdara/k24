@@ -418,7 +418,7 @@ class BodyWidget extends ConsumerWidget {
                       spacing: 6,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        label.label('\$${dataDetails.data?.price ?? '0.00'}', fontSize: 20, fontWeight: FontWeight.w500, color: Colors.red),
+                        label.label('\$${dataDetails.data?.price ?? '0.00'}', fontSize: 20, fontWeight: FontWeight.w600, color: Colors.red),
                         if(dataDetails.data?.discount?.original_price != null) label.label(
                           '\$${dataDetails.data?.discount?.original_price ?? '0.0'}',
                           color: Colors.black54,
@@ -483,7 +483,7 @@ class BodyWidget extends ConsumerWidget {
                               spacing: 8,
                               runSpacing: 8,
                               children: [
-                                label.label('Description', fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+                                label.label('Description', fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black.withOpacity(0.8)),
 
                                 label.label('ID: ${datum?.id??''}', fontSize: 15, color: Colors.black),
                                 label.labelRich(formatNumber('${datum?.total_like??''}'), title2: 'Like: ', fontSize: 15, color: config.primaryAppColor.shade400, color2: Colors.black, fontWeight2: FontWeight.normal),
@@ -783,6 +783,7 @@ class BodyWidget extends ConsumerWidget {
                                         enabled: false,
                                         fillColor: config.secondaryColor.shade50.withOpacity(0.5),
                                         suffixIcon: Icon(Icons.send, size: 20, color: config.secondaryColor.shade300),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                                       ),
                                     ),
                                   ),

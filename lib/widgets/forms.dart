@@ -93,6 +93,7 @@ class Forms {
     void Function(String)? onSubmitted,
     int? maxLines = 1,
     TextStyle? style,
+    EdgeInsetsGeometry? contentPadding,
   }) {
     return TextField(
       autofocus: autofocus,
@@ -117,6 +118,7 @@ class Forms {
         fillColor: enabled ? fillColor : config.secondaryColor.shade50,
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
+        contentPadding: contentPadding,
       ),
       style: style,
       maxLines: maxLines,

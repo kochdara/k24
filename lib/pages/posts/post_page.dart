@@ -236,6 +236,7 @@ class _NewAdPageState extends ConsumerState<NewAdPage> {
     final editID = widget.editData;
     final loading = ref.read(loadingPro.notifier);
     futureAwait(duration: 1500, () {
+      if(!mounted) return;
       loading.state = true;
 
       updateNewData(ref, 'available', 'true', newData);

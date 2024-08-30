@@ -50,7 +50,7 @@ class SubLists extends _$SubLists {
     state = const AsyncLoading();
 
     await urlAPI();
-    state = AsyncData(list);
+    // state = AsyncData(list);
   }
 
   Future<void> urlAPI() async {
