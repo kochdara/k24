@@ -6,6 +6,19 @@ part of 'my_resume_serial.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+PersonalSerial _$PersonalSerialFromJson(Map json) => PersonalSerial(
+      status: const ToString().fromJson(json['status']),
+      message: const ToString().fromJson(json['message']),
+      data: json['data'],
+    );
+
+Map<String, dynamic> _$PersonalSerialToJson(PersonalSerial instance) =>
+    <String, dynamic>{
+      'status': const ToString().toJson(instance.status),
+      'message': const ToString().toJson(instance.message),
+      'data': instance.data,
+    };
+
 MyResumeSerial _$MyResumeSerialFromJson(Map json) => MyResumeSerial(
       points: json['points'] == null
           ? null

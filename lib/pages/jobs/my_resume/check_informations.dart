@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/helper.dart';
+import 'package:k24/pages/jobs/my_resume/personal_details/personal_details_page.dart';
 import 'package:k24/pages/jobs/my_resume/resume_page.dart';
 import 'package:k24/pages/jobs/my_resume/resume_provider.dart';
 import 'package:k24/widgets/buttons.dart';
@@ -45,7 +46,7 @@ class _CheckInfoPageState extends ConsumerState<CheckInfoResumePage> {
         actions: [
           if(checkResume.hasValue) IconButton(onPressed: () {
             //
-          }, icon: const Icon(Icons.playlist_add_check_circle_outlined, color: Colors.white70, size: 26,))
+          }, icon: const Icon(Icons.playlist_add_check_circle_outlined, color: Colors.white70, size: 28,))
         ],
       ),
       backgroundColor: config.backgroundColor,
@@ -127,7 +128,7 @@ class VerifyResumeBody extends ConsumerWidget {
                 buttons.textButtons(
                   title: 'Get Start',
                   onPressed: () {
-                    // routeAnimation(context, pageBuilder: const ResumePage());
+                    routeAnimation(context, pageBuilder: const PersonalsDataPage());
                   },
                   padSize: 9,
                   textSize: 18,

@@ -8,9 +8,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/helper.dart';
+import 'package:k24/pages/jobs/my_resume/educations/educations_page.dart';
+import 'package:k24/pages/jobs/my_resume/educations/educations_provider.dart';
+import 'package:k24/pages/jobs/my_resume/experiences/experiences_page.dart';
+import 'package:k24/pages/jobs/my_resume/experiences/experiences_provider.dart';
+import 'package:k24/pages/jobs/my_resume/hobbies/hobbies_page.dart';
+import 'package:k24/pages/jobs/my_resume/languages/languages_page.dart';
+import 'package:k24/pages/jobs/my_resume/languages/languages_provider.dart';
 import 'package:k24/pages/jobs/my_resume/personal_details/personal_details_page.dart';
+import 'package:k24/pages/jobs/my_resume/preferences/preference_page.dart';
+import 'package:k24/pages/jobs/my_resume/references/references_page.dart';
+import 'package:k24/pages/jobs/my_resume/references/references_provider.dart';
 import 'package:k24/pages/jobs/my_resume/resume_provider.dart';
+import 'package:k24/pages/jobs/my_resume/skills/skills_page.dart';
+import 'package:k24/pages/jobs/my_resume/skills/skills_provider.dart';
+import 'package:k24/pages/jobs/my_resume/summary/summary_page.dart';
+import 'package:k24/pages/more_provider.dart';
 import 'package:k24/widgets/buttons.dart';
+import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
@@ -124,24 +139,24 @@ class ResumeBody extends ConsumerWidget {
                                   title: 'Phone',
                                   subTitle: (personalDetails?.phone ?? []).join(', '),
                                   icon: Icons.call,
-                                  color: (personalDetails!.phone!.isNotEmpty) ? config.primaryAppColor.shade600 : null,
+                                  color: ((personalDetails?.phone ?? []).isNotEmpty) ? config.primaryAppColor.shade600 : null,
                                   onTap: () { },
                                 ),
                                 const SizedBox(height: 6,),
                                 LabelIcons(
                                   title: 'Email',
-                                  subTitle: personalDetails.email ?? 'N/A',
+                                  subTitle: personalDetails?.email ?? 'N/A',
                                   icon: Icons.email,
-                                  color: (personalDetails.email != null) ? config.primaryAppColor.shade600 : null,
+                                  color: (personalDetails?.email != null) ? config.primaryAppColor.shade600 : null,
                                   onTap: () { },
                                 ),
                                 const SizedBox(height: 6,),
-                                LabelIcons(title: 'Education Level', subTitle: personalDetails.education_level?.title ?? 'N/A', icon: Icons.school,color: Colors.black87,),
+                                LabelIcons(title: 'Education Level', subTitle: personalDetails?.education_level?.title ?? 'N/A', icon: Icons.school,color: Colors.black87,),
                                 const SizedBox(height: 6,),
-                                LabelIcons(title: 'Marital Status', subTitle: personalDetails.marital_status?.title ?? 'N/A', icon: CupertinoIcons.link,color: Colors.black87,),
+                                LabelIcons(title: 'Marital Status', subTitle: personalDetails?.marital_status?.title ?? 'N/A', icon: CupertinoIcons.link,color: Colors.black87,),
                                 const SizedBox(height: 6,),
-                                LabelIcons(title: 'Locations', subTitle: '${personalDetails.location?.long_location ?? ''} '
-                                    '${personalDetails.address ?? 'N/A'}', icon: Icons.location_on,
+                                LabelIcons(title: 'Locations', subTitle: '${personalDetails?.location?.long_location ?? ''} '
+                                    '${personalDetails?.address ?? 'N/A'}', icon: Icons.location_on,
                                   color: Colors.black87,
                                 ),
                                 const SizedBox(height: 10,),
@@ -150,7 +165,7 @@ class ResumeBody extends ConsumerWidget {
                                 buttons.textButtons(
                                   title: 'Edit Personal Information',
                                   onPressed: () {
-                                    routeAnimation(context, pageBuilder: PersonalsDataPage());
+                                    routeAnimation(context, pageBuilder: const PersonalsDataPage());
                                   },
                                   padSize: 8,
                                   textSize: 14,
@@ -170,10 +185,13 @@ class ResumeBody extends ConsumerWidget {
                                 width: 100,
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8.0),
-                                  child: (personalDetails.photo?.url != null) ? FadeInImage.assetNetwork(
-                                    placeholder: placeholder,
-                                    image: '${personalDetails.photo?.url}',
-                                    fit: BoxFit.cover,
+                                  child: (personalDetails?.photo?.url != null) ? InkWell(
+                                    onTap: () => viewImage(context, '${personalDetails?.photo?.url}'),
+                                    child: FadeInImage.assetNetwork(
+                                      placeholder: placeholder,
+                                      image: '${personalDetails?.photo?.url}',
+                                      fit: BoxFit.cover,
+                                    ),
                                   ) : Stack(
                                     children: [
                                       Container(
@@ -213,7 +231,9 @@ class ResumeBody extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TitleUI(title: 'Summary', status: datum?.summary != null ? 'edit' : 'add', onPressed: () { }),
+                          TitleUI(title: 'Summary', status: datum?.summary != null ? 'edit' : 'add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const SummaryPage());
+                          }),
 
                           Padding(
                             padding: const EdgeInsets.only(left: 10, bottom: 8,),
@@ -224,7 +244,9 @@ class ResumeBody extends ConsumerWidget {
                           ),
 
                           // buttons //
-                          ButtonAddUI(title: 'Summary', status: datum?.summary != null ? 'Edit' : 'Add', onPressed: () { }),
+                          ButtonAddUI(title: 'Summary', status: datum?.summary != null ? 'Edit' : 'Add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const SummaryPage());
+                          }),
                         ],
                       ),
                     ),
@@ -240,25 +262,72 @@ class ResumeBody extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TitleUI(title: 'Work Experiences', status: 'add', onPressed: () { }),
+                          TitleUI(title: 'Work Experiences', status: 'add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const ExperiencesPage());
+                          }),
 
-                          for(final val in experiences ?? []) ...[
+                          for(int ind=0; ind<(experiences ?? []).length; ind++ ) ...[
                             Padding(
-                              padding: const EdgeInsets.only(left: 10, bottom: 8,),
-                              child: Flex(
-                                direction: Axis.vertical,
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              padding: const EdgeInsets.only(left: 10, bottom: 10,),
+                              child: Row(
                                 children: [
-                                  labels.label('${val?.position ?? ''} at ${val?.company ?? ''}', fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w500,),
-                                  labels.label('${stringToTimeAgoDay(date: '${val?.start_date}') ?? 'Present'} • ${stringToTimeAgoDay(date: '${val?.end_date}') ?? 'Present'}', fontSize: 14, color: Colors.black54,),
-                                  labels.label(val?.location?.long_location ?? 'Locations: N/A', fontSize: 14, color: Colors.black54,),
-                                  labels.label(val?.description ?? 'Description: N/A', fontSize: 14, color: Colors.black54,),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        labels.label('${experiences?[ind]?.position ?? ''} at ${experiences?[ind]?.company ?? ''}', fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w600,),
+                                        labels.label('${stringToTimeAgoDay(date: '${experiences?[ind]?.start_date}') ?? 'Present'} • ${stringToTimeAgoDay(date: '${experiences?[ind]?.end_date}') ?? 'Present'}', fontSize: 14, color: Colors.black54,),
+                                        labels.label(experiences?[ind]?.location?.long_location ?? 'Locations: N/A', fontSize: 14, color: Colors.black54,),
+                                        labels.label(experiences?[ind]?.description ?? 'Description: N/A', fontSize: 14, color: Colors.black54,),
+                                      ],
+                                    ),
+                                  ),
+
+                                  IconButton(onPressed: () {
+                                    showActionSheet(context, [
+                                      if(ind != 0) MoreTypeInfo('Move to Top', 'Move to Top', Icons.arrow_circle_up, null, () {
+                                        ref.read(provider.notifier).removeAt('${experiences?[ind]?.id}', 'move_to_top');
+                                      },),
+                                      if(ind != 0) MoreTypeInfo('Move Up', 'Move Up', Icons.arrow_circle_up, null, () {
+                                        ref.read(provider.notifier).removeAt('${experiences?[ind]?.id}', 'move_up');
+                                      },),
+                                      if(ind != (experiences ?? []).length - 1) MoreTypeInfo('Move Down', 'Move Down', Icons.arrow_circle_down, null, () {
+                                        ref.read(provider.notifier).removeAt('${experiences?[ind]?.id}', 'move_down');
+                                      },),
+                                      if(ind != (experiences ?? []).length - 1) MoreTypeInfo('Move to Bottom', 'Move to Bottom', Icons.arrow_circle_down, null, () {
+                                        ref.read(provider.notifier).removeAt('${experiences?[ind]?.id}', 'move_to_bottom');
+                                      },),
+                                      MoreTypeInfo('Edit', 'Edit', CupertinoIcons.pencil_circle, null, () {
+                                        routeAnimation(context, pageBuilder: ExperiencesPage(
+                                          id: experiences?[ind]?.id,
+                                        ));
+                                      }),
+                                      MoreTypeInfo('Delete', 'Delete', CupertinoIcons.delete, null, () async {
+                                        final sendApi = ExperienceApiService();
+                                        final result = await sendApi.deleteExperience(ref, '${experiences?[ind]?.id}');
+                                        if(result.status == 'success') {
+                                          alertSnack(context, '${result.message}');
+                                          ref.read(provider.notifier).removeAt('${experiences?[ind]?.id}', 'experiences');
+                                        }
+                                      },),
+                                    ]);
+                                  }, icon: const Icon(Icons.more_vert_rounded)),
                                 ],
                               ),
                             ),
                           ],
 
-                          ButtonAddUI(title: 'Work Experiences', status: 'Add', onPressed: () { }),
+                          if((experiences ?? []).isEmpty) Padding(
+                            padding: const EdgeInsets.only(left: 10, bottom: 8,),
+                            child: labels.label(
+                              'Show your relevant experience (last 10 years)',
+                              fontSize: 14, color: Colors.black54,
+                            ),
+                          ),
+
+                          ButtonAddUI(title: 'Work Experiences', status: 'Add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const ExperiencesPage());
+                          }),
 
                         ],
                       ),
@@ -275,19 +344,56 @@ class ResumeBody extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TitleUI(title: 'Educations', status: 'add', onPressed: () { }),
+                          TitleUI(title: 'Educations', status: 'add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const EducationsPage());
+                          }),
 
-                          for(final val in educations ?? []) ...[
+                          for(int ind=0; ind<(educations ?? []).length; ind++ ) ...[
                             Padding(
                               padding: const EdgeInsets.only(left: 10, bottom: 8,),
-                              child: Flex(
-                                direction: Axis.vertical,
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Row(
                                 children: [
-                                  labels.label(val?.school ?? 'School: N/A', fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w500,),
-                                  labels.label('${stringToTimeAgoDay(date: '${val?.start_date}') ?? 'Present'} • ${stringToTimeAgoDay(date: '${val?.end_date}') ?? 'Present'}', fontSize: 14, color: Colors.black54,),
-                                  labels.label('${val?.degree?.title ?? ''} in ${val?.major ?? 'N/A'}', fontSize: 14, color: Colors.black54,),
-                                  labels.label(val?.description ?? 'Description: N/A', fontSize: 14, color: Colors.black54,),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        labels.label(educations?[ind]?.school ?? 'School: N/A', fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w600,),
+                                        labels.label('${stringToTimeAgoDay(date: '${educations?[ind]?.start_date}') ?? 'Present'} • ${stringToTimeAgoDay(date: '${educations?[ind]?.end_date}') ?? 'Present'}', fontSize: 14, color: Colors.black54,),
+                                        labels.label('${educations?[ind]?.degree?.title ?? ''} in ${educations?[ind]?.major ?? 'N/A'}', fontSize: 14, color: Colors.black54,),
+                                        labels.label(educations?[ind]?.description ?? 'Description: N/A', fontSize: 14, color: Colors.black54,),
+                                      ],
+                                    ),
+                                  ),
+
+                                  IconButton(onPressed: () {
+                                    showActionSheet(context, [
+                                      if(ind != 0) MoreTypeInfo('Move to Top', 'Move to Top', Icons.arrow_circle_up, null, () {
+                                        ref.read(provider.notifier).removeAt('${educations?[ind]?.id}', 'edu_move_to_top');
+                                      },),
+                                      if(ind != 0) MoreTypeInfo('Move Up', 'Move Up', Icons.arrow_circle_up, null, () {
+                                        ref.read(provider.notifier).removeAt('${educations?[ind]?.id}', 'edu_move_up');
+                                      },),
+                                      if(ind != (educations ?? []).length - 1) MoreTypeInfo('Move Down', 'Move Down', Icons.arrow_circle_down, null, () {
+                                        ref.read(provider.notifier).removeAt('${educations?[ind]?.id}', 'edu_move_down');
+                                      },),
+                                      if(ind != (educations ?? []).length - 1) MoreTypeInfo('Move to Bottom', 'Move to Bottom', Icons.arrow_circle_down, null, () {
+                                        ref.read(provider.notifier).removeAt('${educations?[ind]?.id}', 'edu_move_to_bottom');
+                                      },),
+                                      MoreTypeInfo('Edit', 'Edit', CupertinoIcons.pencil_circle, null, () {
+                                        routeAnimation(context, pageBuilder: EducationsPage(
+                                          id: educations?[ind]?.id,
+                                        ));
+                                      }),
+                                      MoreTypeInfo('Delete', 'Delete', CupertinoIcons.delete, null, () async {
+                                        final sendApi = EducationsApiService();
+                                        final result = await sendApi.deleteEducations(ref, '${educations?[ind]?.id}');
+                                        if(result.status == 'success') {
+                                          alertSnack(context, '${result.message}');
+                                          ref.read(provider.notifier).removeAt('${educations?[ind]?.id}', 'educations');
+                                        }
+                                      },),
+                                    ]);
+                                  }, icon: const Icon(Icons.more_vert_rounded)),
                                 ],
                               ),
                             ),
@@ -301,7 +407,9 @@ class ResumeBody extends ConsumerWidget {
                             ),
                           ),
 
-                          ButtonAddUI(title: 'Educations', status: 'Add', onPressed: () { }),
+                          ButtonAddUI(title: 'Educations', status: 'Add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const EducationsPage());
+                          }),
 
                         ],
                       ),
@@ -318,29 +426,65 @@ class ResumeBody extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TitleUI(title: 'Skills', status: 'add', onPressed: () { }),
+                          TitleUI(title: 'Skills', status: 'add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const SkillsPage());
+                          }),
 
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10, bottom: 8.0),
-                            child: Flex(
-                              direction: Axis.vertical,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                for(final val in skills ?? []) ...[
-                                  labels.label('${val?.title ?? ''} - ${val?.level?.title ?? 'Level: N/A'}', fontSize: 14, color: Colors.black54,),
-                                  const SizedBox(height: 4,),
+                          for(int ind=0; ind<(skills ?? []).length; ind++ ) ...[
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10, bottom: 0.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: labels.label('${skills?[ind]?.title ?? ''} - ${skills?[ind]?.level?.title ?? 'Level: N/A'}', fontSize: 14, color: Colors.black87,),
+                                  ),
+
+                                  IconButton(onPressed: () {
+                                    showActionSheet(context, [
+                                      if(ind != 0) MoreTypeInfo('Move to Top', 'Move to Top', Icons.arrow_circle_up, null, () {
+                                        ref.read(provider.notifier).removeAt('${skills?[ind]?.id}', 'skill_move_to_top');
+                                      },),
+                                      if(ind != 0) MoreTypeInfo('Move Up', 'Move Up', Icons.arrow_circle_up, null, () {
+                                        ref.read(provider.notifier).removeAt('${skills?[ind]?.id}', 'skill_move_up');
+                                      },),
+                                      if(ind != (skills ?? []).length - 1) MoreTypeInfo('Move Down', 'Move Down', Icons.arrow_circle_down, null, () {
+                                        ref.read(provider.notifier).removeAt('${skills?[ind]?.id}', 'skill_move_down');
+                                      },),
+                                      if(ind != (skills ?? []).length - 1) MoreTypeInfo('Move to Bottom', 'Move to Bottom', Icons.arrow_circle_down, null, () {
+                                        ref.read(provider.notifier).removeAt('${skills?[ind]?.id}', 'skill_move_to_bottom');
+                                      },),
+                                      MoreTypeInfo('Edit', 'Edit', CupertinoIcons.pencil_circle, null, () {
+                                        routeAnimation(context, pageBuilder: SkillsPage(
+                                          id: skills?[ind]?.id,
+                                        ));
+                                      }),
+                                      MoreTypeInfo('Delete', 'Delete', CupertinoIcons.delete, null, () async {
+                                        final sendApi = SkillsApiService();
+                                        final result = await sendApi.deleteSkills(ref, '${skills?[ind]?.id}');
+                                        if(result.status == 'success') {
+                                          alertSnack(context, '${result.message}');
+                                          ref.read(provider.notifier).removeAt('${skills?[ind]?.id}', 'skills');
+                                        }
+                                      },),
+                                    ]);
+                                  }, icon: const Icon(Icons.more_vert_rounded)),
                                 ],
+                              ),
+                            ),
+                          ],
 
-                                if((skills ?? []).isEmpty) labels.label(
-                                  'Stand out from other candidates with relevant skills.',
-                                  fontSize: 14, color: Colors.black54,
-                                ),
-
-                              ],
+                          if((skills ?? []).isEmpty) Padding(
+                            padding: const EdgeInsets.only(left: 10, bottom: 8,),
+                            child: labels.label(
+                              'Stand out from other candidates with relevant skills.',
+                              fontSize: 14, color: Colors.black54,
                             ),
                           ),
 
-                          ButtonAddUI(title: 'Skills', status: 'Add', onPressed: () { }),
+
+                          ButtonAddUI(title: 'Skills', status: 'Add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const SkillsPage());
+                          }),
 
                         ],
                       ),
@@ -357,28 +501,64 @@ class ResumeBody extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TitleUI(title: 'Languages', status: 'add', onPressed: () { }),
+                          TitleUI(title: 'Languages', status: 'add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const LanguagesPage());
+                          }),
 
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10, bottom: 8.0),
-                            child: Flex(
-                              direction: Axis.vertical,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                for(final val in languages ?? []) ...[
-                                  labels.label('${val?.title ?? ''} - ${val?.level?.title ?? 'Level: N/A'}', fontSize: 14, color: Colors.black54,),
-                                  const SizedBox(height: 4,),
+                          for(int ind=0; ind<(languages ?? []).length; ind++ ) ...[
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10, bottom: 0.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: labels.label('${languages?[ind]?.title ?? ''} - ${languages?[ind]?.level?.title ?? 'Level: N/A'}', fontSize: 14, color: Colors.black87,),
+                                  ),
+
+                                  IconButton(onPressed: () {
+                                    showActionSheet(context, [
+                                      if(ind != 0) MoreTypeInfo('Move to Top', 'Move to Top', Icons.arrow_circle_up, null, () {
+                                        ref.read(provider.notifier).removeAt('${languages?[ind]?.id}', 'lang_move_to_top');
+                                      },),
+                                      if(ind != 0) MoreTypeInfo('Move Up', 'Move Up', Icons.arrow_circle_up, null, () {
+                                        ref.read(provider.notifier).removeAt('${languages?[ind]?.id}', 'lang_move_up');
+                                      },),
+                                      if(ind != (languages ?? []).length - 1) MoreTypeInfo('Move Down', 'Move Down', Icons.arrow_circle_down, null, () {
+                                        ref.read(provider.notifier).removeAt('${languages?[ind]?.id}', 'lang_move_down');
+                                      },),
+                                      if(ind != (languages ?? []).length - 1) MoreTypeInfo('Move to Bottom', 'Move to Bottom', Icons.arrow_circle_down, null, () {
+                                        ref.read(provider.notifier).removeAt('${languages?[ind]?.id}', 'lang_move_to_bottom');
+                                      },),
+                                      MoreTypeInfo('Edit', 'Edit', CupertinoIcons.pencil_circle, null, () {
+                                        routeAnimation(context, pageBuilder: LanguagesPage(
+                                          id: languages?[ind]?.id,
+                                        ));
+                                      }),
+                                      MoreTypeInfo('Delete', 'Delete', CupertinoIcons.delete, null, () async {
+                                        final sendApi = LanguagesApiService();
+                                        final result = await sendApi.deleteLanguages(ref, '${languages?[ind]?.id}');
+                                        if(result.status == 'success') {
+                                          alertSnack(context, '${result.message}');
+                                          ref.read(provider.notifier).removeAt('${languages?[ind]?.id}', 'languages');
+                                        }
+                                      },),
+                                    ]);
+                                  }, icon: const Icon(Icons.more_vert_rounded)),
                                 ],
+                              ),
+                            ),
+                          ],
 
-                                if((languages ?? []).isEmpty) labels.label(
-                                  'Add languages to appeal to more companies and employers.',
-                                  fontSize: 14, color: Colors.black54,
-                                ),
-                              ],
+                          if((languages ?? []).isEmpty) Padding(
+                            padding: const EdgeInsets.only(left: 10, bottom: 8,),
+                            child: labels.label(
+                              'Add languages to appeal to more companies and employers.',
+                              fontSize: 14, color: Colors.black54,
                             ),
                           ),
 
-                          ButtonAddUI(title: 'Languages', status: 'Add', onPressed: () { }),
+                          ButtonAddUI(title: 'Languages', status: 'Add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const LanguagesPage());
+                          }),
 
                         ],
                       ),
@@ -395,14 +575,18 @@ class ResumeBody extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TitleUI(title: 'Hobbies & Interests', status: datum?.hobbies != null ? 'edit' : 'add', onPressed: () { }),
+                          TitleUI(title: 'Hobbies & Interests', status: datum?.hobbies != null ? 'edit' : 'add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const HobbiesPage());
+                          }),
 
                           Padding(
                             padding: const EdgeInsets.only(left: 10, bottom: 8.0),
                             child: labels.label(datum?.hobbies ?? 'What do you like?', fontSize: 14, color: Colors.black54,),
                           ),
 
-                          ButtonAddUI(title: 'Hobbies & Interests', status: datum?.hobbies != null ? 'Edit' : 'Add', onPressed: () { }),
+                          ButtonAddUI(title: 'Hobbies & Interests', status: datum?.hobbies != null ? 'Edit' : 'Add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const HobbiesPage());
+                          }),
 
                         ],
                       ),
@@ -419,19 +603,56 @@ class ResumeBody extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TitleUI(title: 'References', status: 'add', onPressed: () { }),
+                          TitleUI(title: 'References', status: 'add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const ReferencesPage());
+                          }),
 
-                          for(final val in references ?? []) ...[
+                          for(int ind=0; ind<(references ?? []).length; ind++ ) ...[
                             Padding(
                               padding: const EdgeInsets.only(left: 10, bottom: 8,),
-                              child: Flex(
-                                direction: Axis.vertical,
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Row(
                                 children: [
-                                  labels.label(val?.name ?? 'N/A', fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w500,),
-                                  labels.label('${val?.position ?? ''} at ${val?.company ?? ''}', fontSize: 14, color: Colors.black54,),
-                                  labels.label('Tell: ${(val?.phone ?? []).join(', ')}', fontSize: 14, color: Colors.black54,),
-                                  labels.label('Email: ${val?.email ?? 'N/A'}', fontSize: 14, color: Colors.black54,),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        labels.label(references?[ind]?.name ?? 'N/A', fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w600,),
+                                        labels.label('${references?[ind]?.position ?? ''} at ${references?[ind]?.company ?? ''}', fontSize: 14, color: Colors.black54,),
+                                        labels.label('Tell: ${(references?[ind]?.phone ?? []).join(', ')}', fontSize: 14, color: Colors.black54,),
+                                        labels.label('Email: ${references?[ind]?.email ?? 'N/A'}', fontSize: 14, color: Colors.black54,),
+                                      ],
+                                    ),
+                                  ),
+
+                                  IconButton(onPressed: () {
+                                    showActionSheet(context, [
+                                      if(ind != 0) MoreTypeInfo('Move to Top', 'Move to Top', Icons.arrow_circle_up, null, () {
+                                        ref.read(provider.notifier).removeAt('${references?[ind]?.id}', 'ref_move_to_top');
+                                      },),
+                                      if(ind != 0) MoreTypeInfo('Move Up', 'Move Up', Icons.arrow_circle_up, null, () {
+                                        ref.read(provider.notifier).removeAt('${references?[ind]?.id}', 'ref_move_up');
+                                      },),
+                                      if(ind != (references ?? []).length - 1) MoreTypeInfo('Move Down', 'Move Down', Icons.arrow_circle_down, null, () {
+                                        ref.read(provider.notifier).removeAt('${references?[ind]?.id}', 'ref_move_down');
+                                      },),
+                                      if(ind != (references ?? []).length - 1) MoreTypeInfo('Move to Bottom', 'Move to Bottom', Icons.arrow_circle_down, null, () {
+                                        ref.read(provider.notifier).removeAt('${references?[ind]?.id}', 'ref_move_to_bottom');
+                                      },),
+                                      MoreTypeInfo('Edit', 'Edit', CupertinoIcons.pencil_circle, null, () {
+                                        routeAnimation(context, pageBuilder: ReferencesPage(
+                                          id: references?[ind]?.id,
+                                        ));
+                                      }),
+                                      MoreTypeInfo('Delete', 'Delete', CupertinoIcons.delete, null, () async {
+                                        final sendApi = ReferencesApiService();
+                                        final result = await sendApi.deleteReferences(ref, '${references?[ind]?.id}');
+                                        if(result.status == 'success') {
+                                          alertSnack(context, '${result.message}');
+                                          ref.read(provider.notifier).removeAt('${references?[ind]?.id}', 'references');
+                                        }
+                                      },),
+                                    ]);
+                                  }, icon: const Icon(Icons.more_vert_rounded)),
                                 ],
                               ),
                             ),
@@ -445,7 +666,9 @@ class ResumeBody extends ConsumerWidget {
                             ),
                           ),
 
-                          ButtonAddUI(title: 'References', status: 'Add', onPressed: () { }),
+                          ButtonAddUI(title: 'References', status: 'Add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const ReferencesPage());
+                          }),
 
                         ],
                       ),
@@ -473,6 +696,7 @@ class ResumeBody extends ConsumerWidget {
                             dense: true,
                             visualDensity: VisualDensity.compact,
                             onTap: () { },
+                            contentPadding: EdgeInsets.zero,
                             leading: const Icon(Icons.file_open_outlined, color: Colors.black54, size: 28,),
                             title: labels.label(attachment?.name ?? 'N/A', fontSize: 14, color: Colors.black54,),
                             subtitle: labels.label('${attachment?.size ?? 'N/A'}', fontSize: 11, color: Colors.black54,),
@@ -494,15 +718,17 @@ class ResumeBody extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TitleUI(title: 'Job Preferences', status: (preference?.toJson() ?? {}).isNotEmpty ? 'edit' : 'add', onPressed: () { }),
+                          TitleUI(title: 'Job Preferences', status: (preference?.toJson() ?? {}).isNotEmpty ? 'edit' : 'add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const PreferencesPage());
+                          }),
 
-                          PreferUI(title: 'Open Job', subTitle: preference?.open_job == true ? 'Enable' : 'Disable'),
-                          PreferUI(title: 'Preferred Position', subTitle: preference?.position ?? 'N/A'),
-                          PreferUI(title: 'Categories', subTitle: (preference?.category?.map((item) => item?.en_name).toList() ?? []).join(', ')),
-                          PreferUI(title: 'Location', subTitle: (preference?.location?.map((item) => item?.en_name).toList() ?? []).join(', ')),
-                          PreferUI(title: 'Job Type', subTitle: (preference?.job_type?.map((item) => item?.title).toList() ?? []).join(', ')),
-
-                          if((preference?.toJson() ?? {}).isEmpty) Padding(
+                          if((preference?.toJson() ?? {}).isNotEmpty) ...[
+                            PreferUI(title: 'Open Job', subTitle: preference?.open_job == true ? 'Enable' : 'Disable'),
+                            PreferUI(title: 'Preferred Position', subTitle: preference?.position ?? 'N/A'),
+                            PreferUI(title: 'Categories', subTitle: (preference?.category != null) ? (preference?.category?.map((item) => item?.en_name).toList() ?? []).join(', ') : 'N/A'),
+                            PreferUI(title: 'Location', subTitle: (preference?.location != null) ? (preference?.location?.map((item) => item?.en_name).toList() ?? []).join(', ') : 'N/A'),
+                            PreferUI(title: 'Job Type', subTitle: (preference?.job_type != null) ? (preference?.job_type?.map((item) => item?.title).toList() ?? []).join(', ') : 'N/A'),
+                          ] else Padding(
                             padding: const EdgeInsets.only(left: 10, bottom: 8,),
                             child: labels.label(
                               'Tell us about your job preferences to let us help you find the job of your dreams quickly.',
@@ -510,7 +736,9 @@ class ResumeBody extends ConsumerWidget {
                             ),
                           ),
 
-                          ButtonAddUI(title: 'Job Preferences', status: (preference?.toJson() ?? {}).isNotEmpty ? 'Edit' : 'Add', onPressed: () { }),
+                          ButtonAddUI(title: 'Job Preferences', status: (preference?.toJson() ?? {}).isNotEmpty ? 'Edit' : 'Add', onPressed: () {
+                            routeAnimation(context, pageBuilder: const PreferencesPage());
+                          }),
 
                         ],
                       ),
@@ -539,18 +767,21 @@ class PreferUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Divider(color: Colors.black12, height: 0,),
-        ListTile(
-          dense: true,
-          visualDensity: VisualDensity.compact,
-          contentPadding: EdgeInsets.zero,
-          title: labels.label(title, fontSize: 12, color: Colors.black54,),
-          subtitle: labels.label(subTitle, fontSize: 15, color: Colors.black87,),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(right: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Divider(color: Colors.black12, height: 0,),
+          ListTile(
+            dense: true,
+            visualDensity: VisualDensity.compact,
+            contentPadding: EdgeInsets.zero,
+            title: labels.label(title, fontSize: 12, color: Colors.black54,),
+            subtitle: labels.label(subTitle, fontSize: 15, color: Colors.black87,),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,13 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'personal_provider.dart';
+part of 'preference_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getPersonalDetailsHash() =>
-    r'd487333ac9e43e496124c3d2b366a749d61ebcc1';
+String _$getPreferenceHash() => r'aa0fc972a227a2386c67afc1d9028bc73d3b272a';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -30,37 +29,36 @@ class _SystemHash {
   }
 }
 
-abstract class _$GetPersonalDetails
-    extends BuildlessAutoDisposeAsyncNotifier<ResumePersonalDetails?> {
+abstract class _$GetPreference
+    extends BuildlessAutoDisposeAsyncNotifier<MyResumePreference?> {
   late final WidgetRef context;
 
-  FutureOr<ResumePersonalDetails?> build(
+  FutureOr<MyResumePreference?> build(
     WidgetRef context,
   );
 }
 
-/// See also [GetPersonalDetails].
-@ProviderFor(GetPersonalDetails)
-const getPersonalDetailsProvider = GetPersonalDetailsFamily();
+/// See also [GetPreference].
+@ProviderFor(GetPreference)
+const getPreferenceProvider = GetPreferenceFamily();
 
-/// See also [GetPersonalDetails].
-class GetPersonalDetailsFamily
-    extends Family<AsyncValue<ResumePersonalDetails?>> {
-  /// See also [GetPersonalDetails].
-  const GetPersonalDetailsFamily();
+/// See also [GetPreference].
+class GetPreferenceFamily extends Family<AsyncValue<MyResumePreference?>> {
+  /// See also [GetPreference].
+  const GetPreferenceFamily();
 
-  /// See also [GetPersonalDetails].
-  GetPersonalDetailsProvider call(
+  /// See also [GetPreference].
+  GetPreferenceProvider call(
     WidgetRef context,
   ) {
-    return GetPersonalDetailsProvider(
+    return GetPreferenceProvider(
       context,
     );
   }
 
   @override
-  GetPersonalDetailsProvider getProviderOverride(
-    covariant GetPersonalDetailsProvider provider,
+  GetPreferenceProvider getProviderOverride(
+    covariant GetPreferenceProvider provider,
   ) {
     return call(
       provider.context,
@@ -79,30 +77,30 @@ class GetPersonalDetailsFamily
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'getPersonalDetailsProvider';
+  String? get name => r'getPreferenceProvider';
 }
 
-/// See also [GetPersonalDetails].
-class GetPersonalDetailsProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    GetPersonalDetails, ResumePersonalDetails?> {
-  /// See also [GetPersonalDetails].
-  GetPersonalDetailsProvider(
+/// See also [GetPreference].
+class GetPreferenceProvider extends AutoDisposeAsyncNotifierProviderImpl<
+    GetPreference, MyResumePreference?> {
+  /// See also [GetPreference].
+  GetPreferenceProvider(
     WidgetRef context,
   ) : this._internal(
-          () => GetPersonalDetails()..context = context,
-          from: getPersonalDetailsProvider,
-          name: r'getPersonalDetailsProvider',
+          () => GetPreference()..context = context,
+          from: getPreferenceProvider,
+          name: r'getPreferenceProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$getPersonalDetailsHash,
-          dependencies: GetPersonalDetailsFamily._dependencies,
+                  : _$getPreferenceHash,
+          dependencies: GetPreferenceFamily._dependencies,
           allTransitiveDependencies:
-              GetPersonalDetailsFamily._allTransitiveDependencies,
+              GetPreferenceFamily._allTransitiveDependencies,
           context: context,
         );
 
-  GetPersonalDetailsProvider._internal(
+  GetPreferenceProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -115,8 +113,8 @@ class GetPersonalDetailsProvider extends AutoDisposeAsyncNotifierProviderImpl<
   final WidgetRef context;
 
   @override
-  FutureOr<ResumePersonalDetails?> runNotifierBuild(
-    covariant GetPersonalDetails notifier,
+  FutureOr<MyResumePreference?> runNotifierBuild(
+    covariant GetPreference notifier,
   ) {
     return notifier.build(
       context,
@@ -124,10 +122,10 @@ class GetPersonalDetailsProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  Override overrideWith(GetPersonalDetails Function() create) {
+  Override overrideWith(GetPreference Function() create) {
     return ProviderOverride(
       origin: this,
-      override: GetPersonalDetailsProvider._internal(
+      override: GetPreferenceProvider._internal(
         () => create()..context = context,
         from: from,
         name: null,
@@ -140,14 +138,14 @@ class GetPersonalDetailsProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<GetPersonalDetails,
-      ResumePersonalDetails?> createElement() {
-    return _GetPersonalDetailsProviderElement(this);
+  AutoDisposeAsyncNotifierProviderElement<GetPreference, MyResumePreference?>
+      createElement() {
+    return _GetPreferenceProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is GetPersonalDetailsProvider && other.context == context;
+    return other is GetPreferenceProvider && other.context == context;
   }
 
   @override
@@ -159,19 +157,19 @@ class GetPersonalDetailsProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 }
 
-mixin GetPersonalDetailsRef
-    on AutoDisposeAsyncNotifierProviderRef<ResumePersonalDetails?> {
+mixin GetPreferenceRef
+    on AutoDisposeAsyncNotifierProviderRef<MyResumePreference?> {
   /// The parameter `context` of this provider.
   WidgetRef get context;
 }
 
-class _GetPersonalDetailsProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<GetPersonalDetails,
-        ResumePersonalDetails?> with GetPersonalDetailsRef {
-  _GetPersonalDetailsProviderElement(super.provider);
+class _GetPreferenceProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<GetPreference,
+        MyResumePreference?> with GetPreferenceRef {
+  _GetPreferenceProviderElement(super.provider);
 
   @override
-  WidgetRef get context => (origin as GetPersonalDetailsProvider).context;
+  WidgetRef get context => (origin as GetPreferenceProvider).context;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

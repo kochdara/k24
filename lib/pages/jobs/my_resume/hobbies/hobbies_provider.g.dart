@@ -1,13 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'personal_provider.dart';
+part of 'hobbies_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getPersonalDetailsHash() =>
-    r'd487333ac9e43e496124c3d2b366a749d61ebcc1';
+String _$getHobbiesHash() => r'3798bfa17802ed5e57aefab40bce5a7601276819';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -30,37 +29,35 @@ class _SystemHash {
   }
 }
 
-abstract class _$GetPersonalDetails
-    extends BuildlessAutoDisposeAsyncNotifier<ResumePersonalDetails?> {
+abstract class _$GetHobbies extends BuildlessAutoDisposeAsyncNotifier<Object?> {
   late final WidgetRef context;
 
-  FutureOr<ResumePersonalDetails?> build(
+  FutureOr<Object?> build(
     WidgetRef context,
   );
 }
 
-/// See also [GetPersonalDetails].
-@ProviderFor(GetPersonalDetails)
-const getPersonalDetailsProvider = GetPersonalDetailsFamily();
+/// See also [GetHobbies].
+@ProviderFor(GetHobbies)
+const getHobbiesProvider = GetHobbiesFamily();
 
-/// See also [GetPersonalDetails].
-class GetPersonalDetailsFamily
-    extends Family<AsyncValue<ResumePersonalDetails?>> {
-  /// See also [GetPersonalDetails].
-  const GetPersonalDetailsFamily();
+/// See also [GetHobbies].
+class GetHobbiesFamily extends Family<AsyncValue> {
+  /// See also [GetHobbies].
+  const GetHobbiesFamily();
 
-  /// See also [GetPersonalDetails].
-  GetPersonalDetailsProvider call(
+  /// See also [GetHobbies].
+  GetHobbiesProvider call(
     WidgetRef context,
   ) {
-    return GetPersonalDetailsProvider(
+    return GetHobbiesProvider(
       context,
     );
   }
 
   @override
-  GetPersonalDetailsProvider getProviderOverride(
-    covariant GetPersonalDetailsProvider provider,
+  GetHobbiesProvider getProviderOverride(
+    covariant GetHobbiesProvider provider,
   ) {
     return call(
       provider.context,
@@ -79,30 +76,30 @@ class GetPersonalDetailsFamily
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'getPersonalDetailsProvider';
+  String? get name => r'getHobbiesProvider';
 }
 
-/// See also [GetPersonalDetails].
-class GetPersonalDetailsProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    GetPersonalDetails, ResumePersonalDetails?> {
-  /// See also [GetPersonalDetails].
-  GetPersonalDetailsProvider(
+/// See also [GetHobbies].
+class GetHobbiesProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<GetHobbies, Object?> {
+  /// See also [GetHobbies].
+  GetHobbiesProvider(
     WidgetRef context,
   ) : this._internal(
-          () => GetPersonalDetails()..context = context,
-          from: getPersonalDetailsProvider,
-          name: r'getPersonalDetailsProvider',
+          () => GetHobbies()..context = context,
+          from: getHobbiesProvider,
+          name: r'getHobbiesProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$getPersonalDetailsHash,
-          dependencies: GetPersonalDetailsFamily._dependencies,
+                  : _$getHobbiesHash,
+          dependencies: GetHobbiesFamily._dependencies,
           allTransitiveDependencies:
-              GetPersonalDetailsFamily._allTransitiveDependencies,
+              GetHobbiesFamily._allTransitiveDependencies,
           context: context,
         );
 
-  GetPersonalDetailsProvider._internal(
+  GetHobbiesProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -115,8 +112,8 @@ class GetPersonalDetailsProvider extends AutoDisposeAsyncNotifierProviderImpl<
   final WidgetRef context;
 
   @override
-  FutureOr<ResumePersonalDetails?> runNotifierBuild(
-    covariant GetPersonalDetails notifier,
+  FutureOr<Object?> runNotifierBuild(
+    covariant GetHobbies notifier,
   ) {
     return notifier.build(
       context,
@@ -124,10 +121,10 @@ class GetPersonalDetailsProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  Override overrideWith(GetPersonalDetails Function() create) {
+  Override overrideWith(GetHobbies Function() create) {
     return ProviderOverride(
       origin: this,
-      override: GetPersonalDetailsProvider._internal(
+      override: GetHobbiesProvider._internal(
         () => create()..context = context,
         from: from,
         name: null,
@@ -140,14 +137,13 @@ class GetPersonalDetailsProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<GetPersonalDetails,
-      ResumePersonalDetails?> createElement() {
-    return _GetPersonalDetailsProviderElement(this);
+  AutoDisposeAsyncNotifierProviderElement<GetHobbies, Object?> createElement() {
+    return _GetHobbiesProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is GetPersonalDetailsProvider && other.context == context;
+    return other is GetHobbiesProvider && other.context == context;
   }
 
   @override
@@ -159,19 +155,18 @@ class GetPersonalDetailsProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 }
 
-mixin GetPersonalDetailsRef
-    on AutoDisposeAsyncNotifierProviderRef<ResumePersonalDetails?> {
+mixin GetHobbiesRef on AutoDisposeAsyncNotifierProviderRef<Object?> {
   /// The parameter `context` of this provider.
   WidgetRef get context;
 }
 
-class _GetPersonalDetailsProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<GetPersonalDetails,
-        ResumePersonalDetails?> with GetPersonalDetailsRef {
-  _GetPersonalDetailsProviderElement(super.provider);
+class _GetHobbiesProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<GetHobbies, Object?>
+    with GetHobbiesRef {
+  _GetHobbiesProviderElement(super.provider);
 
   @override
-  WidgetRef get context => (origin as GetPersonalDetailsProvider).context;
+  WidgetRef get context => (origin as GetHobbiesProvider).context;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

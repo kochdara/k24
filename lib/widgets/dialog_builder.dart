@@ -62,10 +62,10 @@ void showActionSheet(BuildContext context, List<MoreTypeInfo> listMore) {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if(type.icon != null) ...[
-                Icon(type.icon, size: 18, color: Colors.blue.shade700,),
+                Icon(type.icon, size: 20, color: Colors.blue.shade700,),
                 const SizedBox(width: 8,),
               ],
-              labels.label(type.description, color: Colors.blue.shade700, fontSize: 16, fontWeight: FontWeight.w500),
+              labels.label(type.description, color: Colors.blue.shade700, fontSize: 15, fontWeight: FontWeight.w600,),
             ],
           ),
         ),
@@ -75,7 +75,7 @@ void showActionSheet(BuildContext context, List<MoreTypeInfo> listMore) {
           Navigator.pop(context);
         },
         isDestructiveAction: true,
-        child: labels.label('Cancel', color: Colors.red, fontSize: 18,),
+        child: labels.label('Cancel', color: Colors.red, fontSize: 17, fontWeight: FontWeight.w600),
       ),
     ),
   );

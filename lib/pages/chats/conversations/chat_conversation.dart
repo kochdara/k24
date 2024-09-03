@@ -229,7 +229,7 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
                       onChanged: (val) => ref.read(dataProvider.notifier).update((state) => {'message': val}),
                       onSubmitted: (val) => onSubmit,
                       maxLines: 2,
-                      style: const TextStyle(height: 1.45, fontSize: 13)
+                      style: const TextStyle(height: 1.45, fontSize: 15),
                     ),
                   ),
                 ),

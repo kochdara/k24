@@ -187,7 +187,7 @@ class _ConversationCommentPageState extends ConsumerState<ConversationCommentPag
                         controller: controller,
                         focusNode: focusNode,
                         maxLines: 2,
-                        style: const TextStyle(height: 1.45, fontSize: 13)
+                        style: const TextStyle(height: 1.45, fontSize: 15)
                     ),
                   ),
                 ),

@@ -1,7 +1,5 @@
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:k24/widgets/labels.dart';
 
 import '../helpers/config.dart';

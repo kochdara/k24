@@ -1,13 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'personal_provider.dart';
+part of 'summary_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getPersonalDetailsHash() =>
-    r'd487333ac9e43e496124c3d2b366a749d61ebcc1';
+String _$getSummaryHash() => r'0d624c401139f5bff1180b545f56d55cdfe9c610';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -30,37 +29,35 @@ class _SystemHash {
   }
 }
 
-abstract class _$GetPersonalDetails
-    extends BuildlessAutoDisposeAsyncNotifier<ResumePersonalDetails?> {
+abstract class _$GetSummary extends BuildlessAutoDisposeAsyncNotifier<Object?> {
   late final WidgetRef context;
 
-  FutureOr<ResumePersonalDetails?> build(
+  FutureOr<Object?> build(
     WidgetRef context,
   );
 }
 
-/// See also [GetPersonalDetails].
-@ProviderFor(GetPersonalDetails)
-const getPersonalDetailsProvider = GetPersonalDetailsFamily();
+/// See also [GetSummary].
+@ProviderFor(GetSummary)
+const getSummaryProvider = GetSummaryFamily();
 
-/// See also [GetPersonalDetails].
-class GetPersonalDetailsFamily
-    extends Family<AsyncValue<ResumePersonalDetails?>> {
-  /// See also [GetPersonalDetails].
-  const GetPersonalDetailsFamily();
+/// See also [GetSummary].
+class GetSummaryFamily extends Family<AsyncValue> {
+  /// See also [GetSummary].
+  const GetSummaryFamily();
 
-  /// See also [GetPersonalDetails].
-  GetPersonalDetailsProvider call(
+  /// See also [GetSummary].
+  GetSummaryProvider call(
     WidgetRef context,
   ) {
-    return GetPersonalDetailsProvider(
+    return GetSummaryProvider(
       context,
     );
   }
 
   @override
-  GetPersonalDetailsProvider getProviderOverride(
-    covariant GetPersonalDetailsProvider provider,
+  GetSummaryProvider getProviderOverride(
+    covariant GetSummaryProvider provider,
   ) {
     return call(
       provider.context,
@@ -79,30 +76,30 @@ class GetPersonalDetailsFamily
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'getPersonalDetailsProvider';
+  String? get name => r'getSummaryProvider';
 }
 
-/// See also [GetPersonalDetails].
-class GetPersonalDetailsProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    GetPersonalDetails, ResumePersonalDetails?> {
-  /// See also [GetPersonalDetails].
-  GetPersonalDetailsProvider(
+/// See also [GetSummary].
+class GetSummaryProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<GetSummary, Object?> {
+  /// See also [GetSummary].
+  GetSummaryProvider(
     WidgetRef context,
   ) : this._internal(
-          () => GetPersonalDetails()..context = context,
-          from: getPersonalDetailsProvider,
-          name: r'getPersonalDetailsProvider',
+          () => GetSummary()..context = context,
+          from: getSummaryProvider,
+          name: r'getSummaryProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$getPersonalDetailsHash,
-          dependencies: GetPersonalDetailsFamily._dependencies,
+                  : _$getSummaryHash,
+          dependencies: GetSummaryFamily._dependencies,
           allTransitiveDependencies:
-              GetPersonalDetailsFamily._allTransitiveDependencies,
+              GetSummaryFamily._allTransitiveDependencies,
           context: context,
         );
 
-  GetPersonalDetailsProvider._internal(
+  GetSummaryProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -115,8 +112,8 @@ class GetPersonalDetailsProvider extends AutoDisposeAsyncNotifierProviderImpl<
   final WidgetRef context;
 
   @override
-  FutureOr<ResumePersonalDetails?> runNotifierBuild(
-    covariant GetPersonalDetails notifier,
+  FutureOr<Object?> runNotifierBuild(
+    covariant GetSummary notifier,
   ) {
     return notifier.build(
       context,
@@ -124,10 +121,10 @@ class GetPersonalDetailsProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  Override overrideWith(GetPersonalDetails Function() create) {
+  Override overrideWith(GetSummary Function() create) {
     return ProviderOverride(
       origin: this,
-      override: GetPersonalDetailsProvider._internal(
+      override: GetSummaryProvider._internal(
         () => create()..context = context,
         from: from,
         name: null,
@@ -140,14 +137,13 @@ class GetPersonalDetailsProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<GetPersonalDetails,
-      ResumePersonalDetails?> createElement() {
-    return _GetPersonalDetailsProviderElement(this);
+  AutoDisposeAsyncNotifierProviderElement<GetSummary, Object?> createElement() {
+    return _GetSummaryProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is GetPersonalDetailsProvider && other.context == context;
+    return other is GetSummaryProvider && other.context == context;
   }
 
   @override
@@ -159,19 +155,18 @@ class GetPersonalDetailsProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 }
 
-mixin GetPersonalDetailsRef
-    on AutoDisposeAsyncNotifierProviderRef<ResumePersonalDetails?> {
+mixin GetSummaryRef on AutoDisposeAsyncNotifierProviderRef<Object?> {
   /// The parameter `context` of this provider.
   WidgetRef get context;
 }
 
-class _GetPersonalDetailsProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<GetPersonalDetails,
-        ResumePersonalDetails?> with GetPersonalDetailsRef {
-  _GetPersonalDetailsProviderElement(super.provider);
+class _GetSummaryProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<GetSummary, Object?>
+    with GetSummaryRef {
+  _GetSummaryProviderElement(super.provider);
 
   @override
-  WidgetRef get context => (origin as GetPersonalDetailsProvider).context;
+  WidgetRef get context => (origin as GetSummaryProvider).context;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

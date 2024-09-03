@@ -1,6 +1,8 @@
 
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +11,7 @@ import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/accounts/edit_profile/edit_page.dart';
+import 'package:k24/pages/jobs/my_resume/check_informations.dart';
 import 'package:k24/pages/jobs/my_resume/personal_details/personal_provider.dart';
 import 'package:k24/pages/more_provider.dart';
 import 'package:k24/widgets/buttons.dart';
@@ -35,7 +38,7 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
   final _formKey = GlobalKey<FormState>();
   final StateProvider<Map> newMap = StateProvider((ref) => {});
   final StateProvider<Map> tmpMap = StateProvider((ref) => {});
-  final StateProvider<bool> hiddenPro = StateProvider((ref) => true);
+  late StateProvider<bool> loading;
   late TextEditingController fnController;
   late TextEditingController lnController;
   late TextEditingController yrController;
@@ -66,11 +69,12 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
     eduController = TextEditingController();
     posController = TextEditingController();
     expController = TextEditingController();
+    loading = StateProvider((ref) => true);
     setupPage();
   }
 
-  setupPage() {
-    futureAwait(duration: 1500, () {
+  void setupPage() async {
+    await futureAwait(duration: 1500, () {
       if(mounted) {
         final provider = getPersonalDetailsProvider(ref);
         final personData = ref.watch(provider);
@@ -101,16 +105,16 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
             } else { updateNewMap(key, val); }
           },);
         }
+
+        loading = StateProvider((ref) => false);
       }
     },);
   }
 
   @override
   Widget build(BuildContext context) {
-    final hidden = ref.watch(hiddenPro);
     final oldMap = ref.watch(newMap);
     final tmp = ref.watch(tmpMap);
-    final hiddenR = ref.read(hiddenPro.notifier);
     final tmpR = ref.read(tmpMap.notifier);
 
     final provider = getPersonalDetailsProvider(ref);
@@ -129,7 +133,10 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
         slivers: [
           SliverList(delegate: SliverChildListDelegate([
 
-            personalData.when(
+            if(ref.watch(loading)) const SizedBox(
+              height: 250,
+              child: Center(child: CircularProgressIndicator()),
+            ) else personalData.when(
               error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () { }),
               loading: () => const SizedBox(
                 height: 250,
@@ -153,29 +160,38 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
                           children: [
                             Stack(
                               children: [
-                                SizedBox(
-                                  height: 130,
-                                  width: 100,
-                                  child: (oldMap['photo'] != null) ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    child: FadeInImage.assetNetwork(
-                                      placeholder: placeholder,
-                                      image: '${oldMap['photo']['url']}',
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ) : Container(
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
+                                InkWell(
+                                  onTap: () => (oldMap['photo'] != null) ? showActionSheet(context, [
+                                    MoreTypeInfo('view', 'View', null, null, () => viewImage(context, '${oldMap['photo']['url']}')),
+                                    MoreTypeInfo('change', 'Change', null, null, () => imagePicker1()),
+                                    MoreTypeInfo('remove', 'Remove', null, null, () {
+                                      updateNewMap('photo', null);
+                                    }),
+                                  ]) : imagePicker1(),
+                                  child: SizedBox(
+                                    height: 130,
+                                    width: 100,
+                                    child: (oldMap['photo'] != null) ? ClipRRect(
                                       borderRadius: BorderRadius.circular(8.0),
-                                      border: Border.all(color: Colors.black12),
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        const Icon(Icons.person, color: Colors.black54, size: 40,),
-                                        labels.label('4 x 6', fontSize: 14, color: Colors.black54),
-                                      ],
+                                      child: FadeInImage.assetNetwork(
+                                        placeholder: placeholder,
+                                        image: '${oldMap['photo']['url']}',
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ) : Container(
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8.0),
+                                        border: Border.all(color: Colors.black12),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.person, color: Colors.black54, size: 40,),
+                                          labels.label('4 x 6', fontSize: 14, color: Colors.black54),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -184,7 +200,7 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
                                   right: 0,
                                   bottom: 0,
                                   child: IconButton(
-                                    onPressed: () { },
+                                    onPressed: () => imagePicker1(),
                                     visualDensity: VisualDensity.compact,
                                     padding: EdgeInsets.zero,
                                     tooltip: 'Edit Profile',
@@ -199,20 +215,18 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
                               child: Column(
                                 children: [
                                   forms.labelFormFields(
-                                    labelText: 'First Name',
-                                    controller: hidden ? fnController : null,
+                                    labelText: 'First Name *',
+                                    controller: fnController,
                                     onChanged: (val) => updateNewMap('first_name', val),
                                     validator: ValidationBuilder().required().build(),
-                                    onTap: () => hiddenR.state = false,
                                   ),
                                   const SizedBox(height: 18,),
 
                                   forms.labelFormFields(
-                                    labelText: 'Last Name',
-                                    controller: hidden ? lnController : null,
+                                    labelText: 'Last Name *',
+                                    controller: lnController,
                                     onChanged: (val) => updateNewMap('last_name', val),
                                     validator: ValidationBuilder().required().build(),
-                                    onTap: () => hiddenR.state = false,
                                   ),
                                 ],
                               ),
@@ -263,7 +277,7 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
 
                         /// date of birth ///
                         forms.labelFormFields(
-                          labelText: 'Date of Birth',
+                          labelText: 'Date of Birth *',
                           readOnly: true,
                           suffixIcon: yrController.text.isEmpty ? const Icon(Icons.arrow_drop_down) : IconButton(
                             onPressed: () {
@@ -341,28 +355,25 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
                         /// nationality ///
                         forms.labelFormFields(
                           labelText: 'Nationality',
-                          controller: hidden ? natController : null,
+                          controller: natController,
                           onChanged: (val) => updateNewMap('nationality', val),
-                          onTap: () => hiddenR.state = false,
                         ),
                         SizedBox(height: doubleHeight,),
 
                         /// email ///
                         forms.labelFormFields(
                           labelText: 'Email',
-                          controller: hidden ? emController : null,
+                          controller: emController,
                           onChanged: (val) => updateNewMap('email', val),
-                          onTap: () => hiddenR.state = false,
                         ),
                         SizedBox(height: doubleHeight,),
 
                         /// phone 1 ///
                         forms.labelFormFields(
-                          labelText: 'Phone Number 1',
-                          controller: hidden ? ph1Controller : null,
+                          labelText: 'Phone Number 1 *',
+                          controller: ph1Controller,
                           onChanged: (val) => updateNewMap('phone[0]', val),
                           validator: ValidationBuilder().required().build(),
-                          onTap: () => hiddenR.state = false,
                           keyboardType: const TextInputType.numberWithOptions(),
                         ),
                         SizedBox(height: doubleHeight,),
@@ -370,9 +381,8 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
                         /// phone 2 ///
                         forms.labelFormFields(
                           labelText: 'Phone Number 2',
-                          controller: hidden ? ph2Controller : null,
+                          controller: ph2Controller,
                           onChanged: (val) => updateNewMap('phone[1]', val),
-                          onTap: () => hiddenR.state = false,
                           keyboardType: const TextInputType.numberWithOptions(),
                         ),
                         SizedBox(height: doubleHeight,),
@@ -380,9 +390,8 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
                         /// phone 3 ///
                         forms.labelFormFields(
                           labelText: 'Phone Number 3',
-                          controller: hidden ? ph3Controller : null,
+                          controller: ph3Controller,
                           onChanged: (val) => updateNewMap('phone[2]', val),
-                          onTap: () => hiddenR.state = false,
                           keyboardType: const TextInputType.numberWithOptions(),
                         ),
                         SizedBox(height: doubleHeight,),
@@ -417,9 +426,8 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
                         /// address ///
                         forms.labelFormFields(
                           labelText: 'Address',
-                          controller: hidden ? addController : null,
+                          controller: addController,
                           onChanged: (val) => updateNewMap('address', val),
-                          onTap: () => hiddenR.state = false,
                         ),
                         SizedBox(height: doubleHeight,),
 
@@ -469,18 +477,16 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
                         /// Positions ///
                         forms.labelFormFields(
                           labelText: 'Current Position',
-                          controller: hidden ? posController : null,
+                          controller: posController,
                           onChanged: (val) => updateNewMap('position', val),
-                          onTap: () => hiddenR.state = false,
                         ),
                         SizedBox(height: doubleHeight,),
 
                         /// Work Experience ///
                         forms.labelFormFields(
                           labelText: 'Year of Experience',
-                          controller: hidden ? expController : null,
+                          controller: expController,
                           onChanged: (val) => updateNewMap('work_experience', val),
-                          onTap: () => hiddenR.state = false,
                           keyboardType: const TextInputType.numberWithOptions(),
                         ),
                         SizedBox(height: doubleHeight,),
@@ -553,6 +559,29 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
     super.dispose();
   }
 
+  Future<void> imagePicker1() async {
+    final uploadImg = PersonalApiService();
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowMultiple: false,
+      allowedExtensions: ['jpg', 'jpeg', 'png'],
+    );
+
+    if (result != null) {
+      final xFiles = result.files.first.xFile;
+      final multipartImage = MultipartFile.fromFileSync(xFiles.path, filename: xFiles.name);
+      final res = await uploadImg.uploadProfile({
+        "file": multipartImage,
+      }, ref);
+      if(res.status == 'success') {
+        updateNewMap('photo', {
+          'url': res.thumbnail,
+          ...(res.toJson())
+        });
+      }
+    }
+  }
+
   void updateNewMap(String key, dynamic val) {
     ref.read(newMap.notifier).update((state) {
       return {...state, key: val};
@@ -584,8 +613,34 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
                     width: width,
                     child: buttons.textButtons(
                       title: 'Save',
-                      onPressed: () {
-                        print(ref.watch(newMap));
+                      onPressed: () async {
+                        if(_formKey.currentState!.validate()) {
+                          final sendApi = PersonalApiService();
+                          Map<String, dynamic> data = {};
+                          ref.watch(newMap).forEach((key, value) {
+                            switch(key) {
+                              case 'photo':
+                                if(value == null) {
+                                  data.addAll({ 'photo': null }); /// if click remove photo ///
+                                } else if(value is Map && value['type'] != null) {
+                                  data.addAll({ 'photo': value['file']}); /// if map have type_of_image is upload new ///
+                                }
+                                break;
+                              case 'province':
+                              case 'district':
+                              case 'commune':
+                                if(value is Map) data.addAll({ 'location': value['id'] });
+                                break;
+                              default:
+                                data.addAll({ key: value });
+                            }
+                          },);
+                          final result = await sendApi.submitPersonal(ref, data);
+                          if(result.status == 'success') {
+                            alertSnack(context, result.message ?? 'Save successful.');
+                            routeAnimation(context, pageBuilder: const CheckInfoResumePage());
+                          }
+                        }
                       },
                       padSize: 10,
                       textSize: 18,

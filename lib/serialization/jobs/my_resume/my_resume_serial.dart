@@ -8,6 +8,23 @@ import '../../try_convert.dart';
 
 part 'my_resume_serial.g.dart';
 
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+class PersonalSerial {
+  String? status;
+  String? message;
+  dynamic data;
+
+  PersonalSerial({
+    this.status,
+    this.message,
+    this.data,
+  });
+
+  factory PersonalSerial.fromJson(Map? json) => _$PersonalSerialFromJson(json!);
+  Map? toJson() => _$PersonalSerialToJson(this);
+
+}
+
 @JsonSerializable(anyMap: true, explicitToJson: true,)
 class MyResumeSerial {
   MyResumePoints? points;
