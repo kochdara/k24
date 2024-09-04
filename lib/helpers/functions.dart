@@ -7,6 +7,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/pages/accounts/likes/my_like_provider.dart';
 import 'package:k24/pages/more_provider.dart';
 import 'package:k24/pages/saves/save_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+
+Future<void> openLinkFunction(String links) async {
+  if(links.isEmpty) return;
+  // Replace "https://" and split by "/"
+  final String modifiedUrl = links.replaceFirst('https://', '');
+  final List<String> urlParts = modifiedUrl.split('/');
+
+  // You can reassemble or manipulate the parts if needed
+  const String scheme = 'https';
+  final String host = urlParts[0];
+  final String path = urlParts.sublist(1).join('/');
+
+  final Uri smsLaunchUri = Uri(
+    scheme: scheme,
+    host: host,
+    path: path,
+  );
+
+  await launchUrl(smsLaunchUri);
+}
 
 Future<void> savedFunctions(WidgetRef ref, String? id, dynamic provider, {
   bool? isSaved, String? type = 'user', String? typeRemove = 'post',

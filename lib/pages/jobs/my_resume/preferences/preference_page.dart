@@ -443,6 +443,7 @@ class LocationPicker extends ConsumerWidget {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: config.secondaryColor.shade50,
+        surfaceTintColor: config.secondaryColor.shade50,
         leading: IconButton(onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.keyboard_arrow_down_outlined, color: Colors.black54, size: 28,),
         ),

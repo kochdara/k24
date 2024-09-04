@@ -11,6 +11,7 @@ import 'package:k24/helpers/helper.dart';
 import 'package:k24/helpers/storage.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/pages/more_provider.dart';
+import 'package:k24/pages/settings/change_password/change_password.dart';
 import 'package:k24/pages/settings/settings_provider.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/serialization/users/user_serial.dart';
@@ -94,7 +95,9 @@ class BodyProfile extends ConsumerWidget {
 
     final List accountSetting = [
       { 'title': 'Edit Profile', 'value': 'edit_profile', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { routeAnimation(context, pageBuilder: const EditProfilePage()); } },
-      { 'title': 'Change Password', 'value': 'change_password', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () { } },
+      { 'title': 'Change Password', 'value': 'change_password', 'subtitle': '', 'trailing': false, 'child': null, 'onTap': () {
+        routeAnimation(context, pageBuilder: const ChangePasswordPage());
+      } },
       { 'title': 'Username', 'value': 'username', 'subtitle': 'username', 'trailing': true, 'child': null, 'onTap': () { } },
       { 'title': 'Activate Phone', 'value': 'activate_phone', 'subtitle': '00000', 'trailing': true, 'child': null, 'onTap': () { } },
       { 'title': 'Facebook', 'value': 'facebook', 'subtitle': 'Add', 'trailing': true, 'child': null, 'onTap': () { } },

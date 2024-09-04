@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'preference_provider.dart';
+part of 'editpage_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getPreferenceHash() => r'639dd94004200b1b324deb3726e176677d7b1e62';
+String _$editProfileHash() => r'1916946a1f4b08c7049c684038f8625dd6ee0cf8';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -29,36 +29,36 @@ class _SystemHash {
   }
 }
 
-abstract class _$GetPreference
-    extends BuildlessAutoDisposeAsyncNotifier<MyResumePreference?> {
+abstract class _$EditProfile
+    extends BuildlessAutoDisposeAsyncNotifier<EditProfileData?> {
   late final WidgetRef context;
 
-  FutureOr<MyResumePreference?> build(
+  FutureOr<EditProfileData?> build(
     WidgetRef context,
   );
 }
 
-/// See also [GetPreference].
-@ProviderFor(GetPreference)
-const getPreferenceProvider = GetPreferenceFamily();
+/// See also [EditProfile].
+@ProviderFor(EditProfile)
+const editProfileProvider = EditProfileFamily();
 
-/// See also [GetPreference].
-class GetPreferenceFamily extends Family<AsyncValue<MyResumePreference?>> {
-  /// See also [GetPreference].
-  const GetPreferenceFamily();
+/// See also [EditProfile].
+class EditProfileFamily extends Family<AsyncValue<EditProfileData?>> {
+  /// See also [EditProfile].
+  const EditProfileFamily();
 
-  /// See also [GetPreference].
-  GetPreferenceProvider call(
+  /// See also [EditProfile].
+  EditProfileProvider call(
     WidgetRef context,
   ) {
-    return GetPreferenceProvider(
+    return EditProfileProvider(
       context,
     );
   }
 
   @override
-  GetPreferenceProvider getProviderOverride(
-    covariant GetPreferenceProvider provider,
+  EditProfileProvider getProviderOverride(
+    covariant EditProfileProvider provider,
   ) {
     return call(
       provider.context,
@@ -77,30 +77,30 @@ class GetPreferenceFamily extends Family<AsyncValue<MyResumePreference?>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'getPreferenceProvider';
+  String? get name => r'editProfileProvider';
 }
 
-/// See also [GetPreference].
-class GetPreferenceProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    GetPreference, MyResumePreference?> {
-  /// See also [GetPreference].
-  GetPreferenceProvider(
+/// See also [EditProfile].
+class EditProfileProvider extends AutoDisposeAsyncNotifierProviderImpl<
+    EditProfile, EditProfileData?> {
+  /// See also [EditProfile].
+  EditProfileProvider(
     WidgetRef context,
   ) : this._internal(
-          () => GetPreference()..context = context,
-          from: getPreferenceProvider,
-          name: r'getPreferenceProvider',
+          () => EditProfile()..context = context,
+          from: editProfileProvider,
+          name: r'editProfileProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$getPreferenceHash,
-          dependencies: GetPreferenceFamily._dependencies,
+                  : _$editProfileHash,
+          dependencies: EditProfileFamily._dependencies,
           allTransitiveDependencies:
-              GetPreferenceFamily._allTransitiveDependencies,
+              EditProfileFamily._allTransitiveDependencies,
           context: context,
         );
 
-  GetPreferenceProvider._internal(
+  EditProfileProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -113,8 +113,8 @@ class GetPreferenceProvider extends AutoDisposeAsyncNotifierProviderImpl<
   final WidgetRef context;
 
   @override
-  FutureOr<MyResumePreference?> runNotifierBuild(
-    covariant GetPreference notifier,
+  FutureOr<EditProfileData?> runNotifierBuild(
+    covariant EditProfile notifier,
   ) {
     return notifier.build(
       context,
@@ -122,10 +122,10 @@ class GetPreferenceProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  Override overrideWith(GetPreference Function() create) {
+  Override overrideWith(EditProfile Function() create) {
     return ProviderOverride(
       origin: this,
-      override: GetPreferenceProvider._internal(
+      override: EditProfileProvider._internal(
         () => create()..context = context,
         from: from,
         name: null,
@@ -138,14 +138,14 @@ class GetPreferenceProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<GetPreference, MyResumePreference?>
+  AutoDisposeAsyncNotifierProviderElement<EditProfile, EditProfileData?>
       createElement() {
-    return _GetPreferenceProviderElement(this);
+    return _EditProfileProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is GetPreferenceProvider && other.context == context;
+    return other is EditProfileProvider && other.context == context;
   }
 
   @override
@@ -157,19 +157,18 @@ class GetPreferenceProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 }
 
-mixin GetPreferenceRef
-    on AutoDisposeAsyncNotifierProviderRef<MyResumePreference?> {
+mixin EditProfileRef on AutoDisposeAsyncNotifierProviderRef<EditProfileData?> {
   /// The parameter `context` of this provider.
   WidgetRef get context;
 }
 
-class _GetPreferenceProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<GetPreference,
-        MyResumePreference?> with GetPreferenceRef {
-  _GetPreferenceProviderElement(super.provider);
+class _EditProfileProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<EditProfile,
+        EditProfileData?> with EditProfileRef {
+  _EditProfileProviderElement(super.provider);
 
   @override
-  WidgetRef get context => (origin as GetPreferenceProvider).context;
+  WidgetRef get context => (origin as EditProfileProvider).context;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

@@ -168,9 +168,9 @@ class _ChatDetailsState extends ConsumerState<ChatConversations> {
       floatingActionButton: (ref.watch(pixelsPro) > 1000) ? IconButton(
         onPressed: () { scrollDown(duration: 100, trig: false); },
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-          elevation: MaterialStateProperty.all<double>(5.0),
-          shadowColor: MaterialStateProperty.all<Color>(Colors.black),
+          backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
+          elevation: WidgetStateProperty.all<double>(5.0),
+          shadowColor: WidgetStateProperty.all<Color>(Colors.black),
         ),
         icon: const Icon(Icons.arrow_downward, size: 20,),
       ) : null,

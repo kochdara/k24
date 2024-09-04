@@ -6,7 +6,7 @@ part of 'resume_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getResumeInfoHash() => r'e3949a63b1fb09c2e362895c12e2ae1761b2aa3f';
+String _$getResumeInfoHash() => r'437ff77c2785019ddd23e5fbc3a32787cd6ec9e0';
 
 /// Copied from Dart SDK
 class _SystemHash {

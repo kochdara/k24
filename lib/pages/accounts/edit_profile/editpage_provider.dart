@@ -13,44 +13,63 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../helpers/helper.dart';
 import '../../../serialization/accounts/edit_profile/edit_profile_serial.dart';
 
+part 'editpage_provider.g.dart';
+
 final myWidgets = MyWidgets();
 
-// @riverpod
-// class EditProfile extends _$EditProfile {
-//   EditProfileData? build() => EditProfileData();
-//   void setNew({ String? cover }) {
-//     if(cover != null) state = { ...state,  };
-//   }
-// }
+@riverpod
+class EditProfile extends _$EditProfile {
+  final dio = Dio();
 
-Future<EditProfileData?> getEditProfile(WidgetRef context) async {
-  final String? accessTokens = context.watch(usersProvider).tokens?.access_token;
+  @override
+  FutureOr<EditProfileData?> build(WidgetRef context) async {
+    final String? accessTokens = context.watch(usersProvider).tokens?.access_token;
 
-  try {
-    final String subs = 'me/profile?lang=$lang';
-    final res = await Dio().get('$baseUrl/$subs', options: Options(headers: {
-      'Access-Token': accessTokens
-    }));
+    try {
+      final String subs = 'me/profile?lang=$lang';
+      final res = await dio.get('$baseUrl/$subs', options: Options(headers: {
+        'Access-Token': accessTokens,
+      }));
 
-    if (res.statusCode == 200) {
-      final resp = EditProfileSerial.fromJson(res.data ?? {});
-      return resp.data;
+      if (res.statusCode == 200) {
+        final resp = EditProfileSerial.fromJson(res.data ?? {});
+        return resp.data;
+      }
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        return build(context); // Retry the request after refreshing the token
+      }
+      print('Dio error: ${e.message}');
+    } catch (e, stacktrace) {
+      print('Error: $e');
+      print(stacktrace);
     }
-  } on DioException catch (e) {
-    final response = e.response;
-    // Handle Dio-specific errors
-    if (response?.statusCode == 401) {
-      // Token might have expired, try to refresh the token
-      await checkTokens(context);
-      return await getEditProfile(context); // Retry the request after refreshing the token
-    }
-    print('Dio error: ${e.message}');
-  } catch (e, stacktrace) {
-    print('Error: $e');
-    print(stacktrace);
+    return EditProfileData();
   }
-  return null;
+
+  Future<void> updateAt(String type, dynamic value) async {
+    final newMap = state.valueOrNull;
+    if (newMap != null) {
+      switch(type) {
+        case 'upload_cover':
+          if(value is String) newMap.cover?.url = value;
+          break;
+        case 'upload_profile':
+          if(value is String) newMap.photo?.url = value;
+          break;
+        default:
+          break;
+      }
+      state = AsyncData(newMap);
+    }
+  }
+
 }
+
 
 class RestAPIService {
   final dio = Dio();

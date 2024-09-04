@@ -199,7 +199,10 @@ class _ConversationCommentPageState extends ConsumerState<ConversationCommentPag
                       else 'id': '${objectData.data?.id}',
                       'comment': controller.text,
                     };
-                    futureAwait(duration: 250, () { controller.clear(); });
+                    futureAwait(duration: 250, () {
+                      controller.clear();
+                      ref.read(replyIdPro.notifier).state = null;
+                    });
                     final result = await sendComment.submitAddComment(data, ref);
                     print(result.toJson());
                     print(data);

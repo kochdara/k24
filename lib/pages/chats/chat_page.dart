@@ -255,7 +255,7 @@ class _ChatPageBuilderState extends ConsumerState<ChatPageBuilder> {
                               ),
                             ],
                           ),
-                          subtitle: labels.label(val.last_message?.message ?? '', fontSize: 13, color: (val.last_message?.is_read == false) ? Colors.black87 : Colors.black45, maxLines: 2),
+                          subtitle: labels.label('${val.last_message?.folder == 'send' ? 'You: ' : ''}${val.last_message?.message ?? ''}', fontSize: 13, color: (val.last_message?.is_read == false) ? Colors.black87 : Colors.black45, maxLines: 2),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                           shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50, width: 1)),
                           onTap: () {

@@ -12,8 +12,10 @@ import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/accounts/edit_profile/editpage_provider.dart';
 import 'package:k24/pages/listing/sub_provider.dart';
+import 'package:k24/pages/more_provider.dart';
 import 'package:k24/serialization/filters/provinces.dart';
 import 'package:k24/widgets/buttons.dart';
+import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/forms.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
@@ -53,14 +55,12 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   late TextEditingController locController;
   late TextEditingController addController;
   String dateFormat = '';
-  late StateProvider<EditProfileData?> editPro;
   final uploadData = Provider((ref) => RestAPIService());
 
   @override
   void initState() {
     super.initState();
 
-    editPro = StateProvider((ref) => EditProfileData());
     fnController = TextEditingController();
     lnController = TextEditingController();
     yrController = TextEditingController();
@@ -72,11 +72,11 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     locController = TextEditingController();
     addController = TextEditingController();
 
-    futureAwait(duration: 250, () async {
+    futureAwait(duration: 1000, () async {
+      if(!mounted) return;
       ref.read(loadingPro.notifier).state = true;
-      final userPro = await getEditProfile(ref);
-      final value = userPro;
-      editPro = StateProvider((ref) => value);
+      final userPro = ref.watch(editProfileProvider(ref));
+      final value = userPro.valueOrNull;
       (value?.toJson() ?? {}).forEach((key, value) {
         if(value is String || value is bool) {
           if(key == 'dob') {
@@ -132,9 +132,11 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     final hidden = ref.watch(hiddenPro);
     final rHidden = ref.read(hiddenPro.notifier);
     final resultSet = ref.watch(newMap);
-    final editData = ref.watch(editPro);
-    final edit = ref.read(editPro.notifier);
     final uploadImg = ref.watch(uploadData);
+
+    final provider = editProfileProvider(ref);
+    final userPro = ref.watch(provider);
+    final editData = userPro.valueOrNull;
 
     return Scaffold(
       appBar: AppBar(
@@ -162,7 +164,12 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                       Column(
                         children: [
                           InkWell(
-                            onTap: () => imagePicker1('upload_cover', edit),
+                            onTap: () => showActionSheet(context, [
+                              if(editData?.cover?.url != null) MoreTypeInfo('view', 'view', CupertinoIcons.eye, null, () => viewImage(context, '${editData?.cover?.url}')),
+                              MoreTypeInfo('change', 'Change', CupertinoIcons.pencil_circle, null, () {
+                                imagePicker1('upload_cover', provider);
+                              }),
+                            ]),
                             child: Container(
                               color: config.primaryAppColor.shade600,
                               height: 200,
@@ -189,7 +196,12 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                       Positioned(
                         bottom: 10,
                         child: InkWell(
-                          onTap: () => imagePicker1('upload_profile', edit),
+                          onTap: () => showActionSheet(context, [
+                            if(editData?.photo?.url != null) MoreTypeInfo('view', 'view', CupertinoIcons.eye, null, () => viewImage(context, '${editData?.photo?.url}')),
+                            MoreTypeInfo('change', 'Change', CupertinoIcons.pencil_circle, null, () {
+                              imagePicker1('upload_profile', provider);
+                            }),
+                          ]),
                           child: Stack(
                             children: [
                               Container(
@@ -460,6 +472,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                                 final res = await uploadImg.uploadData(data, ref);
                                 if (res != null) {
                                   futureAwait(duration: 500, () {
+                                    if(!mounted) return;
                                     Navigator.pop(context);
                                   });
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -498,6 +511,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     final resultSet = ref.watch(newMap);
     if(resultSet['auto_update_profile_picture'] != null) {
       futureAwait(duration: 100, () {
+        if(!mounted) return;
         ref.read(valuePro.notifier).state = bool.tryParse(resultSet['auto_update_profile_picture'].toString()) ?? false;
       });
     }
@@ -523,7 +537,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     print(ref.watch(newMap));
   }
 
-  Future<void> imagePicker1(String type, StateController<EditProfileData?> edit) async {
+  Future<void> imagePicker1(String type, EditProfileProvider provider) async {
     final uploadImg = ref.watch(uploadData);
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -538,15 +552,8 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         "file": multipartImage,
       }, ref, type);
       if(res.image != null) {
-        edit.update((state) {
-          final newMap = state;
-          if(type == 'upload_cover') {
-            newMap?.cover?.url =  res.image;
-          } else {
-            newMap?.photo?.url =  res.image;
-          }
-          return newMap;
-        });
+        alertSnack(context, '$type updated success!.');
+        ref.read(provider.notifier).updateAt(type, res.photo?.url);
       }
       print(res.toJson());
     }

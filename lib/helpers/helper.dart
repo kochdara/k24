@@ -18,9 +18,11 @@ FutureOr<String?> checkTokens(WidgetRef ref) async {
   try {
     expDate = JwtDecoder.getExpirationDate('${tokens.tokens?.access_token}');
     /// exchange token ///
-    if(expDate.compareTo(DateTime.now().subtract(const Duration(seconds: 2))) <= 0) {
+    if(expDate.isBefore(DateTime.now())) {
+    // if(expDate.compareTo(DateTime.now().subtract(const Duration(seconds: 2))) <= 0) {
       final tokens = await myService.getNewToken(ref);
       print('@# exchange');
+      await futureAwait(duration: 1500, () {},);
       return tokens.access_token;
     }
 

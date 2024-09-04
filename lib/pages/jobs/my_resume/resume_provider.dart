@@ -1,13 +1,23 @@
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/main/home_provider.dart';
+import 'package:k24/pages/more_provider.dart';
 import 'package:k24/serialization/jobs/my_resume/my_resume_serial.dart';
+import 'package:k24/widgets/my_widgets.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../widgets/dialog_builder.dart';
+
 part 'resume_provider.g.dart';
+
+final myWidgets = MyWidgets();
 
 @riverpod
 class GetResumeInfo extends _$GetResumeInfo {
@@ -178,6 +188,12 @@ class GetResumeInfo extends _$GetResumeInfo {
           }
           break;
 
+        case 'attachment':
+          final datum = newList.data;
+          if (datum?.attachment?.id == ids) {
+            datum?.attachment = null;
+          }
+          break;
         case 'references':
           final datum = newList.data?.references ?? [];
           final index = datum.indexWhere((element) => element?.id == ids);
@@ -218,5 +234,141 @@ class GetResumeInfo extends _$GetResumeInfo {
       }
     }
     state = AsyncData(newList);
+  }
+
+  Future<void> updateAt(String type, dynamic value) async {
+    final newList = state.valueOrNull;
+    if (newList != null) {
+      switch(type) {
+        case 'attachment':
+          final newAttach = MyResumeAttachment.fromJson(value ?? {});
+          newList.data?.attachment = newAttach;
+          break;
+
+        default:
+          break;
+      }
+      state = AsyncData(newList);
+    }
+  }
+}
+
+
+class MoreApiService {
+  final dio = Dio();
+
+  Future<PersonalSerial?> downloadAttachment(WidgetRef ref, Map<String, dynamic> data, ) async {
+    dialogBuilder(ref.context);
+    final tokens = ref.watch(usersProvider);
+    final formData = FormData.fromMap(data);
+    final subs = 'me/resume/download?lang=$lang';
+    try {
+      final res = await dio.post('$jobUrl/$subs', data: formData, options: Options(headers: {
+        'Access-Token': tokens.tokens?.access_token
+      }));
+      Navigator.pop(ref.context);
+      return PersonalSerial.fromJson(res.data ?? {});
+    } on DioException catch (e) {
+      Navigator.pop(ref.context);
+      if (e.response != null) {
+        // Handle DioError with response
+        final response = e.response;
+        // Handle Dio-specific errors
+        if (response?.statusCode == 401) {
+          // Token might have expired, try to refresh the token
+          await checkTokens(ref);
+          return await downloadAttachment(ref, data); // Retry the request after refreshing the token
+        } else {
+          myWidgets.showAlert(ref.context, '${e.response ?? 'Sorry you can\'t download this attachment.\nPlease try again.'}', title: 'Alert');
+        }
+      }
+    } catch (e) {
+      print(e);
+    }
+    return PersonalSerial();
+  }
+
+  Future<PersonalSerial?> submitAttachment(WidgetRef ref , Map<String, dynamic> data, ) async {
+    dialogBuilder(ref.context);
+    final tokens = ref.watch(usersProvider);
+    final formData = FormData.fromMap(data);
+    final subs = 'me/resume/attachment?lang=$lang';
+    try {
+      final res = await dio.post('$jobUrl/$subs', data: formData, options: Options(headers: {
+        'Access-Token': tokens.tokens?.access_token
+      }));
+      Navigator.pop(ref.context);
+      return PersonalSerial.fromJson(res.data ?? {});
+    } on DioException catch (e) {
+      Navigator.pop(ref.context);
+      if (e.response != null) {
+        // Handle DioError with response
+        final response = e.response;
+        // Handle Dio-specific errors
+        if (response?.statusCode == 401) {
+          // Token might have expired, try to refresh the token
+          await checkTokens(ref);
+          return await submitAttachment(ref, data); // Retry the request after refreshing the token
+        } else {
+          myWidgets.showAlert(ref.context, '${e.response ?? 'Sorry you can\'t update this attachment.\nPlease try again.'}', title: 'Alert');
+        }
+      }
+    } catch (e) {
+      print(e);
+    }
+    return PersonalSerial();
+  }
+
+  Future<PersonalSerial?> deleteAttachment(WidgetRef ref,) async {
+    dialogBuilder(ref.context);
+    final tokens = ref.watch(usersProvider);
+    final subs = 'me/resume/attachment?lang=$lang';
+    try {
+      final res = await dio.delete('$jobUrl/$subs', options: Options(headers: {
+        'Access-Token': tokens.tokens?.access_token
+      }));
+      Navigator.pop(ref.context);
+      return PersonalSerial.fromJson(res.data ?? {});
+    } on DioException catch (e) {
+      Navigator.pop(ref.context);
+      if (e.response != null) {
+        // Handle DioError with response
+        final response = e.response;
+        // Handle Dio-specific errors
+        if (response?.statusCode == 401) {
+          // Token might have expired, try to refresh the token
+          await checkTokens(ref);
+          return await deleteAttachment(ref); // Retry the request after refreshing the token
+        } else {
+          myWidgets.showAlert(ref.context, '${e.response ?? 'Sorry you can\'t delete this attachment.\nPlease try again.'}', title: 'Alert');
+        }
+      }
+    } catch (e) {
+      print(e);
+    }
+    return PersonalSerial();
+  }
+}
+
+Future<void> filePickerAttach(WidgetRef ref, GetResumeInfoProvider provider) async {
+  final sendApi = MoreApiService();
+  FilePickerResult? result = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowMultiple: false,
+    allowedExtensions: ['doc', 'DOCX', 'pdf', 'txt'],
+  );
+
+  if (result != null) {
+    final xFiles = result.files.first.xFile;
+    final multipartImage = MultipartFile.fromFileSync(xFiles.path, filename: xFiles.name);
+    final res = await sendApi.submitAttachment(ref, {
+      "file": multipartImage,
+      "name": xFiles.name,
+    });
+    if(res?.status == 'success') {
+      alertSnack(ref.context, '${res?.message}');
+      ref.read(provider.notifier).updateAt('attachment', res?.data);
+    }
+    print(res?.toJson());
   }
 }

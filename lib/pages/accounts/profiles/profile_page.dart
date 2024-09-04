@@ -10,6 +10,7 @@ import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/accounts/edit_profile/edit_page.dart';
 import 'package:k24/pages/accounts/profiles/profile_provider.dart';
+import 'package:k24/pages/follows/follows_page.dart';
 import 'package:k24/pages/jobs/apply_job/apply_job_page.dart';
 import 'package:k24/pages/jobs/job_applications/application_provider.dart';
 import 'package:k24/pages/jobs/job_applications/jobapplications_page.dart';
@@ -213,7 +214,7 @@ class BodyProfile extends StatelessWidget {
                   children: [
                     Stack(
                       children: [
-                        // cover of image
+                        /// cover of image ///
                         Column(
                           children: [
                             InkWell(
@@ -236,7 +237,7 @@ class BodyProfile extends StatelessWidget {
                             ),
                           ],
                         ),
-                        // profile image
+                        /// profile image ///
                         Positioned(
                           bottom: 10,
                           left: 10,
@@ -280,7 +281,7 @@ class BodyProfile extends StatelessWidget {
                             ),
                           ),
                         ),
-                        // edit profile
+                        /// edit profile ///
                         Positioned(
                             bottom: 4,
                             right: 10,
@@ -309,7 +310,7 @@ class BodyProfile extends StatelessWidget {
                         )
                       ],
                     ),
-                    // name, username, followers, following and subscriptions
+                    /// name, username, followers, following and subscriptions ///
                     Container(
                       color: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -317,7 +318,7 @@ class BodyProfile extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Wrap(
-                            spacing: 4,
+                            spacing: 2,
                             runSpacing: 4,
                             direction: Axis.vertical,
                             children: [
@@ -333,11 +334,19 @@ class BodyProfile extends StatelessWidget {
                                       border: Border.all(color: config.primaryAppColor.shade600),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
-                                    child: labels.label('${userKey.user?.membership?.title}', color: config.primaryAppColor.shade600, fontSize: 13),
+                                    child: labels.label('${userKey.user?.membership?.title}', color: config.primaryAppColor.shade600, fontSize: 12),
                                   ),
                                 ],
                               ),
-                              labels.label('${datum?.followers ?? '0'} followers • ${datum?.following ?? '0'} Following', color: Colors.black54, fontSize: 14),
+                              Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: () {
+                                    routeNoAnimation(context, pageBuilder: const FollowsPages());
+                                  },
+                                  child: labels.label('${datum?.followers ?? '0'} followers • ${datum?.following ?? '0'} Following', color: Colors.black54, fontSize: 14),
+                                ),
+                              ),
                             ],
                           ),
 

@@ -23,6 +23,7 @@ import '../../../helpers/helper.dart';
 import '../../../serialization/accounts/profiles_public/profile_serial.dart';
 import '../../../serialization/grid_card/grid_card.dart';
 import '../../chats/conversations/chat_conversation.dart';
+import '../../follows/follows_page.dart';
 
 final Labels labels = Labels();
 final Buttons buttons = Buttons();
@@ -296,7 +297,17 @@ class BodyProfile extends StatelessWidget {
                                 children: [
                                   labels.selectLabel('${datum?.name}', color: Colors.black87, fontSize: 22, fontWeight: FontWeight.w500),
                                   labels.selectLabel('@${datum?.username}', color: Colors.black54, fontSize: 14),
-                                  labels.label('${datum?.followers ?? '0'} followers • ${datum?.following ?? '0'} Following', color: Colors.black87, fontSize: 14),
+                                  Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: () {
+                                        routeNoAnimation(context, pageBuilder: FollowsPages(
+                                          profile: datum,
+                                        ));
+                                      },
+                                      child: labels.label('${datum?.followers ?? '0'} followers • ${datum?.following ?? '0'} Following', color: Colors.black87, fontSize: 14),
+                                    ),
+                                  ),
 
                                   if(datum?.verified != null) labels.labelIcon(
                                     leftIcon: const Padding(

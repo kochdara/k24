@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/converts.dart';
+import 'package:k24/helpers/functions.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/jobs/my_resume/educations/educations_page.dart';
 import 'package:k24/pages/jobs/my_resume/educations/educations_provider.dart';
@@ -689,19 +690,39 @@ class ResumeBody extends ConsumerWidget {
                             title: 'Attach file',
                             subTitle: 'Support file type: doc, DOCX, PDF, txt (Max size: 5MB)',
                             status: (attachment?.toJson() ?? {}).isEmpty ? 'add' : null,
-                            onPressed: () { },
+                            onPressed: () async { await filePickerAttach(ref, provider); },
                           ),
 
                           if((attachment?.toJson() ?? {}).isNotEmpty) ListTile(
                             dense: true,
                             visualDensity: VisualDensity.compact,
-                            onTap: () { },
+                            onTap: () async { await openLinkFunction(attachment?.url ?? ''); },
                             contentPadding: EdgeInsets.zero,
                             leading: const Icon(Icons.file_open_outlined, color: Colors.black54, size: 28,),
                             title: labels.label(attachment?.name ?? 'N/A', fontSize: 14, color: Colors.black54,),
                             subtitle: labels.label('${attachment?.size ?? 'N/A'}', fontSize: 11, color: Colors.black54,),
+                            trailing: IconButton(onPressed: () {
+                              final sendApi = MoreApiService();
+                              showActionSheet(context, [
+                                MoreTypeInfo('view', 'View', null, null, () async {
+                                  await openLinkFunction(attachment?.url ?? '');
+                                }),
+                                MoreTypeInfo('change', 'Change', null, null, () async {
+                                  await filePickerAttach(ref, provider);
+                                }),
+                                MoreTypeInfo('remove', 'Remove', null, null, () async {
+                                  final result = await sendApi.deleteAttachment(ref,);
+                                  if(result?.status == 'success') {
+                                    alertSnack(context, '${result?.message}');
+                                    ref.read(provider.notifier).removeAt(attachment?.id ?? '', 'attachment');
+                                  }
+                                },),
+                              ]);
+                            }, icon: const Icon(Icons.more_vert_rounded),),
                           )
-                          else ButtonAddUI(title: 'Attach file', status: 'Add', onPressed: () { }),
+                          else ButtonAddUI(title: 'Attach file', status: 'Add', onPressed: () async {
+                            await filePickerAttach(ref, provider);
+                          }),
 
                         ],
                       ),

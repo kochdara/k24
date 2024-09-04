@@ -13,6 +13,8 @@ import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
 
 import '../../../helpers/config.dart';
+import '../../../helpers/functions.dart';
+import '../../more_provider.dart';
 
 final myWidgets = MyWidgets();
 final labels = Labels();
@@ -44,8 +46,21 @@ class _CheckInfoPageState extends ConsumerState<CheckInfoResumePage> {
         title: labels.label('Resume (CV)', fontSize: 20, fontWeight: FontWeight.w500),
         titleSpacing: 6,
         actions: [
-          if(checkResume.hasValue) IconButton(onPressed: () {
-            //
+          if(checkResume.hasValue) IconButton(onPressed: () async {
+            final sendApi = MoreApiService();
+            final result = await sendApi.downloadAttachment(ref, {
+              'summary': 'true',
+              'educations': 'all',
+              'experiences': 'all',
+              'skills': 'all',
+              'languages': 'all',
+              'hobbies': 'true',
+              'references': 'all',
+            });
+            if(result?.data != null) {
+              alertSnack(context, 'Success');
+              await openLinkFunction(result?.data['url'] ?? '');
+            }
           }, icon: const Icon(Icons.playlist_add_check_circle_outlined, color: Colors.white70, size: 28,))
         ],
       ),
