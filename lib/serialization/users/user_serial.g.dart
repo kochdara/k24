@@ -272,6 +272,7 @@ SettingUser _$SettingUserFromJson(Map json) => SettingUser(
           ?.map(const ToString().fromJson)
           .toList(),
       privacy: const ToBool().fromJson(json['privacy']),
+      availability: const ToBool().fromJson(json['availability']),
       payment: (json['payment'] as List<dynamic>?)
           ?.map(const ToString().fromJson)
           .toList(),
@@ -290,6 +291,8 @@ Map<String, dynamic> _$SettingUserToJson(SettingUser instance) =>
       'job': instance.job?.map(const ToString().toJson).toList(),
       'privacy': _$JsonConverterToJson<Object?, bool>(
           instance.privacy, const ToBool().toJson),
+      'availability': _$JsonConverterToJson<Object?, bool>(
+          instance.availability, const ToBool().toJson),
       'payment': instance.payment?.map(const ToString().toJson).toList(),
     };
 
@@ -304,6 +307,11 @@ MessageLogin _$MessageLoginFromJson(Map json) => MessageLogin(
               (k, e) => MapEntry(k as String, e),
             )),
       data: json['data'],
+      next_page: json['next_page'] == null
+          ? null
+          : NextPage.fromJson((json['next_page'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
     );
 
 Map<String, dynamic> _$MessageLoginToJson(MessageLogin instance) =>
@@ -314,6 +322,7 @@ Map<String, dynamic> _$MessageLoginToJson(MessageLogin instance) =>
       'code': const ToString().toJson(instance.code),
       'errors': instance.errors?.toJson(),
       'data': instance.data,
+      'next_page': instance.next_page?.toJson(),
     };
 
 KeyErrors _$KeyErrorsFromJson(Map json) => KeyErrors(
@@ -349,4 +358,39 @@ PasswordKey _$PasswordKeyFromJson(Map json) => PasswordKey(
 Map<String, dynamic> _$PasswordKeyToJson(PasswordKey instance) =>
     <String, dynamic>{
       'message': const ToString().toJson(instance.message),
+    };
+
+NextPage _$NextPageFromJson(Map json) => NextPage(
+      page: const ToString().fromJson(json['page']),
+      data: json['data'] == null
+          ? null
+          : NextPageData.fromJson((json['data'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
+    );
+
+Map<String, dynamic> _$NextPageToJson(NextPage instance) => <String, dynamic>{
+      'page': const ToString().toJson(instance.page),
+      'data': instance.data?.toJson(),
+    };
+
+NextPageData _$NextPageDataFromJson(Map json) => NextPageData(
+      verify: json['verify'] == null
+          ? null
+          : Verify.fromJson(json['verify'] as Map),
+    );
+
+Map<String, dynamic> _$NextPageDataToJson(NextPageData instance) =>
+    <String, dynamic>{
+      'verify': instance.verify?.toJson(),
+    };
+
+Verify _$VerifyFromJson(Map json) => Verify(
+      type: const ToString().fromJson(json['type']),
+      value: const ToString().fromJson(json['value']),
+    );
+
+Map<String, dynamic> _$VerifyToJson(Verify instance) => <String, dynamic>{
+      'type': const ToString().toJson(instance.type),
+      'value': const ToString().toJson(instance.value),
     };

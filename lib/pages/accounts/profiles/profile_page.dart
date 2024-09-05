@@ -75,6 +75,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   Future<void> _fetchMoreData() async {
+    if(!mounted) return;
     final watch = ref.watch(isLoadingPro);
     final read = ref.read(isLoadingPro.notifier);
     final readLen = ref.read(lengthPro.notifier);
@@ -97,11 +98,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final profilePro = ref.watch(providerPro);
     final provider = ownProfileListProvider(ref, mapVal);
     final ownProfilePro = ref.watch(provider);
+    final loginPro = loginInformationProvider(ref,);
 
     return Scaffold(
       backgroundColor: config.backgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
+          if(!mounted) return;
+          ref.refresh(loginPro.future);
           ref.refresh(providerPro.future);
           ref.read(provider.notifier).refresh();
           ref.read(isLoadingPro.notifier).state = false;
@@ -118,6 +122,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           scrollController: scrollController,
           newMap: newMap,
           selectedSegment: selectedSegment,
+          loginPro: loginPro,
         ),
       ),
       bottomNavigationBar: myWidgets.bottomBarPage(
@@ -142,6 +147,7 @@ class BodyProfile extends StatelessWidget {
     required this.scrollController,
     required this.newMap,
     required this.selectedSegment,
+    required this.loginPro,
   });
 
   final bool isLoading;
@@ -153,12 +159,16 @@ class BodyProfile extends StatelessWidget {
   final AsyncValue<List<DatumProfile>> ownProfilePro;
   final StateProvider<Map<String, dynamic>> newMap;
   final StateProvider<TypeSelect> selectedSegment;
+  final LoginInformationProvider loginPro;
 
   @override
   Widget build(BuildContext context) {
-    final userKey = ref.watch(usersProvider);
+    final userPro = ref.watch(usersProvider);
     final getBadges = ref.watch(getBadgesAppProvider(ref));
     final valBadges = getBadges.valueOrNull;
+
+    final loginProvider = ref.watch(loginPro);
+    final userKey = loginProvider.valueOrNull ?? userPro.user;
 
     return CustomScrollView(
       controller: scrollController,
@@ -173,13 +183,13 @@ class BodyProfile extends StatelessWidget {
                 color: config.secondaryColor.shade50,
                 borderRadius: BorderRadius.circular(60),
               ),
-              child: (userKey.user?.photo?.url != null) ? CircleAvatar(
+              child: (userKey?.photo?.url != null) ? CircleAvatar(
                 backgroundColor: Colors.black12,
-                backgroundImage: NetworkImage(userKey.user?.photo?.url ?? ''),
+                backgroundImage: NetworkImage(userKey?.photo?.url ?? ''),
               ) : Icon(Icons.person, color: config.secondaryColor.shade200, size: 26),
             ),
           ),
-          title: labels.label('${userKey.user?.name}', fontSize: 20, fontWeight: FontWeight.w500),
+          title: labels.label('${userKey?.name}', fontSize: 20, fontWeight: FontWeight.w500),
           titleSpacing: 6,
           actions: [
             IconButton(
@@ -322,19 +332,19 @@ class BodyProfile extends StatelessWidget {
                             runSpacing: 4,
                             direction: Axis.vertical,
                             children: [
-                              labels.label('${userKey.user?.name}', color: Colors.black87, fontSize: 22, fontWeight: FontWeight.w500),
+                              labels.label('${userKey?.name}', color: Colors.black87, fontSize: 22, fontWeight: FontWeight.w500),
                               Wrap(
                                 spacing: 8,
                                 crossAxisAlignment: WrapCrossAlignment.center,
                                 children: [
-                                  labels.label('@${userKey.user?.username}', color: Colors.black54, fontSize: 14),
-                                  if(userKey.user?.membership?.title != null) Container(
+                                  labels.label('@${userKey?.username}', color: Colors.black54, fontSize: 14),
+                                  if(userKey?.membership?.title != null) Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                                     decoration: BoxDecoration(
                                       border: Border.all(color: config.primaryAppColor.shade600),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
-                                    child: labels.label('${userKey.user?.membership?.title}', color: config.primaryAppColor.shade600, fontSize: 12),
+                                    child: labels.label('${userKey?.membership?.title}', color: config.primaryAppColor.shade600, fontSize: 12),
                                   ),
                                 ],
                               ),

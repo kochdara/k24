@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
+import 'package:k24/pages/accounts/profiles/profile_page.dart';
+import 'package:k24/pages/chats/chat_page.dart';
 import 'package:k24/pages/main/home.dart';
+import 'package:k24/pages/notifys/notify_page.dart';
+import 'package:k24/pages/posts/post_page.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -47,7 +51,15 @@ class MyApp extends StatelessWidget {
       scrollBehavior: ScrollConfiguration.of(context).copyWith(
         physics: const ClampingScrollPhysics()
       ),
-      home: const HomePage(title: 'Demo App'),
+      // home: const HomePage(title: 'Khmer24'),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const HomePage(title: 'Khmer24'),
+        '/notify': (context) => const NotifyPage(),
+        '/post': (context) => const PostProductPage(),
+        '/chat': (context) => const ChatPageView(selectedIndex: 3),
+        '/profile': (context) => const ProfilePage(selectedIndex: 4),
+      },
     );
   }
 }

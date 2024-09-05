@@ -58,23 +58,24 @@ class MyWidgets {
           currentIndex: selectedIndex,
           type: BottomNavigationBarType.fixed,
           onTap: (value) async {
-            DateTime expDate = DateTime.now();
+            // DateTime expDate = DateTime.now();
             final tokens = ref.watch(usersProvider);
             String? accessToken = tokens.tokens?.access_token;
 
-            try {
-              expDate = JwtDecoder.getExpirationDate(accessToken!);
-              /// exchange token ///
-              if(expDate.isBefore(DateTime.now())) {
-                final newToken = await myService.getNewToken(ref);
-                accessToken = newToken.access_token;
-                expDate = JwtDecoder.getExpirationDate(accessToken!);
-              }
-            } catch(e) {
-              print('@# $e');
-            }
-            if(value != 0 && expDate.isBefore(DateTime.now())) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckLoginPage()));
+            // try {
+            //   expDate = JwtDecoder.getExpirationDate(accessToken!);
+            //   /// exchange token ///
+            //   if(expDate.isBefore(DateTime.now())) {
+            //     final newToken = await myService.getNewToken(ref);
+            //     accessToken = newToken.access_token;
+            //     expDate = JwtDecoder.getExpirationDate(accessToken!);
+            //   }
+            // } catch(e) {
+            //   print('@# $e');
+            // }
+            if(value != 0 && (accessToken == null)) {
+              routeAnimation(context, pageBuilder: const CheckLoginPage());
+
             } else {
               switch (value) {
                 case 1:

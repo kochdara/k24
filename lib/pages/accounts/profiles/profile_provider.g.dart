@@ -6,7 +6,7 @@ part of 'profile_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$ownProfileListHash() => r'a2c077cee31b709de8251816a205984c2a22f0ed';
+String _$loginInformationHash() => r'36b9d5a64a49c617da5664026ece18378e89ff2a';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -28,6 +28,150 @@ class _SystemHash {
     return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
   }
 }
+
+abstract class _$LoginInformation
+    extends BuildlessAutoDisposeAsyncNotifier<UserProfile?> {
+  late final WidgetRef context;
+
+  FutureOr<UserProfile?> build(
+    WidgetRef context,
+  );
+}
+
+/// See also [LoginInformation].
+@ProviderFor(LoginInformation)
+const loginInformationProvider = LoginInformationFamily();
+
+/// See also [LoginInformation].
+class LoginInformationFamily extends Family<AsyncValue<UserProfile?>> {
+  /// See also [LoginInformation].
+  const LoginInformationFamily();
+
+  /// See also [LoginInformation].
+  LoginInformationProvider call(
+    WidgetRef context,
+  ) {
+    return LoginInformationProvider(
+      context,
+    );
+  }
+
+  @override
+  LoginInformationProvider getProviderOverride(
+    covariant LoginInformationProvider provider,
+  ) {
+    return call(
+      provider.context,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'loginInformationProvider';
+}
+
+/// See also [LoginInformation].
+class LoginInformationProvider extends AutoDisposeAsyncNotifierProviderImpl<
+    LoginInformation, UserProfile?> {
+  /// See also [LoginInformation].
+  LoginInformationProvider(
+    WidgetRef context,
+  ) : this._internal(
+          () => LoginInformation()..context = context,
+          from: loginInformationProvider,
+          name: r'loginInformationProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$loginInformationHash,
+          dependencies: LoginInformationFamily._dependencies,
+          allTransitiveDependencies:
+              LoginInformationFamily._allTransitiveDependencies,
+          context: context,
+        );
+
+  LoginInformationProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.context,
+  }) : super.internal();
+
+  final WidgetRef context;
+
+  @override
+  FutureOr<UserProfile?> runNotifierBuild(
+    covariant LoginInformation notifier,
+  ) {
+    return notifier.build(
+      context,
+    );
+  }
+
+  @override
+  Override overrideWith(LoginInformation Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: LoginInformationProvider._internal(
+        () => create()..context = context,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        context: context,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeAsyncNotifierProviderElement<LoginInformation, UserProfile?>
+      createElement() {
+    return _LoginInformationProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is LoginInformationProvider && other.context == context;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, context.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin LoginInformationRef on AutoDisposeAsyncNotifierProviderRef<UserProfile?> {
+  /// The parameter `context` of this provider.
+  WidgetRef get context;
+}
+
+class _LoginInformationProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<LoginInformation,
+        UserProfile?> with LoginInformationRef {
+  _LoginInformationProviderElement(super.provider);
+
+  @override
+  WidgetRef get context => (origin as LoginInformationProvider).context;
+}
+
+String _$ownProfileListHash() => r'a2c077cee31b709de8251816a205984c2a22f0ed';
 
 abstract class _$OwnProfileList
     extends BuildlessAutoDisposeAsyncNotifier<List<DatumProfile>> {

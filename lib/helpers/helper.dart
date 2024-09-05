@@ -48,6 +48,14 @@ Future routeAnimation(BuildContext context, { required Widget pageBuilder }) {
   );
 }
 
+Future routePopAndPush(BuildContext context, { required Widget pageBuilder }) {
+  if(Navigator.canPop(context)) Navigator.pop(context);
+  return Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => pageBuilder),
+  );
+}
+
 Future<void> futureAwait(void Function() T, { int duration = 1000 }) async {
    await Future.delayed(Duration(milliseconds: duration), T);
 }

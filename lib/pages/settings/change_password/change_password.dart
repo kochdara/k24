@@ -1,9 +1,13 @@
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_validator/form_validator.dart';
 import 'package:k24/helpers/config.dart';
+import 'package:k24/pages/accounts/check_login.dart';
 import 'package:k24/pages/more_provider.dart';
+import 'package:k24/pages/settings/settings_provider.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/forms.dart';
 import 'package:k24/widgets/labels.dart';
@@ -95,14 +99,29 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
 
                     buttons.textButtons(
                       title: 'Submit',
-                      onPressed: () {
+                      onPressed: () async {
                         if(_formKey.currentState!.validate()) {
-                          //
+                          final sendApi = SettingsApiService();
+                          Map<String, dynamic> data = {
+                            'new_password': passController.text,
+                            'confirm_new_password': conPassController.text,
+                          };
+                          final result = await sendApi.dataSubmit(context, ref, 'change_password', data);
+                          if(result?.status == 'success') {
+                            alertSnack(context, result?.message ?? 'Success');
+                            Navigator.of(context).pop();
+
+                          } else {
+                            myWidgets.showAlert(context, result?.message ?? 'Please check password again!.', title: 'Alert',);
+
+                          }
+
                         } else {
                           alertSnack(context, 'Please check validate again!.');
+
                         }
                        },
-                      padSize: 10,
+                      padSize: 12,
                       textSize: 15,
                       textWeight: FontWeight.w600,
                       textColor: Colors.white,

@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_validator/form_validator.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/pages/main/home_provider.dart';
+import 'package:k24/pages/settings/settings_provider.dart';
 import 'package:k24/serialization/accounts/profiles/profiles_own.dart';
 import 'package:k24/serialization/posts/post_serials.dart';
 import 'package:k24/widgets/buttons.dart';
@@ -31,6 +32,53 @@ final labels = Labels();
 final forms = Forms();
 final config = Config();
 final buttons = Buttons();
+
+@riverpod
+class LoginInformation extends _$LoginInformation {
+  final Dio dio = Dio();
+
+  @override
+  Future<UserProfile?> build(WidgetRef context,) async {
+    try {
+      final String? accessToken = context.watch(usersProvider).tokens?.access_token;
+
+      final String subs = 'me?lang=$lang';
+      final Response res = await dio.get('$baseUrl/$subs', options: Options(headers: (accessToken != null) ? {
+        'Access-Token': accessToken,
+      } : null));
+
+      if (res.statusCode == 200) {
+        final dataUser = UserProfile.fromJson(res.data['data'] ?? {});
+        updateUserPro(context, 'user', dataUser);
+        return dataUser;
+      }
+    } on DioException catch (e) {
+      final response = e.response;
+      // Handle Dio-specific errors
+      if (response?.statusCode == 401) {
+        // Token might have expired, try to refresh the token
+        await checkTokens(context);
+        return await build(context,); // Retry the request after refreshing the token
+      }
+      print('Dio error: ${e.message}');
+    } catch (e, stacktrace) {
+      print('Error: $e');
+      print('Stacktrace: $stacktrace');
+    }
+    return UserProfile();
+  }
+
+  Future<void> updateAt(String type, dynamic value) async {
+    final newMap = state.valueOrNull;
+    if(newMap != null) {
+      switch(type) {
+        default:
+          break;
+      }
+      state = AsyncData(newMap);
+    }
+  }
+}
 
 @riverpod
 class OwnProfileList extends _$OwnProfileList {

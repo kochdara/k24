@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'editpage_provider.dart';
+part of 'privacy_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$editProfileHash() => r'169780e4166e64bdda46109ed1264ec67b9045ff';
+String _$getPrivacyHash() => r'ae7b0b8a587e12dba518d8677750729723bd1044';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -29,36 +29,36 @@ class _SystemHash {
   }
 }
 
-abstract class _$EditProfile
-    extends BuildlessAutoDisposeAsyncNotifier<EditProfileData?> {
+abstract class _$GetPrivacy
+    extends BuildlessAutoDisposeAsyncNotifier<PrivacySerial?> {
   late final WidgetRef context;
 
-  FutureOr<EditProfileData?> build(
+  FutureOr<PrivacySerial?> build(
     WidgetRef context,
   );
 }
 
-/// See also [EditProfile].
-@ProviderFor(EditProfile)
-const editProfileProvider = EditProfileFamily();
+/// See also [GetPrivacy].
+@ProviderFor(GetPrivacy)
+const getPrivacyProvider = GetPrivacyFamily();
 
-/// See also [EditProfile].
-class EditProfileFamily extends Family<AsyncValue<EditProfileData?>> {
-  /// See also [EditProfile].
-  const EditProfileFamily();
+/// See also [GetPrivacy].
+class GetPrivacyFamily extends Family<AsyncValue<PrivacySerial?>> {
+  /// See also [GetPrivacy].
+  const GetPrivacyFamily();
 
-  /// See also [EditProfile].
-  EditProfileProvider call(
+  /// See also [GetPrivacy].
+  GetPrivacyProvider call(
     WidgetRef context,
   ) {
-    return EditProfileProvider(
+    return GetPrivacyProvider(
       context,
     );
   }
 
   @override
-  EditProfileProvider getProviderOverride(
-    covariant EditProfileProvider provider,
+  GetPrivacyProvider getProviderOverride(
+    covariant GetPrivacyProvider provider,
   ) {
     return call(
       provider.context,
@@ -77,30 +77,30 @@ class EditProfileFamily extends Family<AsyncValue<EditProfileData?>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'editProfileProvider';
+  String? get name => r'getPrivacyProvider';
 }
 
-/// See also [EditProfile].
-class EditProfileProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    EditProfile, EditProfileData?> {
-  /// See also [EditProfile].
-  EditProfileProvider(
+/// See also [GetPrivacy].
+class GetPrivacyProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<GetPrivacy, PrivacySerial?> {
+  /// See also [GetPrivacy].
+  GetPrivacyProvider(
     WidgetRef context,
   ) : this._internal(
-          () => EditProfile()..context = context,
-          from: editProfileProvider,
-          name: r'editProfileProvider',
+          () => GetPrivacy()..context = context,
+          from: getPrivacyProvider,
+          name: r'getPrivacyProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$editProfileHash,
-          dependencies: EditProfileFamily._dependencies,
+                  : _$getPrivacyHash,
+          dependencies: GetPrivacyFamily._dependencies,
           allTransitiveDependencies:
-              EditProfileFamily._allTransitiveDependencies,
+              GetPrivacyFamily._allTransitiveDependencies,
           context: context,
         );
 
-  EditProfileProvider._internal(
+  GetPrivacyProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -113,8 +113,8 @@ class EditProfileProvider extends AutoDisposeAsyncNotifierProviderImpl<
   final WidgetRef context;
 
   @override
-  FutureOr<EditProfileData?> runNotifierBuild(
-    covariant EditProfile notifier,
+  FutureOr<PrivacySerial?> runNotifierBuild(
+    covariant GetPrivacy notifier,
   ) {
     return notifier.build(
       context,
@@ -122,10 +122,10 @@ class EditProfileProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  Override overrideWith(EditProfile Function() create) {
+  Override overrideWith(GetPrivacy Function() create) {
     return ProviderOverride(
       origin: this,
-      override: EditProfileProvider._internal(
+      override: GetPrivacyProvider._internal(
         () => create()..context = context,
         from: from,
         name: null,
@@ -138,14 +138,14 @@ class EditProfileProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<EditProfile, EditProfileData?>
+  AutoDisposeAsyncNotifierProviderElement<GetPrivacy, PrivacySerial?>
       createElement() {
-    return _EditProfileProviderElement(this);
+    return _GetPrivacyProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is EditProfileProvider && other.context == context;
+    return other is GetPrivacyProvider && other.context == context;
   }
 
   @override
@@ -157,18 +157,18 @@ class EditProfileProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 }
 
-mixin EditProfileRef on AutoDisposeAsyncNotifierProviderRef<EditProfileData?> {
+mixin GetPrivacyRef on AutoDisposeAsyncNotifierProviderRef<PrivacySerial?> {
   /// The parameter `context` of this provider.
   WidgetRef get context;
 }
 
-class _EditProfileProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<EditProfile,
-        EditProfileData?> with EditProfileRef {
-  _EditProfileProviderElement(super.provider);
+class _GetPrivacyProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<GetPrivacy, PrivacySerial?>
+    with GetPrivacyRef {
+  _GetPrivacyProviderElement(super.provider);
 
   @override
-  WidgetRef get context => (origin as EditProfileProvider).context;
+  WidgetRef get context => (origin as GetPrivacyProvider).context;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

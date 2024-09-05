@@ -238,6 +238,7 @@ class SettingUser {
   bool? follow;
   List<String?>? job;
   bool? privacy;
+  bool? availability;
   List<String?>? payment;
 
   SettingUser({
@@ -248,6 +249,7 @@ class SettingUser {
     this.follow,
     this.job,
     this.privacy,
+    this.availability,
     this.payment,
   });
 
@@ -269,6 +271,7 @@ class MessageLogin {
   String? code;
   KeyErrors? errors;
   dynamic data;
+  NextPage? next_page;
 
   MessageLogin({
     this.message,
@@ -277,6 +280,7 @@ class MessageLogin {
     this.code,
     this.errors,
     this.data,
+    this.next_page,
   });
 
   factory MessageLogin.fromJson(Map<String, dynamic>? json) => _$MessageLoginFromJson(json!);
@@ -322,5 +326,48 @@ class PasswordKey {
 
   factory PasswordKey.fromJson(Map<String, dynamic>? json) => _$PasswordKeyFromJson(json!);
   Map? toJson() => _$PasswordKeyToJson(this);
+
+}
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+class NextPage {
+  String? page;
+  NextPageData? data;
+
+  NextPage({
+    this.page,
+    this.data,
+  });
+
+  factory NextPage.fromJson(Map<String, dynamic>? json) => _$NextPageFromJson(json!);
+  Map? toJson() => _$NextPageToJson(this);
+
+}
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+class NextPageData {
+  Verify? verify;
+
+  NextPageData({
+    this.verify,
+  });
+
+  factory NextPageData.fromJson(Map<String, dynamic>? json) => _$NextPageDataFromJson(json!);
+  Map? toJson() => _$NextPageDataToJson(this);
+
+}
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+class Verify {
+  String? type;
+  String? value;
+
+  Verify({
+    this.type,
+    this.value,
+  });
+
+  factory Verify.fromJson(Map json) => _$VerifyFromJson(json);
+  Map toJson() => _$VerifyToJson(this);
 
 }

@@ -638,7 +638,8 @@ class _PersonalsDataPageState extends ConsumerState<PersonalsDataPage> {
                           final result = await sendApi.submitPersonal(ref, data);
                           if(result.status == 'success') {
                             alertSnack(context, result.message ?? 'Save successful.');
-                            routeAnimation(context, pageBuilder: const CheckInfoResumePage());
+                            Navigator.pop(context);
+                            routePopAndPush(context, pageBuilder: const CheckInfoResumePage());
                           }
                         }
                       },
