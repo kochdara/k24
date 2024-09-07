@@ -139,7 +139,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             const Icon(CupertinoIcons.arrowtriangle_left_square, color: Colors.white),
             const SizedBox(width: 8),
 
-            labels.label('Khmer24', fontSize: 22, fontWeight: FontWeight.w500),
+            labels.label('Khmer24', fontSize: 20, fontWeight: FontWeight.w600,),
           ],
         ),
 

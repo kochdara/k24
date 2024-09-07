@@ -6,7 +6,7 @@ part of 'privacy_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getPrivacyHash() => r'ae7b0b8a587e12dba518d8677750729723bd1044';
+String _$getPrivacyHash() => r'c39e41ff980a4b51676cbf57c966dd9cb1e06efd';
 
 /// Copied from Dart SDK
 class _SystemHash {

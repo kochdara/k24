@@ -159,7 +159,8 @@ class _SummaryPageState extends ConsumerState<SummaryPage> {
                           final result = await sendApi.submitSummary(ref, data);
                           if(result != null && result['status'] == 'success') {
                             alertSnack(context, result['message'] ?? 'Save successful.');
-                            routeAnimation(context, pageBuilder: const CheckInfoResumePage());
+                            Navigator.pop(context);
+                            routePopAndPush(context, pageBuilder: const CheckInfoResumePage());
                           }
                         }
                       },

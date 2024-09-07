@@ -66,6 +66,7 @@ class DatumProfile {
   String? photo;
   String? thumbnail;
   String? status;
+  String? status_message;
   bool? is_premium;
   String? views;
   DateTime? posted_date;
@@ -86,6 +87,7 @@ class DatumProfile {
     this.photo,
     this.thumbnail,
     this.status,
+    this.status_message,
     this.is_premium,
     this.views,
     this.posted_date,

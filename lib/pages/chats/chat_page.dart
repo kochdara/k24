@@ -56,6 +56,7 @@ class _ChatPageViewState extends ConsumerState<ChatPageView> {
               decoration: BoxDecoration(
                 color: config.secondaryColor.shade50,
                 borderRadius: BorderRadius.circular(60),
+                border: Border.all(color: Colors.white,),
               ),
               child: (username.user?.photo?.url != null) ? CircleAvatar(
                 backgroundColor: Colors.black12,

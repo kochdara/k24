@@ -300,7 +300,8 @@ class _PreferenceState extends ConsumerState<PreferencesPage> {
                           final result = await sendApi.submitPreference(ref, data);
                           if(result?.status == 'success') {
                             alertSnack(context, result?.message ?? 'Save successful.');
-                            routeAnimation(context, pageBuilder: const CheckInfoResumePage());
+                            Navigator.pop(context);
+                            routePopAndPush(context, pageBuilder: const CheckInfoResumePage());
                           }
                         } else {
                           alertSnack(context, 'Please check validate again!.');

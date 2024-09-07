@@ -246,14 +246,16 @@ class _ReferencesPageState extends ConsumerState<ReferencesPage> {
                             final result = await sendApi.addReferences(ref, data, refId: widget.id);
                             if (result.status == 'success') {
                               alertSnack(context, result.message ?? 'Save successful.');
-                              routeAnimation(context, pageBuilder: const CheckInfoResumePage());
+                              Navigator.pop(context);
+                              routePopAndPush(context, pageBuilder: const CheckInfoResumePage());
                             }
 
                           } else { /// for submit create this References ///
                             final result = await sendApi.addReferences(ref, data);
                             if (result.status == 'success') {
                               alertSnack(context, result.message ?? 'Save successful.');
-                              routeAnimation(context, pageBuilder: const CheckInfoResumePage());
+                              Navigator.pop(context);
+                              routePopAndPush(context, pageBuilder: const CheckInfoResumePage());
                             }
 
                           }

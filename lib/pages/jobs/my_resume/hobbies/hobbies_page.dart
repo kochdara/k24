@@ -158,7 +158,8 @@ class _HobbiesPageState extends ConsumerState<HobbiesPage> {
                           final result = await sendApi.submitHobbies(ref, data);
                           if(result != null && result['status'] == 'success') {
                             alertSnack(context, result['message'] ?? 'Save successful.');
-                            routeAnimation(context, pageBuilder: const CheckInfoResumePage());
+                            Navigator.pop(context);
+                            routePopAndPush(context, pageBuilder: const CheckInfoResumePage());
                           }
                         }
                       },

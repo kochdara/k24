@@ -8,15 +8,12 @@ import 'package:form_validator/form_validator.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/helper.dart';
-import 'package:k24/pages/accounts/edit_profile/edit_page.dart';
-import 'package:k24/pages/jobs/my_resume/experiences/experiences_provider.dart';
 import 'package:k24/pages/jobs/my_resume/skills/skills_provider.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/forms.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../../../more_provider.dart';
 import '../check_informations.dart';
@@ -212,14 +209,16 @@ class _SkillsPageState extends ConsumerState<SkillsPage> {
                             final result = await sendApi.addSkills(ref, data, skillId: widget.id);
                             if (result.status == 'success') {
                               alertSnack(context, result.message ?? 'Save successful.');
-                              routeAnimation(context, pageBuilder: const CheckInfoResumePage());
+                              Navigator.pop(context);
+                              routePopAndPush(context, pageBuilder: const CheckInfoResumePage());
                             }
 
                           } else { /// for submit create this skills ///
                             final result = await sendApi.addSkills(ref, data);
                             if (result.status == 'success') {
                               alertSnack(context, result.message ?? 'Save successful.');
-                              routeAnimation(context, pageBuilder: const CheckInfoResumePage());
+                              Navigator.pop(context);
+                              routePopAndPush(context, pageBuilder: const CheckInfoResumePage());
                             }
 
                           }

@@ -349,14 +349,16 @@ class _ExperiencesPageState extends ConsumerState<ExperiencesPage> {
                             final result = await sendApi.addExperience(ref, data, expId: widget.id);
                             if (result.status == 'success') {
                               alertSnack(context, result.message ?? 'Save successful.');
-                              routeAnimation(context, pageBuilder: const CheckInfoResumePage());
+                              Navigator.pop(context);
+                              routePopAndPush(context, pageBuilder: const CheckInfoResumePage());
                             }
 
                           } else { /// for submit create this experience ///
                             final result = await sendApi.addExperience(ref, data);
                             if (result.status == 'success') {
                               alertSnack(context, result.message ?? 'Save successful.');
-                              routeAnimation(context, pageBuilder: const CheckInfoResumePage());
+                              Navigator.pop(context);
+                              routePopAndPush(context, pageBuilder: const CheckInfoResumePage());
                             }
 
                           }

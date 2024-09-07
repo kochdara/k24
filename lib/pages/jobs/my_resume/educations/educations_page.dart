@@ -359,14 +359,16 @@ class _EducationsPageState extends ConsumerState<EducationsPage> {
                             final result = await sendApi.addEducations(ref, data, eduId: widget.id);
                             if (result.status == 'success') {
                               alertSnack(context, result.message ?? 'Save successful.');
-                              routeAnimation(context, pageBuilder: const CheckInfoResumePage());
+                              Navigator.pop(context);
+                              routePopAndPush(context, pageBuilder: const CheckInfoResumePage());
                             }
 
                           } else { /// for submit create this educations ///
                             final result = await sendApi.addEducations(ref, data);
                             if (result.status == 'success') {
                               alertSnack(context, result.message ?? 'Save successful.');
-                              routeAnimation(context, pageBuilder: const CheckInfoResumePage());
+                              Navigator.pop(context);
+                              routePopAndPush(context, pageBuilder: const CheckInfoResumePage());
                             }
 
                           }

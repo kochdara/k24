@@ -69,6 +69,7 @@ DatumProfile _$DatumProfileFromJson(Map json) => DatumProfile(
       photo: const ToString().fromJson(json['photo']),
       thumbnail: const ToString().fromJson(json['thumbnail']),
       status: const ToString().fromJson(json['status']),
+      status_message: const ToString().fromJson(json['status_message']),
       is_premium: const ToBool().fromJson(json['is_premium']),
       views: const ToString().fromJson(json['views']),
       posted_date: const ToDateTime().fromJson(json['posted_date']),
@@ -98,6 +99,7 @@ Map<String, dynamic> _$DatumProfileToJson(DatumProfile instance) =>
       'photo': const ToString().toJson(instance.photo),
       'thumbnail': const ToString().toJson(instance.thumbnail),
       'status': const ToString().toJson(instance.status),
+      'status_message': const ToString().toJson(instance.status_message),
       'is_premium': _$JsonConverterToJson<Object?, bool>(
           instance.is_premium, const ToBool().toJson),
       'views': const ToString().toJson(instance.views),

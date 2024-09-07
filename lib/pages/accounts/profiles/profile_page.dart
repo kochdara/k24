@@ -182,6 +182,7 @@ class BodyProfile extends StatelessWidget {
               decoration: BoxDecoration(
                 color: config.secondaryColor.shade50,
                 borderRadius: BorderRadius.circular(60),
+                border: Border.all(color: Colors.white,),
               ),
               child: (userKey?.photo?.url != null) ? CircleAvatar(
                 backgroundColor: Colors.black12,
@@ -586,6 +587,8 @@ class SegmentedControlExample extends ConsumerWidget {
                 return Flex(
                   direction: Axis.vertical,
                   children: [
+                    const SizedBox(height: 6,),
+
                     for(final datum in data) Card(
                       surfaceTintColor: Colors.white,
                       shadowColor: Colors.black38,
@@ -593,9 +596,23 @@ class SegmentedControlExample extends ConsumerWidget {
                         side: BorderSide(color: config.secondaryColor.shade50),
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6,),
                       child: Flex(
                         direction: Axis.vertical,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          if(datum.status_message != null) ListTile(
+                            dense: true,
+                            horizontalTitleGap: 4,
+                            tileColor: Colors.red.shade50,
+                            visualDensity: VisualDensity.compact,
+                            leading: const Icon(Icons.warning_rounded, color: Colors.black54, size: 18,),
+                            title: labels.label(datum.status_message ?? '', color: Colors.black54, fontSize: 13, fontWeight: FontWeight.w600, maxLines: 1, overflow: TextOverflow.ellipsis,),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                            ),
+                          ),
+
                           InkWell(
                             onTap: () => handleView(context, datum),
                             child: Padding(
@@ -619,7 +636,7 @@ class SegmentedControlExample extends ConsumerWidget {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        labels.selectLabel(datum.title ?? 'N/A', fontSize: 15, color: Colors.black87),
+                                        labels.label(datum.title ?? 'N/A', fontSize: 15, color: Colors.black87),
                                         labels.label('\$${datum.price ?? 0.0}', fontSize: 15, color: Colors.red, fontWeight: FontWeight.w600),
                                         Flex(
                                           direction: Axis.horizontal,
@@ -658,7 +675,7 @@ class SegmentedControlExample extends ConsumerWidget {
 
                           Row(
                             children: [
-                              Expanded(
+                              if((datum.actions ?? []).contains('renew')) Expanded(
                                 child: buttons.textButtons(
                                   title: 'Renew',
                                   onPressed: !checkDate('${datum.renew_date}') ? () => submitApi.submitRenew(
@@ -673,7 +690,7 @@ class SegmentedControlExample extends ConsumerWidget {
                                 ),
                               ),
 
-                              Expanded(
+                              if((datum.actions ?? []).contains('promote')) Expanded(
                                 child: buttons.textButtons(
                                   title: 'Promote',
                                   onPressed: () => { },
@@ -683,7 +700,7 @@ class SegmentedControlExample extends ConsumerWidget {
                                 ),
                               ),
 
-                              Expanded(
+                              if((datum.actions ?? []).contains('delete')) Expanded(
                                 child: buttons.textButtons(
                                   title: 'Delete',
                                   onPressed: () async {
@@ -709,10 +726,10 @@ class SegmentedControlExample extends ConsumerWidget {
 
                               IconButton(
                                 onPressed: () => showActionSheet(context, [
-                                  MoreTypeInfo('edit', 'Edit', null, null, () { handleEdit(context, ref, datum); }),
-                                  MoreTypeInfo('view_insights', 'View Insights', null, null, () { print('object'); }),
-                                  MoreTypeInfo('auto_renew', 'Auto Renew', null, null, () { }),
-                                  MoreTypeInfo('share', 'Share', null, null, () { }),
+                                  if((datum.actions ?? []).contains('edit')) MoreTypeInfo('edit', 'Edit', null, null, () { handleEdit(context, ref, datum); }),
+                                  if((datum.actions ?? []).contains('insights')) MoreTypeInfo('insights', 'View Insights', null, null, () { print('object'); }),
+                                  if((datum.actions ?? []).contains('auto_renew')) MoreTypeInfo('auto_renew', 'Auto Renew', null, null, () { }),
+                                  if((datum.actions ?? []).contains('share')) MoreTypeInfo('share', 'Share', null, null, () { }),
                                 ]),
                                 padding: const EdgeInsets.all(12.0),
                                 icon: const Icon(Icons.more_vert_rounded, color: Colors.black87,),
