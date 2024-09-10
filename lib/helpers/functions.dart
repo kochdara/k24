@@ -1,14 +1,28 @@
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:k24/helpers/config.dart';
 import 'package:k24/pages/accounts/likes/my_like_provider.dart';
 import 'package:k24/pages/more_provider.dart';
 import 'package:k24/pages/saves/save_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+
+Future<void> sharedLinks(BuildContext rootContext, String? links) async {
+  final result = await Share.share(
+    links ?? mainUrl,
+    subject: 'Share',
+  );
+  if (result.status == ShareResultStatus.success) {
+    alertSnack(rootContext, 'Shared successfully!.');
+  }
+}
 
 Future<void> openLinkFunction(String links) async {
   if(links.isEmpty) return;

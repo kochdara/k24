@@ -140,3 +140,16 @@ Map<String, dynamic> _$MapClassToJson(MapClass instance) => <String, dynamic>{
       'y': const ToString().toJson(instance.y),
       'z': const ToString().toJson(instance.z),
     };
+
+MoreSerial _$MoreSerialFromJson(Map json) => MoreSerial(
+      limit: (json['limit'] as num?)?.toInt(),
+      offset: (json['offset'] as num?)?.toInt(),
+      data: json['data'],
+    );
+
+Map<String, dynamic> _$MoreSerialToJson(MoreSerial instance) =>
+    <String, dynamic>{
+      'limit': instance.limit,
+      'offset': instance.offset,
+      'data': instance.data,
+    };

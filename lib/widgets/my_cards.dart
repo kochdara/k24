@@ -13,7 +13,6 @@ import 'package:k24/helpers/storage.dart';
 import 'package:k24/pages/accounts/check_login.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/pages/posts/post_page.dart';
-import 'package:k24/pages/saves/save_provider.dart';
 import 'package:k24/serialization/category/main_category.dart';
 import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/buttons.dart';
@@ -1140,18 +1139,20 @@ class MyCards {
 
 }
 
-Future<void> moreDetailsPro(BuildContext context, WidgetRef ref, GridCard data, dynamic provider) async {
+Future<void> moreDetailsPro(BuildContext rootContext, WidgetRef ref, GridCard data, dynamic provider) async {
   final datum = data.data;
   final userType = datum?.user?.user_type == '2';
-  return await showBarModalBottomSheet(context: context,
+  return await showBarModalBottomSheet(context: rootContext,
     builder: (context) => MoreOptionsPage(
       listData: [
         MoreTypeInfo('view', userType ? 'Visit Store' : 'View Profile', userType ? Icons.business : Icons.perm_identity, null, () {
           routeAnimation(context, pageBuilder: AnotherProfilePage(userData: datum?.user));
         }),
-        MoreTypeInfo('share', 'Share', CupertinoIcons.arrowshape_turn_up_right, null, () {}),
         MoreTypeInfo('save', 'Save', (datum?.is_saved == true) ? Icons.bookmark : Icons.bookmark_border, null, () async {
           savedFunctions(ref, datum?.id, provider, isSaved: datum?.is_saved, type: 'post', typeRemove: 'post');
+        }),
+        MoreTypeInfo('share', 'Share', CupertinoIcons.arrowshape_turn_up_right, null, () {
+          sharedLinks(rootContext, datum?.short_link);
         }),
         MoreTypeInfo('report', 'Report', Icons.report_gmailerrorred, null, () { }),
       ],

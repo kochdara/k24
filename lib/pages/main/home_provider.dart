@@ -96,10 +96,12 @@ class HomeLists extends _$HomeLists {
       if(newDatum != null) {
         newDatum.forEach((key, value) { subs += '&$key=$value'; });
       }
-      // print(subs);
+      print(subs);
       final res = await dio.get('$postUrl/$subs', options: Options(headers: {
         'Access-Token': tokens.tokens?.access_token,
       }));
+
+      print(res.data);
 
       if (res.statusCode == 200 && res.data != null) {
         final resp = HomeSerial.fromJson(res.data);
@@ -124,6 +126,7 @@ class HomeLists extends _$HomeLists {
         // Token might have expired, try to refresh the token
         await checkTokens(context);
         await fetchHome(); // Retry the request after refreshing the token
+        return;
       }
       print('Dio error: ${e.response}');
     } catch (e, stacktrace) {

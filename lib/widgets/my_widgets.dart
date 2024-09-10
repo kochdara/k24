@@ -15,7 +15,6 @@ import 'package:k24/pages/notifys/notify_page.dart';
 import 'package:k24/pages/posts/post_page.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/labels.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:badges/badges.dart' as badges;
 
 import '../helpers/config.dart';
@@ -58,25 +57,13 @@ class MyWidgets {
           currentIndex: selectedIndex,
           type: BottomNavigationBarType.fixed,
           onTap: (value) async {
-            // DateTime expDate = DateTime.now();
             final tokens = ref.watch(usersProvider);
             String? accessToken = tokens.tokens?.access_token;
-
-            // try {
-            //   expDate = JwtDecoder.getExpirationDate(accessToken!);
-            //   /// exchange token ///
-            //   if(expDate.isBefore(DateTime.now())) {
-            //     final newToken = await myService.getNewToken(ref);
-            //     accessToken = newToken.access_token;
-            //     expDate = JwtDecoder.getExpirationDate(accessToken!);
-            //   }
-            // } catch(e) {
-            //   print('@# $e');
-            // }
             if(value != 0 && (accessToken == null)) {
               routeAnimation(context, pageBuilder: const CheckLoginPage());
 
             } else {
+              Navigator.of(context).popUntil((route) => route.isFirst);
               switch (value) {
                 case 1:
                   routeNoAnimation(context, pageBuilder: const NotifyPage());
@@ -91,7 +78,6 @@ class MyWidgets {
                   routeNoAnimation(context, pageBuilder: const ProfilePage(selectedIndex: 4));
                   break;
                 default:
-                  Navigator.of(context).popUntil((route) => route.isFirst);
                   if(scrollController != null) {
                     scrollController.animateTo(
                       0.0,

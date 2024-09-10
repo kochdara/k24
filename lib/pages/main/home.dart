@@ -166,19 +166,10 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                   IconButton(
                     onPressed: () async {
-                      final result = await routeNoAnimation(context, pageBuilder: SearchPage(
+                      await routeNoAnimation(context, pageBuilder: SearchPage(
                         title: 'Search',
                         newData: newData,
                       ));
-                      if(result != null) {
-                        final homeList = homeListsProvider(
-                          ref,
-                          ref.watch(newData),
-                        );
-                        await ref.read(homeList.notifier).refresh();
-                        print(ref.watch(newData));
-                        print('object: $result');
-                      }
                     },
                     icon: const Icon(Icons.search, color: Colors.white),
                   ),

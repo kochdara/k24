@@ -1,13 +1,18 @@
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/pages/main/home_provider.dart';
+import 'package:k24/widgets/dialog_builder.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../helpers/config.dart';
 import '../../helpers/helper.dart';
 import '../../serialization/grid_card/grid_card.dart';
 import '../../serialization/users/user_serial.dart';
+import '../accounts/profile_public/profile_provider.dart';
+import '../more_provider.dart';
 
 part 'details_provider.g.dart';
 
@@ -56,7 +61,7 @@ class GetDetailPost extends _$GetDetailPost {
     return GridCard();
   }
 
-  Future<void> updateLikes(String ids, { bool? isLikes, bool? isSaved }) async {
+  Future<void> updateLikes(String ids, { bool? isLikes, bool? isSaved, bool? isFollow, }) async {
     final newMap = state.valueOrNull;
     if (newMap != null) {
       if(isLikes != null) {
@@ -65,6 +70,7 @@ class GetDetailPost extends _$GetDetailPost {
         newMap.data?.is_like = isLikes;
       }
       if(isSaved != null) newMap.data?.is_saved = isSaved;
+      if(isFollow != null) newMap.data?.is_follow = isFollow;
       state = AsyncData(newMap);
     }
   }
@@ -173,3 +179,40 @@ class ViewApiService {
     }
   }
 }
+
+
+Future<void> submitFollow(
+    WidgetRef ref,
+    Data_? datum,
+    GetDetailPostProvider providerDe,
+    ) async {
+  if(checkLogs(ref)) {
+    final sendApi = ProfileSendApiService();
+    if(datum?.is_follow == true) {
+      showActionSheet(ref.context, [
+        MoreTypeInfo('unfollow', 'Unfollow', null, null, () async {
+          final res = await sendApi.submitFollow('unfollow', {
+            'id': '${datum?.user?.id}',
+            'type': 'user',
+          }, ref: ref);
+          if(res.message != null) {
+            ref.read(providerDe.notifier).updateLikes('0', isFollow: false);
+            alertSnack(ref.context, res.message ?? 'N/A');
+          }
+        }),
+      ]);
+
+    } else {
+      final res = await sendApi.submitFollow('follow', {
+        'id': '${datum?.user?.id}',
+        'type': 'user',
+      }, ref: ref);
+      if(res.message != null) {
+        ref.read(providerDe.notifier).updateLikes('0', isFollow: true);
+        alertSnack(ref.context, res.message ?? 'N/A');
+      }
+
+    }
+  }
+}
+

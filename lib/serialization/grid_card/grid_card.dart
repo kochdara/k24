@@ -82,6 +82,7 @@ class Data_ {
   int? total_like;
   bool? is_saved;
   bool? is_like;
+  bool? is_follow;
   GridShipping? shipping;
   String? ad_field;
   String? company;
@@ -120,6 +121,7 @@ class Data_ {
     this.total_like,
     this.is_saved,
     this.is_like,
+    this.is_follow,
     this.ad_field,
     this.company,
     this.logo,
@@ -231,24 +233,32 @@ class HighlightSpec {
 class Store_ {
   String? id;
   String? title;
+  String? name;
   String? username;
   String? userid;
+  IconSerial? photo;
   CoverProfile? logo;
   CoverProfile? cover;
   bool? is_verify;
+  OnlineStatusProfile? online_status;
   dynamic created_date;
   String? taxed;
+  String? link;
 
   Store_({
     this.id,
     this.title,
+    this.name,
     this.username,
     this.userid,
+    this.photo,
     this.logo,
     this.cover,
     this.is_verify,
+    this.online_status,
     this.created_date,
     this.taxed,
+    this.link,
   });
 
   factory Store_.fromJson(Map<String, dynamic> json) => _$Store_FromJson(json);

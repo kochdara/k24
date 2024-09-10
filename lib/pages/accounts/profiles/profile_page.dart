@@ -26,6 +26,7 @@ import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
 
+import '../../../helpers/functions.dart';
 import '../../../serialization/accounts/profiles_public/profile_serial.dart';
 import '../../likes/like_page.dart';
 import '../../more_provider.dart';
@@ -194,7 +195,7 @@ class BodyProfile extends StatelessWidget {
           titleSpacing: 6,
           actions: [
             IconButton(
-              onPressed: () { },
+              onPressed: () { sharedLinks(context, '$mainUrl/${userKey?.username}'); },
               icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_fill, color: Colors.white),
             ),
 
@@ -729,7 +730,9 @@ class SegmentedControlExample extends ConsumerWidget {
                                   if((datum.actions ?? []).contains('edit')) MoreTypeInfo('edit', 'Edit', null, null, () { handleEdit(context, ref, datum); }),
                                   if((datum.actions ?? []).contains('insights')) MoreTypeInfo('insights', 'View Insights', null, null, () { print('object'); }),
                                   if((datum.actions ?? []).contains('auto_renew')) MoreTypeInfo('auto_renew', 'Auto Renew', null, null, () { }),
-                                  if((datum.actions ?? []).contains('share')) MoreTypeInfo('share', 'Share', null, null, () { }),
+                                  if((datum.actions ?? []).contains('share')) MoreTypeInfo('share', 'Share', null, null, () {
+                                    sharedLinks(context, datum.short_link);
+                                  }),
                                 ]),
                                 padding: const EdgeInsets.all(12.0),
                                 icon: const Icon(Icons.more_vert_rounded, color: Colors.black87,),

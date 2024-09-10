@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
@@ -421,13 +422,23 @@ class BodyChatDetails extends StatelessWidget {
 
                                     const SizedBox(height: 6),
 
-                                    labels.labelIcon(
-                                        rightTitle: '${stringToTimeAgoDay(date: '${val.send_date}', format: 'dd, MMM yyyy HH:mm')}',
-                                        rightIcon: (val.is_read == true) ? Padding(
-                                          padding: const EdgeInsets.only(left: 4.0),
-                                          child: Icon(Icons.check, size: 12, color: config.secondaryColor.shade200),
-                                        ) : null,
-                                        style: TextStyle(fontSize: 11, color: config.secondaryColor.shade200, fontFamily: 'en')
+                                    Tooltip(
+                                      message: '${stringToString(date: '${val.send_date}', format: 'dd, MMM yyyy HH:mm')}',
+                                      waitDuration: const Duration(milliseconds: 1),
+                                      showDuration: const Duration(seconds: 3),
+                                      verticalOffset: 10,
+                                      child: labels.labelIcon(
+                                          rightTitle: '${stringToTimeAgoDay(date: '${val.send_date}', format: 'dd, MMM yyyy HH:mm')}',
+                                          rightIcon: Padding(
+                                            padding: const EdgeInsets.only(left: 4.0),
+                                            child: FaIcon(
+                                              (val.is_read == true) ? FontAwesomeIcons.checkDouble : FontAwesomeIcons.check,
+                                              size: 12,
+                                              color: config.secondaryColor.shade200,
+                                            ),
+                                          ),
+                                          style: TextStyle(fontSize: 11, color: config.secondaryColor.shade200, fontFamily: 'en')
+                                      ),
                                     ),
 
                                     const SizedBox(height: 12),
@@ -692,7 +703,12 @@ class BodyChatDetails extends StatelessWidget {
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20),
                   ),
-                  child: Image.network('${data.thumbnail}', fit: BoxFit.cover),
+                  child: (data.thumbnail != null) ? Image.network('${data.thumbnail}', fit: BoxFit.cover)
+                  : Container(
+                    color: config.primaryAppColor.shade50,
+                    alignment: Alignment.center,
+                    child: labels.label('${data.title}', color: config.primaryAppColor.shade600, fontSize: 15, fontWeight: FontWeight.w500, maxLines: 2),
+                  ),
                 ),
               ),
 

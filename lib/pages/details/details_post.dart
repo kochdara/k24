@@ -1,4 +1,4 @@
-// ignore_for_file: unused_result
+// ignore_for_file: unused_result, use_build_context_synchronously
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +7,7 @@ import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/functions.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/accounts/profile_public/another_profile.dart';
+import 'package:k24/pages/accounts/profile_public/profile_provider.dart';
 import 'package:k24/pages/chats/conversations/chat_conversation_provider.dart';
 import 'package:k24/pages/details/details_provider.dart';
 import 'package:k24/pages/main/home_provider.dart';
@@ -240,7 +241,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
           child: IconButton(
             visualDensity: VisualDensity.compact,
             tooltip: 'Share',
-            onPressed: () { },
+            onPressed: () { sharedLinks(context, datum.short_link); },
             iconSize: 20,
             icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_fill, color: Colors.white),
           ),
@@ -629,7 +630,7 @@ class BodyWidget extends ConsumerWidget {
                             Expanded(
                               child: buttons.textButtons(
                                 title: 'Share',
-                                onPressed: () { },
+                                onPressed: () { sharedLinks(context, datum?.short_link); },
                                 padSize: 10,
                                 textSize: 14,
                                 textWeight: FontWeight.w500,
@@ -712,13 +713,13 @@ class BodyWidget extends ConsumerWidget {
                                   const SizedBox(width: 12),
 
                                   buttons.textButtons(
-                                    title: 'Report',
-                                    onPressed: () { },
+                                    title: 'Follow${(datum?.is_follow == true) ? 'ing' : ''}',
+                                    onPressed: () => submitFollow(ref, datum, providerDe),
                                     padSize: 10,
                                     textSize: 14,
                                     textWeight: FontWeight.w500,
                                     textColor: config.primaryAppColor.shade600,
-                                    prefixIcon: Icons.add,
+                                    prefixIcon: (datum?.is_follow == true) ? Icons.check : Icons.add,
                                     prefColor: config.primaryAppColor.shade600,
                                     prefixSize: 16,
                                     bgColor: Colors.transparent,

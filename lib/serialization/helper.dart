@@ -142,3 +142,21 @@ class MapClass {
   Map toJson() => _$MapClassToJson(this);
 
 }
+
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
+class MoreSerial {
+  int? limit;
+  int? offset;
+  dynamic data;
+
+  MoreSerial({
+    this.limit,
+    this.offset,
+    this.data,
+  });
+
+  factory MoreSerial.fromJson(Map<String, dynamic> json) => _$MoreSerialFromJson(json);
+  Map toJson() => _$MoreSerialToJson(this);
+
+}
+

@@ -13,6 +13,7 @@ const String insightUrl = "https://test-insights.khmer24.mobi";
 const String trackingUrl = "https://test-tracking.khmer24.mobi";
 const String paymentUrl = "https://test-payments.khmer24.mobi";
 const String jobUrl = "https://test-jobs.khmer24.mobi";
+const String mainUrl = "https://www.khmer24.com";
 
 const double radius = 6;
 const double maxWidth = 1080;

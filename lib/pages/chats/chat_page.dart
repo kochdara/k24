@@ -4,6 +4,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/helper.dart';
@@ -256,7 +257,22 @@ class _ChatPageBuilderState extends ConsumerState<ChatPageBuilder> {
                               ),
                             ],
                           ),
-                          subtitle: labels.label('${val.last_message?.folder == 'send' ? 'You: ' : ''}${val.last_message?.message ?? ''}', fontSize: 13, color: (val.last_message?.is_read == false) ? Colors.black87 : Colors.black45, maxLines: 2),
+                          subtitle: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: labels.label('${val.last_message?.folder == 'send' ? 'You: ' : ''}${val.last_message?.message ?? ''}', fontSize: 13, color: (val.last_message?.is_read == false) ? Colors.black87 : Colors.black45, maxLines: 2),
+                              ),
+
+                              Expanded(flex: 0,
+                                child: FaIcon(
+                                  (val.last_message?.is_read == true) ? FontAwesomeIcons.checkDouble : FontAwesomeIcons.check,
+                                  size: 12,
+                                  color: config.secondaryColor.shade200,
+                                ),
+                              ),
+                            ],
+                          ),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                           shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50, width: 1)),
                           onTap: () {

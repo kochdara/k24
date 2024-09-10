@@ -117,6 +117,7 @@ Data_ _$Data_FromJson(Map json) => Data_(
       total_like: const ToInt().fromJson(json['total_like']),
       is_saved: const ToBool().fromJson(json['is_saved']),
       is_like: const ToBool().fromJson(json['is_like']),
+      is_follow: const ToBool().fromJson(json['is_follow']),
       ad_field: const ToString().fromJson(json['ad_field']),
       company: const ToString().fromJson(json['company']),
       logo: const ToString().fromJson(json['logo']),
@@ -166,6 +167,8 @@ Map<String, dynamic> _$Data_ToJson(Data_ instance) => <String, dynamic>{
           instance.is_saved, const ToBool().toJson),
       'is_like': _$JsonConverterToJson<Object?, bool>(
           instance.is_like, const ToBool().toJson),
+      'is_follow': _$JsonConverterToJson<Object?, bool>(
+          instance.is_follow, const ToBool().toJson),
       'shipping': instance.shipping?.toJson(),
       'ad_field': const ToString().toJson(instance.ad_field),
       'company': const ToString().toJson(instance.company),
@@ -251,8 +254,13 @@ Map<String, dynamic> _$HighlightSpecToJson(HighlightSpec instance) =>
 Store_ _$Store_FromJson(Map json) => Store_(
       id: const ToString().fromJson(json['id']),
       title: const ToString().fromJson(json['title']),
+      name: const ToString().fromJson(json['name']),
       username: const ToString().fromJson(json['username']),
       userid: const ToString().fromJson(json['userid']),
+      photo: json['photo'] == null
+          ? null
+          : IconSerial.fromJson(
+              Map<String, dynamic>.from(json['photo'] as Map)),
       logo: json['logo'] == null
           ? null
           : CoverProfile.fromJson((json['logo'] as Map?)?.map(
@@ -264,21 +272,31 @@ Store_ _$Store_FromJson(Map json) => Store_(
               (k, e) => MapEntry(k as String, e),
             )),
       is_verify: const ToBool().fromJson(json['is_verify']),
+      online_status: json['online_status'] == null
+          ? null
+          : OnlineStatusProfile.fromJson((json['online_status'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
       created_date: json['created_date'],
       taxed: const ToString().fromJson(json['taxed']),
+      link: const ToString().fromJson(json['link']),
     );
 
 Map<String, dynamic> _$Store_ToJson(Store_ instance) => <String, dynamic>{
       'id': const ToString().toJson(instance.id),
       'title': const ToString().toJson(instance.title),
+      'name': const ToString().toJson(instance.name),
       'username': const ToString().toJson(instance.username),
       'userid': const ToString().toJson(instance.userid),
+      'photo': instance.photo?.toJson(),
       'logo': instance.logo?.toJson(),
       'cover': instance.cover?.toJson(),
       'is_verify': _$JsonConverterToJson<Object?, bool>(
           instance.is_verify, const ToBool().toJson),
+      'online_status': instance.online_status?.toJson(),
       'created_date': instance.created_date,
       'taxed': const ToString().toJson(instance.taxed),
+      'link': const ToString().toJson(instance.link),
     };
 
 User_ _$User_FromJson(Map json) => User_(

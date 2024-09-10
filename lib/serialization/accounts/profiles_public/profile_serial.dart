@@ -28,6 +28,7 @@ class DataProfile {
   String? username;
   String? name;
   CoverProfile? photo;
+  CoverProfile? logo;
   CoverProfile? cover;
   DateTime? registered_date;
   OnlineStatusProfile? online_status;
@@ -48,6 +49,7 @@ class DataProfile {
     this.username,
     this.name,
     this.photo,
+    this.logo,
     this.cover,
     this.registered_date,
     this.online_status,

@@ -32,6 +32,11 @@ DataProfile _$DataProfileFromJson(Map json) => DataProfile(
           : CoverProfile.fromJson((json['photo'] as Map?)?.map(
               (k, e) => MapEntry(k as String, e),
             )),
+      logo: json['logo'] == null
+          ? null
+          : CoverProfile.fromJson((json['logo'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e),
+            )),
       cover: json['cover'] == null
           ? null
           : CoverProfile.fromJson((json['cover'] as Map?)?.map(
@@ -72,6 +77,7 @@ Map<String, dynamic> _$DataProfileToJson(DataProfile instance) =>
       'username': const ToString().toJson(instance.username),
       'name': const ToString().toJson(instance.name),
       'photo': instance.photo?.toJson(),
+      'logo': instance.logo?.toJson(),
       'cover': instance.cover?.toJson(),
       'registered_date': const ToDateTime().toJson(instance.registered_date),
       'online_status': instance.online_status?.toJson(),

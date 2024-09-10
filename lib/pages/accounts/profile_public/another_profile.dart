@@ -107,13 +107,13 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: labels.label('${userDatum?.name}', fontSize: 20, fontWeight: FontWeight.w500, maxLines: 1, overflow: TextOverflow.ellipsis),
+          title: labels.label('${userDatum?.name ?? (userDatum?.username)}', fontSize: 20, fontWeight: FontWeight.w500, maxLines: 1, overflow: TextOverflow.ellipsis),
           titleSpacing: 6,
           elevation: 0.0,
           shadowColor: Colors.transparent,
           actions: [
             IconButton(
-              onPressed: () { },
+              onPressed: () { sharedLinks(context, '$mainUrl/${userDatum?.username}'); },
               icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_fill, color: Colors.white),
             ),
           ],
@@ -235,7 +235,7 @@ class BodyProfile extends StatelessWidget {
                                   bottom: 10,
                                   left: 10,
                                   child: InkWell(
-                                    onTap: () { if(datum?.photo?.url != null) viewImage(context, '${datum?.photo?.url}'); },
+                                    onTap: () { if(datum?.photo?.url != null || datum?.logo?.url != null) viewImage(context, '${datum?.photo?.url ?? datum?.logo?.url}'); },
                                     child: Stack(
                                       children: [
                                         Container(
@@ -247,10 +247,10 @@ class BodyProfile extends StatelessWidget {
                                           alignment: Alignment.center,
                                           width: 94,
                                           height: 94,
-                                          child: (datum?.photo?.url != null) ? ClipOval(
+                                          child: (datum?.photo?.url != null || datum?.logo?.url != null) ? ClipOval(
                                             child: FadeInImage.assetNetwork(
                                               placeholder: placeholder,
-                                              image: '${datum?.photo?.url}',
+                                              image: '${datum?.photo?.url ?? datum?.logo?.url}',
                                               width: 94,
                                               height: 94,
                                               fit: BoxFit.cover,
@@ -295,7 +295,7 @@ class BodyProfile extends StatelessWidget {
                                 direction: Axis.vertical,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  labels.selectLabel('${datum?.name}', color: Colors.black87, fontSize: 22, fontWeight: FontWeight.w500),
+                                  labels.selectLabel('${datum?.name ?? datum?.username}', color: Colors.black87, fontSize: 22, fontWeight: FontWeight.w500),
                                   labels.selectLabel('@${datum?.username}', color: Colors.black54, fontSize: 14),
                                   Material(
                                     color: Colors.transparent,
@@ -331,7 +331,7 @@ class BodyProfile extends StatelessWidget {
                                       padding: EdgeInsets.only(right: 6.0),
                                       child: Icon(Icons.calendar_today_outlined, size: 14),
                                     ),
-                                    leftTitle: 'Joined ${stringToString(date: '${datum?.registered_date}', format: 'dd, MMM yyyy')}',
+                                    leftTitle: 'Joined ${stringToString(date: '${datum?.registered_date}', format: 'dd, MMM yyyy') ?? 'N/A'}',
                                     style: style,
                                   ),
 
