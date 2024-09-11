@@ -237,7 +237,13 @@ class _ChatPageBuilderState extends ConsumerState<ChatPageBuilder> {
                                 if(val.user?.online_status!.is_active == true) Positioned(
                                   bottom: 2,
                                   right: 2,
-                                  child: Icon(Icons.circle_rounded, color: Colors.greenAccent.shade700, size: 10),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(60),
+                                      border: Border.all(color: Colors.white, width: 1),
+                                    ),
+                                    child: Icon(Icons.circle_rounded, color: Colors.greenAccent.shade700, size: 10),
+                                  ),
                                 )
                               ],
                             ) : Container(height: 55,

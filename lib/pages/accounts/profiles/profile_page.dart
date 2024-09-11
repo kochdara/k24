@@ -400,9 +400,11 @@ class BodyProfile extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
+
                     /// top ads ///
-                    myCards.ads(url: 'https://www.khmer24.ws/www/delivery/ai.php?filename=08232023_bannercarsale_(640x290)-2.jpg%20(3)&contenttype=jpeg', loading: false),
-                    const SizedBox(height: 8),
+                    // myCards.ads(url: 'https://www.khmer24.ws/www/delivery/ai.php?filename=08232023_bannercarsale_(640x290)-2.jpg%20(3)&contenttype=jpeg', loading: false),
+                    // const SizedBox(height: 8),
+
                     // manage my ads
                     SegmentedControlExample(
                       provider: provider,
@@ -638,7 +640,25 @@ class SegmentedControlExample extends ConsumerWidget {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         labels.label(datum.title ?? 'N/A', fontSize: 15, color: Colors.black87),
-                                        labels.label('\$${datum.price ?? 0.0}', fontSize: 15, color: Colors.red, fontWeight: FontWeight.w600),
+                                        Wrap(
+                                          spacing: 6,
+                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          children: [
+                                            labels.label('\$${datum.price ?? 0.0}', fontSize: 15, color: Colors.red, fontWeight: FontWeight.w600),
+                                            if(datum.discount?.original_price != null) labels.label(
+                                              '\$${datum.discount?.original_price ?? '0.0'}',
+                                              color: Colors.black54,
+                                              fontSize: 12,
+                                              decoration: TextDecoration.lineThrough,
+                                            ),
+                                            if(datum.discount?.original_price != null) labels.label(
+                                              '${discountString(datum.discount?.type, '${datum.discount?.amount_saved}', datum.discount?.original_price)} OFF',
+                                              color: config.warningColor.shade500,
+                                              fontSize: 13,
+                                            ),
+                                          ],
+                                        ),
+
                                         Flex(
                                           direction: Axis.horizontal,
                                           crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
@@ -8,6 +9,7 @@ import 'package:k24/pages/notifys/notify_page.dart';
 import 'package:k24/pages/posts/post_page.dart';
 
 void main() {
+  CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;
   runApp(const ProviderScope(child: MyApp()));
 }
 

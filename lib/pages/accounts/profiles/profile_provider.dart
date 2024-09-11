@@ -83,7 +83,7 @@ class LoginInformation extends _$LoginInformation {
 @riverpod
 class OwnProfileList extends _$OwnProfileList {
   late List<DatumProfile> list = [];
-  final String fields = 'id,title,price,photo,thumbnail,views,renew_date,posted_date,last_update,link,auto_renew,is_premium,status,total_like,total_comment,total_job_application,insights,category_type,availability';
+  final String fields = 'id,title,price,photo,thumbnail,views,renew_date,posted_date,last_update,link,auto_renew,is_premium,status,total_like,total_comment,total_job_application,insights,category_type,availability,location';
   final String fun = 'like,comment,apply_job,shipping,insights';
   final Dio dio = Dio();
   int limit = 0;

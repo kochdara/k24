@@ -175,7 +175,7 @@ class BodyProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle? style = TextStyle(color: Colors.black87, fontSize: 14, fontFamily: 'en', height: lineHeight);
+    TextStyle? style = TextStyle(color: Colors.black87, fontSize: 14, fontFamily: 'kh', height: lineHeight);
     final profile = ref.watch(profilePro);
 
     return LayoutBuilder(
@@ -256,6 +256,18 @@ class BodyProfile extends StatelessWidget {
                                               fit: BoxFit.cover,
                                             ),
                                           ) : const Icon(Icons.person, size: 64, color: Colors.white),
+                                        ),
+
+                                        if(datum?.online_status?.is_active == true) Positioned(
+                                          bottom: 7,
+                                          right: 7,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(60),
+                                              border: Border.all(color: Colors.white, width: 2),
+                                            ),
+                                            child: Icon(Icons.circle_rounded, color: Colors.greenAccent.shade700, size: 12),
+                                          ),
                                         ),
                                       ],
                                     ),

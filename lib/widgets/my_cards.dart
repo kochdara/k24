@@ -3,6 +3,7 @@
 
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:k24/helpers/converts.dart';
 import 'package:k24/helpers/functions.dart';
 import 'package:k24/helpers/storage.dart';
 import 'package:k24/pages/accounts/check_login.dart';
+import 'package:k24/pages/chats/conversations/chat_conversation.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/pages/posts/post_page.dart';
 import 'package:k24/serialization/category/main_category.dart';
@@ -29,6 +31,7 @@ import '../pages/accounts/profile_public/another_profile.dart';
 import '../pages/details/details_post.dart';
 import '../pages/listing/sub_category.dart';
 import '../pages/more_provider.dart';
+import '../serialization/chats/chat_serial.dart';
 
 final Labels labels = Labels();
 final Buttons buttons = Buttons();
@@ -62,7 +65,12 @@ class MyCards {
           enabled: loading,
           child: Container(
             constraints: const BoxConstraints(minHeight: 150),
-            child: Image.network(url),
+            // child: Image.network(url),
+            child: CachedNetworkImage(
+              imageUrl: url,
+              errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
+              fit: BoxFit.cover,
+            ),
           )
         ),
       ),
@@ -386,19 +394,24 @@ class MyCards {
                     color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(32)
                 ),
-                child: (map['url'] != '#') ? Image.network(map['url'], width: map['img_width'], loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) { return child; }
-                  else {
-                    return Container(
-                      width: width,
-                      height: width,
-                      decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(32)
-                      ),
-                    );
-                  }
-                }) : null,
+                child: (map['url'] != '#') ? CachedNetworkImage(
+                  imageUrl: '${map['url']}',
+                  errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
+                  fit: BoxFit.cover,
+                ) : null,
+                // Image.network(map['url'], width: map['img_width'], loadingBuilder: (context, child, loadingProgress) {
+                //   if (loadingProgress == null) { return child; }
+                //   else {
+                //     return Container(
+                //       width: width,
+                //       height: width,
+                //       decoration: BoxDecoration(
+                //           color: Colors.grey.shade100,
+                //           borderRadius: BorderRadius.circular(32)
+                //       ),
+                //     );
+                //   }
+                // }) : null,
               ),
               const SizedBox(height: 8),
 
@@ -574,10 +587,15 @@ class MyCards {
                     child: (thumbnail.isNotEmpty) ? SizedBox(
                       height: 150,
                       width: double.infinity,
-                      child: FadeInImage.assetNetwork(placeholder: placeholder, image:
-                        thumbnail,
+                      child: CachedNetworkImage(
+                        imageUrl: thumbnail,
+                        errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
                         fit: BoxFit.cover,
                       ),
+                      // child: FadeInImage.assetNetwork(placeholder: placeholder, image:
+                      //   thumbnail,
+                      //   fit: BoxFit.cover,
+                      // ),
                     ) : Container(
                       height: 150,
                       width: double.infinity,
@@ -593,15 +611,18 @@ class MyCards {
                   Positioned(
                     top: 6,
                     right: 6,
-                    child: InkWell(
-                      onTap: () => moreDetailsPro(context, ref, v, provider),
-                      child: Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(16)
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => moreDetailsPro(context, ref, v, provider),
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(16)
+                          ),
+                          child: const Icon(Icons.more_vert_rounded, size: 18,  color: Colors.white),
                         ),
-                        child: const Icon(Icons.more_vert_rounded, size: 18,  color: Colors.white),
                       ),
                     ),
                   ),
@@ -779,8 +800,12 @@ class MyCards {
                     color: config.secondaryColor.shade50,
                     child: ClipRRect(
                       borderRadius: const BorderRadius.horizontal(left: Radius.circular(5)),
-                      child: thumbnail.isNotEmpty ?
-                      FadeInImage.assetNetwork(placeholder: placeholder, image: thumbnail, fit: BoxFit.cover)
+                      child: thumbnail.isNotEmpty ? CachedNetworkImage(
+                        imageUrl: thumbnail,
+                        errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
+                        fit: BoxFit.cover,
+                      )
+                      // FadeInImage.assetNetwork(placeholder: placeholder, image: thumbnail, fit: BoxFit.cover)
                           : Container(
                         padding: const EdgeInsets.all(5),
                         alignment: Alignment.center,
@@ -804,15 +829,18 @@ class MyCards {
                   Positioned(
                     top: 6,
                     right: 6,
-                    child: InkWell(
-                      onTap: () => moreDetailsPro(context, ref, v, provider),
-                      child: Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(16)
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => moreDetailsPro(context, ref, v, provider),
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(16)
+                          ),
+                          child: const Icon(Icons.more_vert_rounded, size: 18,  color: Colors.white),
                         ),
-                        child: const Icon(Icons.more_vert_rounded, size: 18,  color: Colors.white),
                       ),
                     ),
                   ),
@@ -976,7 +1004,12 @@ class MyCards {
                         width: double.infinity,
                         child: (thumbnail.isNotEmpty) ? ClipRRect(
                           borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
-                          child: FadeInImage.assetNetwork(placeholder: placeholder, image: thumbnail, fit: BoxFit.cover),
+                          child: CachedNetworkImage(
+                            imageUrl: thumbnail,
+                            errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
+                            fit: BoxFit.cover,
+                          ),
+                          // child: FadeInImage.assetNetwork(placeholder: placeholder, image: thumbnail, fit: BoxFit.cover),
                         ) : Container(
                           alignment: Alignment.center,
                           color: config.infoColor.shade50,
@@ -1004,7 +1037,12 @@ class MyCards {
                                       height: width ?? 120,
                                       width: width ?? 120,
                                       color: config.secondaryColor.shade50,
-                                      child: FadeInImage.assetNetwork(placeholder: placeholder, image: '${listImg[v]}', fit: BoxFit.cover),
+                                      child: CachedNetworkImage(
+                                        imageUrl: '${listImg[v]}',
+                                        errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
+                                        fit: BoxFit.cover,
+                                      ),
+                                      // child: FadeInImage.assetNetwork(placeholder: placeholder, image: '${listImg[v]}', fit: BoxFit.cover),
                                     ),
 
                                     if((listImg.length - (length + 1)) > 0 && v == length) Positioned(
@@ -1045,15 +1083,18 @@ class MyCards {
                 Positioned(
                   top: 6,
                   right: 6,
-                  child: InkWell(
-                    onTap: () => moreDetailsPro(context, ref, v, provider),
-                    child: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(16)
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => moreDetailsPro(context, ref, v, provider),
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(16)
+                        ),
+                        child: const Icon(Icons.more_vert_rounded, size: 18,  color: Colors.white),
                       ),
-                      child: const Icon(Icons.more_vert_rounded, size: 18,  color: Colors.white),
                     ),
                   ),
                 ),
@@ -1103,25 +1144,46 @@ class MyCards {
                       Row(
                         children: [
 
-                          buttons.invButton(
-                            prefixIcons: MyWidgetLikes(data: data, provider: provider,),
-                            text: 'Like',
-                            // onTap: () { },
-                            color: (data?.is_like == true) ? config.primaryAppColor.shade600 : null
+                          Material(
+                            color: Colors.transparent,
+                            child: buttons.invButton(
+                              prefixIcons: MyWidgetLikes(data: data, provider: provider,),
+                              text: 'Like',
+                              // onTap: () { },
+                              color: (data?.is_like == true) ? config.primaryAppColor.shade600 : null
+                            ),
                           ),
                           const SizedBox(width: 14),
 
-                          buttons.invButton(
-                            icon: CupertinoIcons.chat_bubble, text: 'Chat',
-                            onTap: () { },
+                          Material(
+                            color: Colors.transparent,
+                            child: buttons.invButton(
+                              icon: CupertinoIcons.chat_bubble, text: 'Chat',
+                              onTap: () {
+                                if(checkLogs(ref)) {
+                                  routeAnimation(context, pageBuilder: ChatConversations(chatData: ChatData(
+                                    type: 'post',
+                                    adid: data?.id,
+                                    to_id: data?.user?.id,
+                                    post: ChatPost.fromJson(data?.toJson() ?? {}),
+                                    user: ChatUser.fromJson((data?.user?.toJson() ?? {}) as Map<String, dynamic>),
+                                  )));
+                                }
+                              },
+                            ),
                           ),
 
                         ],
                       ),
 
-                      buttons.invButton(
-                        icon: CupertinoIcons.arrowshape_turn_up_right,
-                        onTap: () { },
+                      Material(
+                        color: Colors.transparent,
+                        child: buttons.invButton(
+                          icon: CupertinoIcons.arrowshape_turn_up_right,
+                          onTap: () {
+                            sharedLinks(context, data?.short_link);
+                          },
+                        ),
                       ),
 
                     ],
@@ -1173,7 +1235,7 @@ class MyWidgetLikes extends ConsumerWidget {
     final config = Config();
     final isLiked = data?.is_like ?? false;
 
-    return Container(
+    return Material(
       color: Colors.white,
       child: InkWell(
         onTap: () async {

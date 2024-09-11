@@ -229,18 +229,21 @@ class _SubCategoryState extends ConsumerState<SubCategory> {
             children: [
               labels.label(widget.data['title']??'Title', fontSize: 18, color: Colors.black),
 
-              InkWell(
-                onTap: () {
-                  if(ref.watch(viewPageProvider) == ViewPage.grid) {ref.read(viewPageProvider.notifier).state = ViewPage.list;}
-                  else if(ref.watch(viewPageProvider) == ViewPage.list) {ref.read(viewPageProvider.notifier).state = ViewPage.view;}
-                  else {ref.read(viewPageProvider.notifier).state = ViewPage.grid;}
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    if(ref.watch(viewPageProvider) == ViewPage.grid) {ref.read(viewPageProvider.notifier).state = ViewPage.list;}
+                    else if(ref.watch(viewPageProvider) == ViewPage.list) {ref.read(viewPageProvider.notifier).state = ViewPage.view;}
+                    else {ref.read(viewPageProvider.notifier).state = ViewPage.grid;}
 
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: (ref.watch(viewPageProvider) == ViewPage.list) ? const Icon(CupertinoIcons.list_bullet) :
-                  (ref.watch(viewPageProvider) == ViewPage.view) ? const Icon(CupertinoIcons.list_bullet_below_rectangle) :
-                  const Icon(CupertinoIcons.square_grid_2x2),
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: (ref.watch(viewPageProvider) == ViewPage.list) ? const Icon(CupertinoIcons.list_bullet) :
+                    (ref.watch(viewPageProvider) == ViewPage.view) ? const Icon(CupertinoIcons.list_bullet_below_rectangle) :
+                    const Icon(CupertinoIcons.square_grid_2x2),
+                  ),
                 ),
               ),
             ],

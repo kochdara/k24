@@ -86,19 +86,22 @@ class Buttons {
     void Function()? onTap,
     IconData? icon, double size = 20, Color? color
   }) {
-    return InkWell(
-      onTap: onTap,
-      hoverColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      focusColor: Colors.transparent,
-      splashColor: Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.all(5),
-        child: Icon(
-          icon,
-          size: size,
-          color: color??config.secondaryColor.shade200,
-          weight: 10,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        // hoverColor: Colors.transparent,
+        // highlightColor: Colors.transparent,
+        // focusColor: Colors.transparent,
+        // splashColor: Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.all(5),
+          child: Icon(
+            icon,
+            size: size,
+            color: color??config.secondaryColor.shade200,
+            weight: 10,
+          ),
         ),
       ),
     );

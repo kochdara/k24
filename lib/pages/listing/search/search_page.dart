@@ -276,8 +276,8 @@ class _ResultSearchPageState extends ConsumerState<ResultSearchPage> {
       appBar: AppBar(
         titleSpacing: 4,
         centerTitle: true,
-        title: labels.label('Search: ${widget.title}', fontSize: 17,
-          color: Colors.white, fontWeight: FontWeight.w600,
+        title: labels.label('Search: ${widget.title}', fontSize: 18,
+          color: Colors.white, fontWeight: FontWeight.w500,
           overflow: TextOverflow.ellipsis, maxLines: 1,
         ),
         actions: [
@@ -315,7 +315,7 @@ class _ResultSearchPageState extends ConsumerState<ResultSearchPage> {
                       },
                       padSize: 0,
                       textSize: 14,
-                      textWeight: FontWeight.w600,
+                      textWeight: FontWeight.w500,
                       textColor: config.primaryAppColor.shade600,
                       bgColor: config.primaryAppColor.shade50,
                     ),
@@ -333,7 +333,7 @@ class _ResultSearchPageState extends ConsumerState<ResultSearchPage> {
                       },
                       padSize: 0,
                       textSize: 14,
-                      textWeight: FontWeight.w600,
+                      textWeight: FontWeight.w500,
                       textColor: config.primaryAppColor.shade600,
                       bgColor: config.primaryAppColor.shade50,
                     ),
@@ -360,7 +360,7 @@ class _ResultSearchPageState extends ConsumerState<ResultSearchPage> {
                       },
                       padSize: 0,
                       textSize: 14,
-                      textWeight: FontWeight.w600,
+                      textWeight: FontWeight.w500,
                       textColor: config.primaryAppColor.shade600,
                       bgColor: config.primaryAppColor.shade50,
                     ),
@@ -398,7 +398,7 @@ class _ResultSearchPageState extends ConsumerState<ResultSearchPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
 
-                        labels.label('Company', fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w600,),
+                        labels.label('Company', fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w500,),
                         const SizedBox(height: 8,),
 
                         for(final datum in data ?? []) Material(
@@ -424,8 +424,8 @@ class _ResultSearchPageState extends ConsumerState<ResultSearchPage> {
                             ),
                             horizontalTitleGap: 10,
                             contentPadding: EdgeInsets.zero,
-                            title: labels.label(datum?.username ?? '', fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w600,maxLines: 1),
-                            subtitle: labels.label('@${datum?.username ?? ''}', fontSize: 14, color: Colors.black54, fontWeight: FontWeight.w500,maxLines: 1),
+                            title: labels.label(datum?.username ?? '', fontSize: 15, color: Colors.black87, fontWeight: FontWeight.w500,maxLines: 1),
+                            subtitle: labels.label('@${datum?.username ?? ''}', fontSize: 12, color: Colors.black54, fontWeight: FontWeight.w500,maxLines: 1),
                             trailing: const Icon(Icons.arrow_forward_ios_outlined, color: Colors.black26, size: 18,),
                           ),
                         ),
@@ -440,7 +440,7 @@ class _ResultSearchPageState extends ConsumerState<ResultSearchPage> {
                           },
                           padSize: 0,
                           textSize: 14,
-                          textWeight: FontWeight.w600,
+                          textWeight: FontWeight.w500,
                           textColor: config.primaryAppColor.shade600,
                           bgColor: config.primaryAppColor.shade50,
                         ),
@@ -477,7 +477,7 @@ class _ResultSearchPageState extends ConsumerState<ResultSearchPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
 
-                        labels.label('User', fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w600,),
+                        labels.label('User', fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w500,),
                         const SizedBox(height: 8,),
 
                         for(final datum in data ?? []) Material(
@@ -503,8 +503,8 @@ class _ResultSearchPageState extends ConsumerState<ResultSearchPage> {
                             ),
                             horizontalTitleGap: 10,
                             contentPadding: EdgeInsets.zero,
-                            title: labels.label(datum?.name ?? 'N/A', fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w600,maxLines: 1),
-                            subtitle: labels.label('@${datum?.username ?? 'N/A'}', fontSize: 14, color: Colors.black54, fontWeight: FontWeight.w500,maxLines: 1),
+                            title: labels.label(datum?.name ?? 'N/A', fontSize: 15, color: Colors.black87, fontWeight: FontWeight.w500,maxLines: 1),
+                            subtitle: labels.label('@${datum?.username ?? 'N/A'}', fontSize: 12, color: Colors.black54, fontWeight: FontWeight.w500,maxLines: 1),
                             trailing: const Icon(Icons.arrow_forward_ios_outlined, color: Colors.black26, size: 18,),
                           ),
                         ),
@@ -519,7 +519,7 @@ class _ResultSearchPageState extends ConsumerState<ResultSearchPage> {
                           },
                           padSize: 0,
                           textSize: 14,
-                          textWeight: FontWeight.w600,
+                          textWeight: FontWeight.w500,
                           textColor: config.primaryAppColor.shade600,
                           bgColor: config.primaryAppColor.shade50,
                         ),
@@ -533,7 +533,7 @@ class _ResultSearchPageState extends ConsumerState<ResultSearchPage> {
 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12,),
-                child:labels.label('Posts', fontSize: 17, color: Colors.black87, fontWeight: FontWeight.w600,),
+                child:labels.label('Posts', fontSize: 17, color: Colors.black87, fontWeight: FontWeight.w500,),
               ),
               const SizedBox(height: 4,),
 
@@ -638,7 +638,7 @@ class ListViewCard extends StatelessWidget {
                         labels.label(stringToTimeAgoDay(date: '${productData?.renew_date}', format: 'dd, MMM yyyy') ?? 'Date: N/A', color: Colors.black54, fontSize: 12, maxLines: 1,),
                       ],
                     ),
-                    labels.label('\$0.00', color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold),
+                    labels.label('\$${productData?.price ?? '0.00'}', color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold),
                   ],
                 ),
               ),
@@ -719,8 +719,8 @@ class _UserResultSearchPageState extends ConsumerState<UserResultSearchPage> {
       appBar: AppBar(
         titleSpacing: 4,
         centerTitle: true,
-        title: labels.label('Search: ${widget.title}', fontSize: 17,
-          color: Colors.white, fontWeight: FontWeight.w600,
+        title: labels.label('Search: ${widget.title}', fontSize: 18,
+          color: Colors.white, fontWeight: FontWeight.w500,
           overflow: TextOverflow.ellipsis, maxLines: 1,
         ),
       ),
@@ -777,8 +777,8 @@ class _UserResultSearchPageState extends ConsumerState<UserResultSearchPage> {
                             ),
                             horizontalTitleGap: 10,
                             contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                            title: labels.label(datum?.name ?? (datum?.username ?? 'N/A'), fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w600,maxLines: 1),
-                            subtitle: labels.label('@${datum?.username ?? 'N/A'}', fontSize: 14, color: Colors.black54, fontWeight: FontWeight.w500,maxLines: 1),
+                            title: labels.label(datum?.name ?? (datum?.username ?? 'N/A'), fontSize: 15, color: Colors.black87, fontWeight: FontWeight.w500,maxLines: 1),
+                            subtitle: labels.label('@${datum?.username ?? 'N/A'}', fontSize: 12, color: Colors.black54, fontWeight: FontWeight.w500,maxLines: 1),
                             trailing: const Icon(Icons.arrow_forward_ios_outlined, color: Colors.black26, size: 18,),
                           ),
                         ),

@@ -186,24 +186,40 @@ class BodyNotify extends ConsumerWidget {
                     dense: true,
                     isThreeLine: true,
                     tileColor: (datum.is_open == false) ? config.primaryAppColor.shade50 : Colors.white,
-                    leading: (datum.data?.user?.photo?.url != null) ? SizedBox(
-                      width: 50,
-                      height: 50,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: FadeInImage.assetNetwork(placeholder: placeholder, image: '${datum.data?.user?.photo?.url}',
-                          fit: BoxFit.cover,
+                    leading: Stack(
+                      children: [
+                        (datum.data?.user?.photo?.url != null) ? SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(40),
+                            child: FadeInImage.assetNetwork(placeholder: placeholder, image: '${datum.data?.user?.photo?.url}',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ) : Container(
+                          padding: const EdgeInsets.all(10.0),
+                          decoration: BoxDecoration(
+                            color: config.secondaryColor.shade50,
+                            borderRadius: BorderRadius.circular(40),
+                          ),
+                          child: Icon(
+                            datum.type == 'comment' ? Icons.person : Icons.notifications,
+                            size: 24, color: Colors.black38,),
                         ),
-                      ),
-                    ) : Container(
-                      padding: const EdgeInsets.all(10.0),
-                      decoration: BoxDecoration(
-                        color: config.secondaryColor.shade50,
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                      child: Icon(
-                        datum.type == 'comment' ? Icons.person : Icons.notifications,
-                        size: 24, color: Colors.black38,),
+
+                        if(datum.data?.user?.online_status?.is_active == true) Positioned(
+                          bottom: 1,
+                          right: 1,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(60),
+                              border: Border.all(color: Colors.white, width: 1),
+                            ),
+                            child: Icon(Icons.circle_rounded, color: Colors.greenAccent.shade700, size: 10),
+                          ),
+                        ),
+                      ],
                     ),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                     horizontalTitleGap: 10,

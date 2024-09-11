@@ -1,5 +1,6 @@
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:k24/serialization/helper.dart';
 import '../../try_convert.dart';
 
 part 'profiles_own.g.dart';
@@ -56,7 +57,7 @@ class OwnProfileSerial {
 
 }
 
-@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToLists(), ToDateTime(), ToBool(), ToString()])
+@JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToLists(), ToDateTime(), ToBool(), ToString(), ToInt()])
 class DatumProfile {
   String? id;
   dynamic storeid;
@@ -69,11 +70,15 @@ class DatumProfile {
   String? status_message;
   bool? is_premium;
   String? views;
+  Location_? location;
   DateTime? posted_date;
   DateTime? last_update;
   DateTime? renew_date;
   String? link;
   String? short_link;
+  String? total_like;
+  String? total_comment;
+  CategoryTypeProfile? shipping;
   InsightsProfile? insights;
   CategoryTypeProfile? category_type;
   List<String>? actions;
@@ -90,10 +95,14 @@ class DatumProfile {
     this.status_message,
     this.is_premium,
     this.views,
+    this.location,
     this.posted_date,
     this.last_update,
     this.renew_date,
     this.link,
+    this.total_like,
+    this.total_comment,
+    this.shipping,
     this.short_link,
     this.insights,
     this.category_type,
@@ -107,11 +116,13 @@ class DatumProfile {
 
 @JsonSerializable(anyMap: true, explicitToJson: true, converters: [ToString()])
 class CategoryTypeProfile {
+  String? type;
   String? title;
   String? category_type_slug;
   String? slug;
 
   CategoryTypeProfile({
+    this.type,
     this.title,
     this.category_type_slug,
     this.slug,

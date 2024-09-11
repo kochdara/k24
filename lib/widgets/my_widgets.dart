@@ -2,6 +2,7 @@
 
 
 import 'package:bot_toast/bot_toast.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -201,7 +202,12 @@ class MyWidgets {
               SizedBox(
                 height: heightImg,
                 width: double.infinity,
-                child: FadeInImage.assetNetwork(placeholder: placeholder, image: listImg.first, fit: BoxFit.cover),
+                child: CachedNetworkImage(
+                  imageUrl: listImg.first,
+                  errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
+                  fit: BoxFit.cover,
+                ),
+                // child: FadeInImage.assetNetwork(placeholder: placeholder, image: listImg.first, fit: BoxFit.cover),
               ),
             ],
 
@@ -227,7 +233,12 @@ class MyWidgets {
                                   height: width ?? 120,
                                   width: width ?? 120,
                                   color: config.secondaryColor.shade50,
-                                  child: FadeInImage.assetNetwork(placeholder: placeholder, image: listImg[v], fit: BoxFit.cover),
+                                  child: CachedNetworkImage(
+                                    imageUrl: listImg[v],
+                                    errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
+                                    fit: BoxFit.cover,
+                                  ),
+                                  // child: FadeInImage.assetNetwork(placeholder: placeholder, image: listImg[v], fit: BoxFit.cover),
                                 ),
 
                                 if((listImg.length - (length + 1)) > 0 && v == length)

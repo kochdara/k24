@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
+import 'package:k24/helpers/functions.dart';
+import 'package:k24/pages/accounts/profile_public/another_profile.dart';
 import 'package:k24/pages/chats/comments/comments_provider.dart';
 import 'package:k24/pages/details/details_post.dart';
 import 'package:k24/pages/more_provider.dart';
@@ -15,6 +17,7 @@ import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
 
 import '../../../helpers/helper.dart';
+import '../../../serialization/users/user_serial.dart';
 
 final config = Config();
 final labels = Labels();
@@ -325,22 +328,53 @@ class _CardUICommentsState extends ConsumerState<CardUIComments> {
       direction: Axis.horizontal,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          width: 30,
-          height: 30,
-          child: (datum.profile?.data?.photo != null) ? ClipOval(
-            child: FadeInImage.assetNetwork(
-              placeholder: placeholder,
-              image: '${datum.profile?.data?.photo}',
-              fit: BoxFit.cover,
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => routeAnimation(context, pageBuilder: AnotherProfilePage(
+              userData: User_(
+                name: datum.profile?.data?.name,
+                username: datum.profile?.data?.username,
+                online_status: datum.profile?.data?.online_status,
+                photo: CoverProfile(
+                  url: datum.profile?.data?.photo,
+                ),
+              )),
             ),
-          ) : Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(50),
-              border: Border.all(color: config.secondaryColor.shade50),
+            child: Stack(
+              children: [
+                SizedBox(
+                  width: 30,
+                  height: 30,
+                  child: (datum.profile?.data?.photo != null) ? ClipOval(
+                    child: FadeInImage.assetNetwork(
+                      placeholder: placeholder,
+                      image: '${datum.profile?.data?.photo}',
+                      fit: BoxFit.cover,
+                    ),
+                  ) : Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(50),
+                      border: Border.all(color: config.secondaryColor.shade50),
+                    ),
+                    child: const Icon(Icons.person, color: Colors.grey),
+                  ),
+                ),
+
+                if(datum.profile?.data?.online_status?.is_active == true) Positioned(
+                  bottom: -1,
+                  right: -1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(60),
+                      border: Border.all(color: Colors.white, width: 1),
+                    ),
+                    child: Icon(Icons.circle_rounded, color: Colors.greenAccent.shade700, size: 8),
+                  ),
+                ),
+              ],
             ),
-            child: const Icon(Icons.person, color: Colors.grey),
           ),
         ),
         const SizedBox(width: 10),
@@ -351,8 +385,8 @@ class _CardUICommentsState extends ConsumerState<CardUIComments> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(14),
+                  topRight: Radius.circular(14),
                 ),
                 color: Colors.white,
                 border: Border.all(color: config.secondaryColor.shade50),
@@ -365,8 +399,22 @@ class _CardUICommentsState extends ConsumerState<CardUIComments> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        labels.label(datum.profile?.data?.name ?? 'N/A', fontSize: 14, color: Colors.black87, maxLines: 1),
-                        labels.selectLabel(datum.comment ?? 'N/A', fontSize: 14, color: Colors.black54),
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => routeAnimation(context, pageBuilder: AnotherProfilePage(
+                              userData: User_(
+                                name: datum.profile?.data?.name,
+                                username: datum.profile?.data?.username,
+                                online_status: datum.profile?.data?.online_status,
+                                photo: CoverProfile(
+                                  url: datum.profile?.data?.photo,
+                                ),
+                              ),),
+                            ),
+                            child: labels.label(datum.profile?.data?.name ?? 'User: N/A', fontSize: 14, color: Colors.black87, maxLines: 1)),
+                        ),
+                        labels.selectLabel(datum.comment ?? 'Text: N/A', fontSize: 14, color: Colors.black54),
                       ],
                     ),
                   ),
@@ -376,9 +424,7 @@ class _CardUICommentsState extends ConsumerState<CardUIComments> {
                     right: -2,
                     child: MoreButtonUI(listData: [
                       MoreTypeInfo('copy', 'Copy', Icons.copy, null, () {
-                        Clipboard.setData(ClipboardData(text: datum.comment ?? '')).then((_) {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied!')));
-                        });
+                        copyFunction(context, datum.comment ?? '');
                       }),
                       if(datum.actions != null && datum.actions!.contains('delete'))
                         MoreTypeInfo('delete', 'Delete', CupertinoIcons.trash, null, () { }),
@@ -396,7 +442,13 @@ class _CardUICommentsState extends ConsumerState<CardUIComments> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      labels.selectLabel('${stringToTimeAgoDay(date: '${datum.date}', format: 'dd, MMM yyyy')}', fontSize: 12, color: Colors.black54),
+                      Tooltip(
+                        message: '${stringToString(date: '${datum.date}', format: 'dd, MMM yyyy HH:mm')}',
+                        waitDuration: const Duration(milliseconds: 10),
+                        showDuration: const Duration(seconds: 3),
+                        verticalOffset: 10,
+                        child: labels.label('${stringToTimeAgoDay(date: '${datum.date}', format: 'dd, MMM yyyy')}', fontSize: 12, color: Colors.black54),
+                      ),
                       const SizedBox(width: 14),
                       if(datum.actions != null && datum.actions!.contains('reply')) InkWell(
                         onTap: () {

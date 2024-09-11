@@ -95,15 +95,15 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
 
     final dataRes = watchDetails.valueOrNull ?? dataDetails;
 
-    if(dataDetails.data != null) {
-      listImg = (dataDetails.data?.photos ?? dataRes.data?.photos) ?? [];
+    if(dataRes.data != null) {
+      listImg = (dataRes.data?.photos ?? dataRes.data?.photos) ?? [];
 
       // check location //
-      if (dataDetails.data?.location != null) {
+      if (dataRes.data?.location != null) {
         futureAwait(duration: 10, () {
-          ref.read(location.notifier).state = dataDetails.data?.location?.en_name ?? '';
+          ref.read(location.notifier).state = dataRes.data?.location?.en_name ?? '';
 
-          String? date = stringToTimeAgoDay(date: '${dataDetails.data?.renew_date}', format: 'dd, MMM yyyy');
+          String? date = stringToTimeAgoDay(date: '${dataRes.data?.renew_date}', format: 'dd, MMM yyyy');
           if(date != null) ref.read(location.notifier).state += ' • $date';
         });
       }
@@ -141,7 +141,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                     constraints: const BoxConstraints(maxWidth: maxWidth),
                     child: BodyWidget(
                       title: widget.title,
-                      dataDetails: dataDetails,
+                      dataDetails: dataRes,
                       listImg: listImg!,
                       space: space,
                       heightImg: heightImg,
@@ -413,8 +413,8 @@ class BodyWidget extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    label.label(dataDetails.data?.title ?? '', fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black),
-                    label.label(ref.watch(location)??'N/A', fontSize: 13, color: config.secondaryColor.shade400),
+                    label.label(dataDetails.data?.title ?? 'Title: N/A', fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black),
+                    label.label(ref.watch(location)??'Location: N/A', fontSize: 13, color: config.secondaryColor.shade400),
                     Wrap(
                       spacing: 6,
                       crossAxisAlignment: WrapCrossAlignment.center,
@@ -433,6 +433,10 @@ class BodyWidget extends ConsumerWidget {
                         ),
                       ],
                     ),
+                    if(dataDetails.data?.shipping?.title != null) ...[
+                      const SizedBox(height: 3,),
+                      FreeDeliveryPage(title: dataDetails.data?.shipping?.title ?? 'Shipping: N/A',),
+                    ],
                   ],
                 ),
               ),
@@ -669,15 +673,32 @@ class BodyWidget extends ConsumerWidget {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (datum?.user?.photo?.small != null) SizedBox(width: 60, height: 60,
-                                      child: ClipOval(child: FadeInImage.assetNetwork(image: '${datum?.user?.photo?.small?.url}', fit: BoxFit.cover, placeholder: placeholder))
-                                  ) else Container(width: 60, height: 60,
-                                    decoration: BoxDecoration(
-                                      color: Colors.black12,
-                                      borderRadius: BorderRadius.circular(32),
-                                    ),
-                                    child: const Icon(Icons.person, color: Colors.white, size: 40),
+                                  Stack(
+                                    children: [
+                                      if (datum?.user?.photo?.small != null) SizedBox(width: 60, height: 60,
+                                          child: ClipOval(child: FadeInImage.assetNetwork(image: '${datum?.user?.photo?.small?.url}', fit: BoxFit.cover, placeholder: placeholder))
+                                      ) else Container(width: 60, height: 60,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black12,
+                                          borderRadius: BorderRadius.circular(32),
+                                        ),
+                                        child: const Icon(Icons.person, color: Colors.white, size: 40),
+                                      ),
+
+                                      if(datum?.user?.online_status?.is_active == true) Positioned(
+                                        bottom: 2,
+                                        right: 2,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(60),
+                                            border: Border.all(color: Colors.white, width: 1),
+                                          ),
+                                          child: Icon(Icons.circle_rounded, color: Colors.greenAccent.shade700, size: 10),
+                                        ),
+                                      ),
+                                    ],
                                   ),
+
 
                                   const SizedBox(width: 12),
 

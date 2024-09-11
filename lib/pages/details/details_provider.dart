@@ -79,7 +79,7 @@ class GetDetailPost extends _$GetDetailPost {
 @riverpod
 class RelateDetailPost extends _$RelateDetailPost {
   late List<GridCard> list = [];
-  String fields = 'thumbnail,photos,user,store,renew_date,link,category,is_saved,is_like,total_like,total_comment';
+  String fields = 'thumbnail,photos,user,store,renew_date,link,category,is_saved,is_like,total_like,total_comment,location';
   String fun = 'save,chat,like,comment,apply_job,shipping';
 
   final Dio dio = Dio();

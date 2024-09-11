@@ -72,10 +72,20 @@ DatumProfile _$DatumProfileFromJson(Map json) => DatumProfile(
       status_message: const ToString().fromJson(json['status_message']),
       is_premium: const ToBool().fromJson(json['is_premium']),
       views: const ToString().fromJson(json['views']),
+      location: json['location'] == null
+          ? null
+          : Location_.fromJson(
+              Map<String, dynamic>.from(json['location'] as Map)),
       posted_date: const ToDateTime().fromJson(json['posted_date']),
       last_update: const ToDateTime().fromJson(json['last_update']),
       renew_date: const ToDateTime().fromJson(json['renew_date']),
       link: const ToString().fromJson(json['link']),
+      total_like: const ToString().fromJson(json['total_like']),
+      total_comment: const ToString().fromJson(json['total_comment']),
+      shipping: json['shipping'] == null
+          ? null
+          : CategoryTypeProfile.fromJson(
+              Map<String, dynamic>.from(json['shipping'] as Map)),
       short_link: const ToString().fromJson(json['short_link']),
       insights: json['insights'] == null
           ? null
@@ -103,11 +113,15 @@ Map<String, dynamic> _$DatumProfileToJson(DatumProfile instance) =>
       'is_premium': _$JsonConverterToJson<Object?, bool>(
           instance.is_premium, const ToBool().toJson),
       'views': const ToString().toJson(instance.views),
+      'location': instance.location?.toJson(),
       'posted_date': const ToDateTime().toJson(instance.posted_date),
       'last_update': const ToDateTime().toJson(instance.last_update),
       'renew_date': const ToDateTime().toJson(instance.renew_date),
       'link': const ToString().toJson(instance.link),
       'short_link': const ToString().toJson(instance.short_link),
+      'total_like': const ToString().toJson(instance.total_like),
+      'total_comment': const ToString().toJson(instance.total_comment),
+      'shipping': instance.shipping?.toJson(),
       'insights': instance.insights?.toJson(),
       'category_type': instance.category_type?.toJson(),
       'actions': instance.actions,
@@ -115,6 +129,7 @@ Map<String, dynamic> _$DatumProfileToJson(DatumProfile instance) =>
 
 CategoryTypeProfile _$CategoryTypeProfileFromJson(Map json) =>
     CategoryTypeProfile(
+      type: const ToString().fromJson(json['type']),
       title: const ToString().fromJson(json['title']),
       category_type_slug: const ToString().fromJson(json['category_type_slug']),
       slug: const ToString().fromJson(json['slug']),
@@ -123,6 +138,7 @@ CategoryTypeProfile _$CategoryTypeProfileFromJson(Map json) =>
 Map<String, dynamic> _$CategoryTypeProfileToJson(
         CategoryTypeProfile instance) =>
     <String, dynamic>{
+      'type': const ToString().toJson(instance.type),
       'title': const ToString().toJson(instance.title),
       'category_type_slug':
           const ToString().toJson(instance.category_type_slug),
