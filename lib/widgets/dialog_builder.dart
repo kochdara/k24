@@ -59,13 +59,14 @@ void showActionSheet(BuildContext context, List<MoreTypeInfo> listMore) {
             type.onTap!();
           },
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              const SizedBox(width: 10,),
               if(type.icon != null) ...[
                 Icon(type.icon, size: 20, color: Colors.blue.shade700,),
-                const SizedBox(width: 8,),
+                const SizedBox(width: 15,),
               ],
-              labels.label(type.description, color: Colors.blue.shade700, fontSize: 15, fontWeight: FontWeight.w600,),
+              Expanded(child: labels.label(type.description, color: Colors.blue.shade700, fontSize: 15, fontWeight: FontWeight.w600, maxLines: 1,)),
             ],
           ),
         ),

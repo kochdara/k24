@@ -24,6 +24,7 @@ import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_widgets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../../helpers/functions.dart';
 import '../../serialization/notify/nortify_serial.dart';
 import '../accounts/edit_profile/edit_page.dart';
 import '../accounts/profile_public/another_profile.dart';
@@ -38,13 +39,18 @@ StateProvider<String> modelPro = StateProvider<String>((ref) => 'Unknown');
 StateProvider<String> modelVPro = StateProvider<String>((ref) => 'Unknown');
 
 class SettingPage extends ConsumerStatefulWidget {
-  const SettingPage({super.key});
+  const SettingPage({super.key,
+    this.checkLog,
+  });
+
+  final bool? checkLog;
 
   @override
   ConsumerState<SettingPage> createState() => _SettingPageState();
 }
 
 class _SettingPageState extends ConsumerState<SettingPage> {
+  String? ipAddress = '';
 
   @override
   void initState() {
@@ -135,7 +141,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           /// body //
           SliverList(
             delegate: SliverChildListDelegate([
-              ListTile(
+
+              if(widget.checkLog == true) ListTile(
                 leading: Container(
                   width: 50,
                   height: 50,
@@ -159,21 +166,23 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 onTap: () => routeAnimation(context, pageBuilder: AnotherProfilePage(userData: User_.fromJson((userPro.user?.toJson() ?? {}) as Map<String, dynamic>))),
               ),
 
-              ListTile(
+              if(widget.checkLog == true) ListTile(
                 dense: true,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                 horizontalTitleGap: 12,
                 title: labels.label('ACCOUNT SETTING', fontSize: 14, color: Colors.black54),
               ),
 
-              for(final val in accountSetting)
-                ListTileUI(
-                  title: val['title'].toString(),
-                  subTitle: val['subtitle'].toString(),
-                  trailing: val['trailing'],
-                  onTap: val['onTap'],
-                  child: val['child'],
-                ),
+              if(widget.checkLog == true) ...[
+                for(final val in accountSetting)
+                  ListTileUI(
+                    title: val['title'].toString(),
+                    subTitle: val['subtitle'].toString(),
+                    trailing: val['trailing'],
+                    onTap: val['onTap'],
+                    child: val['child'],
+                  ),
+              ],
 
               ListTile(
                 dense: true,
@@ -209,7 +218,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
               Padding(
                 padding: const EdgeInsets.all(18.0),
-                child: buttons.textButtons(
+                child: (widget.checkLog == true) ? buttons.textButtons(
                   title: 'Logout',
                   onPressed: () async {
                     final send = SettingsApiService();
@@ -225,6 +234,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         Navigator.of(context).popUntil((route) => route.isFirst);
                         alertSnack(context, result?.message ?? 'User logout successfully!');
                       });
+                    } else {
+                      alertSnack(context, result?.message ?? 'User logout unSuccessfully!');
                     }
                   },
                   textColor: Colors.red,
@@ -233,16 +244,16 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   bgColor: Colors.white,
                   radius: 25,
                   padSize: 12,
-                ),
+                ) : Container(),
               ),
 
               Center(
                 child: Column(
                   children: [
-                    labels.label('@${userPro.user?.username ?? 'Unknown'}', fontSize: 14, color: Colors.black54),
+                    if(widget.checkLog == true) labels.label('@${userPro.user?.username ?? 'Unknown'}', fontSize: 14, color: Colors.black54),
                     labels.label('Version: ${ref.watch(versionPro)}', fontSize: 14, color: Colors.black54),
                     labels.label('${ref.watch(modelPro)}: ${ref.watch(modelVPro)}', fontSize: 14, color: Colors.black54),
-                    labels.label(InternetAddress.anyIPv4.address, fontSize: 14, color: Colors.black54),
+                    labels.label(ipAddress ?? 'Unknown', fontSize: 14, color: Colors.black54),
                   ],
                 ),
               ),
@@ -254,14 +265,16 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
         ],
       ),
-      bottomNavigationBar: myWidgets.bottomBarPage(
+      bottomNavigationBar: (widget.checkLog == true) ? myWidgets.bottomBarPage(
         context, ref, 4,
         null
-      ),
+      ) : null,
     );
   }
 
   void setupPage() async {
+    ipAddress = await getIpAddress();
+    setState(() {});
     futureAwait(duration: 1, () async {
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();

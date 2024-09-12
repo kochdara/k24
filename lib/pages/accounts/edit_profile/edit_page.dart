@@ -22,7 +22,6 @@ import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-import '../../../serialization/accounts/edit_profile/edit_profile_serial.dart';
 
 final labels = Labels();
 final config = Config();
@@ -454,6 +453,48 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                             controller: hidden ? null : addController,
                             onChanged: (val) => updateNewMap(ref, 'address', val),
                             onTap: () => rHidden.state = true,
+                          ),
+
+                          // map location //
+                          Stack(
+                            children: [
+                              Container(
+                                height: 100,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  child: Image.asset('assets/img/maps.png', fit: BoxFit.cover),
+                                ),
+                              ),
+
+                              Positioned(
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 100,
+                                  alignment: Alignment.center,
+                                  padding: const EdgeInsets.all(25),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: buttons.textButtons(
+                                    title: 'Change Location',
+                                    onPressed: () {  },
+                                    padSize: 10,
+                                    textSize: 15,
+                                    textColor: config.secondaryColor.shade500,
+                                    textWeight: FontWeight.w500,
+                                    prefixIcon: Icons.location_pin,
+                                    prefColor: config.secondaryColor.shade500,
+                                    prefixSize: 22,
+                                    bgColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
 
                           checkBox(),

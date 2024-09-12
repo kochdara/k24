@@ -1,7 +1,8 @@
 
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +14,39 @@ import 'package:k24/pages/saves/save_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+Future<void> openMap(String? latitude, String? longitude) async {
+  final googleUrl = 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
+  if (await canLaunch(googleUrl)) {
+    await launch(googleUrl);
+  } else {
+    throw 'Could not open the map.';
+  }
+}
+
+Future<bool> launchUrlPhone({
+  String? scheme,
+  String? userInfo,
+  String? host,
+  int? port,
+  String? path,
+  Iterable<String>? pathSegments,
+  String? query,
+  Map<String, dynamic>? queryParameters,
+  String? fragment,
+}) async {
+  final Uri smsLaunchUri = Uri(
+    scheme: scheme,
+    userInfo: userInfo,
+    host: host,
+    port: port,
+    path: path,
+    pathSegments: pathSegments,
+    query: query,
+    queryParameters: queryParameters,
+    fragment: fragment,
+  );
+  return await launchUrl(smsLaunchUri);
+}
 
 Future<void> sharedLinks(BuildContext rootContext, String? links) async {
   final result = await Share.share(
@@ -92,4 +126,23 @@ void copyFunction(BuildContext context, String? text, {
   Clipboard.setData(ClipboardData(text: text ?? '')).then((_) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   });
+}
+
+Future<String?> getIpAddress() async {
+  try {
+    // Get a list of all network interfaces
+    final interfaces = await NetworkInterface.list();
+
+    // Loop through the interfaces to find the one with an IPv4 address
+    for (var interface in interfaces) {
+      for (var addr in interface.addresses) {
+        if (addr.type == InternetAddressType.IPv4) {
+          return addr.address; // Return the first found IPv4 address
+        }
+      }
+    }
+  } catch (e) {
+    print('Failed to get IP address: $e');
+  }
+  return null;
 }

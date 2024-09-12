@@ -94,6 +94,9 @@ Data_ _$Data_FromJson(Map json) => Data_(
           ? null
           : Location_.fromJson(
               Map<String, dynamic>.from(json['location'] as Map)),
+      contact: json['contact'] == null
+          ? null
+          : PostContact.fromJson(json['contact'] as Map),
       category: json['category'] == null
           ? null
           : MainCategory.fromJson(json['category'] as Map),
@@ -152,6 +155,7 @@ Map<String, dynamic> _$Data_ToJson(Data_ instance) => <String, dynamic>{
       'user': instance.user?.toJson(),
       'store': instance.store?.toJson(),
       'location': instance.location?.toJson(),
+      'contact': instance.contact?.toJson(),
       'category': instance.category?.toJson(),
       'highlight_specs':
           instance.highlight_specs?.map((e) => e?.toJson()).toList(),

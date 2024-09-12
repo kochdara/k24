@@ -365,23 +365,32 @@ class BodyProfile extends StatelessWidget {
                                       direction: Axis.horizontal,
                                       children: [
                                         Expanded(
-                                          child: buttons.textButtons(
-                                            title: 'Call',
-                                            onPressed: () => callFun(context, datum),
-                                            prefixIcon: Icons.call,
-                                            prefColor: Colors.white,
-                                            prefixSize: 20,
-                                            bgColor: config.primaryAppColor.shade600,
-                                            radius: 50,
-                                            textColor: Colors.white,
-                                            textSize: 15,
-                                            borderColor: Colors.transparent,
+                                          child: Tooltip(
+                                            message: 'Call Phone',
+                                            child: buttons.textButtons(
+                                              title: 'Call',
+                                              onPressed: () => callFun(context, datum),
+                                              prefixIcon: Icons.call,
+                                              prefColor: Colors.white,
+                                              prefixSize: 20,
+                                              bgColor: config.primaryAppColor.shade600,
+                                              radius: 50,
+                                              textColor: Colors.white,
+                                              textSize: 15,
+                                              borderColor: Colors.transparent,
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(width: 10),
-                                        ButtonUIS(icon: Icons.sms, onPressed: () => smsFun(context, datum)),
+                                        Tooltip(
+                                          message: 'Chat',
+                                          child: ButtonUIS(icon: Icons.sms, onPressed: () => smsFun(context, datum)),
+                                        ),
                                         const SizedBox(width: 10),
-                                        ButtonUIS(icon: CupertinoIcons.qrcode, onPressed: () {}),
+                                        Tooltip(
+                                          message: 'Scan',
+                                          child: ButtonUIS(icon: CupertinoIcons.qrcode, onPressed: () {}),
+                                        ),
                                         const SizedBox(width: 10),
                                         ButtonUIS(icon: Icons.more_horiz, onPressed: () {
                                           showActionSheet2(context, [
@@ -395,7 +404,11 @@ class BodyProfile extends StatelessWidget {
                                             MoreTypeInfo('Copy link', meta?.url ?? '', Icons.link, null, () {
                                               copyFunction(context, meta?.url);
                                             }),
-                                            MoreTypeInfo('Direction', '', Icons.u_turn_right_outlined, null, () { }),
+                                            MoreTypeInfo('Direction', '', Icons.u_turn_right_outlined, null, () {
+                                              final maps = datum?.contact?.map;
+                                              final contact =  datum?.contact;
+                                              openMap(maps?.x ?? (contact?.district?.en_name?? mapX), maps?.y ?? (contact?.location?.en_name ?? mapY));
+                                            }),
                                             MoreTypeInfo('QR Code', '', CupertinoIcons.qrcode, null, () { }),
                                             MoreTypeInfo('Report', '', Icons.report_gmailerrorred_sharp, null, () { }),
                                           ]);
@@ -446,6 +459,7 @@ class BodyProfile extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   labels.label('Overview', fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black87),
+                                  const SizedBox(height: 6,),
 
                                   const AboutUI(
                                     title: 'Verified',
@@ -458,13 +472,19 @@ class BodyProfile extends StatelessWidget {
                                     isThreeLine: true,
                                     color: config.primaryAppColor.shade600,
                                     buttonTitle: 'Click To Call',
+                                    onTap: () async {
+                                      final phonesString = datum?.contact?.phone ?? [];
+                                      await launchUrlPhone(
+                                        scheme: 'tel',
+                                        path: phonesString.first,
+                                      );
+                                    },
                                   ),
 
                                   AboutUI(
                                     title: '${meta?.url}',
                                     icon: CupertinoIcons.globe,
                                     color: config.primaryAppColor.shade600,
-
                                     onTap: () async {
                                       // Replace "https://" and split by "/"
                                       String? modifiedUrl = meta?.url.toString().replaceFirst('https://', '');
@@ -486,12 +506,17 @@ class BodyProfile extends StatelessWidget {
                                   ),
 
                                   if(datum?.contact?.address != null) AboutUI(
-                                    title: '${datum?.contact?.address}',
+                                    title: '${datum?.contact?.long_location}',
                                     icon: Icons.location_on_outlined,
                                     isThreeLine: true,
-                                    subTitle: '123',
+                                    subTitle: '${datum?.contact?.address}',
                                     buttonTitle: 'Get Directions',
                                     colorButton: config.primaryAppColor.shade600,
+                                    onTap: () {
+                                      final maps = datum?.contact?.map;
+                                      final contact =  datum?.contact;
+                                      openMap(maps?.x ?? (contact?.district?.en_name?? mapX), maps?.y ?? (contact?.location?.en_name ?? mapY));
+                                    },
                                   ),
                                 ],
                               ),
@@ -523,7 +548,7 @@ class BodyProfile extends StatelessWidget {
       final phone = datum?.contact?.phone_white_operator ?? [];
       showActionSheet(context, [
         for(final v in phone)
-          MoreTypeInfo(v?.slug ?? '', v?.phone ?? '', null, null, () async {
+          MoreTypeInfo(v?.slug ?? '', v?.phone ?? '', CupertinoIcons.phone, null, () async {
             final Uri smsLaunchUri = Uri(
               scheme: 'tel',
               path: v?.phone ?? '',
@@ -655,24 +680,31 @@ class AboutUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      isThreeLine: isThreeLine ?? false,
-      dense: true,
-      horizontalTitleGap: 8,
-      contentPadding: EdgeInsets.zero,
-      leading: Icon(icon, size: 26, color: config.secondaryColor.shade400,),
-      title: InkWell(onTap: onTap,child: labels.label(title, fontSize: 15, color: color ?? Colors.black87)),
-      subtitle: (isThreeLine == true) ? Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if(subTitle != null) labels.label(subTitle!, fontSize: 13, color: Colors.black87),
-          if(buttonTitle != null) InkWell(
-            onTap: onTap,
-            child: labels.label(buttonTitle!, fontSize: 13, color: colorButton ?? Colors.black87),
-          ),
-        ],
-      ) : null,
-      shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50, width: 1)),
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        isThreeLine: isThreeLine ?? false,
+        dense: true,
+        onTap: onTap,
+        horizontalTitleGap: 8,
+        contentPadding: EdgeInsets.zero,
+        leading: Icon(icon, size: 26, color: config.secondaryColor.shade400,),
+        title: InkWell(onTap: onTap,child: labels.label(title, fontSize: 15, color: color ?? Colors.black87)),
+        subtitle: (isThreeLine == true) ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if(subTitle != null) labels.label(subTitle!, fontSize: 13, color: Colors.black87),
+            if(buttonTitle != null) InkWell(
+              onTap: onTap,
+              child: labels.label(buttonTitle!, fontSize: 13, color: colorButton ?? Colors.black87),
+            ),
+          ],
+        ) : null,
+        shape: const Border(
+          // top: BorderSide(color: config.secondaryColor.shade50, width: 1),
+          // bottom: BorderSide(color: config.secondaryColor.shade50, width: 1),
+        ),
+      ),
     );
   }
 }

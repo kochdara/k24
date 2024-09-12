@@ -201,7 +201,7 @@ class BodyProfile extends StatelessWidget {
 
             IconButton(
               onPressed: () {
-                routeNoAnimation(context, pageBuilder: const SettingPage());
+                routeNoAnimation(context, pageBuilder: const SettingPage(checkLog: true,));
               },
               icon: const Icon(Icons.settings, color: Colors.white),
             ),
@@ -747,10 +747,10 @@ class SegmentedControlExample extends ConsumerWidget {
 
                               IconButton(
                                 onPressed: () => showActionSheet(context, [
-                                  if((datum.actions ?? []).contains('edit')) MoreTypeInfo('edit', 'Edit', null, null, () { handleEdit(context, ref, datum); }),
-                                  if((datum.actions ?? []).contains('insights')) MoreTypeInfo('insights', 'View Insights', null, null, () { print('object'); }),
-                                  if((datum.actions ?? []).contains('auto_renew')) MoreTypeInfo('auto_renew', 'Auto Renew', null, null, () { }),
-                                  if((datum.actions ?? []).contains('share')) MoreTypeInfo('share', 'Share', null, null, () {
+                                  if((datum.actions ?? []).contains('edit')) MoreTypeInfo('edit', 'Edit', CupertinoIcons.pencil_circle, null, () { handleEdit(context, ref, datum); }),
+                                  if((datum.actions ?? []).contains('insights')) MoreTypeInfo('insights', 'View Insights', CupertinoIcons.globe, null, () { print('object'); }),
+                                  if((datum.actions ?? []).contains('auto_renew')) MoreTypeInfo('auto_renew', 'Auto Renew', CupertinoIcons.arrow_counterclockwise, null, () { }),
+                                  if((datum.actions ?? []).contains('share')) MoreTypeInfo('share', 'Share', CupertinoIcons.arrowshape_turn_up_right, null, () {
                                     sharedLinks(context, datum.short_link);
                                   }),
                                 ]),

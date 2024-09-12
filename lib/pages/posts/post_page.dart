@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_validator/form_validator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/helper.dart';
@@ -32,6 +31,7 @@ import '../../serialization/posts/edit_post/edit_post.dart';
 import '../../serialization/posts/post_serials.dart';
 import '../../widgets/dialog_builder.dart';
 import '../../widgets/modals.dart';
+import '../accounts/profiles/profile_page.dart';
 import '../main/home_provider.dart';
 
 final config = Config();
@@ -427,40 +427,33 @@ class _NewAdPageState extends ConsumerState<NewAdPage> {
                 return MapEntry(key, value);
               }
             });
-            // Alert message show for you.
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Processing Data')),
-            );
-            // for update product data //
+
+            /// for update product data ///
             if(widget.type != null && widget.type == 'edit') {
               final editID = widget.datum;
               final productID = editID?.id ?? '';
 
-              // valData.forEach((key, value) {
-              //   print('edit: ($key: $value)');
-              // });
-
               final rest = await sendPost.createPostsOrUpdate(context, valData, ref, productID: productID);
               final returnMessage = ResponseMessagePost.fromJson(rest ?? {});
               if(returnMessage.data?.id != null) {
+                alertSnack(context, returnMessage.message ?? 'Unknown');
                 Navigator.of(context).popUntil((route) => route.isFirst);
-                // final data = returnMessage.data;
-                // futureAwait(() {
-                //   routeAnimation(
-                //     context,
-                //     pageBuilder: DetailsPost(title: data?.title ?? 'N/A', data: GridCard(data: Data_.fromJson(data?.toJson() ?? {}))),
-                //   );
-                // });
+                routeAnimation(context, pageBuilder: const ProfilePage(selectedIndex: 4));
               }
 
-              // for create product data //
+              /// for create product data ///
             } else {
               final rest = await sendPost.createPostsOrUpdate(context, valData, ref);
               final returnMessage = ResponseMessagePost.fromJson(rest ?? {});
               if(returnMessage.data?.id != null) {
+                alertSnack(context, returnMessage.message ?? 'Unknown');
                 Navigator.of(context).popUntil((route) => route.isFirst);
+                routeAnimation(context, pageBuilder: const ProfilePage(selectedIndex: 4));
               }
             }
+
+          } else {
+            alertSnack(context, 'Please check validate again!.');
           }
         },
         padSize: 12,
@@ -546,11 +539,14 @@ class PhotosPage extends ConsumerWidget {
                         Positioned(
                           top: -4,
                           right: -4,
-                          child: PopupMenuButton(
-                            padding: EdgeInsets.zero,
-                            surfaceTintColor: Colors.white,
-                            onSelected: (item) { },
-                            popUpAnimationStyle: AnimationStyle.noAnimation,
+                          child: IconButton(
+                            onPressed: () => showActionSheet(context, [
+                              MoreTypeInfo('view', 'View Picture', CupertinoIcons.eye, null, () {
+                                viewImage(context, '${resultSet['item_image[0]'] is Map ? resultSet['item_image[0]']['image_url']
+                                  : '$baseUrl/tmp/s-${resultSet['item_image[0]']}'}');
+                              }),
+                              MoreTypeInfo('remove', 'Remove Picture', CupertinoIcons.trash_fill, null, () => deleteImagePicker1(ref, 0)),
+                            ]),
                             icon: Container(
                               decoration: BoxDecoration(
                                   color: Colors.white,
@@ -560,35 +556,9 @@ class PhotosPage extends ConsumerWidget {
                               padding: const EdgeInsets.all(3),
                               child: const Icon(Icons.more_vert_rounded, size: 18, color: Colors.black54),
                             ),
-                            itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-                              PopupMenuItem(
-                                height: 25,
-                                value: 0,
-                                onTap: () { viewImage(context, '${resultSet['item_image[0]'] is Map ? resultSet['item_image[0]']['image_url']
-                                    : '$baseUrl/tmp/s-${resultSet['item_image[0]']}'}'); },
-                                child: ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  dense: true,
-                                  horizontalTitleGap: 8,
-                                  leading: const Icon(Icons.remove_red_eye, size: 18),
-                                  title: labels.label('View', fontSize: 13, color: Colors.black87),
-                                ),
-                              ),
-                              PopupMenuItem(
-                                height: 25,
-                                value: 1,
-                                onTap: () => deleteImagePicker1(ref, 0),
-                                child: ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  dense: true,
-                                  horizontalTitleGap: 8,
-                                  leading: const Icon(CupertinoIcons.trash, size: 18),
-                                  title: labels.label('Delete', fontSize: 13, color: Colors.black87),
-                                ),
-                              ),
-                            ],
                           ),
-                        )
+                        ),
+
                       ],
                     ),
                   ) : InkWell(
@@ -650,11 +620,15 @@ class PhotosPage extends ConsumerWidget {
                                     Positioned(
                                       top: -9,
                                       right: -9,
-                                      child: PopupMenuButton(
-                                        padding: EdgeInsets.zero,
-                                        surfaceTintColor: Colors.white,
-                                        onSelected: (item) { },
-                                        popUpAnimationStyle: AnimationStyle.noAnimation,
+                                      child: IconButton(
+                                        onPressed: () => showActionSheet(context, [
+                                          MoreTypeInfo('view', 'View Picture', CupertinoIcons.eye, null, () {
+                                            viewImage(context, resultSet['item_image[$i]'] is Map ? resultSet['item_image[$i]']['image_url']
+                                              : '$baseUrl/tmp/s-${resultSet['item_image[$i]']}');
+                                          }),
+                                          MoreTypeInfo('set_as', 'Set as Cover', CupertinoIcons.photo, null, () => setAsCover(ref, i)),
+                                          MoreTypeInfo('remove', 'Remove Picture', CupertinoIcons.trash_fill, null, () => deleteImagePicker1(ref, i)),
+                                        ]),
                                         icon: Container(
                                           decoration: BoxDecoration(
                                               color: Colors.white,
@@ -664,35 +638,9 @@ class PhotosPage extends ConsumerWidget {
                                           padding: const EdgeInsets.all(3),
                                           child: const Icon(Icons.more_vert_rounded, size: 15, color: Colors.black54),
                                         ),
-                                        itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-                                          PopupMenuItem(
-                                            height: 42,
-                                            value: 0,
-                                            onTap: () { viewImage(context, resultSet['item_image[$i]'] is Map ? resultSet['item_image[$i]']['image_url']
-                                                : '$baseUrl/tmp/s-${resultSet['item_image[$i]']}'); },
-                                            child: ListTile(
-                                              contentPadding: EdgeInsets.zero,
-                                              dense: true,
-                                              horizontalTitleGap: 8,
-                                              leading: const Icon(Icons.remove_red_eye, size: 18),
-                                              title: labels.label('View', fontSize: 13, color: Colors.black87),
-                                            ),
-                                          ),
-                                          PopupMenuItem(
-                                            height: 42,
-                                            value: 1,
-                                            onTap: () => deleteImagePicker1(ref, i),
-                                            child: ListTile(
-                                              contentPadding: EdgeInsets.zero,
-                                              dense: true,
-                                              horizontalTitleGap: 8,
-                                              leading: const Icon(CupertinoIcons.trash, size: 18),
-                                              title: labels.label('Delete', fontSize: 13, color: Colors.black87),
-                                            ),
-                                          ),
-                                        ],
                                       ),
-                                    )
+                                    ),
+
                                   ],
                                 ],
                               ),
@@ -723,6 +671,18 @@ class PhotosPage extends ConsumerWidget {
 
   Future<void> deleteImagePicker1(WidgetRef ref, int index) async {
     updateNewData(ref, 'item_image[$index]', null, newData);
+  }
+
+  Future<void> setAsCover(WidgetRef ref, int index) async {
+    final data = ref.read(newData);
+    final firstData = data['item_image[0]'];
+    final changeData = data['item_image[$index]'];
+    if (firstData == null || firstData.toString().isEmpty) {
+      updateNewData(ref, 'item_image[0]', changeData, newData);
+    } else {
+      updateNewData(ref, 'item_image[0]', changeData, newData);
+      updateNewData(ref, 'item_image[$index]', firstData, newData);
+    }
   }
 
   Future<void> imagePicker1(WidgetRef ref, int index) async {
@@ -756,12 +716,19 @@ class PhotosPage extends ConsumerWidget {
   }
 
   Future<void> uploadIMG(WidgetRef ref, XFile? image, int index) async {
+    final limit = ref.watch(limitPro);
+    final oldNewData = ref.watch(newData);
     final multipartImage = MultipartFile.fromFileSync(image!.path, filename: image.name);
     final filePath = await ref.read(apiServiceProvider).uploadData({
       "file": multipartImage,
     }, ref);
 
-    updateNewData(ref, 'item_image[$index]', filePath.file, newData);
+    for(int i=0; i<limit; i++) {
+      if(oldNewData['item_image[$i]'] == null || oldNewData['item_image[$i]'].toString().isEmpty) {
+        updateNewData(ref, 'item_image[$i]', filePath.file, newData);
+        break;
+      }
+    }
   }
 }
 
@@ -1535,11 +1502,7 @@ class MapField extends ConsumerWidget {
               title: 'Change location',
               onPressed: () { 
                 final mapV = MapClass.fromJson(datum.value ?? {});
-                routeAnimation(context, pageBuilder: MapSample(
-                  latitude: double.tryParse(mapV.x.toString()) ?? 0.0,
-                  longitude: double.tryParse(mapV.y.toString()) ?? 0.0,
-                  zoom: double.tryParse(mapV.z.toString()) ?? 0.0,
-                ));
+                //
               },
               padSize: 10,
               textSize: 15,
@@ -1570,72 +1533,3 @@ void updateNewData(WidgetRef ref, String index, dynamic val, StateProvider<Map> 
   print(ref.watch(newData));
 }
 
-
-
-
-
-
-
-
-class MapSample extends StatefulWidget {
-  const MapSample({super.key,
-    required this.latitude,
-    required this.longitude,
-    required this.zoom,
-  });
-
-  final double latitude;
-  final double longitude;
-  final double zoom;
-
-  @override
-  State<MapSample> createState() => MapSampleState();
-}
-
-class MapSampleState extends State<MapSample> {
-  final Completer<GoogleMapController> _controller =
-  Completer<GoogleMapController>();
-
-  late CameraPosition _kGooglePlex;
-
-  @override
-  void initState() {
-    super.initState();
-
-    setState(() {
-      _kGooglePlex = CameraPosition(
-        target: LatLng(widget.latitude, widget.longitude),
-        zoom: widget.zoom,
-      );
-    });
-  }
-
-  static const CameraPosition _kLake = CameraPosition(
-      bearing: 192.8334901395799,
-      target: LatLng(37.43296265331129, -122.08832357078792),
-      tilt: 59.440717697143555,
-      zoom: 19.151926040649414);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: GoogleMap(
-        mapType: MapType.normal,
-        initialCameraPosition: _kGooglePlex,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToTheLake,
-        label: const Text('To the lake!'),
-        icon: const Icon(Icons.directions_boat),
-      ),
-    );
-  }
-
-  Future<void> _goToTheLake() async {
-    final GoogleMapController controller = await _controller.future;
-    await controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
-  }
-}

@@ -106,9 +106,26 @@ Json? _$JsonConverterToJson<Json, Value>(
 ContactProfile _$ContactProfileFromJson(Map json) => ContactProfile(
       name: const ToString().fromJson(json['name']),
       email: json['email'],
-      map: json['map'],
-      address: json['address'],
-      phone: const ToString().fromJson(json['phone']),
+      map: json['map'] == null
+          ? null
+          : MapClass.fromJson(Map<String, dynamic>.from(json['map'] as Map)),
+      address: const ToString().fromJson(json['address']),
+      phone: (json['phone'] as List<dynamic>?)
+          ?.map(const ToString().fromJson)
+          .toList(),
+      location: json['location'] == null
+          ? null
+          : Location_.fromJson(
+              Map<String, dynamic>.from(json['location'] as Map)),
+      commune: json['commune'] == null
+          ? null
+          : Location_.fromJson(
+              Map<String, dynamic>.from(json['commune'] as Map)),
+      district: json['district'] == null
+          ? null
+          : Location_.fromJson(
+              Map<String, dynamic>.from(json['district'] as Map)),
+      long_location: const ToString().fromJson(json['long_location']),
       phone_white_operator: (json['phone_white_operator'] as List<dynamic>?)
           ?.map(
               (e) => e == null ? null : PhoneWhiteOperator.fromJson(e as Map?))
@@ -119,9 +136,13 @@ Map<String, dynamic> _$ContactProfileToJson(ContactProfile instance) =>
     <String, dynamic>{
       'name': const ToString().toJson(instance.name),
       'email': instance.email,
-      'map': instance.map,
-      'address': instance.address,
-      'phone': const ToString().toJson(instance.phone),
+      'map': instance.map?.toJson(),
+      'address': const ToString().toJson(instance.address),
+      'phone': instance.phone?.map(const ToString().toJson).toList(),
+      'location': instance.location?.toJson(),
+      'commune': instance.commune?.toJson(),
+      'district': instance.district?.toJson(),
+      'long_location': const ToString().toJson(instance.long_location),
       'phone_white_operator':
           instance.phone_white_operator?.map((e) => e?.toJson()).toList(),
     };

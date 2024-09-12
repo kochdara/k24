@@ -99,9 +99,9 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
       listImg = (dataRes.data?.photos ?? dataRes.data?.photos) ?? [];
 
       // check location //
-      if (dataRes.data?.location != null) {
+      if (dataRes.data?.location != null || dataRes.data?.contact?.location != null) {
         futureAwait(duration: 10, () {
-          ref.read(location.notifier).state = dataRes.data?.location?.en_name ?? '';
+          ref.read(location.notifier).state = dataRes.data?.location?.en_name ?? (dataRes.data?.contact?.location?.en_name ?? '');
 
           String? date = stringToTimeAgoDay(date: '${dataRes.data?.renew_date}', format: 'dd, MMM yyyy');
           if(date != null) ref.read(location.notifier).state += ' • $date';
@@ -336,7 +336,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
       final phone = phones ?? [];
       showActionSheet(ref.context, [
         for(final v in phone)
-          MoreTypeInfo(v?.slug ?? '', v?.phone ?? '', null, null, () async {
+          MoreTypeInfo(v?.slug ?? '', v?.phone ?? '', CupertinoIcons.phone, null, () async {
             final Uri smsLaunchUri = Uri(
               scheme: 'tel',
               path: v?.phone ?? '',
@@ -567,7 +567,11 @@ class BodyWidget extends ConsumerWidget {
                                     color: Colors.black.withOpacity(0.1),
                                     child: buttons.textButtons(
                                       title: 'Show Location on Map',
-                                      onPressed: () { },
+                                      onPressed: () {
+                                        final maps = datum?.location?.map;
+                                        final contact =  datum?.location;
+                                        openMap(maps?.x ?? (contact?.en_name2?? mapX), maps?.y ?? (contact?.en_name ?? mapY));
+                                      },
                                       padSize: 10,
                                       textSize: 15,
                                       textColor: config.secondaryColor.shade500,

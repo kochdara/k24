@@ -77,6 +77,9 @@ Location_ _$Location_FromJson(Map<String, dynamic> json) => Location_(
       district: json['district'] == null
           ? null
           : Location_.fromJson(json['district'] as Map<String, dynamic>),
+      map: json['map'] == null
+          ? null
+          : MapClass.fromJson(json['map'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$Location_ToJson(Location_ instance) => <String, dynamic>{
@@ -93,6 +96,7 @@ Map<String, dynamic> _$Location_ToJson(Location_ instance) => <String, dynamic>{
       'long_location': const ToString().toJson(instance.long_location),
       'province': instance.province,
       'district': instance.district,
+      'map': instance.map,
     };
 
 IconSerial _$IconSerialFromJson(Map json) => IconSerial(

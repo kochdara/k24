@@ -75,9 +75,13 @@ class DataProfile {
 class ContactProfile {
   String? name;
   dynamic email;
-  dynamic map;
-  dynamic address;
-  String? phone;
+  MapClass? map;
+  String? address;
+  List<String?>? phone;
+  Location_? location;
+  Location_? commune;
+  Location_? district;
+  String? long_location;
   List<PhoneWhiteOperator?>? phone_white_operator;
 
   ContactProfile({
@@ -86,6 +90,10 @@ class ContactProfile {
     this.map,
     this.address,
     this.phone,
+    this.location,
+    this.commune,
+    this.district,
+    this.long_location,
     this.phone_white_operator,
   });
 

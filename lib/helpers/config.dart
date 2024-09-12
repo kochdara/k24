@@ -202,6 +202,8 @@ class Config {
 // ########### //
 // more config //
 // ########### //
+String? mapX = '11.556419';
+String? mapY = '104.928206';
 double bottomSheet = 18;
 double lineHeight = 1.45;
 double spaceGrid = 12;

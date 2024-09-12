@@ -5,6 +5,7 @@ import 'package:k24/serialization/users/user_serial.dart';
 
 import '../category/main_category.dart';
 import '../helper.dart';
+import '../posts/post_serials.dart';
 
 part 'grid_card.g.dart';
 
@@ -72,6 +73,7 @@ class Data_ {
   User_? user;
   Store_? store;
   Location_? location;
+  PostContact? contact;
   MainCategory? category;
   List<HighlightSpec?>? highlight_specs;
   List<Spec_?>? specs;
@@ -111,6 +113,7 @@ class Data_ {
     this.user,
     this.store,
     this.location,
+    this.contact,
     this.category,
     this.highlight_specs,
     this.specs,

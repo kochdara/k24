@@ -20,6 +20,7 @@ import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../../helpers/functions.dart';
 import '../../widgets/my_widgets.dart';
 import '../settings/settings_page.dart';
 import 'login/login_provider.dart';
@@ -105,6 +106,19 @@ class BodyLogin extends ConsumerStatefulWidget {
 
 class _BodyLoginState extends ConsumerState<BodyLogin> {
   final apiServiceProvider = Provider((ref) => MyApiService());
+  String? ipAddress = '';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setupPage();
+  }
+
+  void setupPage() async {
+    ipAddress = await getIpAddress();
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +132,9 @@ class _BodyLoginState extends ConsumerState<BodyLogin> {
           actions: [
             IconButton(
               padding: const EdgeInsets.all(12),
-              onPressed: () { },
+              onPressed: () {
+                routeAnimation(context, pageBuilder: const SettingPage());
+              },
               icon: const Icon(Icons.settings, color: Colors.white, size: 28),
             ),
           ],
@@ -171,13 +187,13 @@ class _BodyLoginState extends ConsumerState<BodyLogin> {
                           horizontalTitleGap: 8,
                           trailing: IconButton(
                             onPressed: () => showActionSheet(context, [
-                              MoreTypeInfo('edit', 'Edit', null, null, () {
+                              MoreTypeInfo('edit', 'Edit', CupertinoIcons.pencil_circle, null, () {
                                 routeAnimation(context, pageBuilder: LoginPage(
                                   log: v.login ?? v.data?.user?.username,
                                   pass: v.password,
                                 ));
                               }),
-                              MoreTypeInfo('remove', 'Remove', null, null, () => removeUser(ref, v)),
+                              MoreTypeInfo('remove', 'Remove', CupertinoIcons.trash_fill, null, () => removeUser(ref, v)),
                             ]),
                             padding: const EdgeInsets.all(12),
                             icon: Icon(Icons.more_vert_rounded, color: config.secondaryColor.shade400),
@@ -257,7 +273,7 @@ class _BodyLoginState extends ConsumerState<BodyLogin> {
 
                       labels.label('Version: ${ref.watch(versionPro)}', fontSize: 14, color: Colors.black54),
                       labels.label('${ref.watch(modelPro)}: ${ref.watch(modelVPro)}', fontSize: 14, color: Colors.black54),
-                      labels.label(InternetAddress.anyIPv4.address, fontSize: 14, color: Colors.black54),
+                      labels.label(ipAddress ?? 'Unknown', fontSize: 14, color: Colors.black54),
 
                     ],
                   ),

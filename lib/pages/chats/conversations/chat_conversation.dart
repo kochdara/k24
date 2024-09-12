@@ -22,6 +22,7 @@ import 'package:k24/widgets/forms.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
 
+import '../../../helpers/functions.dart';
 import '../../../serialization/chats/chat_serial.dart';
 import '../../../serialization/chats/conversation/conversation_serial.dart';
 import '../../../widgets/buttons.dart';
@@ -761,9 +762,11 @@ class BodyChatDetails extends StatelessWidget {
               padding: const EdgeInsets.all(25),
               child: buttons.textButtons(
                 title: 'Show Location on Map',
-                onPressed: () { },
+                onPressed: () {
+                  openMap('${data.lat ?? mapX}', '${data.lng ?? mapY}');
+                },
                 padSize: 10,
-                textSize: 14,
+                textSize: 13,
                 textColor: config.secondaryColor.shade400,
                 textWeight: FontWeight.w500,
                 prefixIcon: Icons.location_pin,
@@ -784,7 +787,9 @@ class BodyChatDetails extends StatelessWidget {
     return Container(
       constraints: const BoxConstraints(maxWidth: 250),
       child: ListTile(
-        onTap: () {},
+        onTap: () {
+          openLinkFunction(data.file ?? mainUrl);
+        },
         leading: Icon(Icons.file_copy_rounded, size: 34, color: config.secondaryColor.shade400),
         tileColor: Colors.white,
         title: labels.label('${data.name}', fontSize: 15, maxLines: 1, color: Colors.black87),

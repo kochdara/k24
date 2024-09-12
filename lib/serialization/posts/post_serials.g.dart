@@ -65,6 +65,10 @@ PostContact _$PostContactFromJson(Map json) => PostContact(
       map: json['map'] == null
           ? null
           : MapClass.fromJson(Map<String, dynamic>.from(json['map'] as Map)),
+      location: json['location'] == null
+          ? null
+          : Location_.fromJson(
+              Map<String, dynamic>.from(json['location'] as Map)),
       province: json['province'] == null
           ? null
           : PostCommune.fromJson(json['province'] as Map),
@@ -85,6 +89,7 @@ Map<String, dynamic> _$PostContactToJson(PostContact instance) =>
       'email': const ToString().toJson(instance.email),
       'address': const ToString().toJson(instance.address),
       'map': instance.map?.toJson(),
+      'location': instance.location?.toJson(),
       'province': instance.province?.toJson(),
       'district': instance.district?.toJson(),
       'commune': instance.commune?.toJson(),

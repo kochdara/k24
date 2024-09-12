@@ -75,6 +75,7 @@ class Location_ {
   String? long_location;
   Location_? province;
   Location_? district;
+  MapClass? map;
 
   Location_({
     this.id,
@@ -90,6 +91,7 @@ class Location_ {
     this.long_location,
     this.province,
     this.district,
+    this.map,
   });
 
   factory Location_.fromJson(Map<String, dynamic> json) => _$Location_FromJson(json);

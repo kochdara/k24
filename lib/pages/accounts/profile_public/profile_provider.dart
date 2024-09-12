@@ -14,7 +14,8 @@ part 'profile_provider.g.dart';
 
 @riverpod
 class ProfilePublic extends _$ProfilePublic {
-  final String fields = 'all';
+  // final String fields = 'all';
+  final String fields = 'following,followers,is_follow,id,is_verify,type,username,about,link,contact,cover,logo,online_status,photo,registered_date,verified,description,categories,business_hours,branches,keywords,menu,member_type,is_saved';
   final String meta = 'true';
   final String functions = 'chat,save,follow';
 

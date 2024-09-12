@@ -56,6 +56,7 @@ class PostContact {
   String? email;
   String? address;
   MapClass? map;
+  Location_? location;
   PostCommune? province;
   PostCommune? district;
   PostCommune? commune;
@@ -68,6 +69,7 @@ class PostContact {
     this.email,
     this.address,
     this.map,
+    this.location,
     this.province,
     this.district,
     this.commune,
