@@ -170,7 +170,7 @@ void showActionSheet2(BuildContext context, List<MoreTypeInfo> listMore, {
             mainAxisSize: MainAxisSize.min,
             children: [
               if(title != null) ListTile(
-                title: labels.label(title, color: Colors.black87, fontSize: 17, textAlign: TextAlign.center),
+                title: labels.label(title, color: Colors.black87, fontSize: 17, textAlign: TextAlign.center, fontWeight: FontWeight.w600,maxLines: 1,),
                 shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50)),
                 tileColor: config.secondaryColor.shade50,
               ),
@@ -182,9 +182,9 @@ void showActionSheet2(BuildContext context, List<MoreTypeInfo> listMore, {
                 },
                 leading: (type.icon != null) ? Icon(type.icon, size: 22, color: Colors.black87,)
                 : (type.iconSave is Widget) ? type.iconSave : null,
-                title: labels.label(type.name, color: Colors.black87, fontSize: 16),
+                title: labels.label(type.name, color: Colors.black87, fontSize: 16, maxLines: 1,),
                 shape: Border(bottom: BorderSide(color: config.secondaryColor.shade50)),
-                subtitle: (type.description.isNotEmpty) ? labels.label(type.description, color: Colors.black87, fontSize: 13) : null,
+                subtitle: (type.description.isNotEmpty) ? labels.label(type.description, color: Colors.black87, fontSize: 13, maxLines: 1) : null,
               ),
             ],
           ),

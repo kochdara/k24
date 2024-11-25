@@ -58,6 +58,26 @@ deleteAll(String key) async {
   await storage.deleteAll();
 }
 
+Future<File> downloadAndSaveFile(String fileUrl, { String? type = 'pdf' }) async {
+  await requestPermissions();
+  try {
+    Dio dio = Dio();
+    final targetDirectory = Directory('/storage/emulated/0/DCIM/k24');
+
+    if (!await targetDirectory.exists()) {
+      await targetDirectory.create(recursive: true);
+    }
+
+    final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+    final filePath = path.join(targetDirectory.path, '$timestamp.$type');
+
+    await dio.download(fileUrl, filePath);
+    return File(filePath);
+  } catch (e) {
+    throw Exception('Failed to download file: $e');
+  }
+}
+
 Future<File> downloadAndSaveImage(String imageUrl) async {
   await requestPermissions();
   try {
@@ -81,11 +101,10 @@ Future<File> downloadAndSaveImage(String imageUrl) async {
 }
 
 Future<void> requestPermissions() async {
-  final status = await Permission.storage.status;
-  if (!status.isGranted) {
-    final result = await Permission.storage.request();
-    if (!result.isGranted) {
-      // throw Exception('Storage permission denied');
-    }
+  if (await Permission.storage.isDenied) {
+    await Permission.storage.request();
+  }
+  if (await Permission.manageExternalStorage.isDenied) {
+    await Permission.manageExternalStorage.request();
   }
 }

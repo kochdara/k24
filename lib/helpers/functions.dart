@@ -14,6 +14,11 @@ import 'package:k24/pages/saves/save_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+String capitalizeFirstLetter(String input) {
+  if (input.isEmpty) return input;
+  return input[0].toUpperCase() + input.substring(1);
+}
+
 Future<void> openMap(String? latitude, String? longitude) async {
   final googleUrl = 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
   if (await canLaunch(googleUrl)) {
@@ -66,8 +71,8 @@ Future<void> openLinkFunction(String links) async {
 
   // You can reassemble or manipulate the parts if needed
   const String scheme = 'https';
-  final String host = urlParts[0];
-  final String path = urlParts.sublist(1).join('/');
+  final String host = (urlParts.isNotEmpty) ? urlParts[0] : '';
+  final String path = (urlParts.length > 1) ? urlParts.sublist(1).join('/') : '';
 
   final Uri smsLaunchUri = Uri(
     scheme: scheme,
@@ -75,7 +80,7 @@ Future<void> openLinkFunction(String links) async {
     path: path,
   );
 
-  await launchUrl(smsLaunchUri);
+  await launchUrl(Uri.tryParse(links) ?? smsLaunchUri);
 }
 
 Future<void> savedFunctions(WidgetRef ref, String? id, dynamic provider, {

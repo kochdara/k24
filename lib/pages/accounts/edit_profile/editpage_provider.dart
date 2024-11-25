@@ -12,6 +12,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../helpers/helper.dart';
 import '../../../serialization/accounts/edit_profile/edit_profile_serial.dart';
+import '../../../serialization/helper.dart';
 
 part 'editpage_provider.g.dart';
 
@@ -56,10 +57,10 @@ class EditProfile extends _$EditProfile {
     if (newMap != null) {
       switch(type) {
         case 'upload_cover':
-          if(value is String) newMap.cover?.url = value;
+          if(value is IconSerial || value == null) newMap.cover = value;
           break;
         case 'upload_profile':
-          if(value is String) newMap.photo?.url = value;
+          if(value is IconSerial || value == null) newMap.photo = value;
           break;
         default:
           break;

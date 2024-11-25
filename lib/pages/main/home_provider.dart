@@ -96,12 +96,10 @@ class HomeLists extends _$HomeLists {
       if(newDatum != null) {
         newDatum.forEach((key, value) { subs += '&$key=$value'; });
       }
-      print(subs);
+
       final res = await dio.get('$postUrl/$subs', options: Options(headers: {
         'Access-Token': tokens.tokens?.access_token,
       }));
-
-      print(res.data);
 
       if (res.statusCode == 200 && res.data != null) {
         final resp = HomeSerial.fromJson(res.data);
@@ -160,18 +158,18 @@ void loadMore(WidgetRef ref,
   final fetchingNotifier = ref.read(fetchingProvider.notifier);
   final scroll = scrollController.position;
 
-  if (scroll.pixels > 1500 && scroll.pixels >= (scroll.maxScrollExtent - 750) && (current >= limit) && !fetchingNotifier.state) {
-    fetchingNotifier.state = true;
-    await homeListsNotifier.fetchHome();
-    fetchingNotifier.state = false;
-  }
-
   final scrollDirectionNotifier = ref.read(downProvider.notifier);
   final isScrollingDown = ref.watch(downProvider);
   if (scroll.userScrollDirection == ScrollDirection.reverse && !isScrollingDown) {
     scrollDirectionNotifier.state = true;
   } else if (scroll.userScrollDirection == ScrollDirection.forward && isScrollingDown) {
     scrollDirectionNotifier.state = false;
+  }
+
+  if (scroll.pixels > 1500 && scroll.pixels >= (scroll.maxScrollExtent - 750) && (current >= limit) && !fetchingNotifier.state) {
+    fetchingNotifier.state = true;
+    await homeListsNotifier.fetchHome();
+    fetchingNotifier.state = false;
   }
 }
 

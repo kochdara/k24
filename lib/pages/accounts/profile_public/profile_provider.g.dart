@@ -6,7 +6,7 @@ part of 'profile_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$profilePublicHash() => r'6f63c7ea3b48591d57eb7941e075c62bcada3b8b';
+String _$profilePublicHash() => r'c8c468da5f10377be11b6fe3dc8b5a2507f32195';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -33,11 +33,13 @@ abstract class _$ProfilePublic
     extends BuildlessAutoDisposeAsyncNotifier<ProfileSerial?> {
   late final WidgetRef context;
   late final String? username;
+  late final String? userid;
 
   FutureOr<ProfileSerial?> build(
-    WidgetRef context,
+    WidgetRef context, {
     String? username,
-  );
+    String? userid,
+  });
 }
 
 /// See also [ProfilePublic].
@@ -51,12 +53,14 @@ class ProfilePublicFamily extends Family<AsyncValue<ProfileSerial?>> {
 
   /// See also [ProfilePublic].
   ProfilePublicProvider call(
-    WidgetRef context,
+    WidgetRef context, {
     String? username,
-  ) {
+    String? userid,
+  }) {
     return ProfilePublicProvider(
       context,
-      username,
+      username: username,
+      userid: userid,
     );
   }
 
@@ -66,7 +70,8 @@ class ProfilePublicFamily extends Family<AsyncValue<ProfileSerial?>> {
   ) {
     return call(
       provider.context,
-      provider.username,
+      username: provider.username,
+      userid: provider.userid,
     );
   }
 
@@ -90,12 +95,14 @@ class ProfilePublicProvider extends AutoDisposeAsyncNotifierProviderImpl<
     ProfilePublic, ProfileSerial?> {
   /// See also [ProfilePublic].
   ProfilePublicProvider(
-    WidgetRef context,
+    WidgetRef context, {
     String? username,
-  ) : this._internal(
+    String? userid,
+  }) : this._internal(
           () => ProfilePublic()
             ..context = context
-            ..username = username,
+            ..username = username
+            ..userid = userid,
           from: profilePublicProvider,
           name: r'profilePublicProvider',
           debugGetCreateSourceHash:
@@ -107,6 +114,7 @@ class ProfilePublicProvider extends AutoDisposeAsyncNotifierProviderImpl<
               ProfilePublicFamily._allTransitiveDependencies,
           context: context,
           username: username,
+          userid: userid,
         );
 
   ProfilePublicProvider._internal(
@@ -118,10 +126,12 @@ class ProfilePublicProvider extends AutoDisposeAsyncNotifierProviderImpl<
     required super.from,
     required this.context,
     required this.username,
+    required this.userid,
   }) : super.internal();
 
   final WidgetRef context;
   final String? username;
+  final String? userid;
 
   @override
   FutureOr<ProfileSerial?> runNotifierBuild(
@@ -129,7 +139,8 @@ class ProfilePublicProvider extends AutoDisposeAsyncNotifierProviderImpl<
   ) {
     return notifier.build(
       context,
-      username,
+      username: username,
+      userid: userid,
     );
   }
 
@@ -140,7 +151,8 @@ class ProfilePublicProvider extends AutoDisposeAsyncNotifierProviderImpl<
       override: ProfilePublicProvider._internal(
         () => create()
           ..context = context
-          ..username = username,
+          ..username = username
+          ..userid = userid,
         from: from,
         name: null,
         dependencies: null,
@@ -148,6 +160,7 @@ class ProfilePublicProvider extends AutoDisposeAsyncNotifierProviderImpl<
         debugGetCreateSourceHash: null,
         context: context,
         username: username,
+        userid: userid,
       ),
     );
   }
@@ -162,7 +175,8 @@ class ProfilePublicProvider extends AutoDisposeAsyncNotifierProviderImpl<
   bool operator ==(Object other) {
     return other is ProfilePublicProvider &&
         other.context == context &&
-        other.username == username;
+        other.username == username &&
+        other.userid == userid;
   }
 
   @override
@@ -170,6 +184,7 @@ class ProfilePublicProvider extends AutoDisposeAsyncNotifierProviderImpl<
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, context.hashCode);
     hash = _SystemHash.combine(hash, username.hashCode);
+    hash = _SystemHash.combine(hash, userid.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -181,6 +196,9 @@ mixin ProfilePublicRef on AutoDisposeAsyncNotifierProviderRef<ProfileSerial?> {
 
   /// The parameter `username` of this provider.
   String? get username;
+
+  /// The parameter `userid` of this provider.
+  String? get userid;
 }
 
 class _ProfilePublicProviderElement
@@ -192,6 +210,8 @@ class _ProfilePublicProviderElement
   WidgetRef get context => (origin as ProfilePublicProvider).context;
   @override
   String? get username => (origin as ProfilePublicProvider).username;
+  @override
+  String? get userid => (origin as ProfilePublicProvider).userid;
 }
 
 String _$profileListHash() => r'3e7224b6e384557b31d586554cab962148842355';

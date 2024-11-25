@@ -264,7 +264,7 @@ class MoreApiService {
     final subs = 'me/resume/download?lang=$lang';
     try {
       final res = await dio.post('$jobUrl/$subs', data: formData, options: Options(headers: {
-        'Access-Token': tokens.tokens?.access_token
+        'Access-Token': tokens.tokens?.access_token,
       }));
       Navigator.pop(ref.context);
       return PersonalSerial.fromJson(res.data ?? {});
@@ -341,6 +341,37 @@ class MoreApiService {
           return await deleteAttachment(ref); // Retry the request after refreshing the token
         } else {
           myWidgets.showAlert(ref.context, '${e.response ?? 'Sorry you can\'t delete this attachment.\nPlease try again.'}', title: 'Alert');
+        }
+      }
+    } catch (e) {
+      print(e);
+    }
+    return PersonalSerial();
+  }
+
+  Future<PersonalSerial?> submitApplyJobs(WidgetRef ref, Map<String, dynamic> data) async {
+    dialogBuilder(ref.context);
+    final tokens = ref.watch(usersProvider);
+    final formData = FormData.fromMap(data);
+    final subs = 'me/apply_job/easy_apply?lang=$lang';
+    try {
+      final res = await dio.post('$jobUrl/$subs', data: formData, options: Options(headers: {
+        'Access-Token': tokens.tokens?.access_token
+      }));
+      Navigator.pop(ref.context);
+      return PersonalSerial.fromJson(res.data ?? {});
+    } on DioException catch (e) {
+      Navigator.pop(ref.context);
+      if (e.response != null) {
+        // Handle DioError with response
+        final response = e.response;
+        // Handle Dio-specific errors
+        if (response?.statusCode == 401) {
+          // Token might have expired, try to refresh the token
+          await checkTokens(ref);
+          return await submitApplyJobs(ref, data); // Retry the request after refreshing the token
+        } else {
+          myWidgets.showAlert(ref.context, '${e.response ?? 'Sorry you can\'t submit this resume.\nPlease try again.'}', title: 'Alert');
         }
       }
     } catch (e) {

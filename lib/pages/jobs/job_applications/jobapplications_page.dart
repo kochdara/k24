@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
+import 'package:k24/helpers/functions.dart';
 import 'package:k24/pages/jobs/job_applications/application_provider.dart';
 import 'package:k24/pages/jobs/job_applications/details_applications.dart';
 import 'package:k24/pages/more_provider.dart';
+import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/serialization/jobs/applications/jobapplications_serial.dart';
 import 'package:k24/serialization/notify/nortify_serial.dart';
 import 'package:k24/widgets/dialog_builder.dart';
@@ -156,6 +158,14 @@ class BodyJobApplication extends ConsumerWidget {
                                             data: NotifyData(
                                               cv: ResumeData.fromJson(oldSchool as Map<String, dynamic>),
                                               post: datum?.post,
+                                              id: datum?.application?.userid,
+                                              adid: datum?.post?.id,
+                                              apply_date: datum?.apply_date,
+                                              application_type: datum?.application_type,
+                                              user: User_(
+                                                id: datum?.application?.userid,
+                                                name: datum?.application?.name,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -234,38 +244,44 @@ class BodyJobApplication extends ConsumerWidget {
                     spacing: 30,
                     runSpacing: 4,
                     children: [
-                      InkWell(
-                        onTap: () {
-                          showActionSheet2(context, [
-                            MoreTypeInfo('All', '', null, null, () => updateMap(ref, 'status', 'all')),
-                            MoreTypeInfo('Pending', '', null, null, () => updateMap(ref, 'status', 'pending')),
-                            MoreTypeInfo('Viewed', '', null, null, () => updateMap(ref, 'status', 'viewed')),
-                            MoreTypeInfo('Hired', '', null, null, () => updateMap(ref, 'status', 'hired')),
-                            MoreTypeInfo('Rejected', '', null, null, () => updateMap(ref, 'status', 'rejected')),
-                          ], title: 'Status');
-                        },
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            labels.label('Status: ${oldMap['status'] ?? 'all'}', color: Colors.black87, fontSize: 14),
-                            const Icon(Icons.arrow_drop_down_outlined, color: Colors.black87, size: 20,),
-                          ],
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            showActionSheet2(context, [
+                              MoreTypeInfo('All', '', null, null, () => updateMap(ref, 'status', 'all')),
+                              MoreTypeInfo('Pending', '', null, null, () => updateMap(ref, 'status', 'pending')),
+                              MoreTypeInfo('Viewed', '', null, null, () => updateMap(ref, 'status', 'viewed')),
+                              MoreTypeInfo('Hired', '', null, null, () => updateMap(ref, 'status', 'hired')),
+                              MoreTypeInfo('Rejected', '', null, null, () => updateMap(ref, 'status', 'rejected')),
+                            ], title: 'Status');
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              labels.label('Status: ${capitalizeFirstLetter(oldMap['status'] ?? 'all')}', color: Colors.black87, fontSize: 14),
+                              const Icon(Icons.arrow_drop_down_outlined, color: Colors.black87, size: 20,),
+                            ],
+                          ),
                         ),
                       ),
 
-                      InkWell(
-                        onTap: () {
-                          showActionSheet2(context, [
-                            MoreTypeInfo('Newest', '', null, null, () => updateMap(ref, 'sort', 'newest')),
-                            MoreTypeInfo('Oldest', '', null, null, () => updateMap(ref, 'sort', 'oldest')),
-                          ], title: 'Sort');
-                        },
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            labels.label('Sort: ${oldMap['sort'] ?? 'newest'}', color: Colors.black87, fontSize: 14),
-                            const Icon(Icons.arrow_drop_down_outlined, color: Colors.black87, size: 20,),
-                          ],
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            showActionSheet2(context, [
+                              MoreTypeInfo('Newest', '', null, null, () => updateMap(ref, 'sort', 'newest')),
+                              MoreTypeInfo('Oldest', '', null, null, () => updateMap(ref, 'sort', 'oldest')),
+                            ], title: 'Sort');
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              labels.label('Sort: ${capitalizeFirstLetter(oldMap['sort'] ?? 'newest')}', color: Colors.black87, fontSize: 14),
+                              const Icon(Icons.arrow_drop_down_outlined, color: Colors.black87, size: 20,),
+                            ],
+                          ),
                         ),
                       ),
 

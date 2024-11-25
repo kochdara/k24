@@ -204,18 +204,18 @@ void subLoadMore(WidgetRef ref, Map data,
   final fetchingNotifier = ref.read(fetchingProvider.notifier);
   final scroll = scrollController.position;
 
-  if (scroll.pixels > 1500 && scroll.pixels >= (scroll.maxScrollExtent - 750) && current >= limit && !fetchingNotifier.state) {
-    fetchingNotifier.state = true;
-    await subListsNotifier.subFetch();
-    fetchingNotifier.state = false;
-  }
-
   final scrollDirectionNotifier = ref.read(downProvider.notifier);
   final isScrollingDown = ref.watch(downProvider);
   if (scroll.userScrollDirection == ScrollDirection.reverse && !isScrollingDown) {
     scrollDirectionNotifier.state = true;
   } else if (scroll.userScrollDirection == ScrollDirection.forward && isScrollingDown) {
     scrollDirectionNotifier.state = false;
+  }
+
+  if (scroll.pixels > 1500 && scroll.pixels >= (scroll.maxScrollExtent - 750) && current >= limit && !fetchingNotifier.state) {
+    fetchingNotifier.state = true;
+    await subListsNotifier.subFetch();
+    fetchingNotifier.state = false;
   }
 }
 

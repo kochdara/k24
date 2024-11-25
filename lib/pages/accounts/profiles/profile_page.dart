@@ -95,7 +95,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget build(BuildContext context) {
     final mapVal = ref.watch(newMap);
     final userPro = ref.watch(usersProvider);
-    final providerPro = profilePublicProvider(ref, '${userPro.user?.username}');
+    final providerPro = profilePublicProvider(ref, username: '${userPro.user?.username}');
     final profilePro = ref.watch(providerPro);
     final provider = ownProfileListProvider(ref, mapVal);
     final ownProfilePro = ref.watch(provider);

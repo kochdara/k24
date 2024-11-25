@@ -135,7 +135,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
     final provider = editProfileProvider(ref);
     final userPro = ref.watch(provider);
-    final editData = userPro.valueOrNull;
 
     return Scaffold(
       appBar: AppBar(
@@ -153,391 +152,388 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                 height: 250,
                 alignment: Alignment.center,
                 child: const CircularProgressIndicator(),
-              ) else Column(
-                children: [
-                  // stack photo profile //
-                  Stack(
-                    alignment: AlignmentDirectional.bottomCenter,
+              ) else userPro.when(
+                error: (e, st) => myCards.notFound(context, id: '', message: '$e', onPressed: () { }),
+                loading: () => const SizedBox(
+                  height: 250,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                data: (data) {
+                  final editData = data;
+
+                  return Column(
                     children: [
-                      // cover of image
-                      Column(
+                      // stack photo profile //
+                      Stack(
+                        alignment: AlignmentDirectional.bottomCenter,
                         children: [
-                          InkWell(
-                            onTap: () => showActionSheet(context, [
-                              if(editData?.cover?.url != null) MoreTypeInfo('view', 'view', CupertinoIcons.eye, null, () => viewImage(context, '${editData?.cover?.url}')),
-                              MoreTypeInfo('change', 'Change', CupertinoIcons.pencil_circle, null, () {
-                                imagePicker1('upload_cover', provider);
-                              }),
-                            ]),
-                            child: Container(
-                              color: config.primaryAppColor.shade600,
-                              height: 200,
-                              width: double.infinity,
-                              child: (editData?.cover?.url != null) ? FadeInImage.assetNetwork(
-                                placeholder: placeholder,
-                                image: editData?.cover?.url ?? '',
-                                fit: BoxFit.cover,
-                              ) : Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                          // cover of image
+                          Column(
+                            children: [
+                              InkWell(
+                                onTap: () => showActionSheet(context, [
+                                  if(editData?.cover?.url != null) MoreTypeInfo('view', 'View Picture', CupertinoIcons.eye, null, () => viewImage(context, '${editData?.cover?.url}')),
+                                  MoreTypeInfo('change', '${(editData?.cover?.url != null) ? 'Change' : 'Add'} Picture',
+                                      (editData?.cover?.url != null) ? CupertinoIcons.pencil_circle : CupertinoIcons.add_circled, null, () {
+                                    imagePicker1('upload_cover', provider);
+                                  }),
+                                  if(editData?.cover?.url != null) MoreTypeInfo('remove', 'Remove Picture', CupertinoIcons.trash_fill, null, () async {
+                                    updateNewMap(ref, 'cover', null);
+                                    submitForm(provider, type: 'upload_cover', back: false);
+                                  }),
+                                ]),
+                                child: Container(
+                                  color: config.primaryAppColor.shade600,
+                                  height: 200,
+                                  width: double.infinity,
+                                  child: (editData?.cover != null) ? FadeInImage.assetNetwork(
+                                    placeholder: placeholder,
+                                    image: editData?.cover?.url ?? '',
+                                    fit: BoxFit.cover,
+                                  ) : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.camera_alt, color: Colors.white, size: 20,),
+                                      const SizedBox(width: 8,),
+                                      labels.label('Add cover photo', fontSize: 16,),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(height: 60,),
+                            ],
+                          ),
+                          // profile image
+                          Positioned(
+                            bottom: 10,
+                            child: InkWell(
+                              onTap: () => showActionSheet(context, [
+                                if(editData?.photo?.url != null) MoreTypeInfo('view', 'View Picture', CupertinoIcons.eye, null, () => viewImage(context, '${editData?.photo?.url}')),
+                                MoreTypeInfo('change', '${(editData?.photo?.url != null) ? 'Change' : 'Add'} Picture',
+                                    (editData?.photo?.url != null) ? CupertinoIcons.pencil_circle : CupertinoIcons.add_circled, null, () {
+                                  imagePicker1('upload_profile', provider);
+                                }),
+                                if(editData?.photo?.url != null) MoreTypeInfo('remove', 'Remove Picture', CupertinoIcons.trash_fill, null, () async {
+                                  updateNewMap(ref, 'photo', null);
+                                  submitForm(provider, type: 'upload_profile', back: false);
+                                }),
+                              ]),
+                              child: Stack(
                                 children: [
-                                  const Icon(Icons.camera_alt, color: Colors.white, size: 20,),
-                                  const SizedBox(width: 8,),
-                                  labels.label('Add cover photo', fontSize: 16,),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        color: config.secondaryColor.shade100,
+                                        borderRadius: BorderRadius.circular(100),
+                                        border: Border.all(color: Colors.white, width: 4)
+                                    ),
+                                    alignment: Alignment.center,
+                                    width: 94,
+                                    height: 94,
+                                    child: (editData?.photo?.url != null) ? ClipOval(
+                                      child: FadeInImage.assetNetwork(
+                                        placeholder: placeholder,
+                                        image: editData?.photo?.url ?? '',
+                                        width: 94,
+                                        height: 94,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ) : const Icon(Icons.person, size: 64, color: Colors.white),
+                                  ),
+
+                                  Positioned(
+                                    bottom: 4,
+                                    right: 4,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(50),
+                                        color: config.secondaryColor.shade50,
+                                      ),
+                                      child: Icon(Icons.camera_alt, size: 14, color: config.secondaryColor.shade400),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
                           ),
 
-                          const SizedBox(height: 60,),
                         ],
                       ),
-                      // profile image
-                      Positioned(
-                        bottom: 10,
-                        child: InkWell(
-                          onTap: () => showActionSheet(context, [
-                            if(editData?.photo?.url != null) MoreTypeInfo('view', 'view', CupertinoIcons.eye, null, () => viewImage(context, '${editData?.photo?.url}')),
-                            MoreTypeInfo('change', 'Change', CupertinoIcons.pencil_circle, null, () {
-                              imagePicker1('upload_profile', provider);
-                            }),
-                          ]),
-                          child: Stack(
+
+                      // form text //
+                      Padding(
+                        padding: const EdgeInsets.all(14.0),
+                        child: Form(
+                          key: _formKey,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          child: Wrap(
+                            spacing: 14,
+                            runSpacing: 14,
+                            direction: Axis.horizontal,
                             children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                    color: config.secondaryColor.shade100,
-                                    borderRadius: BorderRadius.circular(100),
-                                    border: Border.all(color: Colors.white, width: 4)
-                                ),
-                                alignment: Alignment.center,
-                                width: 94,
-                                height: 94,
-                                child: (editData?.photo?.url != null) ? ClipOval(
-                                  child: FadeInImage.assetNetwork(
-                                    placeholder: placeholder,
-                                    image: editData?.photo?.url ?? '',
-                                    width: 94,
-                                    height: 94,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ) : const Icon(Icons.person, size: 64, color: Colors.white),
+
+                              forms.labelFormFields(
+                                labelText: 'First Name',
+                                controller: hidden ? null : fnController,
+                                onChanged: (val) => updateNewMap(ref, 'first_name', val),
+                                validator: ValidationBuilder().required().build(),
+                                onTap: () => rHidden.state = true,
                               ),
 
-                              Positioned(
-                                bottom: 4,
-                                right: 4,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(50),
-                                    color: config.secondaryColor.shade50,
-                                  ),
-                                  child: Icon(Icons.camera_alt, size: 14, color: config.secondaryColor.shade400),
-                                ),
+                              forms.labelFormFields(
+                                labelText: 'Last Name',
+                                controller: hidden ? null : lnController,
+                                onChanged: (val) => updateNewMap(ref, 'last_name', val),
+                                validator: ValidationBuilder().required().build(),
+                                onTap: () => rHidden.state = true,
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
 
-                    ],
-                  ),
-
-                  // form text //
-                  Padding(
-                    padding: const EdgeInsets.all(14.0),
-                    child: Form(
-                      key: _formKey,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      child: Wrap(
-                        spacing: 14,
-                        runSpacing: 14,
-                        direction: Axis.horizontal,
-                        children: [
-
-                          forms.labelFormFields(
-                            labelText: 'First Name',
-                            controller: hidden ? null : fnController,
-                            onChanged: (val) => updateNewMap(ref, 'first_name', val),
-                            validator: ValidationBuilder().required().build(),
-                            onTap: () => rHidden.state = true,
-                          ),
-
-                          forms.labelFormFields(
-                            labelText: 'Last Name',
-                            controller: hidden ? null : lnController,
-                            onChanged: (val) => updateNewMap(ref, 'last_name', val),
-                            validator: ValidationBuilder().required().build(),
-                            onTap: () => rHidden.state = true,
-                          ),
-
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              labels.label('Gender', color: Colors.black87, fontSize: 14),
-                              const SizedBox(height: 4,),
-
-                              Flex(
-                                direction: Axis.horizontal,
-                                crossAxisAlignment: CrossAxisAlignment.end,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: buttons.textButtons(
-                                      title: 'Male',
-                                      onPressed: () {
-                                        updateNewMap(ref, 'gender', 'm');
-                                      },
-                                      padding: const EdgeInsets.symmetric(vertical: 13),
-                                      textSize: 13,
-                                      bgColor: (resultSet['gender'] == 'm') ? config.infoColor.shade50 : Colors.white,
-                                      borderColor: (resultSet['gender'] == 'm') ? config.infoColor.shade300 : config.secondaryColor.shade100,
+                                  labels.label('Gender', color: Colors.black87, fontSize: 14),
+                                  const SizedBox(height: 4,),
+
+                                  Flex(
+                                    direction: Axis.horizontal,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Expanded(
+                                        child: buttons.textButtons(
+                                          title: 'Male',
+                                          onPressed: () {
+                                            updateNewMap(ref, 'gender', 'm');
+                                          },
+                                          padding: const EdgeInsets.symmetric(vertical: 13),
+                                          textSize: 13,
+                                          bgColor: (resultSet['gender'] == 'm') ? config.infoColor.shade50 : Colors.white,
+                                          borderColor: (resultSet['gender'] == 'm') ? config.infoColor.shade300 : config.secondaryColor.shade100,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+
+                                      Expanded(
+                                        child: buttons.textButtons(
+                                          title: 'Female',
+                                          onPressed: () {
+                                            updateNewMap(ref, 'gender', 'f');
+                                          },
+                                          padding: const EdgeInsets.symmetric(vertical: 13),
+                                          textSize: 13,
+                                          bgColor: (resultSet['gender'] == 'f') ? config.infoColor.shade50 : Colors.white,
+                                          borderColor: (resultSet['gender'] == 'f') ? config.infoColor.shade300 : config.secondaryColor.shade100,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+
+                              forms.labelFormFields(
+                                labelText: 'Year of Birth',
+                                readOnly: true,
+                                suffixIcon: const Icon(Icons.arrow_drop_down),
+                                controller: yrController,
+                                onChanged: (val) => updateNewMap(ref, 'dob', val),
+                                validator: ValidationBuilder().required().build(),
+                                onTap: () async {
+                                  final result = await showBarModalBottomSheet(
+                                    context: context,
+                                    builder: (context) => Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SizedBox(
+                                          height: 250,
+                                          width: double.infinity,
+                                          child: CupertinoDatePicker(
+                                            initialDateTime: DateTime.tryParse(dateFormat),
+                                            mode: CupertinoDatePickerMode.date,
+                                            onDateTimeChanged: (DateTime value) {
+                                              setState(() {
+                                                dateFormat = stringToString(date: value.toString(), format: 'yyyy-MM-dd') ?? '';
+                                              });
+                                            },
+                                          ),
+                                        ),
+
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: buttons.textButtons(
+                                                  title: 'Cancel',
+                                                  onPressed: () => Navigator.pop(context),
+                                                  padSize: 10,
+                                                  textSize: 16,
+                                                  textWeight: FontWeight.w500,
+                                                  bgColor: Colors.black12,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10),
+
+                                              Expanded(
+                                                child: buttons.textButtons(
+                                                  title: 'Apply',
+                                                  onPressed: () {
+                                                    Navigator.pop(context, 'submit');
+                                                    updateNewMap(ref, 'dob', dateFormat);
+                                                  },
+                                                  padSize: 10,
+                                                  textSize: 16,
+                                                  textWeight: FontWeight.w500,
+                                                  textColor: Colors.white,
+                                                  bgColor: config.warningColor.shade400,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+
+                                  if(result != null) {
+                                    setState(() {
+                                      yrController.text = dateFormat;
+                                      print(dateFormat);
+                                      print(result);
+                                    });
+                                  }
+                                },
+                              ),
+
+                              forms.labelFormFields(
+                                labelText: 'Company',
+                                controller: hidden ? null : cmController,
+                                onChanged: (val) => updateNewMap(ref, 'company', val),
+                                onTap: () => rHidden.state = true,
+                              ),
+
+                              forms.labelFormFields(
+                                labelText: 'Email',
+                                controller: hidden ? null : emController,
+                                onChanged: (val) => updateNewMap(ref, 'email', val),
+                                onTap: () => rHidden.state = true,
+                              ),
+
+                              forms.labelFormFields(
+                                labelText: 'Phone Number 1',
+                                controller: hidden ? null : ph1Controller,
+                                onChanged: (val) => updateNewMap(ref, 'phone[0]', val),
+                                validator: ValidationBuilder().minLength(8).maxLength(14).build(),
+                                onTap: () => rHidden.state = true,
+                              ),
+
+                              forms.labelFormFields(
+                                labelText: 'Phone Number 2',
+                                controller: hidden ? null : ph2Controller,
+                                onChanged: (val) => updateNewMap(ref, 'phone[1]', val),
+                                onTap: () => rHidden.state = true,
+                              ),
+
+                              forms.labelFormFields(
+                                labelText: 'Phone Number 3',
+                                controller: hidden ? null : ph3Controller,
+                                onChanged: (val) => updateNewMap(ref, 'phone[2]', val),
+                                onTap: () => rHidden.state = true,
+                              ),
+
+                              forms.labelFormFields(
+                                labelText: 'Location',
+                                readOnly: true,
+                                suffixIcon: const Icon(Icons.arrow_drop_down),
+                                controller: locController,
+                                onChanged: (val) => updateNewMap(ref, 'location', val),
+                                validator: ValidationBuilder().required().build(),
+                                onTap: () async {
+                                  final result = await showBarModalBottomSheet(
+                                    context: context,
+                                    builder: (context) => ProvinceFilters(newMap: newMap,),
+                                  );
+                                  if(result != null) {
+                                    final resultSet = ref.watch(newMap);
+                                    setState(() {
+                                      String province = getNestedValue(resultSet, 'province');
+                                      String district = getNestedValue(resultSet, 'district');
+                                      String commune = getNestedValue(resultSet, 'commune');
+                                      locController.text = province;
+                                      if(district.isNotEmpty) locController.text += ', $district';
+                                      if(commune.isNotEmpty) locController.text += ', $commune';
+                                    });
+                                  }
+                                },
+                              ),
+
+                              forms.labelFormFields(
+                                labelText: 'Address',
+                                controller: hidden ? null : addController,
+                                onChanged: (val) => updateNewMap(ref, 'address', val),
+                                onTap: () => rHidden.state = true,
+                              ),
+
+                              // map location //
+                              Stack(
+                                children: [
+                                  Container(
+                                    height: 100,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      child: Image.asset('assets/img/maps.png', fit: BoxFit.cover),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
 
-                                  Expanded(
-                                    child: buttons.textButtons(
-                                      title: 'Female',
-                                      onPressed: () {
-                                        updateNewMap(ref, 'gender', 'f');
-                                      },
-                                      padding: const EdgeInsets.symmetric(vertical: 13),
-                                      textSize: 13,
-                                      bgColor: (resultSet['gender'] == 'f') ? config.infoColor.shade50 : Colors.white,
-                                      borderColor: (resultSet['gender'] == 'f') ? config.infoColor.shade300 : config.secondaryColor.shade100,
+                                  Positioned(
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: 100,
+                                      alignment: Alignment.center,
+                                      padding: const EdgeInsets.all(25),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8.0),
+                                      ),
+                                      child: buttons.textButtons(
+                                        title: 'Change Location',
+                                        onPressed: () {  },
+                                        padSize: 10,
+                                        textSize: 15,
+                                        textColor: config.secondaryColor.shade500,
+                                        textWeight: FontWeight.w500,
+                                        prefixIcon: Icons.location_pin,
+                                        prefColor: config.secondaryColor.shade500,
+                                        prefixSize: 22,
+                                        bgColor: Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
 
-                          forms.labelFormFields(
-                            labelText: 'Year of Birth',
-                            readOnly: true,
-                            suffixIcon: const Icon(Icons.arrow_drop_down),
-                            controller: yrController,
-                            onChanged: (val) => updateNewMap(ref, 'dob', val),
-                            validator: ValidationBuilder().required().build(),
-                            onTap: () async {
-                              final result = await showBarModalBottomSheet(
-                                context: context,
-                                builder: (context) => Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    SizedBox(
-                                      height: 250,
-                                      width: double.infinity,
-                                      child: CupertinoDatePicker(
-                                        initialDateTime: DateTime.tryParse(dateFormat),
-                                        mode: CupertinoDatePickerMode.date,
-                                        onDateTimeChanged: (DateTime value) {
-                                          setState(() {
-                                            dateFormat = stringToString(date: value.toString(), format: 'yyyy-MM-dd') ?? '';
-                                          });
-                                        },
-                                      ),
-                                    ),
+                              checkBox(),
 
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: buttons.textButtons(
-                                              title: 'Cancel',
-                                              onPressed: () => Navigator.pop(context),
-                                              padSize: 10,
-                                              textSize: 16,
-                                              textWeight: FontWeight.w500,
-                                              bgColor: Colors.black12,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-
-                                          Expanded(
-                                            child: buttons.textButtons(
-                                              title: 'Apply',
-                                              onPressed: () {
-                                                Navigator.pop(context, 'submit');
-                                                updateNewMap(ref, 'dob', dateFormat);
-                                              },
-                                              padSize: 10,
-                                              textSize: 16,
-                                              textWeight: FontWeight.w500,
-                                              textColor: Colors.white,
-                                              bgColor: config.warningColor.shade400,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-
-                              if(result != null) {
-                                setState(() {
-                                  yrController.text = dateFormat;
-                                  print(dateFormat);
-                                  print(result);
-                                });
-                              }
-                            },
-                          ),
-
-                          forms.labelFormFields(
-                            labelText: 'Company',
-                            controller: hidden ? null : cmController,
-                            onChanged: (val) => updateNewMap(ref, 'company', val),
-                            onTap: () => rHidden.state = true,
-                          ),
-
-                          forms.labelFormFields(
-                            labelText: 'Email',
-                            controller: hidden ? null : emController,
-                            onChanged: (val) => updateNewMap(ref, 'email', val),
-                            onTap: () => rHidden.state = true,
-                          ),
-
-                          forms.labelFormFields(
-                            labelText: 'Phone Number 1',
-                            controller: hidden ? null : ph1Controller,
-                            onChanged: (val) => updateNewMap(ref, 'phone[0]', val),
-                            validator: ValidationBuilder().minLength(8).maxLength(14).build(),
-                            onTap: () => rHidden.state = true,
-                          ),
-
-                          forms.labelFormFields(
-                            labelText: 'Phone Number 2',
-                            controller: hidden ? null : ph2Controller,
-                            onChanged: (val) => updateNewMap(ref, 'phone[1]', val),
-                            onTap: () => rHidden.state = true,
-                          ),
-
-                          forms.labelFormFields(
-                            labelText: 'Phone Number 3',
-                            controller: hidden ? null : ph3Controller,
-                            onChanged: (val) => updateNewMap(ref, 'phone[2]', val),
-                            onTap: () => rHidden.state = true,
-                          ),
-
-                          forms.labelFormFields(
-                            labelText: 'Location',
-                            readOnly: true,
-                            suffixIcon: const Icon(Icons.arrow_drop_down),
-                            controller: locController,
-                            onChanged: (val) => updateNewMap(ref, 'location', val),
-                            validator: ValidationBuilder().required().build(),
-                            onTap: () async {
-                              final result = await showBarModalBottomSheet(
-                                context: context,
-                                builder: (context) => ProvinceFilters(newMap: newMap,),
-                              );
-                              if(result != null) {
-                                final resultSet = ref.watch(newMap);
-                                setState(() {
-                                  String province = getNestedValue(resultSet, 'province');
-                                  String district = getNestedValue(resultSet, 'district');
-                                  String commune = getNestedValue(resultSet, 'commune');
-                                  locController.text = province;
-                                  if(district.isNotEmpty) locController.text += ', $district';
-                                  if(commune.isNotEmpty) locController.text += ', $commune';
-                                });
-                              }
-                            },
-                          ),
-
-                          forms.labelFormFields(
-                            labelText: 'Address',
-                            controller: hidden ? null : addController,
-                            onChanged: (val) => updateNewMap(ref, 'address', val),
-                            onTap: () => rHidden.state = true,
-                          ),
-
-                          // map location //
-                          Stack(
-                            children: [
-                              Container(
-                                height: 100,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  child: Image.asset('assets/img/maps.png', fit: BoxFit.cover),
-                                ),
+                              buttons.textButtons(
+                                title: 'Submit',
+                                onPressed: () => submitForm(provider),
+                                padSize: 12,
+                                textSize: 16,
+                                textWeight: FontWeight.w500,
+                                textColor: Colors.white,
+                                bgColor: config.warningColor.shade400,
                               ),
 
-                              Positioned(
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 100,
-                                  alignment: Alignment.center,
-                                  padding: const EdgeInsets.all(25),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  child: buttons.textButtons(
-                                    title: 'Change Location',
-                                    onPressed: () {  },
-                                    padSize: 10,
-                                    textSize: 15,
-                                    textColor: config.secondaryColor.shade500,
-                                    textWeight: FontWeight.w500,
-                                    prefixIcon: Icons.location_pin,
-                                    prefColor: config.secondaryColor.shade500,
-                                    prefixSize: 22,
-                                    bgColor: Colors.white,
-                                  ),
-                                ),
-                              ),
                             ],
                           ),
-
-                          checkBox(),
-
-                          buttons.textButtons(
-                            title: 'Submit',
-                            onPressed: () async {
-                              if(_formKey.currentState!.validate()) {
-                                final resData = ref.watch(newMap);
-                                final data = extractData(resData);
-
-                                // Uncomment this line if you need to show the alert
-                                // myWidgets.showAlert(context, '$data', title: 'Alert');
-                                print(data);
-
-                                final res = await uploadImg.uploadData(data, ref);
-                                if (res != null) {
-                                  futureAwait(duration: 500, () {
-                                    if(!mounted) return;
-                                    Navigator.pop(context);
-                                  });
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('${res['message'] ?? 'Message warning alert.'}'), showCloseIcon: true),
-                                  );
-                                }
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Please check validation field again.'), showCloseIcon: true,),
-                                );
-                              }
-                            },
-                            padSize: 12,
-                            textSize: 16,
-                            textWeight: FontWeight.w500,
-                            textColor: Colors.white,
-                            bgColor: config.warningColor.shade400,
-                          ),
-
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                }
               ),
 
             ]),
@@ -546,6 +542,36 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         ],
       ),
     );
+  }
+
+  Future<void> submitForm(EditProfileProvider provider, { String? type, bool back = true }) async {
+    final uploadImg = ref.watch(uploadData);
+    if(_formKey.currentState!.validate()) {
+      final resData = ref.watch(newMap);
+      final data = extractData(resData);
+
+      // Uncomment this line if you need to show the alert
+      // myWidgets.showAlert(context, '$data', title: 'Alert');
+      print(data);
+
+      final res = await uploadImg.uploadData(data, ref);
+      if (res != null) {
+        alertSnack(context, '${res['message'] ?? 'Message warning alert.'}');
+        if(back) {
+          futureAwait(duration: 500, () {
+            if(!mounted) return;
+            Navigator.pop(context);
+          });
+
+        } else {
+          ref.read(provider.notifier).updateAt('$type', null);
+
+        }
+      }
+
+    } else {
+      alertSnack(context, 'Please check validation field again.');
+    }
   }
 
   Widget checkBox() {
@@ -594,7 +620,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
       }, ref, type);
       if(res.image != null) {
         alertSnack(context, '$type updated success!.');
-        ref.read(provider.notifier).updateAt(type, res.photo?.url);
+        ref.read(provider.notifier).updateAt(type, res.photo);
       }
       print(res.toJson());
     }

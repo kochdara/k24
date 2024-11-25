@@ -25,6 +25,7 @@ import 'package:k24/pages/jobs/my_resume/skills/skills_page.dart';
 import 'package:k24/pages/jobs/my_resume/skills/skills_provider.dart';
 import 'package:k24/pages/jobs/my_resume/summary/summary_page.dart';
 import 'package:k24/pages/more_provider.dart';
+import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/buttons.dart';
 import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/labels.dart';
@@ -43,9 +44,11 @@ final buttons = Buttons();
 class ResumePage extends ConsumerStatefulWidget {
   const ResumePage({super.key,
     required this.provider,
+    required this.applyData,
   });
 
   final GetResumeInfoProvider provider;
+  final GridCard? applyData;
 
   @override
   ConsumerState<ResumePage> createState() => _ResumePagePageState();
@@ -64,7 +67,9 @@ class _ResumePagePageState extends ConsumerState<ResumePage> {
       backgroundColor: config.backgroundColor,
       body: ResumeBody(
         provider: widget.provider,
+        applyData: widget.applyData,
       ),
+      bottomNavigationBar: (widget.applyData != null) ? bottomNav() : null,
     );
   }
 
@@ -72,14 +77,75 @@ class _ResumePagePageState extends ConsumerState<ResumePage> {
   void dispose() {
     super.dispose();
   }
+
+  Widget bottomNav() {
+    final sendApi = MoreApiService();
+    final data = ref.watch(widget.provider);
+    final datum = data.valueOrNull;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 4,
+            blurRadius: 4,
+            offset: const Offset(0, 4), // changes position of shadow
+          ),
+        ],
+      ),
+      child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            return Row(
+              children: [
+                Expanded(
+                  child: buttons.textButtons(
+                    title: 'Submit',
+                    onPressed: () async {
+                      Map<String, dynamic> data = {
+                        'id': widget.applyData?.data?.id ?? '',
+                        'first_name': datum?.data?.personal_details?.first_name ?? '',
+                        'last_name': datum?.data?.personal_details?.first_name ?? '',
+                        'email': datum?.data?.personal_details?.email ?? '',
+                        'attachment': (datum?.data?.attachment?.url != null),
+                      };
+
+                      final phones = datum?.data?.personal_details?.phone ?? [];
+                      if(phones.isNotEmpty) data.addAll({ 'phone[0]': phones.first, });
+                      if(phones.length > 1) data.addAll({ 'phone[1]': phones[1], });
+                      if(phones.length > 2) data.addAll({ 'phone[2]': phones[2], });
+
+                      final res = await sendApi.submitApplyJobs(ref, data);
+                      if(res?.status == 'success') {
+                        alertSnack(context, res?.message ?? 'Your job application has been submitted successfully');
+                        Navigator.pop(context);
+                      }
+                    },
+                    padSize: 10,
+                    textSize: 17,
+                    textWeight: FontWeight.w500,
+                    textColor: Colors.white,
+                    bgColor: config.warningColor.shade400,
+                  ),
+                ),
+              ],
+            );
+          }
+      ),
+    );
+  }
 }
 
 class ResumeBody extends ConsumerWidget {
   const ResumeBody({super.key,
     required this.provider,
+    required this.applyData,
   });
 
   final GetResumeInfoProvider provider;
+  final GridCard? applyData;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -114,6 +180,45 @@ class ResumeBody extends ConsumerWidget {
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   children: [
+                    if(applyData != null) ...[ Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 14, top: 8,),
+                              child: labels.label('Apply for', fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black87,),
+                            ),
+                            ListTile(
+                              onTap: () { },
+                              dense: true,
+                              leading: Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: Colors.black12,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Icon(Icons.photo_camera_back, color: Colors.black45,),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+                              title: labels.label(applyData?.data?.title ?? 'Title: N/A', fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87,maxLines: 1,),
+                              horizontalTitleGap: 8,
+                              subtitle: labels.label('\$${applyData?.data?.price ?? '0.0'}+',
+                                fontSize: 14, color: Colors.red, fontWeight: FontWeight.w600,
+                              ),
+                              trailing: const Icon(Icons.arrow_forward_ios_outlined, color: Colors.black54, size: 18,),
+                            ),
+                            const SizedBox(height: 6,),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12,),
+                    ],
+
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -699,7 +804,7 @@ class ResumeBody extends ConsumerWidget {
                             onTap: () async { await openLinkFunction(attachment?.url ?? ''); },
                             contentPadding: EdgeInsets.zero,
                             leading: const Icon(Icons.file_open_outlined, color: Colors.black54, size: 28,),
-                            title: labels.label(attachment?.name ?? 'N/A', fontSize: 14, color: Colors.black54,),
+                            title: labels.label(attachment?.name ?? 'N/A', fontSize: 14, color: Colors.black54,maxLines: 1),
                             subtitle: labels.label('${attachment?.size ?? 'N/A'}', fontSize: 11, color: Colors.black54,),
                             trailing: IconButton(onPressed: () {
                               final sendApi = MoreApiService();

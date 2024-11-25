@@ -10,6 +10,7 @@ import 'package:k24/pages/accounts/profile_public/another_profile.dart';
 import 'package:k24/pages/accounts/profile_public/profile_provider.dart';
 import 'package:k24/pages/chats/conversations/chat_conversation_provider.dart';
 import 'package:k24/pages/details/details_provider.dart';
+import 'package:k24/pages/jobs/my_resume/check_informations.dart';
 import 'package:k24/pages/main/home_provider.dart';
 import 'package:k24/pages/saves/save_provider.dart';
 import 'package:k24/serialization/chats/chat_serial.dart';
@@ -268,6 +269,7 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
           builder: (BuildContext context, BoxConstraints constraints) {
             double width = (constraints.maxWidth) * 0.32;
             final isLiked = dataDetails?.data?.is_like ?? false;
+            String? mainSlug = dataDetails?.data?.category?.slug;
 
             return Row(
               children: [
@@ -286,10 +288,9 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                     prefColor: (isLiked) ? config.primaryAppColor.shade600 : Colors.black,
                   ),
                 ),
-
                 const SizedBox(width: 6),
 
-                SizedBox(
+                if(!mainSlug.toString().contains('job')) SizedBox(
                   width: width,
                   child: buttons.textButtons(
                     title: 'Call',
@@ -304,7 +305,6 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                     prefixSize: 22,
                   ),
                 ),
-
                 const SizedBox(width: 6),
 
                 SizedBox(
@@ -318,12 +318,32 @@ class _TestingPage4State extends ConsumerState<DetailsPost> {
                     textSize: 18,
                     textWeight: FontWeight.w500,
                     textColor: Colors.white,
-                    bgColor: config.warningColor.shade400,
+                    bgColor: (mainSlug.toString().contains('job')) ? config.infoColor.shade400 : config.warningColor.shade400,
                     prefixIcon: CupertinoIcons.chat_bubble_fill,
                     prefColor: Colors.white,
                     prefixSize: 22,
                   ),
                 ),
+                const SizedBox(width: 6),
+
+                if(mainSlug.toString().contains('job')) SizedBox(
+                  width: width,
+                  child: buttons.textButtons(
+                    title: 'Apply',
+                    onPressed: () { routeNoAnimation(context, pageBuilder: CheckInfoResumePage(
+                      dataDetails: dataDetails,
+                    ));  },
+                    padSize: 10,
+                    textSize: 18,
+                    textWeight: FontWeight.w500,
+                    textColor: Colors.white,
+                    bgColor: config.warningColor.shade400,
+                    prefixIcon: Icons.attach_file,
+                    prefColor: Colors.white,
+                    prefixSize: 22,
+                  ),
+                ),
+
               ],
             );
           }

@@ -100,7 +100,7 @@ class _ProfilePageState extends ConsumerState<AnotherProfilePage> {
     final username = '${userDatum?.username}';
     final profileListPub = profileListProvider(ref, username);
 
-    final profilePro = profilePublicProvider(ref, username);
+    final profilePro = profilePublicProvider(ref, username: username);
     final profileList = ref.watch(profileListPub);
 
     return DefaultTabController(

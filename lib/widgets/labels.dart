@@ -71,7 +71,7 @@ class Labels {
     TextAlign textAlign = TextAlign.start,
     TextOverflow? overflow = TextOverflow.visible,
     String title2 = '',
-    FontWeight fontWeight2 = FontWeight.w500,
+    FontWeight fontWeight2 = FontWeight.w600,
   }) {
     return RichText(
       text: TextSpan(

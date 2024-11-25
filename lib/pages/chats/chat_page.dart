@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:k24/helpers/config.dart';
 import 'package:k24/helpers/converts.dart';
+import 'package:k24/helpers/functions.dart';
 import 'package:k24/helpers/helper.dart';
 import 'package:k24/pages/chats/comments/comment_page.dart';
 import 'package:k24/pages/chats/conversations/chat_conversation.dart';
@@ -70,10 +71,10 @@ class _ChatPageViewState extends ConsumerState<ChatPageView> {
           actions: [
             IconButton(
               onPressed: () => showActionSheet(context, [
-                MoreTypeInfo('all', 'All', CupertinoIcons.chat_bubble_2, null, () => updateMap(ref, 'all')),
-                MoreTypeInfo('buy', 'Buy', CupertinoIcons.shopping_cart, null, () => updateMap(ref, 'buy')),
-                MoreTypeInfo('sell', 'Sell', CupertinoIcons.money_dollar_circle, null, () => updateMap(ref, 'sell')),
-                MoreTypeInfo('unread', 'Unread', CupertinoIcons.eye_slash, null, () => updateMap(ref, 'unread')),
+                MoreTypeInfo('all', 'All Messages', CupertinoIcons.chat_bubble_2, null, () => updateMap(ref, 'all')),
+                MoreTypeInfo('buy', 'Buy Messages', CupertinoIcons.shopping_cart, null, () => updateMap(ref, 'buy')),
+                MoreTypeInfo('sell', 'Sell Messages', CupertinoIcons.money_dollar_circle, null, () => updateMap(ref, 'sell')),
+                MoreTypeInfo('unread', 'Unread Messages', CupertinoIcons.eye_slash, null, () => updateMap(ref, 'unread')),
                 MoreTypeInfo('block_user', 'Block User', Icons.block, null, () => updateMap(ref, 'block_user')),
               ]),
               padding: const EdgeInsets.all(10.0),
@@ -85,7 +86,7 @@ class _ChatPageViewState extends ConsumerState<ChatPageView> {
             indicatorSize: TabBarIndicatorSize.tab,
             indicatorWeight: 3,
             tabs: <Widget>[
-              Tab(icon: labels.label('Chat/${ref.watch(newMap)}', fontSize: 16, fontWeight: FontWeight.w500)),
+              Tab(icon: labels.label('Chat / ${capitalizeFirstLetter('${ref.watch(newMap)}')}', fontSize: 16, fontWeight: FontWeight.w500)),
               Tab(icon: labels.label('Comment', fontSize: 16, fontWeight: FontWeight.w500)),
             ],
           ),

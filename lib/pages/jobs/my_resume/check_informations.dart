@@ -1,13 +1,17 @@
 
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k24/helpers/helper.dart';
+import 'package:k24/helpers/storage.dart';
 import 'package:k24/pages/jobs/my_resume/personal_details/personal_details_page.dart';
 import 'package:k24/pages/jobs/my_resume/resume_page.dart';
 import 'package:k24/pages/jobs/my_resume/resume_provider.dart';
+import 'package:k24/serialization/grid_card/grid_card.dart';
 import 'package:k24/widgets/buttons.dart';
+import 'package:k24/widgets/dialog_builder.dart';
 import 'package:k24/widgets/labels.dart';
 import 'package:k24/widgets/my_cards.dart';
 import 'package:k24/widgets/my_widgets.dart';
@@ -23,7 +27,11 @@ final myCards = MyCards();
 final buttons = Buttons();
 
 class CheckInfoResumePage extends ConsumerStatefulWidget {
-  const CheckInfoResumePage({super.key});
+  const CheckInfoResumePage({super.key,
+    this.dataDetails
+  });
+
+  final GridCard? dataDetails;
 
   @override
   ConsumerState<CheckInfoResumePage> createState() => _CheckInfoPageState();
@@ -40,15 +48,17 @@ class _CheckInfoPageState extends ConsumerState<CheckInfoResumePage> {
   Widget build(BuildContext context) {
     final provider = GetResumeInfoProvider(ref);
     final checkResume = ref.watch(provider);
+
+    final applyData = widget.dataDetails;
     
     return Scaffold(
       appBar: AppBar(
-        title: labels.label('Resume (CV)', fontSize: 20, fontWeight: FontWeight.w500),
+        title: labels.label(applyData != null ? 'Review and Apply' : 'Resume (CV)', fontSize: 20, fontWeight: FontWeight.w500),
         titleSpacing: 6,
         actions: [
           if(checkResume.hasValue) IconButton(onPressed: () async {
             final sendApi = MoreApiService();
-            final result = await sendApi.downloadAttachment(ref, {
+            Map<String, dynamic> data = {
               'summary': 'true',
               'educations': 'all',
               'experiences': 'all',
@@ -56,12 +66,25 @@ class _CheckInfoPageState extends ConsumerState<CheckInfoResumePage> {
               'languages': 'all',
               'hobbies': 'true',
               'references': 'all',
-            });
-            if(result?.data != null) {
-              alertSnack(context, 'Success');
-              await openLinkFunction(result?.data['url'] ?? '');
-            }
-          }, icon: const Icon(Icons.playlist_add_check_circle_outlined, color: Colors.white70, size: 28,))
+            };
+            showActionSheet(context, [
+              MoreTypeInfo('view', 'View Resume', CupertinoIcons.eye, null, () async {
+                final result = await sendApi.downloadAttachment(ref, data);
+                if(result?.data != null) {
+                  await openLinkFunction(result?.data['url'] ?? '');
+                }
+              }),
+              MoreTypeInfo('download', 'Download', CupertinoIcons.square_arrow_down, null, () async {
+                final result = await sendApi.downloadAttachment(ref, data);
+                if(result?.data != null) {
+                  final files = await downloadAndSaveFile(result?.data['url'] ?? '', type: 'pdf');
+                  alertSnack(context, 'Save success path: ${files.path}');
+                }
+              }),
+            ],);
+          }, icon: const Icon(CupertinoIcons.cloud_upload, color: Colors.white70, size: 28,), tooltip: 'Download',),
+
+          const SizedBox(width: 4,),
         ],
       ),
       backgroundColor: config.backgroundColor,
@@ -72,7 +95,7 @@ class _CheckInfoPageState extends ConsumerState<CheckInfoResumePage> {
         ),
         data: (data) {
           if(data == null) return VerifyResumeBody();
-          return ResumePage(provider: provider,);
+          return ResumePage(provider: provider, applyData: applyData,);
         },
       ),
     );

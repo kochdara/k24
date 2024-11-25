@@ -6,7 +6,7 @@ part of 'editpage_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$editProfileHash() => r'169780e4166e64bdda46109ed1264ec67b9045ff';
+String _$editProfileHash() => r'15d911f317d76d735b9c19e3ffcaef73b3074a42';
 
 /// Copied from Dart SDK
 class _SystemHash {

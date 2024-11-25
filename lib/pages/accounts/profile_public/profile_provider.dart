@@ -21,14 +21,18 @@ class ProfilePublic extends _$ProfilePublic {
 
   final Dio dio = Dio();
   String? usernames;
+  String? userids;
 
   @override
-  Future<ProfileSerial?> build(WidgetRef context, String? username) async {
+  Future<ProfileSerial?> build(WidgetRef context, { String? username, String? userid }) async {
     usernames = username;
+    userids = userid;
     try {
       final String? accessToken = context.watch(usersProvider).tokens?.access_token;
-
-      final String subs = 'profiles/$usernames?lang=$lang&fields=$fields&meta=$meta&functions=$functions';
+      String subs = 'profiles/';
+      if(usernames != null) { subs += '$usernames'; }
+      else if(userids != null) { subs += 'user/$userids'; }
+      subs += '?lang=$lang&fields=$fields&meta=$meta&functions=$functions';
       final Response res = await dio.get('$baseUrl/$subs', options: Options(headers: (accessToken != null) ? {
         'Access-Token': accessToken,
       } : null));
@@ -44,7 +48,7 @@ class ProfilePublic extends _$ProfilePublic {
       if (response?.statusCode == 401) {
         // Token might have expired, try to refresh the token
         await checkTokens(context);
-        return await build(context, usernames); // Retry the request after refreshing the token
+        return await build(context, username: usernames, userid: userids); // Retry the request after refreshing the token
       }
       print('Dio error: ${e.message}');
     } catch (e, stacktrace) {
